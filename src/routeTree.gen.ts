@@ -9,38 +9,118 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
+import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
+import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
+import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminMarketsRoute = AdminAdminMarketsRouteImport.update({
+  id: '/admin/markets',
+  path: '/admin/markets',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
+  id: '/admin/analytics',
+  path: '/admin/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/analytics': typeof AdminAdminAnalyticsRoute
+  '/admin/dashboard': typeof AdminAdminDashboardRoute
+  '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/analytics': typeof AdminAdminAnalyticsRoute
+  '/admin/dashboard': typeof AdminAdminDashboardRoute
+  '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_admin': typeof AdminRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
+  '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
+  '/_admin/admin/markets': typeof AdminAdminMarketsRoute
+  '/_admin/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin/login'
+    | '/admin/analytics'
+    | '/admin/dashboard'
+    | '/admin/markets'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin/login'
+    | '/admin/analytics'
+    | '/admin/dashboard'
+    | '/admin/markets'
+    | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/_admin'
+    | '/admin/login'
+    | '/_admin/admin/analytics'
+    | '/_admin/admin/dashboard'
+    | '/_admin/admin/markets'
+    | '/_admin/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_admin': {
+      id: '/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +128,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_admin/admin/': {
+      id: '/_admin/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminAdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/markets': {
+      id: '/_admin/admin/markets'
+      path: '/admin/markets'
+      fullPath: '/admin/markets'
+      preLoaderRoute: typeof AdminAdminMarketsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/dashboard': {
+      id: '/_admin/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminAdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/analytics': {
+      id: '/_admin/admin/analytics'
+      path: '/admin/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAdminAnalyticsRoute: typeof AdminAdminAnalyticsRoute
+  AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
+  AdminAdminMarketsRoute: typeof AdminAdminMarketsRoute
+  AdminAdminIndexRoute: typeof AdminAdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdminAnalyticsRoute: AdminAdminAnalyticsRoute,
+  AdminAdminDashboardRoute: AdminAdminDashboardRoute,
+  AdminAdminMarketsRoute: AdminAdminMarketsRoute,
+  AdminAdminIndexRoute: AdminAdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
