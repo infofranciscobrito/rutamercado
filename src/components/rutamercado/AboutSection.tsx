@@ -1,4 +1,6 @@
 import { MapPin } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+
 
 export function AboutSection() {
   return (
