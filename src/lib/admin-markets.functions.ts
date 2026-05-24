@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { MARKET_CATEGORIES, MARKET_REGIONS, MARKET_FREQUENCIES } from "@/types/market";
 import type { Market, MarketCategory, MarketRegion, MarketFrequency } from "@/types/market";
 
 const MarketInputSchema = z.object({
@@ -43,14 +44,14 @@ export const upsertMarket = createServerFn({ method: "POST" })
     const payload = {
       name: data.name,
       description: data.description ?? null,
-      category: data.category,
-      region: data.region,
+      category: data.category as MarketCategory,
+      region: data.region as MarketRegion,
       municipality: data.municipality,
       address: data.address,
       event_date: data.event_date,
       start_time: data.start_time,
       end_time: data.end_time,
-      frequency: data.frequency ?? null,
+      frequency: (data.frequency ?? null) as MarketFrequency | null,
       image_url: data.image_url ?? null,
       organizer_name: data.organizer_name,
       organizer_phone: data.organizer_phone ?? null,
