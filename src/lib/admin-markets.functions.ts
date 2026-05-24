@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { MARKET_CATEGORIES, MARKET_REGIONS, MARKET_FREQUENCIES } from "@/types/market";
-import type { Market } from "@/types/market";
+import type { Market, MarketCategory, MarketRegion, MarketFrequency } from "@/types/market";
 
 const MarketInputSchema = z.object({
   id: z.string().uuid().optional(),
