@@ -1,10 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Store, TrendingUp, LogOut } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { BarChart3, Store, TrendingUp, LogOut, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { countPendingSubmissions } from "@/lib/submissions.functions";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/markets", label: "Mercados", icon: Store },
+  { to: "/admin/submissions", label: "Envíos", icon: Inbox },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
 ] as const;
 
