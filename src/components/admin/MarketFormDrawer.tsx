@@ -133,13 +133,48 @@ export function MarketFormDrawer({
   });
 
   const handleFile = async (file: File) => {
+    const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
+    const MAX_BYTES = 5 * 1024 * 1024;
+    if (!ALLOWED.includes(file.type as typeof ALLOWED[number])) {
+      toast.error("Formato no permitido. Usa JPG, PNG, WebP o GIF.");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      toast.error("La imagen excede 5 MB.");
+      return;
+    }
+    // Verify magic bytes match declared type (defense-in-depth)
+    const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const isJpeg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff;
+    const isPng =
+      head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47;
+    const isGif = head[0] === 0x47 && head[1] === 0x49 && head[2] === 0x46;
+    const isWebp =
+      head[0] === 0x52 && head[1] === 0x49 && head[2] === 0x46 && head[3] === 0x46 &&
+      head[8] === 0x57 && head[9] === 0x45 && head[10] === 0x42 && head[11] === 0x50;
+    if (!isJpeg && !isPng && !isGif && !isWebp) {
+      toast.error("El archivo no es una imagen válida.");
+      return;
+    }
+    const detectedType = isJpeg
+      ? "image/jpeg"
+      : isPng
+        ? "image/png"
+        : isGif
+          ? "image/gif"
+          : "image/webp";
+    const extByType: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/gif": "gif",
+      "image/webp": "webp",
+    };
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${crypto.randomUUID()}.${ext}`;
+      const path = `${crypto.randomUUID()}.${extByType[detectedType]}`;
       const { error } = await supabase.storage
         .from("market-images")
-        .upload(path, file, { upsert: false, contentType: file.type });
+        .upload(path, file, { upsert: false, contentType: detectedType });
       if (error) throw error;
       const { data } = supabase.storage.from("market-images").getPublicUrl(path);
       setValue("image_url", data.publicUrl, { shouldDirty: true });
