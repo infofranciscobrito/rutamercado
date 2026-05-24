@@ -22,20 +22,28 @@ function Stat({ value, label }: { value: number; label: string }) {
 export function Hero({ query, onQueryChange, stats }: Props) {
   return (
     <section
-      className="relative overflow-hidden"
+      className="relative overflow-hidden bg-[#1c1e37]"
       aria-labelledby="hero-title"
-      style={{
-        backgroundImage: `url('/hero-bg.jpg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
     >
-      {/* Dark overlay for text legibility */}
-      <div className="absolute inset-0 bg-[#1c1e37]/55" aria-hidden="true" />
-      {/* Gold dot pattern overlay */}
-      <div className="absolute inset-0 rm-hero-pattern opacity-60" aria-hidden="true" />
-      {/* Bottom gradient fade to content */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#1c1e37]/80" aria-hidden="true" />
+      {/* Capa 1: imagen de fondo */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('/hero-bg.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+        aria-hidden="true"
+      />
+      {/* Capa 2: tinte navy (multiply) — convierte la ilustración en monocroma azul */}
+      <div className="absolute inset-0 bg-[#1c1e37]/65 mix-blend-multiply" aria-hidden="true" />
+      {/* Capa 3: gradiente vertical para legibilidad del texto */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1c1e37]/40 via-transparent to-[#1c1e37]/85" aria-hidden="true" />
+      {/* Capa 4: patrón de puntos dorados sutil */}
+      <div className="absolute inset-0 rm-hero-pattern opacity-40" aria-hidden="true" />
+      {/* Capa 5: fade final hacia el contenido */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#1c1e37]" aria-hidden="true" />
+
 
       <div
         className="relative mx-auto max-w-3xl px-4 text-center sm:px-6"
