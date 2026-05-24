@@ -38,15 +38,15 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
     const inAWeek = plusDaysISO(7);
 
     const [activeRes, viewsRes, upcomingRes, clicksRes] = await Promise.all([
-      supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", true),
+      supabase.from("markets").select("id", { count: "exact" }).eq("is_active", true),
       supabase.from("markets").select("view_count"),
       supabase
         .from("markets")
-        .select("id", { count: "exact", head: true })
+        .select("id", { count: "exact" })
         .gte("event_date", today)
         .lte("event_date", inAWeek)
         .eq("is_active", true),
-      supabase.from("market_clicks").select("id", { count: "exact", head: true }),
+      supabase.from("market_clicks").select("id", { count: "exact" }),
     ]);
     throwIfDbError(activeRes.error, "dashboard active markets");
     throwIfDbError(viewsRes.error, "dashboard total views");
