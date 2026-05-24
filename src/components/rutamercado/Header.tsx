@@ -1,5 +1,6 @@
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Sheet,
   SheetContent,
@@ -42,12 +43,12 @@ export function Header() {
           >
             Sobre Nosotros
           </a>
-          <a
-            href="#sobre-nosotros"
+          <Link
+            to="/enviar"
             className="inline-flex h-10 items-center justify-center rounded-md border border-[#f8b625] px-4 text-sm font-semibold text-[#f8b625] transition-colors hover:bg-[#f8b625] hover:text-[#1c1e37]"
           >
             Enviar mi Mercado
-          </a>
+          </Link>
         </nav>
 
         <div className="md:hidden">
@@ -75,13 +76,13 @@ export function Header() {
                 >
                   Sobre Nosotros
                 </a>
-                <a
-                  href="#sobre-nosotros"
+                <Link
+                  to="/enviar"
                   onClick={() => setOpen(false)}
                   className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#f8b625] px-4 text-base font-semibold text-[#1c1e37]"
                 >
                   Enviar mi Mercado
-                </a>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

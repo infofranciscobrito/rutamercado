@@ -1,15 +1,23 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Store, TrendingUp, LogOut } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { BarChart3, Store, TrendingUp, LogOut, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { countPendingSubmissions } from "@/lib/submissions.functions";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/markets", label: "Mercados", icon: Store },
+  { to: "/admin/submissions", label: "Envíos", icon: Inbox },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
 ] as const;
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { data: pending } = useQuery({
+    queryKey: ["admin", "submissions", "pending-count"],
+    queryFn: () => countPendingSubmissions(),
+    refetchInterval: 60_000,
+  });
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -41,7 +49,12 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
               }`}
             >
               <Icon className="h-5 w-5" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.to === "/admin/submissions" && (pending?.count ?? 0) > 0 && (
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f8b625] px-1.5 text-xs font-bold text-[#1c1e37]">
+                  {pending!.count}
+                </span>
+              )}
             </Link>
           );
         })}

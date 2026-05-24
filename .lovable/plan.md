@@ -1,118 +1,118 @@
+# Formulario público "Enviar mi Mercado"
 
-# Rediseño Premium de RutaMercado
+## 1. Base de datos — nueva tabla `market_submissions`
 
-Transformación visual completa del directorio público, manteniendo intacto el panel admin y toda la lógica de backend (server functions, RLS, tracking). Solo se tocan los componentes de presentación bajo `src/components/rutamercado/` y `src/routes/index.tsx`, más los tokens de diseño en `src/styles.css`.
+Tabla aparte (no escribe en `markets`) para que los envíos pasen por revisión antes de publicarse. Esto protege el directorio de spam y datos incorrectos.
 
-## Lo que cambia
+Campos (mismos visibles en la ficha del mercado + control de moderación):
 
-### Sistema de diseño (`src/styles.css`)
-- Añadir tokens nuevos: fondo crema `#FFF8EC`, dorado hover `#FEF3C7`, gradiente de marca, gradiente hero navy, sombras cálidas con tinte navy en vez de gris puro.
-- Escala tipográfica fluida con `clamp()` para hero, secciones, cards y body.
-- Helper de `prefers-reduced-motion` que desactiva animaciones globalmente.
-- Pattern dot-grid en CSS puro para el hero.
+- `id`, `created_at`, `updated_at`
+- **Mercado:** `name`, `description`, `category` (enum), `region` (enum), `municipality`, `address`
+- **Evento:** `event_date`, `start_time`, `end_time`, `frequency` (enum)
+- **Imagen:** `image_url` (texto, URL pública del bucket)
+- **Organizador:** `organizer_name`, `organizer_phone`, `organizer_email`, `organizer_instagram`
+- **Moderación:** `status` (`pending` | `approved` | `rejected`, default `pending`), `admin_notes`, `reviewed_at`, `reviewed_by`, `published_market_id` (uuid, referencia al `markets.id` creado al aprobar)
 
-### Header (`Header.tsx`)
-- Sticky 64px de alto, logo a la izquierda, links "Sobre Nosotros" y botón outline dorado "Enviar mi Mercado" a la derecha.
-- Mobile: hamburger que abre un `Sheet` lateral con los links.
-- Sombra sutil que aparece al hacer scroll (con transición 300ms).
+### RLS
+- `INSERT` permitido a `anon` y `authenticated` (cualquiera puede enviar su mercado).
+- `SELECT` / `UPDATE` / `DELETE` solo para admins (`has_role(auth.uid(),'admin')`).
 
-### Hero (nuevo `Hero.tsx`)
-- Fondo gradiente navy + dot-grid dorado al 5%.
-- Título serif grande, subtítulo cálido.
-- Barra de búsqueda integrada (input 56px, icono lupa, focus dorado con halo).
-- Stats horizontales en desktop: mercados activos · municipios · categorías (calculados del dataset cargado).
-- Animación de entrada escalonada (texto, luego búsqueda).
+### Almacenamiento de imagen
+Reutilizar el bucket existente `market-images` (ya público, con límite 5MB y MIME restringido). Añadir política para que `anon` pueda **subir** a la subcarpeta `submissions/` (lectura pública ya existe vía URL directa).
 
-### Barra de filtros (`FilterBar.tsx` reescrita)
-- **Fila 1 — calendario semanal**: 7 botones circulares (Lun–Dom) con número del día y abreviación, dorado para el seleccionado, dot dorado bajo días con mercados, opacidad reducida para días vacíos, flechas ← → para cambiar semana. Scroll horizontal con snap en mobile.
-- **Pills de rango**: Hoy / Esta Semana / Este Mes / Todos.
-- **Fila 2 — Región y Categoría**: dropdowns nativos shadcn con altura 40px.
-- Botón "Limpiar filtros" cuando hay alguno activo.
-- Mobile: dropdowns colapsan en un botón "Filtros" que abre un `Sheet` desde abajo con botón "Aplicar".
-- Sticky con sombra al hacer scroll.
+## 2. Backend — server functions
 
-### Contador y badges activos
-- "Mostrando X mercados" + chips removibles para cada filtro activo (fondo `#FEF3C7`, texto `#92400E`, X para quitar).
-- Toggle a la derecha: Vista por Categoría ↔ Vista Grid (icono filas / icono grid), preferencia en `localStorage`.
+Archivo nuevo `src/lib/submissions.functions.ts`:
 
-### Directorio por categorías (nuevo `CategoryRow.tsx`)
-- Una sección por categoría con mercados disponibles (respetando filtros).
-- Encabezado: icono SVG de categoría (hoja, carpa, mano, tenedor, bolsa, caja) + título serif + contador.
-- Flechas ← → en desktop para hacer scroll programático; swipe nativo en mobile.
-- Scrollbar oculto, gap 20px, padding edge correcto.
-- Fondo alterno entre `#FAFAF8` y `#FFF8EC` por sección para crear ritmo.
+- `createMarketSubmission` (público, sin auth) — valida con Zod (mismos límites que `admin-markets.functions.ts`) e inserta en `market_submissions` vía `supabaseAdmin`. Incluye rate-limit suave: máximo 3 envíos por hora desde la misma IP/email (chequeo por email).
+- `listSubmissions` (admin) — lista pendientes.
+- `approveSubmission` (admin) — copia los datos a `markets` (is_active=true), marca submission como `approved` con `published_market_id`.
+- `rejectSubmission` (admin) — marca como `rejected` con `admin_notes`.
 
-### Card de mercado (`MarketCard.tsx` rediseñada)
-- Ancho fijo 320px desktop / 280px mobile, radius 16px, fondo blanco.
-- Sombra cálida default, elevación con `translateY(-6px)` al hover (250ms).
-- Imagen 16:9 con placeholder gradiente de marca + pin SVG cuando falta.
-- Badge categoría dorado (top-left), badge HOY verde con pulse suave / MAÑANA azul (top-right).
-- Nombre serif (2 líneas máx), separador dorado fino, filas con icono dorado para fecha/horario/ubicación, pill de frecuencia outline dorado al final.
+## 3. Frontend — formulario público
 
-### Vista Grid alternativa
-- Mismo `MarketCard` en grid responsivo 1/2/3 columnas, ordenado por fecha.
+### Ruta
+Nueva ruta `src/routes/enviar.tsx` (`/enviar`) con `<head>` propio (title/description/og). Mismo lenguaje visual que el resto (Navy/Gold/Crema, tipografía display).
 
-### Modal de detalle (`MarketDetailDialog.tsx` rediseñado)
-- Desktop: dialog centrado max 580px / 85vh, radius 20px.
-- Mobile: bottom sheet full-height con handle arriba para arrastrar y cerrar (usando `Drawer` de shadcn/vaul).
-- Overlay con blur, animación scale+fade 250ms.
-- Header: imagen 16:9, badge categoría, botón cerrar circular flotante.
-- Cuerpo:
-  - Nombre serif + separador dorado + descripción.
-  - "Detalles del Evento": grid 2×2 de mini-cards crema (fecha, horario, frecuencia, ubicación) + dirección completa en panel gris claro.
-  - "Organizador": card crema con nombre + botones Llamar (dorado) / Email / Instagram en fila.
-  - Botón principal "Cómo Llegar" navy full-width con icono.
-- Conserva: `incrementMarketView`, `trackMarketClick` para view_detail, phone, email, instagram, directions. Focus trap y cerrar con Esc/overlay (ya provistos por Radix).
+### Formulario `SubmitMarketForm.tsx`
+Usa `react-hook-form` + Zod. Campos en este orden, con obligatorios marcados con `*`:
 
-### Sección "Sobre Nosotros" (`AboutSection.tsx` rediseñada)
-- Fondo navy `#1c1e37`, layout 2 columnas en desktop.
-- Izquierda: kicker dorado, título serif blanco, dos párrafos, botón dorado "Enviar mi Mercado".
-- Derecha (desktop): composición decorativa de pines/círculos dorados translúcidos.
+**Obligatorios (mínimo para publicar):**
+- Nombre del mercado *
+- Categoría * (select)
+- Región * (select)
+- Municipio *
+- Dirección *
+- Fecha del evento *
+- Hora inicio * / Hora fin *
+- Nombre del organizador *
+- Al menos **uno** de: teléfono, email o Instagram (validación cruzada en Zod)
 
-### Footer nuevo (`Footer.tsx`)
-- Fondo `#141628`, logo centrado opacidad 80%, separador dorado fino, copyright + links Sobre/Contacto con hover dorado.
+**Opcionales:**
+- Descripción
+- Frecuencia
+- Imagen (subida con auto-recorte, ver §4)
+- Los otros dos campos de contacto
 
-### Estado vacío (`EmptyState.tsx` rediseñado)
-- SVG ilustrativo de pin "dormido" en colores de marca, título serif, subtexto, botón outline dorado.
-- Variante especial cuando el filtro "Hoy" no tiene resultados → CTA "Ver esta semana".
+Tras envío exitoso: mensaje de confirmación ("Recibimos tu mercado. Lo revisaremos en 1-2 días."). Botón para volver al home.
 
-### Skeletons
-- Cards skeleton con misma estructura, pulse animado entre dos tonos, stagger 100ms.
-- Variante en fila (para vista por categoría) y en grid.
+### Botones existentes
+Cambiar los `mailto:` de `Header.tsx` (desktop + mobile) y `AboutSection.tsx` por `<Link to="/enviar">`.
 
-## Detalles técnicos
+## 4. Subida de imagen con auto-ajuste 16:9
 
-- **No se tocan**: `src/lib/*.functions.ts`, migraciones, RLS, `src/integrations/supabase/*`, panel `_admin`, autenticación, ni los tipos.
-- **Componentes shadcn nuevos a usar** (ya presentes en el proyecto): `Sheet` (drawer lateral header móvil + bottom sheet filtros), `Drawer` (modal móvil), `Dialog` (modal desktop), `Select`, `Skeleton`, `Tooltip`.
-- **Iconografía**: SVG inline en `src/components/rutamercado/icons/` para los 6 iconos de categoría; resto vía `lucide-react`.
-- **Filtros**: extender `src/lib/market-filters.ts` para soportar selección por día específico (además de today/week/month/all) sin romper la URL existente — se añade `day?: string (YYYY-MM-DD)` opcional al esquema Zod con `fallback(undefined)`.
-- **Stats del hero**: derivados del array `markets` ya cargado por el loader (sin queries extra).
-- **Toggle vista**: estado local con persistencia en `localStorage` (`rm-view-mode`), default `category`.
-- **Animaciones**: solo `transform` y `opacity`, easing `cubic-bezier(0.23,1,0.32,1)`, respeta `prefers-reduced-motion` vía media query en CSS.
-- **Accesibilidad**: todos los botones icon-only con `aria-label`, focus visible dorado, targets ≥44px, contraste AA verificado en navy/dorado/crema.
-- **SEO**: se conserva el `head()` de `index.tsx` intacto.
-
-## Archivos afectados
+La ficha usa `aspect-video` (16:9). Para que **toda** imagen subida calce sin deformar y sin barras, hacemos auto-recorte (center-crop) en el navegador antes de subir:
 
 ```text
-src/styles.css                                    (extender tokens)
-src/lib/market-filters.ts                         (añadir filtro por día)
-src/routes/index.tsx                              (orquestación nueva)
-src/components/rutamercado/Header.tsx             (rewrite)
-src/components/rutamercado/Hero.tsx               (nuevo)
-src/components/rutamercado/FilterBar.tsx         (rewrite)
-src/components/rutamercado/WeekStrip.tsx         (nuevo)
-src/components/rutamercado/ActiveFilterChips.tsx (nuevo)
-src/components/rutamercado/ViewToggle.tsx        (nuevo)
-src/components/rutamercado/CategoryRow.tsx       (nuevo)
-src/components/rutamercado/MarketCard.tsx        (rewrite)
-src/components/rutamercado/MarketGrid.tsx        (ajustar)
-src/components/rutamercado/MarketDetailDialog.tsx (rewrite)
-src/components/rutamercado/AboutSection.tsx      (rewrite)
-src/components/rutamercado/Footer.tsx            (nuevo)
-src/components/rutamercado/EmptyState.tsx        (rewrite)
-src/components/rutamercado/SkeletonCard.tsx      (nuevo)
-src/components/rutamercado/icons/CategoryIcons.tsx (nuevo)
+Archivo seleccionado
+   ↓
+Validar tipo + magic bytes (igual que admin)
+   ↓
+Cargar en <img>, dibujar en <canvas> de 1600x900 (16:9)
+con object-fit: cover (center-crop, sin deformar)
+   ↓
+Exportar a WebP calidad 0.85 (fallback JPEG)
+   ↓
+Subir a bucket market-images/submissions/{uuid}.webp
+   ↓
+Guardar publicUrl en image_url
 ```
 
-Una vez aprobado, implemento todo en bloque y verifico contra el preview en mobile, tablet y desktop.
+Componente nuevo `ImageUpload16x9.tsx`:
+- Input file con `accept="image/jpeg,image/png,image/webp,image/gif"`.
+- Preview en vivo del recorte 16:9 antes de enviar.
+- Tamaño final garantizado 1600×900 px → siempre se ve bien en la card y en el detalle.
+- Misma validación de magic bytes que `MarketFormDrawer.tsx` (defensa en profundidad).
+- Tamaño de salida limitado a ~5MB; si excede, se recomprime.
+
+El admin también podrá reusar este componente si lo quieres, pero por ahora se mantiene `MarketFormDrawer` como está.
+
+## 5. Panel admin (mínimo)
+
+Nueva ruta `src/routes/_admin/admin.submissions.tsx`:
+- Tabla con envíos `pending` (nombre, municipio, fecha, organizador, fecha de envío).
+- Botón "Ver" abre drawer con todos los datos + imagen.
+- Botones **Aprobar** (crea el mercado) / **Rechazar** (con nota opcional).
+- Badge con conteo en `AdminSidebar.tsx` indicando envíos pendientes.
+
+## 6. Archivos a crear / modificar
+
+**Crear**
+- `supabase/migrations/<timestamp>_market_submissions.sql`
+- `src/lib/submissions.functions.ts`
+- `src/routes/enviar.tsx`
+- `src/components/rutamercado/SubmitMarketForm.tsx`
+- `src/components/rutamercado/ImageUpload16x9.tsx`
+- `src/routes/_admin/admin.submissions.tsx`
+- `src/components/admin/SubmissionReviewDrawer.tsx`
+
+**Editar**
+- `src/components/rutamercado/Header.tsx` — botones → `Link to="/enviar"`
+- `src/components/rutamercado/AboutSection.tsx` — botón → `Link to="/enviar"`
+- `src/components/admin/AdminSidebar.tsx` — nuevo ítem "Envíos" con badge
+
+## Notas técnicas
+
+- Server functions usan `supabaseAdmin` para `INSERT` público (RLS lo bloquearía a `anon` por diseño). La validación Zod en el servidor es la única barrera; por eso límites estrictos de longitud y rate-limit por email.
+- El recorte 16:9 ocurre 100% en cliente con `<canvas>` (sin Sharp ni libs nativas — incompatibles con el runtime Worker).
+- La ruta `/enviar` es pública (no requiere login).

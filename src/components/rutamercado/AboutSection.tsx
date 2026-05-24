@@ -1,4 +1,6 @@
 import { MapPin } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+
 
 export function AboutSection() {
   return (
@@ -30,12 +32,13 @@ export function AboutSection() {
             ¿Organizas un mercado local? Envíanos la información de tu evento
             y lo publicamos gratis en nuestro directorio.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/enviar"
             className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-[#f8b625] px-7 text-base font-semibold text-[#1c1e37] transition-all hover:scale-[1.02] hover:bg-[#f59e0b] hover:shadow-[0_4px_15px_rgba(248,182,37,0.3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f8b625] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1e37]"
           >
             Enviar mi Mercado
-          </a>
+          </Link>
+
         </div>
 
         <div className="relative hidden h-72 lg:block" aria-hidden="true">

@@ -9,14 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as EnviarRouteImport } from './routes/enviar'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
+import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
 import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 
+const EnviarRoute = EnviarRouteImport.update({
+  id: '/enviar',
+  path: '/enviar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/_admin',
   getParentRoute: () => rootRouteImport,
@@ -34,6 +41,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminSubmissionsRoute = AdminAdminSubmissionsRouteImport.update({
+  id: '/admin/submissions',
+  path: '/admin/submissions',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminMarketsRoute = AdminAdminMarketsRouteImport.update({
@@ -54,66 +66,86 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/enviar': typeof EnviarRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/enviar': typeof EnviarRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
+  '/enviar': typeof EnviarRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_admin/admin/markets': typeof AdminAdminMarketsRoute
+  '/_admin/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/enviar'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/markets'
+    | '/admin/submissions'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/enviar'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/markets'
+    | '/admin/submissions'
     | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_admin'
+    | '/enviar'
     | '/admin/login'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
     | '/_admin/admin/markets'
+    | '/_admin/admin/submissions'
     | '/_admin/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  EnviarRoute: typeof EnviarRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/enviar': {
+      id: '/enviar'
+      path: '/enviar'
+      fullPath: '/enviar'
+      preLoaderRoute: typeof EnviarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_admin': {
       id: '/_admin'
       path: ''
@@ -140,6 +172,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminAdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/submissions': {
+      id: '/_admin/admin/submissions'
+      path: '/admin/submissions'
+      fullPath: '/admin/submissions'
+      preLoaderRoute: typeof AdminAdminSubmissionsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/markets': {
@@ -170,6 +209,7 @@ interface AdminRouteChildren {
   AdminAdminAnalyticsRoute: typeof AdminAdminAnalyticsRoute
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminAdminMarketsRoute: typeof AdminAdminMarketsRoute
+  AdminAdminSubmissionsRoute: typeof AdminAdminSubmissionsRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
@@ -177,6 +217,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminAnalyticsRoute: AdminAdminAnalyticsRoute,
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminAdminMarketsRoute: AdminAdminMarketsRoute,
+  AdminAdminSubmissionsRoute: AdminAdminSubmissionsRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 
@@ -185,6 +226,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  EnviarRoute: EnviarRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
