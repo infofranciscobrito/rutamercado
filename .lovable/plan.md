@@ -1,33 +1,22 @@
-Plan para reparar /admin/login y el panel admin:
+Confirmé que sí hay datos en la base: 18 mercados, 9 clics y 78 vistas. El backend está saludable. El fallo real no es falta de información: los logs muestran `permission denied for function has_role`, por eso las consultas del admin fallan y el dashboard muestra `dashboard active markets:` vacío.
 
-1. **Crear un flujo de auth admin con estado explícito**
-   - Agregar un hook/componente compartido para el admin con estados: `loading`, `authenticated`, `unauthenticated`.
-   - El estado inicial será siempre `loading`, nunca “autenticado”.
-   - Verificará la sesión real con Lovable Cloud antes de permitir redirecciones.
-   - Agregará logs temporales:
-     - `Auth state: loading`
-     - `Auth state: authenticated`
-     - `Auth state: unauthenticated`
+Plan de reparación:
 
-2. **Corregir `/admin/login`**
-   - Quitar la redirección temprana del `beforeLoad` que puede mandar a `/admin/dashboard` antes de confirmar sesión.
-   - Mostrar spinner centrado mientras auth está en `loading`.
-   - Mostrar el formulario email/password solo cuando el estado sea `unauthenticated`.
-   - Redirigir a `/admin/dashboard` solo cuando el estado confirmado sea `authenticated`.
+1. Corregir permisos de la función de roles
+- Crear una migración para otorgar permiso de ejecución de `public.has_role(uuid, app_role)` a los roles usados por la app.
+- Mantener la función como `SECURITY DEFINER` y con `search_path = public`.
+- No abrir tablas públicamente ni relajar RLS de forma insegura.
 
-3. **Corregir rutas protegidas `/admin/*`**
-   - Evitar que el layout admin renderice contenido o cargue datos antes de confirmar sesión.
-   - Mientras verifica sesión, mostrar spinner centrado con fondo `#FAFAF8` y acento `#f8b625`.
-   - Si no hay sesión válida, redirigir a `/admin/login`.
-   - Si hay sesión válida, renderizar `AdminLayout` y el contenido normal.
+2. Validar que el usuario admin pueda leer datos
+- Confirmar que las políticas que dependen de `has_role(...)` vuelvan a funcionar para `markets`, `market_submissions` y `user_roles`.
+- Mantener `market_clicks` y `page_views` legibles para usuarios autenticados como ya están.
 
-4. **Prevenir página en blanco y carga de datos sin sesión**
-   - Asegurar que dashboard/markets/analytics no ejecuten su contenido protegido hasta que el guard confirme auth.
-   - Revisar el redirect de `/admin` hacia `/admin/dashboard` para que no participe en loops inesperados.
+3. Corregir el error poco claro del dashboard
+- Quitar el uso de `head: true` en los conteos críticos del dashboard, porque está devolviendo errores con mensaje vacío.
+- Calcular conteos con respuestas normales para que, si algo falla, el panel muestre un mensaje útil.
 
-5. **Validación**
-   - Verificar en preview:
-     - `/admin/login` sin sesión muestra formulario.
-     - `/admin/dashboard` sin sesión redirige a login sin quedarse en blanco.
-     - Login exitoso manda a dashboard.
-     - Los logs temporales aparecen con los estados correctos.
+4. Verificar el flujo completo
+- Revisar logs después del cambio para confirmar que desaparece `permission denied for function has_role`.
+- Validar que `/admin/dashboard`, `/admin/markets`, `/admin/submissions` y `/admin/analytics` carguen datos o estados vacíos reales, sin quedarse en blanco.
+
+No se tocará la interfaz pública ni el diseño del admin; solo permisos/conexión de datos y mensajes de error.
