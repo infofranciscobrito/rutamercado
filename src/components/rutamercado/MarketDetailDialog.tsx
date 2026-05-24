@@ -1,16 +1,16 @@
 import {
   CalendarDays,
   Clock,
+  Instagram,
   Mail,
   MapPin,
   Navigation,
   Phone,
   Repeat,
-  User,
+  X,
 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import type { Market } from "@/types/market";
 import { MarketImage } from "./MarketImage";
 import {
@@ -34,24 +34,31 @@ function track(marketId: string, clickType: string) {
   void trackMarketClick({ data: { marketId, clickType } }).catch(() => {});
 }
 
-function DetailRow({
+function MiniFact({
   icon,
-  children,
+  label,
+  value,
 }: {
   icon: React.ReactNode;
-  children: React.ReactNode;
+  label: string;
+  value: string;
 }) {
   return (
-    <div className="flex items-start gap-3 text-sm text-[#1c1e37]">
-      <span className="mt-0.5 text-muted-foreground">{icon}</span>
-      <span className="flex-1">{children}</span>
+    <div className="rounded-xl bg-[#FFF8EC] p-3.5">
+      <div className="text-[#f8b625]">{icon}</div>
+      <div className="mt-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">
+        {label}
+      </div>
+      <div className="mt-0.5 text-[15px] font-semibold text-[#1c1e37]">
+        {value}
+      </div>
     </div>
   );
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#6B7280]">
       {children}
     </h3>
   );
@@ -74,23 +81,38 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => (!v ? onClose() : undefined)}>
-      <DialogContent className="max-h-[85vh] gap-0 overflow-y-auto p-0 sm:max-w-[600px]">
+      <DialogContent
+        className="gap-0 overflow-hidden border-0 bg-white p-0 shadow-2xl
+                   max-w-full sm:max-w-[600px]
+                   max-h-[100dvh] sm:max-h-[90vh]
+                   rounded-none sm:rounded-[20px]
+                   data-[state=open]:duration-[250ms]"
+      >
         {market && (
-          <>
-            <div className="relative aspect-video w-full overflow-hidden">
+          <div className="flex max-h-[100dvh] flex-col overflow-y-auto sm:max-h-[90vh]">
+            <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#FFF8EC]">
               <MarketImage src={market.image_url} alt={market.name} />
-              <span className="absolute left-4 top-4 rounded-md bg-[#f8b625] px-2.5 py-1 text-xs font-bold text-[#1c1e37]">
+              <span className="absolute left-4 top-4 rounded-md bg-[#f8b625] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
                 {market.category}
               </span>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Cerrar"
+                className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#1c1e37] shadow-md transition-transform hover:scale-105"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
             <div className="space-y-6 p-6">
               <div>
-                <h2 className="font-display text-[24px] leading-tight text-[#1c1e37]">
+                <h2 className="font-display text-2xl leading-tight text-[#1c1e37]">
                   {market.name}
                 </h2>
+                <div className="mt-3 h-[3px] w-12 bg-[#f8b625]" aria-hidden="true" />
                 {market.description && (
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-4 text-base leading-relaxed text-[#4B5563]">
                     {market.description}
                   </p>
                 )}
@@ -98,71 +120,74 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
 
               <div className="space-y-3">
                 <SectionTitle>Detalles del Evento</SectionTitle>
-                <DetailRow icon={<CalendarDays className="h-4 w-4" />}>
-                  {formatDateEs(market.event_date)}
-                </DetailRow>
-                <DetailRow icon={<Clock className="h-4 w-4" />}>
-                  {formatTimeRange(market.start_time, market.end_time)}
-                </DetailRow>
-                {market.frequency && (
-                  <DetailRow icon={<Repeat className="h-4 w-4" />}>
-                    {market.frequency}
-                  </DetailRow>
-                )}
-                <DetailRow icon={<MapPin className="h-4 w-4" />}>
-                  <div>
-                    <div>{market.address}</div>
-                    <div className="text-muted-foreground">
-                      {market.municipality}, {market.region}
-                    </div>
-                  </div>
-                </DetailRow>
+                <div className="grid grid-cols-2 gap-3">
+                  <MiniFact
+                    icon={<CalendarDays className="h-5 w-5" />}
+                    label="Fecha"
+                    value={formatDateEs(market.event_date)}
+                  />
+                  <MiniFact
+                    icon={<Clock className="h-5 w-5" />}
+                    label="Horario"
+                    value={formatTimeRange(market.start_time, market.end_time)}
+                  />
+                  {market.frequency && (
+                    <MiniFact
+                      icon={<Repeat className="h-5 w-5" />}
+                      label="Frecuencia"
+                      value={market.frequency}
+                    />
+                  )}
+                  <MiniFact
+                    icon={<MapPin className="h-5 w-5" />}
+                    label="Ubicación"
+                    value={`${market.municipality}, ${market.region}`}
+                  />
+                </div>
+                <div className="flex items-start gap-2 rounded-lg bg-[#F9FAFB] px-4 py-3">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#6B7280]" />
+                  <span className="text-sm text-[#1c1e37]">{market.address}</span>
+                </div>
               </div>
 
               <div className="space-y-3">
-                <SectionTitle>Contacto del Organizador</SectionTitle>
-                <DetailRow icon={<User className="h-4 w-4" />}>
-                  {market.organizer_name}
-                </DetailRow>
-                {market.organizer_phone && (
-                  <DetailRow icon={<Phone className="h-4 w-4" />}>
-                    <a
-                      href={`tel:${market.organizer_phone}`}
-                      onClick={() => track(market.id, "click_phone")}
-                      className="text-[#1c1e37] underline-offset-2 hover:text-[#f8b625] hover:underline"
-                    >
-                      {market.organizer_phone}
-                    </a>
-                  </DetailRow>
-                )}
-                {market.organizer_email && (
-                  <DetailRow icon={<Mail className="h-4 w-4" />}>
-                    <a
-                      href={`mailto:${market.organizer_email}`}
-                      onClick={() => track(market.id, "click_email")}
-                      className="break-all text-[#1c1e37] underline-offset-2 hover:text-[#f8b625] hover:underline"
-                    >
-                      {market.organizer_email}
-                    </a>
-                  </DetailRow>
-                )}
-                {market.organizer_instagram && (
-                  <DetailRow
-                    icon={
-                      <span className="text-base leading-none">@</span>
-                    }
-                  >
-                    <a
-                      href={instagramUrl(market.organizer_instagram)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => track(market.id, "click_instagram")}
-                      className="text-[#1c1e37] underline-offset-2 hover:text-[#f8b625] hover:underline"
-                    >
-                      @{market.organizer_instagram.replace(/^@/, "")}
-                    </a>
-                  </DetailRow>
-                )}
+                <SectionTitle>Organizador</SectionTitle>
+                <div className="rounded-xl bg-[#FAFAF8] p-4">
+                  <p className="text-base font-semibold text-[#1c1e37]">
+                    {market.organizer_name}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {market.organizer_phone && (
+                      <a
+                        href={`tel:${market.organizer_phone}`}
+                        onClick={() => track(market.id, "click_phone")}
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#f8b625] px-3 text-sm font-semibold text-[#1c1e37] transition-colors hover:bg-[#f59e0b]"
+                      >
+                        <Phone className="h-4 w-4" /> Llamar
+                      </a>
+                    )}
+                    {market.organizer_email && (
+                      <a
+                        href={`mailto:${market.organizer_email}`}
+                        onClick={() => track(market.id, "click_email")}
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#f8b625]"
+                      >
+                        <Mail className="h-4 w-4" /> Email
+                      </a>
+                    )}
+                    {market.organizer_instagram && (
+                      <a
+                        href={instagramUrl(market.organizer_instagram)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => track(market.id, "click_instagram")}
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#f8b625]"
+                      >
+                        <Instagram className="h-4 w-4" /> Instagram
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <a
@@ -170,19 +195,13 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track(market.id, "click_directions")}
-                className="block"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1c1e37] text-base font-semibold text-white transition-colors hover:bg-[#2d3058]"
               >
-                <Button
-                  type="button"
-                  className="w-full gap-2 bg-[#f8b625] text-[#1c1e37] hover:bg-[#f8b625]/90"
-                  size="lg"
-                >
-                  <Navigation className="h-4 w-4" />
-                  Cómo llegar
-                </Button>
+                <Navigation className="h-5 w-5" />
+                Cómo llegar
               </a>
             </div>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>

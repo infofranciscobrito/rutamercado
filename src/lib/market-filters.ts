@@ -7,6 +7,8 @@ export interface MarketFilters {
   date: DateFilter;
   region: MarketRegion | "all";
   category: MarketCategory | "all";
+  /** Optional specific day "YYYY-MM-DD". When set, overrides `date`. */
+  day?: string;
 }
 
 export const defaultFilters: MarketFilters = {
@@ -14,12 +16,19 @@ export const defaultFilters: MarketFilters = {
   date: "all",
   region: "all",
   category: "all",
+  day: undefined,
 };
 
-function parseEventDate(s: string): Date {
-  // event_date is "YYYY-MM-DD" — parse as local date (avoid UTC shift)
+export function parseEventDate(s: string): Date {
   const [y, m, d] = s.split("-").map(Number);
   return new Date(y, (m ?? 1) - 1, d ?? 1);
+}
+
+export function toIsoDay(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 export function applyFilters(markets: Market[], filters: MarketFilters): Market[] {
@@ -37,7 +46,9 @@ export function applyFilters(markets: Market[], filters: MarketFilters): Market[
     if (filters.region !== "all" && m.region !== filters.region) return false;
     if (filters.category !== "all" && m.category !== filters.category) return false;
 
-    if (filters.date !== "all") {
+    if (filters.day) {
+      if (m.event_date !== filters.day) return false;
+    } else if (filters.date !== "all") {
       const ed = parseEventDate(m.event_date);
       if (filters.date === "today") {
         if (ed.getTime() !== today.getTime()) return false;
@@ -60,6 +71,7 @@ export function hasActiveFilters(f: MarketFilters): boolean {
     f.q.trim() !== "" ||
     f.date !== "all" ||
     f.region !== "all" ||
-    f.category !== "all"
+    f.category !== "all" ||
+    !!f.day
   );
 }
