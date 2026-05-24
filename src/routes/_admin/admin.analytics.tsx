@@ -54,27 +54,49 @@ function AnalyticsPage() {
   const topOrgFn = useServerFn(getTopOrganizers);
   const distFn = useServerFn(getDistribution);
   const trafficFn = useServerFn(getDailyTraffic);
+  const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
+    console.log(`[Admin data] ${label}: fetch start`);
+    try {
+      const result = await fetcher();
+      console.log(`[Admin data] ${label}: fetch success`, result);
+      return result;
+    } catch (err) {
+      console.error(`[Admin data] ${label}: fetch error`, err);
+      throw err;
+    }
+  };
 
   const overview = useQuery({
     queryKey: ["admin", "analytics", "overview", days],
-    queryFn: () => overviewFn({ data: { days } }),
+    queryFn: () => logFetch("analytics overview", () => overviewFn({ data: { days } })),
   });
   const topMarkets = useQuery({
     queryKey: ["admin", "analytics", "topMarkets", days],
-    queryFn: () => topMarketsFn({ data: { days } }),
+    queryFn: () => logFetch("analytics top markets", () => topMarketsFn({ data: { days } })),
   });
   const topOrg = useQuery({
     queryKey: ["admin", "analytics", "topOrg", days],
-    queryFn: () => topOrgFn({ data: { days } }),
+    queryFn: () => logFetch("analytics top organizers", () => topOrgFn({ data: { days } })),
   });
   const dist = useQuery({
     queryKey: ["admin", "analytics", "dist"],
-    queryFn: () => distFn(),
+    queryFn: () => logFetch("analytics distribution", () => distFn()),
   });
   const traffic = useQuery({
     queryKey: ["admin", "analytics", "traffic", days],
-    queryFn: () => trafficFn({ data: { days } }),
+    queryFn: () => logFetch("analytics traffic", () => trafficFn({ data: { days } })),
   });
+
+  const isLoading = overview.isLoading || topMarkets.isLoading || topOrg.isLoading || dist.isLoading || traffic.isLoading;
+  const error = overview.error ?? topMarkets.error ?? topOrg.error ?? dist.error ?? traffic.error;
+
+  if (isLoading) {
+    return <div className="py-12 text-center text-sm text-muted-foreground">Cargando analíticas...</div>;
+  }
+
+  if (error) {
+    return <div className="py-12 text-center text-sm text-destructive">No se pudieron cargar las analíticas: {error.message}</div>;
+  }
 
   return (
     <div className="space-y-6 max-w-7xl">
