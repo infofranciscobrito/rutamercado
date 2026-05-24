@@ -148,8 +148,10 @@ function IndexPage() {
     });
   };
 
+  const switchToWeek = () => updateFilters({ date: "week" });
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <FilterBar
         filters={filters}
@@ -157,7 +159,7 @@ function IndexPage() {
         onClear={clearFilters}
       />
       <Suspense fallback={
-        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
           <Skeleton className="mb-4 h-4 w-40" />
           <GridSkeleton />
         </main>
@@ -168,8 +170,10 @@ function IndexPage() {
           onSelect={openMarket}
           onClose={closeMarket}
           onClear={clearFilters}
+          onSwitchToWeek={switchToWeek}
         />
       </Suspense>
+      <AboutSection />
     </div>
   );
 }
@@ -180,12 +184,14 @@ function MarketsContent({
   onSelect,
   onClose,
   onClear,
+  onSwitchToWeek,
 }: {
   filters: MarketFilters;
   selectedId: string | undefined;
   onSelect: (id: string) => void;
   onClose: () => void;
   onClear: () => void;
+  onSwitchToWeek: () => void;
 }) {
   const { data: markets } = useSuspenseQuery(marketsQueryOptions);
   const filtered = useMemo(() => applyFilters(markets, filters), [markets, filters]);
@@ -194,7 +200,7 @@ function MarketsContent({
     : null;
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
       <p className="mb-4 text-sm text-muted-foreground">
         Mostrando {filtered.length}{" "}
         {filtered.length === 1 ? "mercado" : "mercados"}
@@ -203,6 +209,8 @@ function MarketsContent({
         <EmptyState
           hasFilters={hasActiveFilters(filters) || markets.length > 0}
           onClear={onClear}
+          isTodayFilter={filters.date === "today"}
+          onSwitchToWeek={onSwitchToWeek}
         />
       ) : (
         <MarketGrid markets={filtered} onSelect={onSelect} />
