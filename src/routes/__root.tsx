@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,13 +128,11 @@ function RootComponent() {
 function AuthInvalidator() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const initialized = useRef(false);
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === "INITIAL_SESSION") {
-        initialized.current = true;
         return;
       }
       router.invalidate();
