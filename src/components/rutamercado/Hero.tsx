@@ -25,16 +25,13 @@ export function Hero({ query, onQueryChange, stats }: Props) {
       className="relative overflow-hidden bg-[#1c1e37]"
       aria-labelledby="hero-title"
     >
-      {/* Capa 1: imagen de fondo */}
+      {/* Capa 1: imagen de fondo (más zoom en mobile para mostrar personajes) */}
       <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `url('/hero-bg.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
+        className="absolute inset-0 bg-center bg-no-repeat bg-[length:220%_auto] sm:bg-[length:140%_auto] lg:bg-cover"
+        style={{ backgroundImage: `url('/hero-bg.jpg')` }}
         aria-hidden="true"
       />
+
       {/* Capa 2: tinte navy (multiply) — convierte la ilustración en monocroma azul */}
       <div className="absolute inset-0 bg-[#1c1e37]/65 mix-blend-multiply" aria-hidden="true" />
       {/* Capa 3: gradiente vertical para legibilidad del texto */}

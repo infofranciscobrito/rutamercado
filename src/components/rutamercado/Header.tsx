@@ -32,8 +32,9 @@ export function Header() {
           <img
             src="/logo-rutamercado-horizontal.png"
             alt="RutaMercado"
-            className="h-10 w-auto sm:h-11"
+            className="h-12 w-auto sm:h-11"
           />
+
         </a>
 
         <nav className="hidden items-center gap-2 md:flex">
