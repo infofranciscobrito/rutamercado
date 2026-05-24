@@ -19,11 +19,15 @@ export function useAuthReady(): {
 
     console.log("Auth state: loading");
 
-    // Set listener BEFORE calling getSession to avoid missing events
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (!mounted) return;
+
+      // INITIAL_SESSION can come from local storage before the session is validated.
+      // Do not redirect from /admin/login based on this event.
+      if (event === "INITIAL_SESSION") return;
+
       setSession(newSession);
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
@@ -35,17 +39,23 @@ export function useAuthReady(): {
       }
     });
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getUser().then(({ data, error }) => {
       if (!mounted) return;
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        console.log("Auth state: authenticated");
-        setStatus("authenticated");
-      } else {
+      if (error || !data.user) {
+        setSession(null);
+        setUser(null);
         console.log("Auth state: unauthenticated");
         setStatus("unauthenticated");
+        return;
       }
+
+      supabase.auth.getSession().then(({ data: sessionData }) => {
+        if (!mounted) return;
+        setSession(sessionData.session);
+        setUser(data.user);
+        console.log("Auth state: authenticated");
+        setStatus("authenticated");
+      });
     });
 
     return () => {
