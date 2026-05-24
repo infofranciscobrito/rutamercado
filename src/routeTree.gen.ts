@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as EnviarRouteImport } from './routes/enviar'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -17,6 +18,11 @@ import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.mar
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 
+const EnviarRoute = EnviarRouteImport.update({
+  id: '/enviar',
+  path: '/enviar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/_admin',
   getParentRoute: () => rootRouteImport,
@@ -54,6 +60,7 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/enviar': typeof EnviarRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/enviar': typeof EnviarRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -72,6 +80,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
+  '/enviar': typeof EnviarRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -82,6 +91,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/enviar'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -90,6 +100,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/enviar'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -99,6 +110,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_admin'
+    | '/enviar'
     | '/admin/login'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
@@ -109,11 +121,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  EnviarRoute: typeof EnviarRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/enviar': {
+      id: '/enviar'
+      path: '/enviar'
+      fullPath: '/enviar'
+      preLoaderRoute: typeof EnviarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_admin': {
       id: '/_admin'
       path: ''
@@ -185,8 +205,19 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  EnviarRoute: EnviarRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
