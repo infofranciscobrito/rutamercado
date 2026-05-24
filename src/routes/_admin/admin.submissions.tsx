@@ -23,7 +23,17 @@ function SubmissionsPage() {
   const listSubmissionsFn = useServerFn(listSubmissions);
   const { data = [], isLoading, error } = useQuery({
     queryKey: ["admin", "submissions"],
-    queryFn: () => listSubmissionsFn(),
+    queryFn: async () => {
+      console.log("[Admin data] submissions: fetch start");
+      try {
+        const result = await listSubmissionsFn();
+        console.log("[Admin data] submissions: fetch success", result);
+        return result;
+      } catch (err) {
+        console.error("[Admin data] submissions: fetch error", err);
+        throw err;
+      }
+    },
   });
   const [selected, setSelected] = useState<Submission | null>(null);
 
@@ -32,7 +42,7 @@ function SubmissionsPage() {
   }
 
   if (error) {
-    return <div className="py-12 text-center text-sm text-destructive">No se pudieron cargar los envíos.</div>;
+    return <div className="py-12 text-center text-sm text-destructive">No se pudieron cargar los envíos: {error.message}</div>;
   }
 
   return (
