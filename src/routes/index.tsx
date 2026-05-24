@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { listMarkets } from "@/lib/markets.functions";
 import { trackPageView } from "@/lib/analytics.functions";
 import {
@@ -12,18 +12,26 @@ import {
   type MarketFilters,
 } from "@/lib/market-filters";
 import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
+import type { Market, MarketCategory } from "@/types/market";
 import { Header } from "@/components/rutamercado/Header";
+import { Hero } from "@/components/rutamercado/Hero";
 import { FilterBar } from "@/components/rutamercado/FilterBar";
+import { ActiveFilterChips } from "@/components/rutamercado/ActiveFilterChips";
+import { ViewToggle, type ViewMode } from "@/components/rutamercado/ViewToggle";
+import { CategoryRow } from "@/components/rutamercado/CategoryRow";
 import { MarketGrid } from "@/components/rutamercado/MarketGrid";
 import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
 import { AboutSection } from "@/components/rutamercado/AboutSection";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Footer } from "@/components/rutamercado/Footer";
+import { SkeletonGrid, SkeletonRow } from "@/components/rutamercado/SkeletonCard";
 
 const marketsQueryOptions = queryOptions({
   queryKey: ["markets"],
   queryFn: () => listMarkets(),
 });
+
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -36,6 +44,7 @@ const searchSchema = z.object({
     z.enum(["all", ...MARKET_CATEGORIES] as [string, ...string[]]),
     "all",
   ).default("all"),
+  day: fallback(z.string().regex(ISO_DAY).optional(), undefined),
   market: fallback(z.string().uuid().optional(), undefined),
 });
 
@@ -75,23 +84,6 @@ export const Route = createFileRoute("/")({
   ),
 });
 
-function GridSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-xl border border-border">
-          <Skeleton className="aspect-video w-full" />
-          <div className="space-y-2 p-4">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function IndexPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
@@ -115,111 +107,235 @@ function IndexPage() {
     date: search.date,
     region: search.region as MarketFilters["region"],
     category: search.category as MarketFilters["category"],
+    day: search.day,
   };
 
   type S = z.infer<typeof searchSchema>;
   const updateFilters = (next: Partial<MarketFilters>) => {
     void navigate({
-      search: (prev: S) => ({ ...prev, ...next }),
+      search: (prev: S) => ({ ...prev, ...next }) as S,
       replace: true,
     });
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
   };
 
   const clearFilters = () => {
     void navigate({
-      search: (prev: S) => ({ ...defaultFilters, market: prev.market }),
+      search: (prev: S) => ({ ...defaultFilters, market: prev.market }) as S,
       replace: true,
     });
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+  };
+
+  const removeFilter = (key: keyof MarketFilters) => {
+    const reset: Partial<MarketFilters> = {};
+    if (key === "q") reset.q = "";
+    else if (key === "date") reset.date = "all";
+    else if (key === "region") reset.region = "all";
+    else if (key === "category") reset.category = "all";
+    else if (key === "day") reset.day = undefined;
+    updateFilters(reset);
   };
 
   const openMarket = (id: string) => {
-    void navigate({ search: (prev: S) => ({ ...prev, market: id }) });
+    void navigate({ search: (prev: S) => ({ ...prev, market: id }) as S });
   };
   const closeMarket = () => {
     void navigate({
-      search: (prev: S) => ({ ...prev, market: undefined }),
+      search: (prev: S) => ({ ...prev, market: undefined }) as S,
       replace: true,
     });
   };
 
-  const switchToWeek = () => updateFilters({ date: "week" });
+  const switchToWeek = () =>
+    updateFilters({ date: "week", day: undefined });
+
+  // View mode (persisted)
+  const [viewMode, setViewMode] = useState<ViewMode>("category");
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("rm-view-mode");
+      if (saved === "grid" || saved === "category") setViewMode(saved);
+    } catch {
+      /* noop */
+    }
+  }, []);
+  const setView = (m: ViewMode) => {
+    setViewMode(m);
+    try {
+      localStorage.setItem("rm-view-mode", m);
+    } catch {
+      /* noop */
+    }
+  };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-[#FAFAF8]">
       <Header />
-      <FilterBar
-        filters={filters}
-        onChange={updateFilters}
-        onClear={clearFilters}
-      />
-      <Suspense fallback={
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
-          <Skeleton className="mb-4 h-4 w-40" />
-          <GridSkeleton />
-        </main>
-      }>
+      <Suspense
+        fallback={
+          <>
+            <Hero
+              query={search.q}
+              onQueryChange={(q) => updateFilters({ q })}
+              stats={{ markets: 0, municipalities: 0, categories: 0 }}
+            />
+            <main className="flex-1">
+              <SkeletonRow />
+            </main>
+          </>
+        }
+      >
         <MarketsContent
           filters={filters}
+          query={search.q}
+          onQueryChange={(q) => updateFilters({ q })}
+          onChangeFilters={updateFilters}
+          onClear={clearFilters}
+          onRemove={removeFilter}
           selectedId={search.market}
           onSelect={openMarket}
           onClose={closeMarket}
-          onClear={clearFilters}
           onSwitchToWeek={switchToWeek}
+          viewMode={viewMode}
+          onViewChange={setView}
         />
       </Suspense>
       <AboutSection />
+      <Footer />
     </div>
   );
 }
 
 function MarketsContent({
   filters,
+  query,
+  onQueryChange,
+  onChangeFilters,
+  onClear,
+  onRemove,
   selectedId,
   onSelect,
   onClose,
-  onClear,
   onSwitchToWeek,
+  viewMode,
+  onViewChange,
 }: {
   filters: MarketFilters;
+  query: string;
+  onQueryChange: (q: string) => void;
+  onChangeFilters: (next: Partial<MarketFilters>) => void;
+  onClear: () => void;
+  onRemove: (key: keyof MarketFilters) => void;
   selectedId: string | undefined;
   onSelect: (id: string) => void;
   onClose: () => void;
-  onClear: () => void;
   onSwitchToWeek: () => void;
+  viewMode: ViewMode;
+  onViewChange: (v: ViewMode) => void;
 }) {
   const { data: markets } = useSuspenseQuery(marketsQueryOptions);
-  const filtered = useMemo(() => applyFilters(markets, filters), [markets, filters]);
+
+  const stats = useMemo(() => {
+    const muni = new Set(markets.map((m) => m.municipality));
+    const cats = new Set(markets.map((m) => m.category));
+    return {
+      markets: markets.length,
+      municipalities: muni.size,
+      categories: cats.size,
+    };
+  }, [markets]);
+
+  const availableDays = useMemo(
+    () => new Set(markets.map((m) => m.event_date)),
+    [markets],
+  );
+
+  const filtered = useMemo(
+    () => applyFilters(markets, filters),
+    [markets, filters],
+  );
+
   const selected = selectedId
     ? markets.find((m) => m.id === selectedId) ?? null
     : null;
 
+  // Group by category, preserving the canonical category order
+  const grouped = useMemo(() => {
+    const map = new Map<MarketCategory, Market[]>();
+    for (const m of filtered) {
+      const list = map.get(m.category) ?? [];
+      list.push(m);
+      map.set(m.category, list);
+    }
+    return MARKET_CATEGORIES.filter((c) => map.has(c)).map((c) => ({
+      category: c,
+      markets: map.get(c)!,
+    }));
+  }, [filtered]);
+
   return (
-    <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
-      <p className="mb-4 text-sm text-muted-foreground">
-        Mostrando {filtered.length}{" "}
-        {filtered.length === 1 ? "mercado" : "mercados"}
-      </p>
-      {filtered.length === 0 ? (
-        <EmptyState
-          hasFilters={hasActiveFilters(filters) || markets.length > 0}
-          onClear={onClear}
-          isTodayFilter={filters.date === "today"}
-          onSwitchToWeek={onSwitchToWeek}
-        />
-      ) : (
-        <MarketGrid markets={filtered} onSelect={onSelect} />
-      )}
-      <MarketDetailDialog
-        market={selected}
-        open={!!selected}
-        onClose={onClose}
+    <>
+      <Hero query={query} onQueryChange={onQueryChange} stats={stats} />
+
+      <FilterBar
+        filters={filters}
+        availableDays={availableDays}
+        onChange={onChangeFilters}
+        onClear={onClear}
       />
-    </main>
+
+      <main className="flex-1">
+        {/* Results bar */}
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm text-[#6B7280]">
+                Mostrando <span className="font-semibold text-[#1c1e37]">{filtered.length}</span>{" "}
+                {filtered.length === 1 ? "mercado" : "mercados"}
+              </p>
+              <ActiveFilterChips filters={filters} onRemove={onRemove} />
+            </div>
+            <div className="hidden sm:block">
+              <ViewToggle value={viewMode} onChange={onViewChange} />
+            </div>
+          </div>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+            <EmptyState
+              hasFilters={hasActiveFilters(filters) || markets.length > 0}
+              onClear={onClear}
+              isTodayFilter={filters.date === "today" && !filters.day}
+              onSwitchToWeek={onSwitchToWeek}
+            />
+          </div>
+        ) : viewMode === "grid" ? (
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+            <MarketGrid markets={filtered} onSelect={onSelect} />
+          </div>
+        ) : (
+          <div>
+            {grouped.map((g, i) => (
+              <CategoryRow
+                key={g.category}
+                category={g.category}
+                markets={g.markets}
+                alt={i % 2 === 1}
+                onSelect={onSelect}
+              />
+            ))}
+          </div>
+        )}
+
+        <MarketDetailDialog
+          market={selected}
+          open={!!selected}
+          onClose={onClose}
+        />
+      </main>
+    </>
   );
 }
+
+// Silence unused-import warning during SSR pre-render fallback
+void SkeletonGrid;
