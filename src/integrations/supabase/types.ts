@@ -14,16 +14,151 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      market_clicks: {
+        Row: {
+          click_type: Database["public"]["Enums"]["click_type"]
+          created_at: string
+          id: string
+          market_id: string
+        }
+        Insert: {
+          click_type: Database["public"]["Enums"]["click_type"]
+          created_at?: string
+          id?: string
+          market_id: string
+        }
+        Update: {
+          click_type?: Database["public"]["Enums"]["click_type"]
+          created_at?: string
+          id?: string
+          market_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_clicks_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      markets: {
+        Row: {
+          address: string
+          category: Database["public"]["Enums"]["market_category"]
+          created_at: string
+          description: string | null
+          end_time: string
+          event_date: string
+          frequency: Database["public"]["Enums"]["market_frequency"] | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          municipality: string
+          name: string
+          organizer_email: string | null
+          organizer_instagram: string | null
+          organizer_name: string
+          organizer_phone: string | null
+          region: Database["public"]["Enums"]["market_region"]
+          start_time: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          address: string
+          category: Database["public"]["Enums"]["market_category"]
+          created_at?: string
+          description?: string | null
+          end_time: string
+          event_date: string
+          frequency?: Database["public"]["Enums"]["market_frequency"] | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          municipality: string
+          name: string
+          organizer_email?: string | null
+          organizer_instagram?: string | null
+          organizer_name: string
+          organizer_phone?: string | null
+          region: Database["public"]["Enums"]["market_region"]
+          start_time: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          address?: string
+          category?: Database["public"]["Enums"]["market_category"]
+          created_at?: string
+          description?: string | null
+          end_time?: string
+          event_date?: string
+          frequency?: Database["public"]["Enums"]["market_frequency"] | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          municipality?: string
+          name?: string
+          organizer_email?: string | null
+          organizer_instagram?: string | null
+          organizer_name?: string
+          organizer_phone?: string | null
+          region?: Database["public"]["Enums"]["market_region"]
+          start_time?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          created_at: string
+          id: string
+          page: string
+          referrer: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page: string
+          referrer?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page?: string
+          referrer?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_view_count: { Args: { market_id: string }; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      click_type:
+        | "view_detail"
+        | "click_phone"
+        | "click_email"
+        | "click_instagram"
+        | "click_directions"
+      market_category:
+        | "Mercado Agrícola"
+        | "Bazar / Pop-up"
+        | "Feria Artesanal"
+        | "Food Market"
+        | "Mercado Mixto"
+        | "Flea Market"
+      market_frequency: "Único" | "Semanal" | "Quincenal" | "Mensual"
+      market_region: "Metro" | "Norte" | "Sur" | "Este" | "Oeste" | "Centro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +285,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      click_type: [
+        "view_detail",
+        "click_phone",
+        "click_email",
+        "click_instagram",
+        "click_directions",
+      ],
+      market_category: [
+        "Mercado Agrícola",
+        "Bazar / Pop-up",
+        "Feria Artesanal",
+        "Food Market",
+        "Mercado Mixto",
+        "Flea Market",
+      ],
+      market_frequency: ["Único", "Semanal", "Quincenal", "Mensual"],
+      market_region: ["Metro", "Norte", "Sur", "Este", "Oeste", "Centro"],
+    },
   },
 } as const
