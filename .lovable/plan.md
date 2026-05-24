@@ -1,38 +1,33 @@
-# Nuevo fondo del Hero con la ilustración del mercado
+Plan para reparar /admin/login y el panel admin:
 
-## 1. Copiar la imagen al proyecto
+1. **Crear un flujo de auth admin con estado explícito**
+   - Agregar un hook/componente compartido para el admin con estados: `loading`, `authenticated`, `unauthenticated`.
+   - El estado inicial será siempre `loading`, nunca “autenticado”.
+   - Verificará la sesión real con Lovable Cloud antes de permitir redirecciones.
+   - Agregará logs temporales:
+     - `Auth state: loading`
+     - `Auth state: authenticated`
+     - `Auth state: unauthenticated`
 
-Copiar `user-uploads://Gemini_Generated_Image_cfigykcfigykcfig.png` a `public/hero-bg.jpg` (reemplazando el actual). Antes de copiar, optimizar:
+2. **Corregir `/admin/login`**
+   - Quitar la redirección temprana del `beforeLoad` que puede mandar a `/admin/dashboard` antes de confirmar sesión.
+   - Mostrar spinner centrado mientras auth está en `loading`.
+   - Mostrar el formulario email/password solo cuando el estado sea `unauthenticated`.
+   - Redirigir a `/admin/dashboard` solo cuando el estado confirmado sea `authenticated`.
 
-- Redimensionar a **1920 px de ancho** (alto proporcional, la imagen es panorámica ~3.4:1, perfecto para hero).
-- Convertir a JPG calidad 88 para mantener nitidez sin peso excesivo (~250–350 KB esperado).
-- Mantener el detalle central (puestos, personas, banderines) bien resuelto.
+3. **Corregir rutas protegidas `/admin/*`**
+   - Evitar que el layout admin renderice contenido o cargue datos antes de confirmar sesión.
+   - Mientras verifica sesión, mostrar spinner centrado con fondo `#FAFAF8` y acento `#f8b625`.
+   - Si no hay sesión válida, redirigir a `/admin/login`.
+   - Si hay sesión válida, renderizar `AdminLayout` y el contenido normal.
 
-## 2. Ajustar el filtro azul en `Hero.tsx`
+4. **Prevenir página en blanco y carga de datos sin sesión**
+   - Asegurar que dashboard/markets/analytics no ejecuten su contenido protegido hasta que el guard confirme auth.
+   - Revisar el redirect de `/admin` hacia `/admin/dashboard` para que no participe en loops inesperados.
 
-Para que la imagen se difumine en el navy de marca (`#1c1e37`) pero siga generando atención visual:
-
-```text
-Capa 1: imagen de fondo (background-size: cover, position: center)
-Capa 2: overlay navy con mezcla → bg-[#1c1e37]/70 + mix-blend-multiply
-Capa 3: gradiente vertical suave navy arriba/abajo (para legibilidad del texto)
-Capa 4: patrón de puntos dorados (rm-hero-pattern) opacity-40
-Capa 5: degradado final hacia el contenido (#1c1e37]/90 en la parte inferior)
-```
-
-Resultado: la ilustración se ve teñida de azul marino (como una foto monocroma azul), los colores cálidos quedan apagados pero la composición y los personajes siguen siendo reconocibles. El título, subtítulo y buscador mantienen contraste total gracias al gradiente y al `drop-shadow`.
-
-## 3. Detalles técnicos del overlay
-
-- Cambiar el overlay actual (`bg-[#1c1e37]/55`) por dos capas combinadas:
-  - `bg-[#1c1e37]/65` con `mix-blend-multiply` → tiñe la imagen de azul sin oscurecer demasiado.
-  - Encima, `bg-gradient-to-b from-[#1c1e37]/40 via-transparent to-[#1c1e37]/85` → asegura legibilidad arriba del título y fade hacia el contenido.
-- Subir la opacidad del patrón de puntos a `opacity-40` (más sutil para no competir con la ilustración).
-- Mantener `drop-shadow-lg` en el `<h1>` y `text-white/90` en el párrafo.
-
-## 4. Archivos a tocar
-
-- **Reemplazar** `public/hero-bg.jpg` con la nueva imagen optimizada.
-- **Editar** `src/components/rutamercado/Hero.tsx` — ajustar capas de overlay (sin cambiar estructura ni copy).
-
-Nada más se toca; el resto del home queda igual.
+5. **Validación**
+   - Verificar en preview:
+     - `/admin/login` sin sesión muestra formulario.
+     - `/admin/dashboard` sin sesión redirige a login sin quedarse en blanco.
+     - Login exitoso manda a dashboard.
+     - Los logs temporales aparecen con los estados correctos.

@@ -1,31 +1,31 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthReady, AuthLoadingSpinner } from "@/hooks/use-auth-ready";
 
 export const Route = createFileRoute("/admin/login")({
   // Client-only: Supabase session lives in localStorage, unavailable during SSR.
   ssr: false,
-  beforeLoad: async () => {
-    if (typeof window === "undefined") return;
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      throw redirect({ to: "/admin/dashboard" });
-    }
-  },
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { status } = useAuthReady();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      navigate({ to: "/admin/dashboard", replace: true });
+    }
+  }, [status, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +36,12 @@ function LoginPage() {
       toast.error(error.message);
       return;
     }
-    navigate({ to: "/admin/dashboard" });
+    // onAuthStateChange will flip status to "authenticated" and the effect above redirects.
   };
+
+  if (status === "loading" || status === "authenticated") {
+    return <AuthLoadingSpinner />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#1c1e37] p-4">
