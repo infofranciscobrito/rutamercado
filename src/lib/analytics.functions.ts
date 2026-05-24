@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const ClickTypeSchema = z.enum([
   "view_detail",
@@ -21,7 +21,7 @@ export const trackPageView = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
-    const { error } = await supabase.from("page_views").insert({
+    const { error } = await supabaseAdmin.from("page_views").insert({
       page: data.page,
       referrer: data.referrer ?? null,
       user_agent: data.userAgent ?? null,
@@ -43,7 +43,7 @@ export const trackMarketClick = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
-    const { error } = await supabase.from("market_clicks").insert({
+    const { error } = await supabaseAdmin.from("market_clicks").insert({
       market_id: data.marketId,
       click_type: data.clickType,
     });
@@ -59,7 +59,7 @@ export const incrementMarketView = createServerFn({ method: "POST" })
     z.object({ marketId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data }) => {
-    const { error } = await supabase.rpc("increment_view_count", {
+    const { error } = await supabaseAdmin.rpc("increment_view_count", {
       market_id: data.marketId,
     });
     if (error) {
