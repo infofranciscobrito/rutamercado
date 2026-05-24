@@ -13,6 +13,11 @@ const items = [
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { data: pending } = useQuery({
+    queryKey: ["admin", "submissions", "pending-count"],
+    queryFn: () => countPendingSubmissions(),
+    refetchInterval: 60_000,
+  });
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
