@@ -1,7 +1,13 @@
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 import type { Market } from "@/types/market";
 import { MarketImage } from "./MarketImage";
-import { formatDateEs, formatTimeRange, frequencyLabel } from "@/lib/format";
+import {
+  formatDateEs,
+  formatTimeRange,
+  frequencyLabel,
+  isToday,
+  isTomorrow,
+} from "@/lib/format";
 
 interface Props {
   market: Market;
@@ -10,11 +16,14 @@ interface Props {
 
 export function MarketCard({ market, onClick }: Props) {
   const freq = frequencyLabel(market.frequency, market.event_date);
+  const today = isToday(market.event_date);
+  const tomorrow = !today && isTomorrow(market.event_date);
 
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-label={`Ver detalles de ${market.name}`}
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f8b625]"
     >
       <div className="relative aspect-video w-full overflow-hidden">
@@ -22,6 +31,16 @@ export function MarketCard({ market, onClick }: Props) {
         <span className="absolute left-3 top-3 rounded-md bg-[#f8b625] px-2 py-1 text-xs font-bold text-[#1c1e37]">
           {market.category}
         </span>
+        {today && (
+          <span className="absolute right-3 top-3 rounded-md bg-[#22C55E] px-2 py-1 text-xs font-bold text-white shadow-sm">
+            HOY
+          </span>
+        )}
+        {tomorrow && (
+          <span className="absolute right-3 top-3 rounded-md bg-[#3B82F6] px-2 py-1 text-xs font-bold text-white shadow-sm">
+            MAÑANA
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="font-display text-[18px] leading-tight text-[#1c1e37]">

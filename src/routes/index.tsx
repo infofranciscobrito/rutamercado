@@ -42,13 +42,29 @@ export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
-      { title: "RutaMercado — Mercados locales de Puerto Rico" },
+      { title: "RutaMercado — Directorio de Mercados Locales en Puerto Rico" },
       {
         name: "description",
         content:
-          "Descubre mercados agrícolas, ferias artesanales, food markets y bazares en todo Puerto Rico.",
+          "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico. Encuentra el mercado más cercano a ti.",
       },
+      { property: "og:title", content: "RutaMercado — Directorio de Mercados Locales en Puerto Rico" },
+      {
+        property: "og:description",
+        content:
+          "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico. Encuentra el mercado más cercano a ti.",
+      },
+      { property: "og:url", content: "/" },
+      { property: "og:image", content: "/og-image.png" },
+      { name: "twitter:title", content: "RutaMercado — Mercados Locales en Puerto Rico" },
+      {
+        name: "twitter:description",
+        content:
+          "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico.",
+      },
+      { name: "twitter:image", content: "/og-image.png" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(marketsQueryOptions),

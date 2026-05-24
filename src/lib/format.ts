@@ -16,6 +16,21 @@ function parseLocalDate(s: string): Date {
   return new Date(y, (m ?? 1) - 1, d ?? 1);
 }
 
+function startOfToday(): Date {
+  const n = new Date();
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+
+export function isToday(eventDate: string): boolean {
+  return parseLocalDate(eventDate).getTime() === startOfToday().getTime();
+}
+
+export function isTomorrow(eventDate: string): boolean {
+  const t = startOfToday();
+  const tomorrow = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1);
+  return parseLocalDate(eventDate).getTime() === tomorrow.getTime();
+}
+
 export function formatDateEs(eventDate: string): string {
   return capitalize(DATE_FMT.format(parseLocalDate(eventDate)));
 }
