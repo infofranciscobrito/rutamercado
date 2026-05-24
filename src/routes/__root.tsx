@@ -131,7 +131,10 @@ function AuthInvalidator() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "INITIAL_SESSION") {
+        return;
+      }
       router.invalidate();
       queryClient.invalidateQueries();
     });

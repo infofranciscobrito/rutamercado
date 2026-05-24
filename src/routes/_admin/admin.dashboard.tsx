@@ -39,22 +39,33 @@ function DashboardPage() {
   const viewsFn = useServerFn(getViewsPerMarket);
   const clicksFn = useServerFn(getClicksPerDay);
   const upcomingFn = useServerFn(getUpcomingMarkets);
+  const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
+    console.log(`[Admin data] ${label}: fetch start`);
+    try {
+      const result = await fetcher();
+      console.log(`[Admin data] ${label}: fetch success`, result);
+      return result;
+    } catch (err) {
+      console.error(`[Admin data] ${label}: fetch error`, err);
+      throw err;
+    }
+  };
 
   const metrics = useQuery({
     queryKey: ["admin", "dashboard", "metrics"],
-    queryFn: () => metricsFn(),
+    queryFn: () => logFetch("dashboard metrics", () => metricsFn()),
   });
   const views = useQuery({
     queryKey: ["admin", "dashboard", "views"],
-    queryFn: () => viewsFn(),
+    queryFn: () => logFetch("dashboard views", () => viewsFn()),
   });
   const clicks = useQuery({
     queryKey: ["admin", "dashboard", "clicks"],
-    queryFn: () => clicksFn({ data: { days: 30 } }),
+    queryFn: () => logFetch("dashboard clicks", () => clicksFn({ data: { days: 30 } })),
   });
   const upcoming = useQuery({
     queryKey: ["admin", "dashboard", "upcoming"],
-    queryFn: () => upcomingFn(),
+    queryFn: () => logFetch("dashboard upcoming", () => upcomingFn()),
   });
 
   const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading;
@@ -65,7 +76,7 @@ function DashboardPage() {
   }
 
   if (error) {
-    return <div className="py-12 text-center text-sm text-destructive">No se pudo cargar el dashboard.</div>;
+    return <div className="py-12 text-center text-sm text-destructive">No se pudo cargar el dashboard: {error.message}</div>;
   }
 
   const metricsData = metrics.data;
