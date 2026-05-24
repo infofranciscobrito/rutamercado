@@ -100,26 +100,27 @@ function IndexPage() {
     category: search.category as MarketFilters["category"],
   };
 
+  type S = z.infer<typeof searchSchema>;
   const updateFilters = (next: Partial<MarketFilters>) => {
     void navigate({
-      search: (prev) => ({ ...prev, ...next, market: prev.market }),
+      search: (prev: S) => ({ ...prev, ...next }),
       replace: true,
     });
   };
 
   const clearFilters = () => {
     void navigate({
-      search: (prev) => ({ ...defaultFilters, market: prev.market }),
+      search: (prev: S) => ({ ...defaultFilters, market: prev.market }),
       replace: true,
     });
   };
 
   const openMarket = (id: string) => {
-    void navigate({ search: (prev) => ({ ...prev, market: id }) });
+    void navigate({ search: (prev: S) => ({ ...prev, market: id }) });
   };
   const closeMarket = () => {
     void navigate({
-      search: (prev) => ({ ...prev, market: undefined }),
+      search: (prev: S) => ({ ...prev, market: undefined }),
       replace: true,
     });
   };
