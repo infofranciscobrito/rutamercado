@@ -22,10 +22,17 @@ function minusDaysISO(days: number): string {
   d.setDate(d.getDate() - days);
   return d.toISOString();
 }
+function throwIfDbError(error: { message: string } | null | undefined, label: string) {
+  if (error) {
+    console.error(`[Admin data] ${label}: database error`, error);
+    throw new Error(`${label}: ${error.message}`);
+  }
+}
 
 export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DashboardMetrics> => {
+    console.log("[Admin data] dashboard metrics: server fetch start");
     const { supabase } = context;
     const today = todayISO();
     const inAWeek = plusDaysISO(7);
@@ -41,6 +48,10 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
         .eq("is_active", true),
       supabase.from("market_clicks").select("id", { count: "exact", head: true }),
     ]);
+    throwIfDbError(activeRes.error, "dashboard active markets");
+    throwIfDbError(viewsRes.error, "dashboard total views");
+    throwIfDbError(upcomingRes.error, "dashboard upcoming markets");
+    throwIfDbError(clicksRes.error, "dashboard total clicks");
 
     const totalViews = (viewsRes.data ?? []).reduce(
       (s, r) => s + (r.view_count ?? 0),
@@ -53,6 +64,8 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       upcomingThisWeek: upcomingRes.count ?? 0,
       totalClicks: clicksRes.count ?? 0,
     };
+    console.log("[Admin data] dashboard metrics: server fetch success", result);
+    return result;
   });
 
 export const getViewsPerMarket = createServerFn({ method: "GET" })
