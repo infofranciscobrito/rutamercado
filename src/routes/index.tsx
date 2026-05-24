@@ -17,6 +17,7 @@ import { FilterBar } from "@/components/rutamercado/FilterBar";
 import { MarketGrid } from "@/components/rutamercado/MarketGrid";
 import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
+import { AboutSection } from "@/components/rutamercado/AboutSection";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const marketsQueryOptions = queryOptions({
@@ -122,6 +123,9 @@ function IndexPage() {
       search: (prev: S) => ({ ...prev, ...next }),
       replace: true,
     });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const clearFilters = () => {
@@ -129,6 +133,9 @@ function IndexPage() {
       search: (prev: S) => ({ ...defaultFilters, market: prev.market }),
       replace: true,
     });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const openMarket = (id: string) => {
