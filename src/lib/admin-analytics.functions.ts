@@ -58,7 +58,7 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       0,
     );
 
-    return {
+    const result = {
       activeMarkets: activeRes.count ?? 0,
       totalViews,
       upcomingThisWeek: upcomingRes.count ?? 0,
