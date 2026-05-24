@@ -56,7 +56,17 @@ function MarketsPage() {
   const deleteFn = useServerFn(deleteMarket);
   const { data: markets = [], isLoading, error } = useQuery({
     queryKey: ["admin", "markets"],
-    queryFn: () => listMarketsFn(),
+    queryFn: async () => {
+      console.log("[Admin data] markets: fetch start");
+      try {
+        const result = await listMarketsFn();
+        console.log("[Admin data] markets: fetch success", result);
+        return result;
+      } catch (err) {
+        console.error("[Admin data] markets: fetch error", err);
+        throw err;
+      }
+    },
   });
 
   const [search, setSearch] = useState("");
@@ -112,7 +122,7 @@ function MarketsPage() {
   }
 
   if (error) {
-    return <div className="py-12 text-center text-sm text-destructive">No se pudieron cargar los mercados.</div>;
+    return <div className="py-12 text-center text-sm text-destructive">No se pudieron cargar los mercados: {error.message}</div>;
   }
 
   return (
