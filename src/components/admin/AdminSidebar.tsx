@@ -49,7 +49,12 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
               }`}
             >
               <Icon className="h-5 w-5" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.to === "/admin/submissions" && (pending?.count ?? 0) > 0 && (
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f8b625] px-1.5 text-xs font-bold text-[#1c1e37]">
+                  {pending!.count}
+                </span>
+              )}
             </Link>
           );
         })}
