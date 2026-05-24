@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { BarChart3, Store, TrendingUp, LogOut, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { countPendingSubmissions } from "@/lib/submissions.functions";
@@ -13,9 +14,10 @@ const items = [
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const countPendingSubmissionsFn = useServerFn(countPendingSubmissions);
   const { data: pending } = useQuery({
     queryKey: ["admin", "submissions", "pending-count"],
-    queryFn: () => countPendingSubmissions(),
+    queryFn: () => countPendingSubmissionsFn(),
     refetchInterval: 60_000,
   });
 
