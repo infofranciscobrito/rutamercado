@@ -43,6 +43,92 @@ export type Database = {
           },
         ]
       }
+      market_submissions: {
+        Row: {
+          address: string
+          admin_notes: string | null
+          category: Database["public"]["Enums"]["market_category"]
+          created_at: string
+          description: string | null
+          end_time: string
+          event_date: string
+          frequency: Database["public"]["Enums"]["market_frequency"] | null
+          id: string
+          image_url: string | null
+          municipality: string
+          name: string
+          organizer_email: string | null
+          organizer_instagram: string | null
+          organizer_name: string
+          organizer_phone: string | null
+          published_market_id: string | null
+          region: Database["public"]["Enums"]["market_region"]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          start_time: string
+          status: Database["public"]["Enums"]["submission_status"]
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          admin_notes?: string | null
+          category: Database["public"]["Enums"]["market_category"]
+          created_at?: string
+          description?: string | null
+          end_time: string
+          event_date: string
+          frequency?: Database["public"]["Enums"]["market_frequency"] | null
+          id?: string
+          image_url?: string | null
+          municipality: string
+          name: string
+          organizer_email?: string | null
+          organizer_instagram?: string | null
+          organizer_name: string
+          organizer_phone?: string | null
+          published_market_id?: string | null
+          region: Database["public"]["Enums"]["market_region"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_time: string
+          status?: Database["public"]["Enums"]["submission_status"]
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          admin_notes?: string | null
+          category?: Database["public"]["Enums"]["market_category"]
+          created_at?: string
+          description?: string | null
+          end_time?: string
+          event_date?: string
+          frequency?: Database["public"]["Enums"]["market_frequency"] | null
+          id?: string
+          image_url?: string | null
+          municipality?: string
+          name?: string
+          organizer_email?: string | null
+          organizer_instagram?: string | null
+          organizer_name?: string
+          organizer_phone?: string | null
+          published_market_id?: string | null
+          region?: Database["public"]["Enums"]["market_region"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_time?: string
+          status?: Database["public"]["Enums"]["submission_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_submissions_published_market_id_fkey"
+            columns: ["published_market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       markets: {
         Row: {
           address: string
@@ -188,6 +274,7 @@ export type Database = {
         | "Flea Market"
       market_frequency: "Único" | "Semanal" | "Quincenal" | "Mensual"
       market_region: "Metro" | "Norte" | "Sur" | "Este" | "Oeste" | "Centro"
+      submission_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -333,6 +420,7 @@ export const Constants = {
       ],
       market_frequency: ["Único", "Semanal", "Quincenal", "Mensual"],
       market_region: ["Metro", "Norte", "Sur", "Este", "Oeste", "Centro"],
+      submission_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
