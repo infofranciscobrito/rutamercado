@@ -9,7 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/admin/login")({
+  // Client-only: Supabase session lives in localStorage, unavailable during SSR.
+  ssr: false,
   beforeLoad: async () => {
+    if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
     if (data.session) {
       throw redirect({ to: "/admin/dashboard" });
