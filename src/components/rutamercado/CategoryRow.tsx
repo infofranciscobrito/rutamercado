@@ -49,24 +49,25 @@ export function CategoryRow({ category, markets, alt, onSelect }: Props) {
             </div>
           </div>
 
-          <div className="hidden gap-1.5 sm:flex">
+          <div className="flex gap-1.5">
             <button
               type="button"
               aria-label={`Anterior en ${category}`}
               onClick={() => scrollBy(-1)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#1c1e37] transition-colors hover:border-[#f8b625] hover:text-[#d97706]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#1c1e37] transition-colors hover:border-[#f8b625] hover:text-[#d97706] sm:h-11 sm:w-11"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
             <button
               type="button"
               aria-label={`Siguiente en ${category}`}
               onClick={() => scrollBy(1)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#1c1e37] transition-colors hover:border-[#f8b625] hover:text-[#d97706]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#1c1e37] transition-colors hover:border-[#f8b625] hover:text-[#d97706] sm:h-11 sm:w-11"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
+
         </div>
 
         <div
