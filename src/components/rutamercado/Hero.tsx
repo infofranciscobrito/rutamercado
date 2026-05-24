@@ -22,24 +22,33 @@ function Stat({ value, label }: { value: number; label: string }) {
 export function Hero({ query, onQueryChange, stats }: Props) {
   return (
     <section
-      className="relative overflow-hidden rm-gradient-hero"
+      className="relative overflow-hidden"
       aria-labelledby="hero-title"
+      style={{
+        backgroundImage: `url('/hero-bg.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
-      <div className="absolute inset-0 rm-hero-pattern opacity-100" aria-hidden="true" />
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#1c1e37]/40" aria-hidden="true" />
+      {/* Dark overlay for text legibility */}
+      <div className="absolute inset-0 bg-[#1c1e37]/55" aria-hidden="true" />
+      {/* Gold dot pattern overlay */}
+      <div className="absolute inset-0 rm-hero-pattern opacity-60" aria-hidden="true" />
+      {/* Bottom gradient fade to content */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#1c1e37]/80" aria-hidden="true" />
 
       <div
         className="relative mx-auto max-w-3xl px-4 text-center sm:px-6"
-        style={{ paddingTop: "clamp(3rem, 2.5rem + 3vw, 5rem)", paddingBottom: "clamp(3rem, 2.5rem + 3vw, 5rem)" }}
+        style={{ paddingTop: "clamp(3.5rem, 3rem + 3vw, 6rem)", paddingBottom: "clamp(4rem, 3.5rem + 3vw, 6.5rem)" }}
       >
         <h1
           id="hero-title"
-          className="rm-animate-fade-up-lg font-display rm-text-hero text-white"
+          className="rm-animate-fade-up-lg font-display rm-text-hero text-white drop-shadow-lg"
         >
           Descubre los mercados locales de Puerto Rico
         </h1>
         <p
-          className="rm-animate-fade-up-lg mx-auto mt-5 max-w-xl rm-text-hero-sub text-white/75"
+          className="rm-animate-fade-up-lg mx-auto mt-5 max-w-xl rm-text-hero-sub text-white/85"
           style={{ animationDelay: "100ms" }}
         >
           Mercados agrícolas, bazares, ferias artesanales y más. Encuentra qué hay
@@ -64,7 +73,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder="¿Qué mercado buscas?"
-              className="h-14 w-full rounded-xl border-2 border-transparent bg-white pl-14 pr-4 text-base text-[#1c1e37] shadow-[0_8px_30px_rgba(0,0,0,0.25)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#f8b625] focus:shadow-[0_8px_30px_rgba(0,0,0,0.25),0_0_0_4px_rgba(248,182,37,0.18)]"
+              className="h-14 w-full rounded-xl border-2 border-transparent bg-white/95 pl-14 pr-4 text-base text-[#1c1e37] shadow-[0_8px_30px_rgba(0,0,0,0.35)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#f8b625] focus:bg-white focus:shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_0_4px_rgba(248,182,37,0.18)]"
             />
           </div>
         </div>
