@@ -76,13 +76,13 @@ export function Header() {
                 >
                   Sobre Nosotros
                 </a>
-                <a
-                  href="#sobre-nosotros"
+                <Link
+                  to="/enviar"
                   onClick={() => setOpen(false)}
                   className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#f8b625] px-4 text-base font-semibold text-[#1c1e37]"
                 >
                   Enviar mi Mercado
-                </a>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>
