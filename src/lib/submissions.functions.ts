@@ -105,7 +105,7 @@ export const countPendingSubmissions = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { count, error } = await context.supabase
       .from("market_submissions")
-      .select("id", { count: "exact", head: true })
+      .select("id", { count: "exact" })
       .eq("status", "pending");
     if (error) throw new Error(error.message);
     return { count: count ?? 0 };
