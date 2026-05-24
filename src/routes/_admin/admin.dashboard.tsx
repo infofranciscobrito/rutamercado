@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Store, Eye, CalendarDays, MousePointerClick } from "lucide-react";
 import {
   BarChart,
@@ -29,39 +30,52 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const metricsQO = queryOptions({
-  queryKey: ["admin", "dashboard", "metrics"],
-  queryFn: () => getDashboardMetrics(),
-});
-const viewsQO = queryOptions({
-  queryKey: ["admin", "dashboard", "views"],
-  queryFn: () => getViewsPerMarket(),
-});
-const clicksQO = queryOptions({
-  queryKey: ["admin", "dashboard", "clicks"],
-  queryFn: () => getClicksPerDay({ data: { days: 30 } }),
-});
-const upcomingQO = queryOptions({
-  queryKey: ["admin", "dashboard", "upcoming"],
-  queryFn: () => getUpcomingMarkets(),
-});
-
 export const Route = createFileRoute("/_admin/admin/dashboard")({
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(metricsQO),
-      context.queryClient.ensureQueryData(viewsQO),
-      context.queryClient.ensureQueryData(clicksQO),
-      context.queryClient.ensureQueryData(upcomingQO),
-    ]),
   component: DashboardPage,
 });
 
 function DashboardPage() {
-  const { data: metrics } = useSuspenseQuery(metricsQO);
-  const { data: views } = useSuspenseQuery(viewsQO);
-  const { data: clicks } = useSuspenseQuery(clicksQO);
-  const { data: upcoming } = useSuspenseQuery(upcomingQO);
+  const metricsFn = useServerFn(getDashboardMetrics);
+  const viewsFn = useServerFn(getViewsPerMarket);
+  const clicksFn = useServerFn(getClicksPerDay);
+  const upcomingFn = useServerFn(getUpcomingMarkets);
+
+  const metrics = useQuery({
+    queryKey: ["admin", "dashboard", "metrics"],
+    queryFn: () => metricsFn(),
+  });
+  const views = useQuery({
+    queryKey: ["admin", "dashboard", "views"],
+    queryFn: () => viewsFn(),
+  });
+  const clicks = useQuery({
+    queryKey: ["admin", "dashboard", "clicks"],
+    queryFn: () => clicksFn({ data: { days: 30 } }),
+  });
+  const upcoming = useQuery({
+    queryKey: ["admin", "dashboard", "upcoming"],
+    queryFn: () => upcomingFn(),
+  });
+
+  const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading;
+  const error = metrics.error ?? views.error ?? clicks.error ?? upcoming.error;
+
+  if (isLoading) {
+    return <div className="py-12 text-center text-sm text-muted-foreground">Cargando dashboard...</div>;
+  }
+
+  if (error) {
+    return <div className="py-12 text-center text-sm text-destructive">No se pudo cargar el dashboard.</div>;
+  }
+
+  const metricsData = metrics.data;
+  const viewsData = views.data ?? [];
+  const clicksData = clicks.data ?? [];
+  const upcomingData = upcoming.data ?? [];
+
+  if (!metricsData) {
+    return <div className="py-12 text-center text-sm text-muted-foreground">Sin métricas disponibles.</div>;
+  }
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -71,10 +85,10 @@ function DashboardPage() {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Mercados Activos" value={metrics.activeMarkets} icon={Store} />
-        <MetricCard label="Vistas Totales" value={metrics.totalViews} icon={Eye} />
-        <MetricCard label="Esta Semana" value={metrics.upcomingThisWeek} icon={CalendarDays} />
-        <MetricCard label="Clics Totales" value={metrics.totalClicks} icon={MousePointerClick} />
+        <MetricCard label="Mercados Activos" value={metricsData.activeMarkets} icon={Store} />
+        <MetricCard label="Vistas Totales" value={metricsData.totalViews} icon={Eye} />
+        <MetricCard label="Esta Semana" value={metricsData.upcomingThisWeek} icon={CalendarDays} />
+        <MetricCard label="Clics Totales" value={metricsData.totalClicks} icon={MousePointerClick} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -82,7 +96,7 @@ function DashboardPage() {
           <h2 className="font-display text-lg text-[#1c1e37] mb-4">Vistas por Mercado (Top 10)</h2>
           <div className="h-72">
             <ResponsiveContainer>
-              <BarChart data={views}>
+              <BarChart data={viewsData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-25} textAnchor="end" height={70} />
                 <YAxis tick={{ fontSize: 11 }} />
@@ -97,7 +111,7 @@ function DashboardPage() {
           <h2 className="font-display text-lg text-[#1c1e37] mb-4">Actividad de Clics (30 días)</h2>
           <div className="h-72">
             <ResponsiveContainer>
-              <LineChart data={clicks}>
+              <LineChart data={clicksData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 11 }} />
@@ -121,14 +135,14 @@ function DashboardPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {upcoming.length === 0 ? (
+            {upcomingData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
                   No hay mercados próximos
                 </TableCell>
               </TableRow>
             ) : (
-              upcoming.map((m) => (
+              upcomingData.map((m) => (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
                   <TableCell>{formatDateEs(m.event_date)}</TableCell>

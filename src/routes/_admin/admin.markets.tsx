@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -45,21 +45,19 @@ import { MarketFormDrawer } from "@/components/admin/MarketFormDrawer";
 
 const PAGE_SIZE = 20;
 
-const marketsQO = queryOptions({
-  queryKey: ["admin", "markets"],
-  queryFn: () => listAllMarkets(),
-});
-
 export const Route = createFileRoute("/_admin/admin/markets")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(marketsQO),
   component: MarketsPage,
 });
 
 function MarketsPage() {
-  const { data: markets } = useSuspenseQuery(marketsQO);
   const queryClient = useQueryClient();
+  const listMarketsFn = useServerFn(listAllMarkets);
   const toggleFn = useServerFn(toggleMarketActive);
   const deleteFn = useServerFn(deleteMarket);
+  const { data: markets = [], isLoading, error } = useQuery({
+    queryKey: ["admin", "markets"],
+    queryFn: () => listMarketsFn(),
+  });
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("all");
@@ -108,6 +106,14 @@ function MarketsPage() {
     setEditing(m);
     setDrawerOpen(true);
   };
+
+  if (isLoading) {
+    return <div className="py-12 text-center text-sm text-muted-foreground">Cargando mercados...</div>;
+  }
+
+  if (error) {
+    return <div className="py-12 text-center text-sm text-destructive">No se pudieron cargar los mercados.</div>;
+  }
 
   return (
     <div className="space-y-6 max-w-7xl">

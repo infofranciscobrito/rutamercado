@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { listSubmissions, type Submission } from "@/lib/submissions.functions";
 import { formatDateEs } from "@/lib/format";
@@ -14,19 +15,25 @@ import {
 } from "@/components/ui/table";
 import { SubmissionReviewDrawer } from "@/components/admin/SubmissionReviewDrawer";
 
-const submissionsQO = queryOptions({
-  queryKey: ["admin", "submissions"],
-  queryFn: () => listSubmissions(),
-});
-
 export const Route = createFileRoute("/_admin/admin/submissions")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(submissionsQO),
   component: SubmissionsPage,
 });
 
 function SubmissionsPage() {
-  const { data } = useSuspenseQuery(submissionsQO);
+  const listSubmissionsFn = useServerFn(listSubmissions);
+  const { data = [], isLoading, error } = useQuery({
+    queryKey: ["admin", "submissions"],
+    queryFn: () => listSubmissionsFn(),
+  });
   const [selected, setSelected] = useState<Submission | null>(null);
+
+  if (isLoading) {
+    return <div className="py-12 text-center text-sm text-muted-foreground">Cargando envíos...</div>;
+  }
+
+  if (error) {
+    return <div className="py-12 text-center text-sm text-destructive">No se pudieron cargar los envíos.</div>;
+  }
 
   return (
     <div className="space-y-6">
