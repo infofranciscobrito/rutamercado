@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
+import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
 import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
@@ -42,6 +43,11 @@ const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminSubmissionsRoute = AdminAdminSubmissionsRouteImport.update({
+  id: '/admin/submissions',
+  path: '/admin/submissions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminMarketsRoute = AdminAdminMarketsRouteImport.update({
   id: '/admin/markets',
   path: '/admin/markets',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_admin/admin/markets': typeof AdminAdminMarketsRoute
+  '/_admin/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/markets'
+    | '/admin/submissions'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/markets'
+    | '/admin/submissions'
     | '/admin'
   id:
     | '__root__'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
     | '/_admin/admin/markets'
+    | '/_admin/admin/submissions'
     | '/_admin/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -162,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/submissions': {
+      id: '/_admin/admin/submissions'
+      path: '/admin/submissions'
+      fullPath: '/admin/submissions'
+      preLoaderRoute: typeof AdminAdminSubmissionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/markets': {
       id: '/_admin/admin/markets'
       path: '/admin/markets'
@@ -190,6 +209,7 @@ interface AdminRouteChildren {
   AdminAdminAnalyticsRoute: typeof AdminAdminAnalyticsRoute
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminAdminMarketsRoute: typeof AdminAdminMarketsRoute
+  AdminAdminSubmissionsRoute: typeof AdminAdminSubmissionsRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
@@ -197,6 +217,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminAnalyticsRoute: AdminAdminAnalyticsRoute,
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminAdminMarketsRoute: AdminAdminMarketsRoute,
+  AdminAdminSubmissionsRoute: AdminAdminSubmissionsRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 
@@ -211,3 +232,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
