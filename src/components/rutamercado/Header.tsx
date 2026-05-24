@@ -6,9 +6,9 @@ export function Header() {
     >
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6">
         <img
-          src="/logo-rutamercado.png"
+          src="/logo-rutamercado-horizontal.png"
           alt="RutaMercado — Directorio de mercados locales en Puerto Rico"
-          className="h-16 w-16 rounded-md sm:h-20 sm:w-20"
+          className="h-16 w-auto sm:h-20"
         />
         <p className="hidden text-sm text-white/80 sm:block">
           Descubre los mercados locales de Puerto Rico

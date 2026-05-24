@@ -18,11 +18,11 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <aside className="flex h-full w-full flex-col bg-[#1c1e37] text-white">
-      <div className="flex items-center justify-center px-6 py-6 border-b border-white/10">
+      <div className="flex items-center justify-center px-4 py-5 border-b border-white/10">
         <img
-          src="/logo-rutamercado.png"
+          src="/logo-rutamercado-horizontal.png"
           alt="RutaMercado — Directorio de mercados locales"
-          className="h-24 w-24 rounded-md"
+          className="h-14 w-auto"
         />
       </div>
       <nav className="flex-1 py-4">
