@@ -64,8 +64,15 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+type Orientation = "landscape" | "portrait" | "square";
+
 export function MarketDetailDialog({ market, open, onClose }: Props) {
   const trackedRef = useRef<string | null>(null);
+  const [orientation, setOrientation] = useState<Orientation>("landscape");
+
+  useEffect(() => {
+    setOrientation("landscape");
+  }, [market?.id]);
 
   useEffect(() => {
     if (!open || !market) return;
