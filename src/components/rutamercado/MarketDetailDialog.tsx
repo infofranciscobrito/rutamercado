@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import type { Market } from "@/types/market";
+import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
 import {
   formatDateEs,
@@ -25,7 +25,7 @@ import {
 } from "@/lib/analytics.functions";
 
 interface Props {
-  market: Market | null;
+  market: EnrichedMarket | null;
   open: boolean;
   onClose: () => void;
 }
