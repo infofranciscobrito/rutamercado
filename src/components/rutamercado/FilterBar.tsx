@@ -23,7 +23,7 @@ import { useEffect, useState } from "react";
 
 interface Props {
   filters: MarketFilters;
-  availableDays: Set<string>;
+  availableDays?: Set<string>;
   onChange: (next: Partial<MarketFilters>) => void;
   onClear: () => void;
 }
