@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Store, Eye, CalendarDays, MousePointerClick, Users } from "lucide-react";
@@ -19,6 +19,7 @@ import {
   getClicksPerDay,
   getUpcomingMarkets,
   getAttendanceMetrics,
+  getTopMarketsByIntention,
 } from "@/lib/admin-analytics.functions";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { formatDateEs } from "@/lib/format";
@@ -41,6 +42,7 @@ function DashboardPage() {
   const clicksFn = useServerFn(getClicksPerDay);
   const upcomingFn = useServerFn(getUpcomingMarkets);
   const attendanceFn = useServerFn(getAttendanceMetrics);
+  const topIntentionFn = useServerFn(getTopMarketsByIntention);
   const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
     console.log(`[Admin data] ${label}: fetch start`);
     try {
@@ -72,6 +74,10 @@ function DashboardPage() {
   const attendance = useQuery({
     queryKey: ["admin", "dashboard", "attendance"],
     queryFn: () => logFetch("dashboard attendance", () => attendanceFn()),
+  });
+  const topIntention = useQuery({
+    queryKey: ["admin", "dashboard", "topIntention"],
+    queryFn: () => logFetch("dashboard topIntention", () => topIntentionFn({ data: { limit: 5 } })),
   });
 
   const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading || attendance.isLoading;
@@ -112,6 +118,29 @@ function DashboardPage() {
           icon={Users}
           subtext={`${attendance.data?.willAttend ?? 0} van a ir · ${attendance.data?.interested ?? 0} interesados`}
         />
+      </div>
+
+      <div className="rounded-xl border bg-card p-5">
+        <h2 className="font-display text-lg text-[#1c1e37] mb-4">Top 5 mercados por intención</h2>
+        {(topIntention.data ?? []).length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aún no hay intenciones registradas</p>
+        ) : (
+          <ol className="space-y-2">
+            {(topIntention.data ?? []).map((m) => (
+              <li key={m.id} className="flex items-baseline gap-2 text-sm">
+                <span className="text-muted-foreground w-6">{m.rank}.</span>
+                <Link
+                  to="/admin/analytics"
+                  search={{ market: m.id }}
+                  className="font-medium text-[#1c1e37] hover:text-[#f8b625] hover:underline"
+                >
+                  {m.name}
+                </Link>
+                <span className="text-muted-foreground">— {m.willAttend} van a ir · {m.interested} interesados</span>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

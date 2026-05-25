@@ -1,74 +1,53 @@
-# Sistema de Intención de Asistencia
+# Desglose de intención de asistencia por mercado individual
 
-## 1. Base de datos (migración)
+Corregir las queries y vistas de intención para que toda la data esté agrupada por mercado individual (con nombre, categoría, municipio, vistas y tasa), añadir drill-down por mercado, y hacer todo navegable con filtro.
 
-Crear tabla `market_attendance_intentions`:
-- `id` uuid PK, `market_id` uuid FK → markets(id) ON DELETE CASCADE
-- `intention_type` text con CHECK in ('will_attend','interested')
-- `visitor_id` text not null
-- `created_at` timestamptz default now()
-- Índices en `market_id`, `intention_type`, `created_at`
-- RLS: INSERT público (anon+authenticated), SELECT solo authenticated (admin)
-- Agregar `'click_attendance'` al enum `click_type` (ALTER TYPE ADD VALUE)
+## 1. Backend — `src/lib/admin-analytics.functions.ts`
 
-## 2. Server functions
+- **Reescribir `getTopMarketsByIntention`**: hacer `GROUP BY market_id` real trayendo de `markets` los campos `name, category, municipality, view_count`, hacer left join con `market_attendance_intentions` (no descartar mercados sin intención si se quiere ver el universo — pero para el "Top 10" sí filtrar `total > 0`). Conteo de vistas de detalle desde `market_clicks` con `click_type='view_detail'` agrupado por `market_id`. Devolver: `id, rank, name, category, municipality, willAttend, interested, total, detailViews, intentionRate`. Ordenado por `total DESC`. Aceptar input opcional `{ limit?: number }` para reutilizar la query para el dashboard (top 5) y para el CSV (sin límite).
+- **Nueva `getIntentionMarketDetail({ marketId })`**: para el drill-down de una fila. Devuelve:
+  - `market`: `{ id, name, category, municipality, view_count }`
+  - `willAttend`, `interested`, `total`, `detailViews`, `intentionRate`
+  - `uniqueVisitors`: count distinct `visitor_id` filtrado por ese `market_id`
+  - `daily`: serie de 30 días `[{ date, willAttend, interested }]` filtrada por ese `market_id`
+- **Mantener** `getAttendanceMetrics`, `getIntentionsPerDay` (global) tal cual.
+- Validación zod estricta de `marketId` uuid.
 
-**`src/lib/attendance.functions.ts`** (nuevo):
-- `recordAttendanceIntention({ marketId, intentionType, visitorId })` — usa `supabaseAdmin`, inserta en `market_attendance_intentions` y en `market_clicks` con `click_type='click_attendance'`. Valida con Zod (uuid, enum, visitorId 1–64 chars).
-- `getMarketIntentionCount({ marketId })` — público; retorna `{ total, willAttend, interested }` para mostrar en el modal tras votar.
+## 2. Dashboard — `src/routes/_admin/admin.dashboard.tsx`
 
-**`src/lib/analytics.functions.ts`**:
-- Extender `ClickTypeSchema` con `'click_attendance'`.
+- La `MetricCard` "Intención de Asistencia" se mantiene con total + subtexto "X van a ir · Y interesados".
+- Debajo de la grid de métricas, agregar una nueva card "Top 5 mercados por intención":
+  - Lista numerada `1. {nombre} — {X} van a ir · {Y} interesados`
+  - Cada item es un `Link` a `/admin/analytics?market={id}` (TanStack Router con search params)
+  - Si no hay datos: estado vacío "Aún no hay intenciones registradas"
+- Datos vía `getTopMarketsByIntention({ limit: 5 })`.
 
-**`src/lib/admin-analytics.functions.ts`**:
-- `getAttendanceMetrics()` → totales globales (will_attend, interested, uniqueVisitors, intentionRate vs `view_detail` clicks).
-- `getTopMarketsByIntention()` → top 10 con breakdown + view counts.
-- `getIntentionsPerDay({ days: 30 })` → series por día/tipo.
-- `getIntentionsPerMarketAll()` para enriquecer la tabla y CSV.
+## 3. Analíticas — `src/routes/_admin/admin.analytics.tsx`
 
-**`src/lib/admin-markets.functions.ts`**:
-- Extender `listMarkets` para incluir conteo de intenciones por mercado (left join agregado).
+- **Search param `?market={id}`** opcional para destacar/expandir un mercado.
+- **Tabla "Top 10 Mercados por Intención"** — corregir columnas:
+  - `#`, `Mercado` (clickeable — toggle expand), `Categoría` (Badge), `Municipio`, `Voy a ir`, `Me interesa`, `Total`, `Vistas`, `Tasa %`
+  - Click en el nombre → expandir la fila para mostrar el panel de detalle (carga `getIntentionMarketDetail` on-demand con `useQuery` enabled).
+  - Si `?market={id}` está en la URL al cargar, expandir automáticamente esa fila y hacer scroll.
+- **Panel de detalle expandido por fila**:
+  - Nombre completo + badges (categoría, municipio)
+  - Grid 2 columnas: `PieChart` dona (Voy a ir #f8b625 vs Me interesa #FEF3C7) + `LineChart` 30 días por tipo (mismos colores que la línea global)
+  - Mini-cards: visitantes únicos, tasa de conversión (`intentionRate`)
+- **BarChart "Intención por Mercado"** — corregir:
+  - `dataKey="name"` en `XAxis` con `tickFormatter` que trunca a ~14 chars + ellipsis
+  - `Tooltip` custom que muestra nombre completo + "X van a ir · Y interesados · Z total"
+  - Barras apiladas dorado/crema (ya están)
+- **CSV** — reemplazar columnas por: `nombre_mercado, categoria, municipio, vistas, voy_a_ir, me_interesa, total_intenciones, tasa_intencion`. Una fila por mercado (usar `getTopMarketsByIntention()` sin limit, no solo top 10 → el handler ya soporta `limit` opcional).
 
-## 3. Visitor ID helper
+## 4. Tabla de mercados — `src/routes/_admin/admin.markets.tsx`
 
-**`src/lib/visitor-id.ts`** (nuevo): `getOrCreateVisitorId()` lee/escribe `rm_visitor_id` en localStorage (SSR-safe: retorna "" si `typeof window === 'undefined'`, sólo invocar desde event handlers/useEffect).
+- Columna "Intención" muestra `{X} van / {Y} interés` (con íconos pequeños `Hand` dorado y `Eye` muted), o "—" si 0.
+- La celda es un `Link` a `/admin/analytics?market={id}`.
+- Quitar el tooltip (el desglose ya está visible).
 
-## 4. Modal de detalle
+## 5. Notas técnicas
 
-**`src/components/rutamercado/MarketDetailDialog.tsx`**:
-- Nuevo subcomponente `AttendanceSection` insertado entre "Organizador" y botón "Cómo llegar", con separador (border-t #E5E7EB, my-5).
-- Estado: `voted` (bool, inicializado desde `localStorage['rm_voted_'+market.id]`), `counts` ({total, willAttend, interested}), `submitting`.
-- Si `!voted`: título + subtítulo centrados, dos botones (`¡Voy a ir!` primario #f8b625 con ícono `Hand`/`CalendarCheck`, `Me interesa` outline con ícono `Eye`/`Star`). Transiciones con clases CSS (fade).
-- Al click: llama `recordAttendanceIntention`, marca localStorage, fetch del conteo, muestra estado de gracias con `CheckCircle2` en círculo dorado (animación tailwind `animate-in zoom-in`), texto "¡Gracias por tu respuesta!" y "{total} personas planean asistir a este mercado".
-- Si ya votó al abrir: hacer query del conteo y mostrar estado final directamente.
-- Manejo de errores: toast sonner "No se pudo registrar tu respuesta".
-
-## 5. Admin Dashboard
-
-**`src/routes/_admin/admin.dashboard.tsx`**:
-- Agregar 5ta `MetricCard` "Intención de Asistencia" con ícono `Users`, valor = total, subtexto custom "X van a ir · Y interesados" (extender `MetricCard` para aceptar `subtext?: string` opcional).
-- Grid cambia a `lg:grid-cols-5`.
-- Datos vía nuevo `getAttendanceMetrics`.
-
-## 6. Admin Analytics
-
-**`src/routes/_admin/admin.analytics.tsx`**:
-- Nueva sección al final "Intención de Asistencia":
-  - 4 mini-cards: Voy a ir, Me interesa, Tasa de intención (%), Visitantes únicos.
-  - Tabla top 10 mercados (Pos, Nombre, Voy a ir, Me interesa, Total, Tasa %).
-  - `BarChart` apilado con dos `<Bar stackId="a">` colores #f8b625 y #FEF3C7.
-  - `LineChart` 30 días con dos `<Line>` (#f8b625, #6B7280).
-- Extender export CSV existente con columnas `voy_a_ir, me_interesa, total_intenciones, tasa_intencion`.
-
-## 7. Admin Markets table
-
-**`src/routes/_admin/admin.markets.tsx`**:
-- Nueva columna "Intención" tras "Vistas" mostrando total con ícono `Users` y `Tooltip` shadcn con "X van a ir · Y interesados".
-- Datos provienen del `listMarkets` extendido.
-
-## Notas técnicas
-
-- Recurrencia: la intención se asocia a `market_id` (no a fecha), cumpliendo el requerimiento.
-- Atomicidad de borrado de mercados: el CASCADE de la nueva FK ya cubre la limpieza al eliminar mercados (compatible con el flujo de borrado actual).
-- SSR: toda lectura de localStorage queda dentro de `useEffect`/handlers para evitar errores de hidratación.
-- Sin cambios en diseño visual existente fuera de las áreas listadas.
+- Toda agregación se hace en JS sobre `select` de Supabase (no hay PostgREST GROUP BY) — el patrón es traer las filas crudas y agruparlas con `Map`, como ya hace el archivo. La "query SQL ejemplo" del usuario sirve de referencia conceptual; la implementación equivalente es: `select id,name,category,municipality,view_count from markets` + `select market_id,intention_type from market_attendance_intentions` + agrupar por `market_id`.
+- Sin cambios en el modal público ni en el sistema de votación.
+- Sin cambios visuales fuera del panel de detalle nuevo y los formatos de celda mencionados.
+- Cache keys de React Query incluyen `marketId` para drill-down.

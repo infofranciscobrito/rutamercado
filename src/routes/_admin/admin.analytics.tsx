@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { Download } from "lucide-react";
+import { useEffect, useState, Fragment } from "react";
+import { Download, ChevronDown, ChevronRight } from "lucide-react";
 import {
   PieChart,
   Pie,
@@ -27,8 +27,10 @@ import {
   getAttendanceMetrics,
   getTopMarketsByIntention,
   getIntentionsPerDay,
+  getIntentionMarketDetail,
 } from "@/lib/admin-analytics.functions";
 import { downloadCSV } from "@/lib/csv";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -46,14 +48,36 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+type AnalyticsSearch = { market?: string };
+
 export const Route = createFileRoute("/_admin/admin/analytics")({
+  validateSearch: (search: Record<string, unknown>): AnalyticsSearch => ({
+    market: typeof search.market === "string" ? search.market : undefined,
+  }),
   component: AnalyticsPage,
 });
 
 const COLORS = ["#f8b625", "#1c1e37", "#22C55E", "#0ea5e9", "#a855f7", "#ef4444"];
 
+function truncate(s: string, n: number) {
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
 function AnalyticsPage() {
+  const { market: marketFromUrl } = Route.useSearch();
   const [days, setDays] = useState(30);
+  const [expandedId, setExpandedId] = useState<string | null>(marketFromUrl ?? null);
+
+  useEffect(() => {
+    if (marketFromUrl) {
+      setExpandedId(marketFromUrl);
+      // scroll into view after render
+      setTimeout(() => {
+        document.getElementById(`intention-row-${marketFromUrl}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 200);
+    }
+  }, [marketFromUrl]);
+
   const overviewFn = useServerFn(getAnalyticsOverview);
   const topMarketsFn = useServerFn(getTopMarkets);
   const topOrgFn = useServerFn(getTopOrganizers);
@@ -62,6 +86,8 @@ function AnalyticsPage() {
   const attMetricsFn = useServerFn(getAttendanceMetrics);
   const attTopFn = useServerFn(getTopMarketsByIntention);
   const attDailyFn = useServerFn(getIntentionsPerDay);
+  const attDetailFn = useServerFn(getIntentionMarketDetail);
+
   const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
     console.log(`[Admin data] ${label}: fetch start`);
     try {
@@ -100,11 +126,20 @@ function AnalyticsPage() {
   });
   const attTop = useQuery({
     queryKey: ["admin", "analytics", "attendance", "top"],
-    queryFn: () => logFetch("analytics attendance top", () => attTopFn()),
+    queryFn: () => logFetch("analytics attendance top", () => attTopFn({ data: { limit: 10 } })),
+  });
+  const attAll = useQuery({
+    queryKey: ["admin", "analytics", "attendance", "all"],
+    queryFn: () => logFetch("analytics attendance all", () => attTopFn({ data: {} })),
   });
   const attDaily = useQuery({
     queryKey: ["admin", "analytics", "attendance", "daily", days],
     queryFn: () => logFetch("analytics attendance daily", () => attDailyFn({ data: { days } })),
+  });
+  const attDetail = useQuery({
+    queryKey: ["admin", "analytics", "attendance", "detail", expandedId],
+    queryFn: () => logFetch("analytics attendance detail", () => attDetailFn({ data: { marketId: expandedId!, days: 30 } })),
+    enabled: !!expandedId,
   });
 
   const isLoading = overview.isLoading || topMarkets.isLoading || topOrg.isLoading || dist.isLoading || traffic.isLoading || attMetrics.isLoading || attTop.isLoading || attDaily.isLoading;
@@ -276,9 +311,11 @@ function AnalyticsPage() {
               onClick={() =>
                 downloadCSV(
                   "intencion-asistencia.csv",
-                  (attTop.data ?? []).map((r) => ({
-                    posicion: r.rank,
-                    mercado: r.name,
+                  (attAll.data ?? []).map((r) => ({
+                    nombre_mercado: r.name,
+                    categoria: r.category,
+                    municipio: r.municipality,
+                    vistas: r.detailViews,
                     voy_a_ir: r.willAttend,
                     me_interesa: r.interested,
                     total_intenciones: r.total,
@@ -286,7 +323,7 @@ function AnalyticsPage() {
                   })),
                 )
               }
-              disabled={!attTop.data?.length}
+              disabled={!attAll.data?.length}
             >
               <Download className="h-4 w-4 mr-1" /> CSV
             </Button>
@@ -296,30 +333,64 @@ function AnalyticsPage() {
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Mercado</TableHead>
+                <TableHead>Categoría</TableHead>
+                <TableHead>Municipio</TableHead>
                 <TableHead className="text-right">Voy a ir</TableHead>
                 <TableHead className="text-right">Me interesa</TableHead>
                 <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Vistas</TableHead>
                 <TableHead className="text-right">Tasa</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(attTop.data ?? []).length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                  <TableCell colSpan={9} className="text-center text-muted-foreground py-6">
                     Aún no hay intenciones registradas
                   </TableCell>
                 </TableRow>
               ) : (
-                (attTop.data ?? []).map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell>{r.rank}</TableCell>
-                    <TableCell className="font-medium">{r.name}</TableCell>
-                    <TableCell className="text-right">{r.willAttend}</TableCell>
-                    <TableCell className="text-right">{r.interested}</TableCell>
-                    <TableCell className="text-right">{r.total}</TableCell>
-                    <TableCell className="text-right">{r.intentionRate.toFixed(1)}%</TableCell>
-                  </TableRow>
-                ))
+                (attTop.data ?? []).map((r) => {
+                  const isExpanded = expandedId === r.id;
+                  return (
+                    <Fragment key={r.id}>
+                      <TableRow key={r.id} id={`intention-row-${r.id}`} className={isExpanded ? "bg-[#f8b625]/5" : undefined}>
+                        <TableCell>{r.rank}</TableCell>
+                        <TableCell>
+                          <button
+                            type="button"
+                            onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                            className="inline-flex items-center gap-1 font-medium text-[#1c1e37] hover:text-[#f8b625] hover:underline"
+                          >
+                            {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                            {r.name}
+                          </button>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-[#f8b625]/15 text-[#1c1e37] border-0">
+                            {r.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{r.municipality}</TableCell>
+                        <TableCell className="text-right">{r.willAttend}</TableCell>
+                        <TableCell className="text-right">{r.interested}</TableCell>
+                        <TableCell className="text-right font-medium">{r.total}</TableCell>
+                        <TableCell className="text-right">{r.detailViews}</TableCell>
+                        <TableCell className="text-right">{r.intentionRate.toFixed(1)}%</TableCell>
+                      </TableRow>
+                      {isExpanded && (
+                        <TableRow key={`${r.id}-detail`} className="bg-[#f8b625]/5 hover:bg-[#f8b625]/5">
+                          <TableCell colSpan={9} className="p-0">
+                            <IntentionDetailPanel
+                              loading={attDetail.isLoading || attDetail.isFetching}
+                              data={attDetail.data && attDetail.data.market.id === r.id ? attDetail.data : null}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </Fragment>
+                  );
+                })
               )}
             </TableBody>
           </Table>
@@ -332,9 +403,35 @@ function AnalyticsPage() {
               <ResponsiveContainer>
                 <BarChart data={attTop.data ?? []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-25} textAnchor="end" height={70} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10 }}
+                    interval={0}
+                    angle={-25}
+                    textAnchor="end"
+                    height={70}
+                    tickFormatter={(v: string) => truncate(v, 14)}
+                  />
                   <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload || payload.length === 0) return null;
+                      const row = payload[0].payload as {
+                        name: string;
+                        willAttend: number;
+                        interested: number;
+                        total: number;
+                      };
+                      return (
+                        <div className="rounded-md border bg-white px-3 py-2 text-xs shadow-md">
+                          <div className="font-medium text-[#1c1e37] mb-1">{row.name}</div>
+                          <div className="text-muted-foreground">
+                            {row.willAttend} van a ir · {row.interested} interesados · {row.total} total
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
                   <Legend />
                   <Bar dataKey="willAttend" name="Voy a ir" stackId="a" fill="#f8b625" />
                   <Bar dataKey="interested" name="Me interesa" stackId="a" fill="#FEF3C7" />
@@ -379,6 +476,83 @@ function ChartCard({ title, children }: { title: string; children: React.ReactEl
       <h2 className="font-display text-lg text-[#1c1e37] mb-4">{title}</h2>
       <div className="h-72">
         <ResponsiveContainer>{children}</ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+type DetailData = {
+  market: { id: string; name: string; category: string; municipality: string; view_count: number | null };
+  willAttend: number;
+  interested: number;
+  total: number;
+  detailViews: number;
+  uniqueVisitors: number;
+  intentionRate: number;
+  daily: { date: string; willAttend: number; interested: number }[];
+};
+
+function IntentionDetailPanel({ loading, data }: { loading: boolean; data: DetailData | null }) {
+  if (loading || !data) {
+    return <div className="p-6 text-sm text-muted-foreground">Cargando detalle...</div>;
+  }
+  const donutData = [
+    { name: "Voy a ir", value: data.willAttend },
+    { name: "Me interesa", value: data.interested },
+  ];
+  return (
+    <div className="p-6 space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="font-display text-lg text-[#1c1e37]">{data.market.name}</h3>
+        <Badge variant="secondary" className="bg-[#f8b625]/15 text-[#1c1e37] border-0">{data.market.category}</Badge>
+        <Badge variant="outline">{data.market.municipality}</Badge>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Metric label="Visitantes únicos" value={data.uniqueVisitors} />
+        <Metric label="Vistas de detalle" value={data.detailViews} />
+        <Metric label="Total intenciones" value={data.total} />
+        <Metric label="Tasa de conversión" value={`${data.intentionRate.toFixed(1)}%`} />
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border bg-card p-4">
+          <h4 className="text-sm font-medium text-[#1c1e37] mb-2">Proporción</h4>
+          <div className="h-56">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={donutData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} label>
+                  <Cell fill="#f8b625" />
+                  <Cell fill="#FEF3C7" />
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-4">
+          <h4 className="text-sm font-medium text-[#1c1e37] mb-2">Últimos 30 días</h4>
+          <div className="h-56">
+            <ResponsiveContainer>
+              <LineChart data={data.daily}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke="#f8b625" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="interested" name="Me interesa" stroke="#6B7280" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+      <div>
+        <Link
+          to="/admin/markets"
+          className="text-xs text-[#f8b625] hover:underline"
+        >
+          Ver en gestión de mercados →
+        </Link>
       </div>
     </div>
   );
