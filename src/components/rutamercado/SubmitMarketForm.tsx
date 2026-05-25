@@ -121,9 +121,6 @@ export function SubmitMarketForm() {
     );
   }
 
-  const contactError =
-    errors.organizer_phone?.message || errors.organizer_email?.message;
-
   return (
     <form
       onSubmit={handleSubmit((v) => mutation.mutate(v))}
