@@ -101,11 +101,17 @@ function DashboardPage() {
         <p className="text-sm text-muted-foreground">Resumen general de RutaMercado</p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <MetricCard label="Mercados Activos" value={metricsData.activeMarkets} icon={Store} />
         <MetricCard label="Vistas Totales" value={metricsData.totalViews} icon={Eye} />
         <MetricCard label="Esta Semana" value={metricsData.upcomingThisWeek} icon={CalendarDays} />
         <MetricCard label="Clics Totales" value={metricsData.totalClicks} icon={MousePointerClick} />
+        <MetricCard
+          label="Intención de Asistencia"
+          value={attendance.data?.total ?? 0}
+          icon={Users}
+          subtext={`${attendance.data?.willAttend ?? 0} van a ir · ${attendance.data?.interested ?? 0} interesados`}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
