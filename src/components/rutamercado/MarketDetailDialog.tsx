@@ -91,7 +91,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
         {market && (
           <div className="flex max-h-[100dvh] flex-col overflow-y-auto sm:max-h-[90vh]">
             <div
-              className="relative w-full shrink-0 overflow-hidden rounded-t-none sm:rounded-t-[20px]"
+              className="relative w-full shrink-0 overflow-hidden rounded-t-none min-h-[280px] sm:rounded-t-[20px]"
               style={{
                 background:
                   "linear-gradient(135deg, #1c1e37 0%, #2d3058 100%)",

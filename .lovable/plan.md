@@ -1,30 +1,27 @@
-Sí, esto se resuelve.
+## Objective
+Improve image loading in `MarketImage.tsx` and `MarketCard.tsx` by adding blur placeholders and preventing layout shift, without changing any colors, fonts, spacing, or other visual styling.
 
-El problema no es la foto ni los datos existentes: es el diseño actual del modal. Aunque la imagen usa `object-contain`, el contenedor de arriba sigue teniendo una altura fija limitada (`50vh`, `400px`, `500px`) y por eso una imagen promocional alta no cabe completa; se corta visualmente y aparece esa franja azul/oscura del fondo.
+## Files to Modify
 
-Plan mínimo para arreglarlo sin tocar lo demás:
+### 1. `src/components/rutamercado/MarketImage.tsx`
+- `loading="lazy"` is already present on both `<img>` tags — confirm and preserve.
+- Add `useState` to track `loaded` state per image instance.
+- While `!loaded`, render the `<img>` with `filter: blur(8px)` and `opacity: 0.7`.
+- On `onLoad`, set `loaded = true` and transition to `filter: blur(0)` and `opacity: 1` using Tailwind `transition-all duration-500`.
+- Add explicit `width` and `height` attributes:
+  - `cover` branch: `width={320} height={180}` (16:9 ratio hint for browsers).
+  - `contain` branch: `width={800} height={600}` (4:3 generic ratio hint).
+- No changes to colors, fonts, spacing, or className defaults.
 
-1. Cambiar solo el bloque superior de imagen en `MarketDetailDialog.tsx`.
-   - Quitar la altura fija que fuerza el recorte.
-   - Usar un contenedor adaptable que permita que la imagen vertical muestre su proporción completa.
-   - Mantener ancho completo del modal.
+### 2. `src/components/rutamercado/MarketCard.tsx`
+- The card image container already uses `aspect-video`, which prevents CLS at the container level.
+- No visual styling changes required; the `MarketImage` component handles the blur and intrinsic sizing.
 
-2. Ajustar `MarketImage.tsx` solo para el modo `fit="contain"` del modal.
-   - La imagen debe renderizarse con `width: 100%`, `height: auto`, `max-height: none` para retratos.
-   - Para imágenes horizontales, seguir usando `contain` sin deformar.
-   - No tocar el modo `cover`, que usan las cards.
+### 3. `src/components/rutamercado/MarketDetailDialog.tsx`
+- Add `min-h-[280px]` to the top image container so it does not fully collapse before the image loads, reducing modal-level CLS.
+- No other visual styling changes.
 
-3. Quitar la línea/franja azul visible.
-   - El fondo oscuro solo debe verse si realmente sobra espacio lateral por `contain`.
-   - No debe aparecer una barra horizontal debajo de la imagen.
-
-4. Verificación visual obligatoria antes de decir que está resuelto.
-   - Abrir el modal en el preview.
-   - Comparar contra la captura que enviaste.
-   - Confirmar que el cartel promocional se ve completo, sin cortar texto superior/inferior.
-
-No voy a modificar:
-- Cards del directorio.
-- Categorías.
-- Contenido debajo de la imagen.
-- Overlay ni animaciones del modal.
+## Verification
+- Open the preview, scroll to cards, and observe images loading with a soft blur that clears into focus.
+- Confirm no visual regressions in colors, spacing, fonts, or card dimensions.
+- Confirm `loading="lazy"` remains on all `<img>` elements.

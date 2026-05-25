@@ -1,4 +1,5 @@
 import { MapPin } from "lucide-react";
+import { useState } from "react";
 
 type Orientation = "landscape" | "portrait" | "square";
 
@@ -11,6 +12,8 @@ interface Props {
 }
 
 export function MarketImage({ src, alt, className, fit = "cover", onOrientation }: Props) {
+  const [loaded, setLoaded] = useState(false);
+
   if (src) {
     if (fit === "contain") {
       return (
@@ -18,7 +21,11 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation 
           src={src}
           alt={alt}
           loading="lazy"
+          decoding="async"
+          width={800}
+          height={600}
           onLoad={(e) => {
+            setLoaded(true);
             if (!onOrientation) return;
             const img = e.currentTarget;
             const { naturalWidth: w, naturalHeight: h } = img;
@@ -27,6 +34,11 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation 
             onOrientation(
               ratio > 1.05 ? "landscape" : ratio < 0.95 ? "portrait" : "square",
             );
+          }}
+          style={{
+            filter: loaded ? "blur(0px)" : "blur(8px)",
+            opacity: loaded ? 1 : 0.7,
+            transition: "filter 500ms ease-out, opacity 500ms ease-out",
           }}
           className={`mx-auto block h-auto max-h-[72dvh] w-auto max-w-full object-contain object-center ${className ?? ""}`}
         />
@@ -37,6 +49,15 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation 
         src={src}
         alt={alt}
         loading="lazy"
+        decoding="async"
+        width={320}
+        height={180}
+        onLoad={() => setLoaded(true)}
+        style={{
+          filter: loaded ? "blur(0px)" : "blur(8px)",
+          opacity: loaded ? 1 : 0.7,
+          transition: "filter 500ms ease-out, opacity 500ms ease-out",
+        }}
         className={`h-full w-full object-cover ${className ?? ""}`}
       />
     );
