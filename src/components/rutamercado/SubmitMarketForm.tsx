@@ -201,7 +201,7 @@ export function SubmitMarketForm() {
       </Section>
 
       <Section title="Cuándo ocurre">
-        <RecurrenceFields control={control} watch={watch} />
+        <RecurrenceFields control={control} watch={watch} disabled={mutation.isPending} />
       </Section>
 
       <Section title="Foto del mercado">
@@ -212,6 +212,7 @@ export function SubmitMarketForm() {
         <ImageUpload16x9
           value={imageUrl}
           onChange={(url) => setValue("image_url", url, { shouldDirty: true })}
+          disabled={mutation.isPending}
         />
       </Section>
 
