@@ -42,7 +42,7 @@ async function fetchActiveMarketsWithSchedule(
       recurrence_label: string | null;
     }>;
 
-  const ids = markets.map((m) => m.id);
+  const ids = markets.map((m: { id: string }) => m.id);
   const [{ data: exs }, { data: ovs }] = await Promise.all([
     supabase
       .from("market_exceptions")
