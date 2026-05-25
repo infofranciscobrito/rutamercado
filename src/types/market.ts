@@ -54,7 +54,7 @@ export const MARKET_REGIONS: MarketRegion[] = [
   "Centro",
 ];
 
-/** Legacy frequency labels — kept for forms that haven't migrated to recurrence yet. */
+/** Legacy frequency labels — kept for backwards-compat references; not used in new UI. */
 export const MARKET_FREQUENCIES: string[] = [
   "Único",
   "Semanal",
