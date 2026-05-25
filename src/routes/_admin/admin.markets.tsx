@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   listAllMarkets,
@@ -102,10 +102,12 @@ function MarketsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
       queryClient.invalidateQueries({ queryKey: ["markets"] });
-      toast.success("Mercado eliminado");
+      queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "analytics"] });
+      toast.success("Mercado eliminado correctamente junto con todos sus datos asociados");
       setConfirmDelete(null);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: () => toast.error("Error al eliminar el mercado. Intenta de nuevo."),
   });
 
   const openCreate = () => {
