@@ -306,10 +306,11 @@ function MarketsContent({
         {filtered.length === 0 ? (
           <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
             <EmptyState
-              hasFilters={hasActiveFilters(filters) || markets.length > 0}
+              hasFilters={hasActiveFilters(filters)}
               onClear={onClear}
               isTodayFilter={filters.date === "today" && !filters.day}
               onSwitchToWeek={onSwitchToWeek}
+              filterSummary={describeFilters(filters)}
             />
           </div>
         ) : viewMode === "grid" ? (
