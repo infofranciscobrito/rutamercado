@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { Component, useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,28 +35,24 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error }: { error: Error; reset: () => void }) {
   console.error(error);
-  const router = useRouter();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Something went wrong
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          An unexpected error occurred. Please reload the page or head back home.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
+            onClick={() => window.location.reload()}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Reload page
           </button>
           <a
             href="/"
@@ -68,6 +64,44 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
       </div>
     </div>
   );
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: unknown) {
+    console.error(error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-background px-4">
+          <div className="max-w-md text-center">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+              Something went wrong
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              An unexpected error occurred. Please reload the page.
+            </p>
+            <div className="mt-6">
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Reload page
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -120,7 +154,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthInvalidator />
       <Toaster />
-      <Outlet />
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
     </QueryClientProvider>
   );
 }
