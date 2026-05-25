@@ -3,8 +3,6 @@ import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-const TARGET_W = 1600;
-const TARGET_H = 900; // 16:9
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
 
@@ -20,52 +18,6 @@ async function detectMimeFromBytes(file: File): Promise<string | null> {
   )
     return "image/webp";
   return null;
-}
-
-function loadImage(file: File): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("No se pudo leer la imagen."));
-    };
-    img.src = url;
-  });
-}
-
-/** Center-crop the image to 16:9 and resize to 1600x900, output WebP. */
-async function cropTo16x9(file: File): Promise<Blob> {
-  const img = await loadImage(file);
-  const srcRatio = img.width / img.height;
-  const targetRatio = TARGET_W / TARGET_H;
-  let sx = 0, sy = 0, sw = img.width, sh = img.height;
-  if (srcRatio > targetRatio) {
-    // wider than 16:9 → crop sides
-    sw = Math.round(img.height * targetRatio);
-    sx = Math.round((img.width - sw) / 2);
-  } else if (srcRatio < targetRatio) {
-    // taller than 16:9 → crop top/bottom
-    sh = Math.round(img.width / targetRatio);
-    sy = Math.round((img.height - sh) / 2);
-  }
-  const canvas = document.createElement("canvas");
-  canvas.width = TARGET_W;
-  canvas.height = TARGET_H;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("No se pudo procesar la imagen.");
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, TARGET_W, TARGET_H);
-  const blob: Blob | null = await new Promise((resolve) =>
-    canvas.toBlob((b) => resolve(b), "image/webp", 0.85),
-  );
-  if (!blob) throw new Error("No se pudo generar la imagen procesada.");
-  return blob;
 }
 
 interface Props {
@@ -93,15 +45,20 @@ export function ImageUpload16x9({ value, onChange }: Props) {
     }
     setUploading(true);
     try {
-      const blob = await cropTo16x9(file);
-      const path = `submissions/${crypto.randomUUID()}.webp`;
+      const extByType: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/gif": "gif",
+        "image/webp": "webp",
+      };
+      const path = `submissions/${crypto.randomUUID()}.${extByType[detected]}`;
       const { error } = await supabase.storage
         .from("market-images")
-        .upload(path, blob, { upsert: false, contentType: "image/webp" });
+        .upload(path, file, { upsert: false, contentType: detected });
       if (error) throw error;
       const { data } = supabase.storage.from("market-images").getPublicUrl(path);
       onChange(data.publicUrl);
-      toast.success("Foto subida y ajustada");
+      toast.success("Foto subida completa");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -140,7 +97,7 @@ export function ImageUpload16x9({ value, onChange }: Props) {
               <Upload className="h-6 w-6 text-[#f8b625]" />
               <span className="font-medium">Sube una foto</span>
               <span className="text-xs text-[#1c1e37]/55">
-                JPG, PNG o WebP · máx 5 MB · se ajusta automáticamente a 16:9
+                JPG, PNG o WebP · máx 5 MB · se conserva completa
               </span>
             </>
           )}
