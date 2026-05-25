@@ -26,7 +26,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export function ImageUpload16x9({ value, onChange }: Props) {
+export function ImageUpload16x9({ value, onChange, disabled = false }: Props) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
