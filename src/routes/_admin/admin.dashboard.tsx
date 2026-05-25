@@ -40,6 +40,7 @@ function DashboardPage() {
   const viewsFn = useServerFn(getViewsPerMarket);
   const clicksFn = useServerFn(getClicksPerDay);
   const upcomingFn = useServerFn(getUpcomingMarkets);
+  const attendanceFn = useServerFn(getAttendanceMetrics);
   const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
     console.log(`[Admin data] ${label}: fetch start`);
     try {
@@ -68,9 +69,13 @@ function DashboardPage() {
     queryKey: ["admin", "dashboard", "upcoming"],
     queryFn: () => logFetch("dashboard upcoming", () => upcomingFn()),
   });
+  const attendance = useQuery({
+    queryKey: ["admin", "dashboard", "attendance"],
+    queryFn: () => logFetch("dashboard attendance", () => attendanceFn()),
+  });
 
-  const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading;
-  const error = metrics.error ?? views.error ?? clicks.error ?? upcoming.error;
+  const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading || attendance.isLoading;
+  const error = metrics.error ?? views.error ?? clicks.error ?? upcoming.error ?? attendance.error;
 
   if (isLoading) {
     return <div className="py-12 text-center text-sm text-muted-foreground">Cargando dashboard...</div>;
