@@ -1,26 +1,43 @@
-## Problem
+## Resumen
 
-`MarketImage.tsx` toggles a `filter: blur(8px) → blur(0)` via a `loaded` state set in `onLoad`. The logic itself is correct, but `onLoad` does not fire reliably for images already in the browser cache (common when scrolling back through `MarketCard` / `CategoryRow`, or when the same image appears in the grid and the detail dialog). When that happens, `loaded` stays `false` forever and the image is permanently blurred.
+La eliminación de mercados ya existe en `/admin/markets`, pero el dialog no usa los textos pedidos, el botón no muestra loading y al borrar no se refrescan dashboard/analytics. Las foreign keys de `market_clicks`, `market_exceptions` y `market_date_overrides` ya tienen `ON DELETE CASCADE` hacia `markets.id` (verificado en la base de datos), así que el `DELETE` actual en `deleteMarket` ya limpia automáticamente todos los datos relacionados — no hace falta migración ni cambios en el servidor.
 
-This is the only blur source in the file (no `blur-sm` Tailwind class is used) — both the `cover` and `contain` branches have the same bug.
+El trabajo es solo de frontend en `src/routes/_admin/admin.markets.tsx`.
 
-## Fix
+## Cambios
 
-In `src/components/rutamercado/MarketImage.tsx`:
+### `src/routes/_admin/admin.markets.tsx`
 
-1. Attach a `ref` to each `<img>` (one for the `contain` branch, one for the `cover` branch).
-2. Add a `useEffect` that, after mount and whenever `src` changes, checks `img.complete && img.naturalWidth > 0`. If true, the image came from cache — call `setLoaded(true)` immediately (and, for the `contain` branch, also fire the existing `onOrientation` calculation so behavior stays identical to the `onLoad` path).
-3. Reset `loaded` to `false` when `src` changes, so a new image starts blurred again before its own `onLoad` resolves.
-4. Keep the existing `onLoad` handlers as-is (they remain the primary path for non-cached loads).
+1. **AlertDialog de confirmación** — actualizar textos y estilos:
+   - Título: `¿Eliminar este mercado?`
+   - Descripción: `Se eliminará "{nombre}" y TODOS sus datos asociados: vistas, clics, excepciones y cambios de fecha. Esta acción no se puede deshacer.`
+   - Botón cancelar: queda como `AlertDialogCancel` (outline gris por defecto).
+   - Botón confirmar: texto `Eliminar permanentemente`, fondo `bg-[#DC2626] hover:bg-[#DC2626]/90 text-white`.
 
-No changes to:
-- Styles, classes, transitions, sizes, `object-*` rules, gradients
-- The fallback (no-`src`) branch
-- The `onOrientation` contract
-- Any other component
+2. **Loading + doble-submit**:
+   - Mientras `remove.isPending`, el botón confirmar muestra `<Loader2 className="animate-spin" />` + "Eliminando…" y queda `disabled`.
+   - Pasar `disabled={remove.isPending}` también a Cancelar y bloquear el cierre del dialog (`onOpenChange={(o) => { if (!remove.isPending && !o) setConfirmDelete(null); }}`).
 
-## Verification
+3. **Toasts**:
+   - Éxito (`onSuccess`): `toast.success("Mercado eliminado correctamente junto con todos sus datos asociados")` (reemplaza el actual "Mercado eliminado").
+   - Error (`onError`): `toast.error("Error al eliminar el mercado. Intenta de nuevo.")` (reemplaza el `e.message` genérico).
 
-- Scroll `CategoryRow` back and forth so cards re-mount with cached images → images should be sharp, not blurred.
-- Open a market in `MarketDetailDialog` whose image already rendered in a `MarketCard` → detail image should be sharp.
-- First-time load of a new image → brief blur, then sharp (unchanged behavior).
+4. **Invalidación de caches** en `onSuccess` del mutation `remove`:
+   - `["admin", "markets"]` (ya existe)
+   - `["markets"]` (ya existe, usado por el directorio público)
+   - `["admin", "dashboard"]` (prefijo — invalida metrics, views, clicks, upcoming)
+   - `["admin", "analytics"]` (prefijo — invalida overview, topMarkets, topOrg, dist, traffic)
+
+   React Query invalida por prefijo automáticamente con `queryKey: ["admin", "dashboard"]`.
+
+## Lo que NO cambia
+
+- `deleteMarket` en `src/lib/admin-markets.functions.ts` (ya hace `DELETE FROM markets WHERE id=...`, el CASCADE limpia el resto).
+- Esquema de base de datos (las FK ya tienen `ON DELETE CASCADE`).
+- Diseño/estructura del resto del admin, directorio público, flujo de crear/editar.
+- No se introduce soft-delete ni papelera.
+
+## Verificación
+
+- Eliminar un mercado con clics y vistas → confirmar que desaparece de `/admin/markets`, que las métricas en `/admin/dashboard` bajan, y que ya no aparece en Top Mercados de `/admin/analytics`.
+- Verificar que `market_clicks`, `market_exceptions`, `market_date_overrides` ya no tienen filas con ese `market_id` (vía `psql`).
