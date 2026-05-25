@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Loader2, Pencil, Plus, Trash2, Users } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2, Hand, Eye } from "lucide-react";
 import { toast } from "sonner";
 import {
   listAllMarkets,
@@ -11,12 +11,6 @@ import {
   toggleMarketActive,
 } from "@/lib/admin-markets.functions";
 import { getIntentionsPerMarketAll } from "@/lib/admin-analytics.functions";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { MARKET_CATEGORIES, type Market } from "@/types/market";
 import { formatDateEs } from "@/lib/format";
 import { Button } from "@/components/ui/button";
