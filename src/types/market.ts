@@ -18,9 +18,18 @@ export type ClickType =
   | "click_instagram"
   | "click_directions";
 
-export type Market = Database["public"]["Tables"]["markets"]["Row"];
-export type MarketInsert = Database["public"]["Tables"]["markets"]["Insert"];
-export type MarketUpdate = Database["public"]["Tables"]["markets"]["Update"];
+/** Legacy fields kept for forms/UI not yet migrated to the recurrence model. */
+type LegacyMarketFields = {
+  event_date: string;
+  frequency: string | null;
+};
+
+export type Market = Database["public"]["Tables"]["markets"]["Row"] &
+  LegacyMarketFields;
+export type MarketInsert = Database["public"]["Tables"]["markets"]["Insert"] &
+  Partial<LegacyMarketFields>;
+export type MarketUpdate = Database["public"]["Tables"]["markets"]["Update"] &
+  Partial<LegacyMarketFields>;
 
 export type MarketClick = Database["public"]["Tables"]["market_clicks"]["Row"];
 export type PageView = Database["public"]["Tables"]["page_views"]["Row"];
@@ -52,4 +61,12 @@ export const MARKET_REGIONS: MarketRegion[] = [
   "Este",
   "Oeste",
   "Centro",
+];
+
+/** Legacy frequency labels — kept for forms that haven't migrated to recurrence yet. */
+export const MARKET_FREQUENCIES: string[] = [
+  "Único",
+  "Semanal",
+  "Quincenal",
+  "Mensual",
 ];

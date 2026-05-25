@@ -12,7 +12,7 @@ import {
   type MarketFilters,
 } from "@/lib/market-filters";
 import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
-import type { Market, MarketCategory } from "@/types/market";
+import type { EnrichedMarket, MarketCategory } from "@/types/market";
 import { Header } from "@/components/rutamercado/Header";
 import { Hero } from "@/components/rutamercado/Hero";
 import { FilterBar } from "@/components/rutamercado/FilterBar";
@@ -260,7 +260,7 @@ function MarketsContent({
 
   // Group by category, preserving the canonical category order
   const grouped = useMemo(() => {
-    const map = new Map<MarketCategory, Market[]>();
+    const map = new Map<MarketCategory, EnrichedMarket[]>();
     for (const m of filtered) {
       const list = map.get(m.category) ?? [];
       list.push(m);

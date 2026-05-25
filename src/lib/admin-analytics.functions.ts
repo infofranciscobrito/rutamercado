@@ -20,10 +20,21 @@ function startOfToday(): Date {
   return new Date(n.getFullYear(), n.getMonth(), n.getDate());
 }
 
+type ScheduledMarket = {
+  id: string;
+  name: string;
+  municipality: string;
+  view_count: number;
+  nextDate: string | null;
+  recurrence_label: string | null;
+  upcoming: ReturnType<typeof computeSchedule>["upcoming"];
+};
+
 async function fetchActiveMarketsWithSchedule(
-  supabase: ReturnType<typeof getSupabase>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
   days = 90,
-) {
+): Promise<ScheduledMarket[]> {
   const { data: markets, error } = await supabase
     .from("markets")
     .select(
@@ -31,17 +42,9 @@ async function fetchActiveMarketsWithSchedule(
     )
     .eq("is_active", true);
   if (error) throw new Error(error.message);
-  if (!markets || markets.length === 0)
-    return [] as Array<{
-      id: string;
-      name: string;
-      municipality: string;
-      view_count: number;
-      nextDate: string | null;
-      recurrence_label: string | null;
-    }>;
+  if (!markets || markets.length === 0) return [];
 
-  const ids = markets.map((m) => m.id);
+  const ids = markets.map((m: { id: string }) => m.id);
   const [{ data: exs }, { data: ovs }] = await Promise.all([
     supabase
       .from("market_exceptions")
@@ -82,7 +85,8 @@ async function fetchActiveMarketsWithSchedule(
     ovByM.set(o.market_id, arr);
   }
 
-  return markets.map((m) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return markets.map((m: any) => {
     const { upcoming } = computeSchedule(
       {
         recurrence_type: m.recurrence_type,
@@ -109,12 +113,6 @@ async function fetchActiveMarketsWithSchedule(
   });
 }
 
-// Helper for typing
-function getSupabase() {
-  return null as unknown as Awaited<
-    ReturnType<typeof requireSupabaseAuth.next>
-  >["context"]["supabase"];
-}
 
 export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

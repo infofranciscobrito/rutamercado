@@ -156,7 +156,7 @@ function DashboardPage() {
               upcomingData.map((m) => (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
-                  <TableCell>{formatDateEs(m.event_date)}</TableCell>
+                  <TableCell>{m.nextDate ? formatDateEs(m.nextDate) : "—"}</TableCell>
                   <TableCell>{m.municipality}</TableCell>
                   <TableCell className="text-right">{m.view_count ?? 0}</TableCell>
                 </TableRow>
