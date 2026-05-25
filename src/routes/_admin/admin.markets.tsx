@@ -188,7 +188,7 @@ function MarketsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>{m.municipality}</TableCell>
-                  <TableCell className="whitespace-nowrap">{formatDateEs(m.event_date)}</TableCell>
+                  <TableCell className="whitespace-nowrap">{m.recurrence_label || formatDateEs(m.recurrence_start_date)}</TableCell>
                   <TableCell className="text-right">{m.view_count ?? 0}</TableCell>
                   <TableCell>
                     <Switch
