@@ -118,7 +118,7 @@ function CategorySelect({
   );
 }
 
-export function FilterBar({ filters, availableDays, onChange, onClear }: Props) {
+export function FilterBar({ filters, onChange, onClear }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
