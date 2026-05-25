@@ -83,7 +83,8 @@ async function fetchActiveMarketsWithSchedule(
     ovByM.set(o.market_id, arr);
   }
 
-  return markets.map((m) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return markets.map((m: any) => {
     const { upcoming } = computeSchedule(
       {
         recurrence_type: m.recurrence_type,
