@@ -21,7 +21,8 @@ function startOfToday(): Date {
 }
 
 async function fetchActiveMarketsWithSchedule(
-  supabase: ReturnType<typeof getSupabase>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
   days = 90,
 ) {
   const { data: markets, error } = await supabase
