@@ -3,7 +3,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
-  Hand,
   Instagram,
   Mail,
   MapPin,
