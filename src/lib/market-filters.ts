@@ -1,4 +1,4 @@
-import type { Market, MarketCategory, MarketRegion } from "@/types/market";
+import type { EnrichedMarket, MarketCategory, MarketRegion } from "@/types/market";
 
 export type DateFilter = "today" | "week" | "month" | "all";
 
@@ -7,7 +7,6 @@ export interface MarketFilters {
   date: DateFilter;
   region: MarketRegion | "all";
   category: MarketCategory | "all";
-  /** Optional specific day "YYYY-MM-DD". When set, overrides `date`. */
   day?: string;
 }
 
@@ -31,7 +30,10 @@ export function toIsoDay(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export function applyFilters(markets: Market[], filters: MarketFilters): Market[] {
+export function applyFilters(
+  markets: EnrichedMarket[],
+  filters: MarketFilters,
+): EnrichedMarket[] {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const weekEnd = new Date(today);
@@ -47,20 +49,20 @@ export function applyFilters(markets: Market[], filters: MarketFilters): Market[
     if (filters.category !== "all" && m.category !== filters.category) return false;
 
     if (filters.day) {
-      if (m.event_date !== filters.day) return false;
+      if (!m.upcoming.some((u) => u.date === filters.day)) return false;
     } else if (filters.date !== "all") {
-      const ed = parseEventDate(m.event_date);
-      if (filters.date === "today") {
-        if (ed.getTime() !== today.getTime()) return false;
-      } else if (filters.date === "week") {
-        if (ed < today || ed > weekEnd) return false;
-      } else if (filters.date === "month") {
-        if (
-          ed.getFullYear() !== today.getFullYear() ||
-          ed.getMonth() !== today.getMonth()
-        )
-          return false;
-      }
+      const matches = m.upcoming.some((u) => {
+        const ed = parseEventDate(u.date);
+        if (filters.date === "today") return ed.getTime() === today.getTime();
+        if (filters.date === "week") return ed >= today && ed <= weekEnd;
+        if (filters.date === "month")
+          return (
+            ed.getFullYear() === today.getFullYear() &&
+            ed.getMonth() === today.getMonth()
+          );
+        return true;
+      });
+      if (!matches) return false;
     }
     return true;
   });

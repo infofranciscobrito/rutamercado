@@ -1,4 +1,4 @@
-import type { MarketFrequency } from "@/types/market";
+import { parseLocalDay } from "@/lib/recurrence";
 
 const DATE_FMT = new Intl.DateTimeFormat("es-PR", {
   weekday: "long",
@@ -7,13 +7,14 @@ const DATE_FMT = new Intl.DateTimeFormat("es-PR", {
   year: "numeric",
 });
 
+const DATE_FMT_SHORT = new Intl.DateTimeFormat("es-PR", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+});
+
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function parseLocalDate(s: string): Date {
-  const [y, m, d] = s.split("-").map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1);
 }
 
 function startOfToday(): Date {
@@ -22,17 +23,21 @@ function startOfToday(): Date {
 }
 
 export function isToday(eventDate: string): boolean {
-  return parseLocalDate(eventDate).getTime() === startOfToday().getTime();
+  return parseLocalDay(eventDate).getTime() === startOfToday().getTime();
 }
 
 export function isTomorrow(eventDate: string): boolean {
   const t = startOfToday();
   const tomorrow = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1);
-  return parseLocalDate(eventDate).getTime() === tomorrow.getTime();
+  return parseLocalDay(eventDate).getTime() === tomorrow.getTime();
 }
 
 export function formatDateEs(eventDate: string): string {
-  return capitalize(DATE_FMT.format(parseLocalDate(eventDate)));
+  return capitalize(DATE_FMT.format(parseLocalDay(eventDate)));
+}
+
+export function formatDateShortEs(eventDate: string): string {
+  return capitalize(DATE_FMT_SHORT.format(parseLocalDay(eventDate)));
 }
 
 function parseTime(t: string): { h: number; m: number } {
@@ -50,35 +55,6 @@ function formatTime12(t: string): string {
 
 export function formatTimeRange(start: string, end: string): string {
   return `${formatTime12(start)} – ${formatTime12(end)}`;
-}
-
-const WEEKDAY_PLURAL: Record<number, string> = {
-  0: "domingos",
-  1: "lunes",
-  2: "martes",
-  3: "miércoles",
-  4: "jueves",
-  5: "viernes",
-  6: "sábados",
-};
-
-export function frequencyLabel(
-  frequency: MarketFrequency | string | null,
-  eventDate: string,
-): string | null {
-  if (!frequency || frequency === "Único") return null;
-  const weekday = parseLocalDate(eventDate).getDay();
-  const dayPlural = WEEKDAY_PLURAL[weekday] ?? "";
-  switch (frequency) {
-    case "Semanal":
-      return `Todos los ${dayPlural}`;
-    case "Quincenal":
-      return `Cada dos ${dayPlural}`;
-    case "Mensual":
-      return `Mensual`;
-    default:
-      return String(frequency);
-  }
 }
 
 export function googleMapsUrl(address: string, municipality: string): string {

@@ -1,24 +1,19 @@
-import { CalendarDays, Clock, MapPin } from "lucide-react";
-import type { Market } from "@/types/market";
+import { CalendarDays, Clock, MapPin, RefreshCcw, AlertTriangle } from "lucide-react";
+import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
-import {
-  formatDateEs,
-  formatTimeRange,
-  frequencyLabel,
-  isToday,
-  isTomorrow,
-} from "@/lib/format";
+import { formatDateEs, formatTimeRange, isToday, isTomorrow } from "@/lib/format";
 
 interface Props {
-  market: Market;
+  market: EnrichedMarket;
   onClick: () => void;
   fixedWidth?: boolean;
 }
 
 export function MarketCard({ market, onClick, fixedWidth }: Props) {
-  const freq = frequencyLabel(market.frequency, market.event_date);
-  const today = isToday(market.event_date);
-  const tomorrow = !today && isTomorrow(market.event_date);
+  const nextDate = market.nextDate ?? market.recurrence_start_date;
+  const today = isToday(nextDate);
+  const tomorrow = !today && isTomorrow(nextDate);
+  const label = market.recurrence_label?.trim();
 
   return (
     <button
@@ -53,11 +48,11 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
         <div className="mt-1 space-y-1.5 text-sm">
           <div className="flex items-center gap-2 text-[#1c1e37]">
             <CalendarDays className="h-4 w-4 shrink-0 text-[#f8b625]" />
-            <span>{formatDateEs(market.event_date)}</span>
+            <span>{formatDateEs(nextDate)}</span>
           </div>
           <div className="flex items-center gap-2 text-[#6B7280]">
             <Clock className="h-4 w-4 shrink-0 text-[#f8b625]" />
-            <span>{formatTimeRange(market.start_time, market.end_time)}</span>
+            <span>{formatTimeRange(market.nextStartTime ?? market.start_time, market.nextEndTime ?? market.end_time)}</span>
           </div>
           <div className="flex items-center gap-2 text-[#6B7280]">
             <MapPin className="h-4 w-4 shrink-0 text-[#f8b625]" />
@@ -66,9 +61,23 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
             </span>
           </div>
         </div>
-        {freq && (
-          <span className="mt-2 inline-flex w-fit items-center rounded-full border border-[#f8b625] px-2.5 py-0.5 text-xs font-medium text-[#d97706]">
-            {freq}
+        {label && (
+          <span
+            className="mt-2 inline-flex w-fit items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium"
+            style={{
+              backgroundColor: "#FFF8EC",
+              borderColor: "#f8b625",
+              color: "#92400E",
+            }}
+          >
+            <RefreshCcw className="h-3 w-3" />
+            {label}
+          </span>
+        )}
+        {market.nextIsOverridden && (
+          <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#d97706]">
+            <AlertTriangle className="h-3 w-3" />
+            Fecha modificada{market.nextOverrideNote ? `: ${market.nextOverrideNote}` : ""}
           </span>
         )}
       </div>
