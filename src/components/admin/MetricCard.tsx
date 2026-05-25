@@ -4,10 +4,12 @@ export function MetricCard({
   label,
   value,
   icon: Icon,
+  subtext,
 }: {
   label: string;
   value: number | string;
   icon: LucideIcon;
+  subtext?: string;
 }) {
   return (
     <div className="rounded-xl border bg-card p-5 flex items-center gap-4">
@@ -17,7 +19,11 @@ export function MetricCard({
       <div className="min-w-0">
         <div className="font-display text-3xl text-[#1c1e37] leading-tight">{value}</div>
         <div className="text-sm text-muted-foreground">{label}</div>
+        {subtext && (
+          <div className="text-xs text-muted-foreground/80 mt-0.5">{subtext}</div>
+        )}
       </div>
     </div>
   );
 }
+

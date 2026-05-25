@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Store, Eye, CalendarDays, MousePointerClick } from "lucide-react";
+import { Store, Eye, CalendarDays, MousePointerClick, Users } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -18,6 +18,7 @@ import {
   getViewsPerMarket,
   getClicksPerDay,
   getUpcomingMarkets,
+  getAttendanceMetrics,
 } from "@/lib/admin-analytics.functions";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { formatDateEs } from "@/lib/format";
@@ -39,6 +40,7 @@ function DashboardPage() {
   const viewsFn = useServerFn(getViewsPerMarket);
   const clicksFn = useServerFn(getClicksPerDay);
   const upcomingFn = useServerFn(getUpcomingMarkets);
+  const attendanceFn = useServerFn(getAttendanceMetrics);
   const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
     console.log(`[Admin data] ${label}: fetch start`);
     try {
@@ -67,9 +69,13 @@ function DashboardPage() {
     queryKey: ["admin", "dashboard", "upcoming"],
     queryFn: () => logFetch("dashboard upcoming", () => upcomingFn()),
   });
+  const attendance = useQuery({
+    queryKey: ["admin", "dashboard", "attendance"],
+    queryFn: () => logFetch("dashboard attendance", () => attendanceFn()),
+  });
 
-  const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading;
-  const error = metrics.error ?? views.error ?? clicks.error ?? upcoming.error;
+  const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading || attendance.isLoading;
+  const error = metrics.error ?? views.error ?? clicks.error ?? upcoming.error ?? attendance.error;
 
   if (isLoading) {
     return <div className="py-12 text-center text-sm text-muted-foreground">Cargando dashboard...</div>;
@@ -95,11 +101,17 @@ function DashboardPage() {
         <p className="text-sm text-muted-foreground">Resumen general de RutaMercado</p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <MetricCard label="Mercados Activos" value={metricsData.activeMarkets} icon={Store} />
         <MetricCard label="Vistas Totales" value={metricsData.totalViews} icon={Eye} />
         <MetricCard label="Esta Semana" value={metricsData.upcomingThisWeek} icon={CalendarDays} />
         <MetricCard label="Clics Totales" value={metricsData.totalClicks} icon={MousePointerClick} />
+        <MetricCard
+          label="Intención de Asistencia"
+          value={attendance.data?.total ?? 0}
+          icon={Users}
+          subtext={`${attendance.data?.willAttend ?? 0} van a ir · ${attendance.data?.interested ?? 0} interesados`}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

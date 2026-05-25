@@ -351,3 +351,145 @@ export const getDailyTraffic = createServerFn({ method: "GET" })
     }
     return Array.from(buckets.entries()).map(([date, views]) => ({ date, views }));
   });
+
+export type AttendanceMetrics = {
+  willAttend: number;
+  interested: number;
+  total: number;
+  uniqueVisitors: number;
+  intentionRate: number;
+};
+
+export const getAttendanceMetrics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AttendanceMetrics> => {
+    const { supabase } = context;
+    const [intRes, viewsRes] = await Promise.all([
+      supabase.from("market_attendance_intentions").select("intention_type, visitor_id"),
+      supabase
+        .from("market_clicks")
+        .select("id", { count: "exact", head: true })
+        .eq("click_type", "view_detail"),
+    ]);
+    if (intRes.error) throw new Error(intRes.error.message);
+    const rows = intRes.data ?? [];
+    let willAttend = 0;
+    let interested = 0;
+    const visitors = new Set<string>();
+    for (const r of rows) {
+      if (r.intention_type === "will_attend") willAttend++;
+      else if (r.intention_type === "interested") interested++;
+      visitors.add(r.visitor_id);
+    }
+    const total = willAttend + interested;
+    const detailViews = viewsRes.count ?? 0;
+    const intentionRate = detailViews > 0 ? (total / detailViews) * 100 : 0;
+    return {
+      willAttend,
+      interested,
+      total,
+      uniqueVisitors: visitors.size,
+      intentionRate,
+    };
+  });
+
+export const getTopMarketsByIntention = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const [intRes, marketsRes, viewsClicksRes] = await Promise.all([
+      supabase
+        .from("market_attendance_intentions")
+        .select("market_id, intention_type"),
+      supabase.from("markets").select("id, name, view_count"),
+      supabase
+        .from("market_clicks")
+        .select("market_id")
+        .eq("click_type", "view_detail"),
+    ]);
+    if (intRes.error) throw new Error(intRes.error.message);
+    if (marketsRes.error) throw new Error(marketsRes.error.message);
+
+    const byMarket = new Map<string, { will: number; interested: number }>();
+    for (const r of intRes.data ?? []) {
+      const cur = byMarket.get(r.market_id) ?? { will: 0, interested: 0 };
+      if (r.intention_type === "will_attend") cur.will++;
+      else if (r.intention_type === "interested") cur.interested++;
+      byMarket.set(r.market_id, cur);
+    }
+    const detailViewsByMarket = new Map<string, number>();
+    for (const r of viewsClicksRes.data ?? []) {
+      detailViewsByMarket.set(
+        r.market_id,
+        (detailViewsByMarket.get(r.market_id) ?? 0) + 1,
+      );
+    }
+    const marketNames = new Map<string, string>();
+    for (const m of marketsRes.data ?? []) marketNames.set(m.id, m.name);
+
+    const rows = Array.from(byMarket.entries()).map(([id, c]) => {
+      const total = c.will + c.interested;
+      const views = detailViewsByMarket.get(id) ?? 0;
+      const rate = views > 0 ? (total / views) * 100 : 0;
+      return {
+        id,
+        name: marketNames.get(id) ?? "—",
+        willAttend: c.will,
+        interested: c.interested,
+        total,
+        intentionRate: rate,
+      };
+    });
+    rows.sort((a, b) => b.total - a.total);
+    return rows.slice(0, 10).map((r, i) => ({ rank: i + 1, ...r }));
+  });
+
+export const getIntentionsPerDay = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { days: number } | undefined) =>
+    z.object({ days: z.number().min(1).max(365) }).parse(input ?? { days: 30 }),
+  )
+  .handler(async ({ data, context }) => {
+    const since = minusDaysISO(data.days);
+    const { data: rows, error } = await context.supabase
+      .from("market_attendance_intentions")
+      .select("created_at, intention_type")
+      .gte("created_at", since);
+    if (error) throw new Error(error.message);
+    const buckets = new Map<string, { willAttend: number; interested: number }>();
+    for (let i = data.days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      buckets.set(d.toISOString().slice(0, 10), { willAttend: 0, interested: 0 });
+    }
+    for (const r of rows ?? []) {
+      const day = new Date(r.created_at).toISOString().slice(0, 10);
+      const cur = buckets.get(day);
+      if (!cur) continue;
+      if (r.intention_type === "will_attend") cur.willAttend++;
+      else if (r.intention_type === "interested") cur.interested++;
+    }
+    return Array.from(buckets.entries()).map(([date, v]) => ({
+      date,
+      willAttend: v.willAttend,
+      interested: v.interested,
+    }));
+  });
+
+export const getIntentionsPerMarketAll = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const { data, error } = await supabase
+      .from("market_attendance_intentions")
+      .select("market_id, intention_type");
+    if (error) throw new Error(error.message);
+    const byMarket = new Map<string, { willAttend: number; interested: number }>();
+    for (const r of data ?? []) {
+      const cur = byMarket.get(r.market_id) ?? { willAttend: 0, interested: 0 };
+      if (r.intention_type === "will_attend") cur.willAttend++;
+      else if (r.intention_type === "interested") cur.interested++;
+      byMarket.set(r.market_id, cur);
+    }
+    return Object.fromEntries(byMarket);
+  });

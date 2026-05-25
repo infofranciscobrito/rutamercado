@@ -3,13 +3,20 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   listAllMarkets,
   deleteMarket,
   toggleMarketActive,
 } from "@/lib/admin-markets.functions";
+import { getIntentionsPerMarketAll } from "@/lib/admin-analytics.functions";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { MARKET_CATEGORIES, type Market } from "@/types/market";
 import { formatDateEs } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -54,6 +61,7 @@ function MarketsPage() {
   const listMarketsFn = useServerFn(listAllMarkets);
   const toggleFn = useServerFn(toggleMarketActive);
   const deleteFn = useServerFn(deleteMarket);
+  const intentionsFn = useServerFn(getIntentionsPerMarketAll);
   const { data: markets = [], isLoading, error } = useQuery({
     queryKey: ["admin", "markets"],
     queryFn: async () => {
@@ -67,6 +75,10 @@ function MarketsPage() {
         throw err;
       }
     },
+  });
+  const { data: intentions = {} } = useQuery({
+    queryKey: ["admin", "markets", "intentions"],
+    queryFn: () => intentionsFn(),
   });
 
   const [search, setSearch] = useState("");
@@ -163,6 +175,7 @@ function MarketsPage() {
       </div>
 
       <div className="rounded-xl border bg-card overflow-hidden">
+        <TooltipProvider>
         <Table>
           <TableHeader>
             <TableRow>
@@ -171,6 +184,7 @@ function MarketsPage() {
               <TableHead>Municipio</TableHead>
               <TableHead>Fecha</TableHead>
               <TableHead className="text-right">Vistas</TableHead>
+              <TableHead className="text-right">Intención</TableHead>
               <TableHead>Activo</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
@@ -178,12 +192,15 @@ function MarketsPage() {
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
                   Sin resultados
                 </TableCell>
               </TableRow>
             ) : (
-              pageRows.map((m) => (
+              pageRows.map((m) => {
+                const int = (intentions as Record<string, { willAttend: number; interested: number }>)[m.id] ?? { willAttend: 0, interested: 0 };
+                const total = int.willAttend + int.interested;
+                return (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
                   <TableCell>
@@ -194,6 +211,19 @@ function MarketsPage() {
                   <TableCell>{m.municipality}</TableCell>
                   <TableCell className="whitespace-nowrap">{m.recurrence_label || formatDateEs(m.recurrence_start_date)}</TableCell>
                   <TableCell className="text-right">{m.view_count ?? 0}</TableCell>
+                  <TableCell className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="inline-flex items-center gap-1 cursor-default">
+                          <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                          {total}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {int.willAttend} van a ir · {int.interested} interesados
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell>
                     <Switch
                       checked={m.is_active}
@@ -211,11 +241,14 @@ function MarketsPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+                );
+              })
             )}
           </TableBody>
         </Table>
+        </TooltipProvider>
       </div>
+
 
       {totalPages > 1 && (
         <div className="flex justify-between items-center text-sm">

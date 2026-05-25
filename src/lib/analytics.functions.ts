@@ -8,6 +8,7 @@ const ClickTypeSchema = z.enum([
   "click_email",
   "click_instagram",
   "click_directions",
+  "click_attendance",
 ]);
 
 export const trackPageView = createServerFn({ method: "POST" })
