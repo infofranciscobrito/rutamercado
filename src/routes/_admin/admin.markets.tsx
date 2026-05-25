@@ -169,7 +169,6 @@ function MarketsPage() {
       </div>
 
       <div className="rounded-xl border bg-card overflow-hidden">
-        <TooltipProvider>
         <Table>
           <TableHeader>
             <TableRow>
@@ -206,17 +205,25 @@ function MarketsPage() {
                   <TableCell className="whitespace-nowrap">{m.recurrence_label || formatDateEs(m.recurrence_start_date)}</TableCell>
                   <TableCell className="text-right">{m.view_count ?? 0}</TableCell>
                   <TableCell className="text-right">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="inline-flex items-center gap-1 cursor-default">
-                          <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                          {total}
+                    {total === 0 ? (
+                      <span className="text-muted-foreground">—</span>
+                    ) : (
+                      <Link
+                        to="/admin/analytics"
+                        search={{ market: m.id }}
+                        className="inline-flex items-center gap-2 whitespace-nowrap text-[#1c1e37] hover:text-[#f8b625] hover:underline"
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          <Hand className="h-3.5 w-3.5 text-[#f8b625]" />
+                          {int.willAttend}
                         </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {int.willAttend} van a ir · {int.interested} interesados
-                      </TooltipContent>
-                    </Tooltip>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                          {int.interested}
+                        </span>
+                      </Link>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Switch
@@ -240,7 +247,6 @@ function MarketsPage() {
             )}
           </TableBody>
         </Table>
-        </TooltipProvider>
       </div>
 
 
