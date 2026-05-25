@@ -1,4 +1,5 @@
 import type { Database } from "@/integrations/supabase/types";
+import type { UpcomingDate, CancelledDate } from "@/lib/recurrence";
 
 export type MarketCategory =
   | "Mercado Agrícola"
@@ -9,8 +10,6 @@ export type MarketCategory =
   | "Flea Market";
 
 export type MarketRegion = "Metro" | "Norte" | "Sur" | "Este" | "Oeste" | "Centro";
-
-export type MarketFrequency = "Único" | "Semanal" | "Quincenal" | "Mensual";
 
 export type ClickType =
   | "view_detail"
@@ -25,6 +24,17 @@ export type MarketUpdate = Database["public"]["Tables"]["markets"]["Update"];
 
 export type MarketClick = Database["public"]["Tables"]["market_clicks"]["Row"];
 export type PageView = Database["public"]["Tables"]["page_views"]["Row"];
+
+/** Mercado público enriquecido con sus próximas fechas calculadas. */
+export interface EnrichedMarket extends Market {
+  upcoming: UpcomingDate[];
+  cancelled: CancelledDate[];
+  nextDate: string | null;
+  nextStartTime: string;
+  nextEndTime: string;
+  nextIsOverridden: boolean;
+  nextOverrideNote: string | null;
+}
 
 export const MARKET_CATEGORIES: MarketCategory[] = [
   "Mercado Agrícola",
@@ -42,11 +52,4 @@ export const MARKET_REGIONS: MarketRegion[] = [
   "Este",
   "Oeste",
   "Centro",
-];
-
-export const MARKET_FREQUENCIES: MarketFrequency[] = [
-  "Único",
-  "Semanal",
-  "Quincenal",
-  "Mensual",
 ];
