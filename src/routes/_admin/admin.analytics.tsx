@@ -252,6 +252,114 @@ function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Attendance Intention */}
+      <div className="space-y-6 pt-2">
+        <div>
+          <h2 className="font-display text-2xl text-[#1c1e37]">Intención de Asistencia</h2>
+          <p className="text-sm text-muted-foreground">Interés expresado por los visitantes</p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Metric label="¡Voy a ir!" value={attMetrics.data?.willAttend ?? 0} />
+          <Metric label="Me interesa" value={attMetrics.data?.interested ?? 0} />
+          <Metric label="Tasa de intención" value={`${(attMetrics.data?.intentionRate ?? 0).toFixed(1)}%`} />
+          <Metric label="Visitantes únicos" value={attMetrics.data?.uniqueVisitors ?? 0} />
+        </div>
+
+        <div className="rounded-xl border bg-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg text-[#1c1e37]">Top 10 Mercados por Intención de Asistencia</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                downloadCSV(
+                  "intencion-asistencia.csv",
+                  (attTop.data ?? []).map((r) => ({
+                    posicion: r.rank,
+                    mercado: r.name,
+                    voy_a_ir: r.willAttend,
+                    me_interesa: r.interested,
+                    total_intenciones: r.total,
+                    tasa_intencion: `${r.intentionRate.toFixed(1)}%`,
+                  })),
+                )
+              }
+              disabled={!attTop.data?.length}
+            >
+              <Download className="h-4 w-4 mr-1" /> CSV
+            </Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>Mercado</TableHead>
+                <TableHead className="text-right">Voy a ir</TableHead>
+                <TableHead className="text-right">Me interesa</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Tasa</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(attTop.data ?? []).length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                    Aún no hay intenciones registradas
+                  </TableCell>
+                </TableRow>
+              ) : (
+                (attTop.data ?? []).map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell>{r.rank}</TableCell>
+                    <TableCell className="font-medium">{r.name}</TableCell>
+                    <TableCell className="text-right">{r.willAttend}</TableCell>
+                    <TableCell className="text-right">{r.interested}</TableCell>
+                    <TableCell className="text-right">{r.total}</TableCell>
+                    <TableCell className="text-right">{r.intentionRate.toFixed(1)}%</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-xl border bg-card p-5">
+            <h2 className="font-display text-lg text-[#1c1e37] mb-4">Intención por Mercado</h2>
+            <div className="h-72">
+              <ResponsiveContainer>
+                <BarChart data={attTop.data ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-25} textAnchor="end" height={70} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="willAttend" name="Voy a ir" stackId="a" fill="#f8b625" />
+                  <Bar dataKey="interested" name="Me interesa" stackId="a" fill="#FEF3C7" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="rounded-xl border bg-card p-5">
+            <h2 className="font-display text-lg text-[#1c1e37] mb-4">Intenciones por Día</h2>
+            <div className="h-72">
+              <ResponsiveContainer>
+                <LineChart data={attDaily.data ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke="#f8b625" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="interested" name="Me interesa" stroke="#6B7280" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
