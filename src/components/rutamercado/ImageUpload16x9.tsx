@@ -23,6 +23,7 @@ async function detectMimeFromBytes(file: File): Promise<string | null> {
 interface Props {
   value: string;
   onChange: (url: string) => void;
+  disabled?: boolean;
 }
 
 export function ImageUpload16x9({ value, onChange }: Props) {
