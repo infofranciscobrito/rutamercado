@@ -175,6 +175,7 @@ function MarketsPage() {
       </div>
 
       <div className="rounded-xl border bg-card overflow-hidden">
+        <TooltipProvider>
         <Table>
           <TableHeader>
             <TableRow>
@@ -183,6 +184,7 @@ function MarketsPage() {
               <TableHead>Municipio</TableHead>
               <TableHead>Fecha</TableHead>
               <TableHead className="text-right">Vistas</TableHead>
+              <TableHead className="text-right">Intención</TableHead>
               <TableHead>Activo</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
@@ -190,12 +192,15 @@ function MarketsPage() {
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
                   Sin resultados
                 </TableCell>
               </TableRow>
             ) : (
-              pageRows.map((m) => (
+              pageRows.map((m) => {
+                const int = (intentions as Record<string, { willAttend: number; interested: number }>)[m.id] ?? { willAttend: 0, interested: 0 };
+                const total = int.willAttend + int.interested;
+                return (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
                   <TableCell>
@@ -206,6 +211,19 @@ function MarketsPage() {
                   <TableCell>{m.municipality}</TableCell>
                   <TableCell className="whitespace-nowrap">{m.recurrence_label || formatDateEs(m.recurrence_start_date)}</TableCell>
                   <TableCell className="text-right">{m.view_count ?? 0}</TableCell>
+                  <TableCell className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="inline-flex items-center gap-1 cursor-default">
+                          <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                          {total}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {int.willAttend} van a ir · {int.interested} interesados
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell>
                     <Switch
                       checked={m.is_active}
@@ -223,11 +241,14 @@ function MarketsPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+                );
+              })
             )}
           </TableBody>
         </Table>
+        </TooltipProvider>
       </div>
+
 
       {totalPages > 1 && (
         <div className="flex justify-between items-center text-sm">
