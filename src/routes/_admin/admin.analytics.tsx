@@ -59,6 +59,9 @@ function AnalyticsPage() {
   const topOrgFn = useServerFn(getTopOrganizers);
   const distFn = useServerFn(getDistribution);
   const trafficFn = useServerFn(getDailyTraffic);
+  const attMetricsFn = useServerFn(getAttendanceMetrics);
+  const attTopFn = useServerFn(getTopMarketsByIntention);
+  const attDailyFn = useServerFn(getIntentionsPerDay);
   const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
     console.log(`[Admin data] ${label}: fetch start`);
     try {
@@ -91,9 +94,21 @@ function AnalyticsPage() {
     queryKey: ["admin", "analytics", "traffic", days],
     queryFn: () => logFetch("analytics traffic", () => trafficFn({ data: { days } })),
   });
+  const attMetrics = useQuery({
+    queryKey: ["admin", "analytics", "attendance", "metrics"],
+    queryFn: () => logFetch("analytics attendance metrics", () => attMetricsFn()),
+  });
+  const attTop = useQuery({
+    queryKey: ["admin", "analytics", "attendance", "top"],
+    queryFn: () => logFetch("analytics attendance top", () => attTopFn()),
+  });
+  const attDaily = useQuery({
+    queryKey: ["admin", "analytics", "attendance", "daily", days],
+    queryFn: () => logFetch("analytics attendance daily", () => attDailyFn({ data: { days } })),
+  });
 
-  const isLoading = overview.isLoading || topMarkets.isLoading || topOrg.isLoading || dist.isLoading || traffic.isLoading;
-  const error = overview.error ?? topMarkets.error ?? topOrg.error ?? dist.error ?? traffic.error;
+  const isLoading = overview.isLoading || topMarkets.isLoading || topOrg.isLoading || dist.isLoading || traffic.isLoading || attMetrics.isLoading || attTop.isLoading || attDaily.isLoading;
+  const error = overview.error ?? topMarkets.error ?? topOrg.error ?? dist.error ?? traffic.error ?? attMetrics.error ?? attTop.error ?? attDaily.error;
 
   if (isLoading) {
     return <div className="py-12 text-center text-sm text-muted-foreground">Cargando analíticas...</div>;
