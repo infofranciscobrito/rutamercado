@@ -24,7 +24,7 @@ import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
 import { AboutSection } from "@/components/rutamercado/AboutSection";
 import { Footer } from "@/components/rutamercado/Footer";
-import { SkeletonGrid, SkeletonRow } from "@/components/rutamercado/SkeletonCard";
+import { SkeletonGrid } from "@/components/rutamercado/SkeletonCard";
 
 const marketsQueryOptions = queryOptions({
   queryKey: ["markets"],
