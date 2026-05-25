@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   listAllMarkets,
@@ -102,10 +102,12 @@ function MarketsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
       queryClient.invalidateQueries({ queryKey: ["markets"] });
-      toast.success("Mercado eliminado");
+      queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "analytics"] });
+      toast.success("Mercado eliminado correctamente junto con todos sus datos asociados");
       setConfirmDelete(null);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: () => toast.error("Error al eliminar el mercado. Intenta de nuevo."),
   });
 
   const openCreate = () => {
@@ -229,21 +231,37 @@ function MarketsPage() {
 
       <MarketFormDrawer open={drawerOpen} onOpenChange={setDrawerOpen} market={editing} />
 
-      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+      <AlertDialog
+        open={!!confirmDelete}
+        onOpenChange={(o) => {
+          if (!remove.isPending && !o) setConfirmDelete(null);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar mercado?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar este mercado?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminará "{confirmDelete?.name}".
+              Se eliminará "{confirmDelete?.name}" y TODOS sus datos asociados: vistas, clics, excepciones y cambios de fecha. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={remove.isPending}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => confirmDelete && remove.mutate(confirmDelete.id)}
-              className="bg-destructive text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                if (confirmDelete) remove.mutate(confirmDelete.id);
+              }}
+              disabled={remove.isPending}
+              className="bg-[#DC2626] text-white hover:bg-[#DC2626]/90"
             >
-              Eliminar
+              {remove.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Eliminando…
+                </>
+              ) : (
+                "Eliminar permanentemente"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
