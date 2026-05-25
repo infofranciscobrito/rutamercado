@@ -9,7 +9,6 @@ import { upsertMarket } from "@/lib/admin-markets.functions";
 import {
   MARKET_CATEGORIES,
   MARKET_REGIONS,
-  MARKET_FREQUENCIES,
   type Market,
 } from "@/types/market";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -25,18 +24,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  RecurrenceFields,
+  type RecurrenceFormShape,
+} from "@/components/rutamercado/RecurrenceFields";
 
-type FormValues = {
+type FormValues = RecurrenceFormShape & {
   name: string;
   description: string;
   category: string;
   region: string;
   municipality: string;
   address: string;
-  event_date: string;
-  start_time: string;
-  end_time: string;
-  frequency: string;
   image_url: string;
   organizer_name: string;
   organizer_phone: string;
@@ -52,10 +51,13 @@ const empty: FormValues = {
   region: MARKET_REGIONS[0],
   municipality: "",
   address: "",
-  event_date: "",
+  recurrence_type: "unico",
+  recurrence_day_of_week: "",
+  recurrence_week_of_month: "",
+  recurrence_start_date: "",
+  recurrence_end_date: "",
   start_time: "09:00",
   end_time: "14:00",
-  frequency: "Único",
   image_url: "",
   organizer_name: "",
   organizer_phone: "",
@@ -72,10 +74,13 @@ function marketToForm(m: Market): FormValues {
     region: m.region,
     municipality: m.municipality,
     address: m.address,
-    event_date: m.event_date,
+    recurrence_type: m.recurrence_type ?? "unico",
+    recurrence_day_of_week: m.recurrence_day_of_week ?? "",
+    recurrence_week_of_month: m.recurrence_week_of_month ?? "",
+    recurrence_start_date: m.recurrence_start_date ?? "",
+    recurrence_end_date: m.recurrence_end_date ?? "",
     start_time: m.start_time.slice(0, 5),
     end_time: m.end_time.slice(0, 5),
-    frequency: m.frequency ?? "Único",
     image_url: m.image_url ?? "",
     organizer_name: m.organizer_name,
     organizer_phone: m.organizer_phone ?? "",
@@ -112,14 +117,26 @@ export function MarketFormDrawer({
       return upsertFn({
         data: {
           id: market?.id,
-          ...v,
+          name: v.name,
           description: v.description || null,
+          category: v.category,
+          region: v.region,
+          municipality: v.municipality,
+          address: v.address,
+          start_time: v.start_time,
+          end_time: v.end_time,
+          recurrence_type: v.recurrence_type,
+          recurrence_day_of_week: v.recurrence_day_of_week || null,
+          recurrence_week_of_month: v.recurrence_week_of_month || null,
+          recurrence_start_date: v.recurrence_start_date,
+          recurrence_end_date: v.recurrence_end_date || null,
           image_url: v.image_url || null,
+          organizer_name: v.organizer_name,
           organizer_phone: v.organizer_phone || null,
           organizer_email: v.organizer_email || null,
           organizer_instagram: v.organizer_instagram || null,
-          frequency: v.frequency || null,
-        } as never,
+          is_active: v.is_active,
+        },
       });
     },
     onSuccess: () => {
@@ -143,7 +160,6 @@ export function MarketFormDrawer({
       toast.error("La imagen excede 5 MB.");
       return;
     }
-    // Verify magic bytes match declared type (defense-in-depth)
     const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
     const isJpeg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff;
     const isPng =
@@ -242,33 +258,9 @@ export function MarketFormDrawer({
           <Field label="Dirección *">
             <Input {...register("address", { required: true })} />
           </Field>
-          <div className="grid grid-cols-3 gap-3">
-            <Field label="Fecha">
-              <Input type="date" {...register("event_date", { required: true })} />
-            </Field>
-            <Field label="Inicio">
-              <Input type="time" {...register("start_time", { required: true })} />
-            </Field>
-            <Field label="Fin">
-              <Input type="time" {...register("end_time", { required: true })} />
-            </Field>
-          </div>
-          <Field label="Frecuencia">
-            <Controller
-              control={control}
-              name="frequency"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {MARKET_FREQUENCIES.map((f) => (
-                      <SelectItem key={f} value={f}>{f}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </Field>
+
+          <RecurrenceFields control={control} watch={watch} compact />
+
           <Field label="Imagen del mercado">
             <div className="space-y-2">
               {imageUrl ? (
