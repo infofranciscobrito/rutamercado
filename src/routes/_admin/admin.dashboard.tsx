@@ -42,6 +42,7 @@ function DashboardPage() {
   const clicksFn = useServerFn(getClicksPerDay);
   const upcomingFn = useServerFn(getUpcomingMarkets);
   const attendanceFn = useServerFn(getAttendanceMetrics);
+  const topIntentionFn = useServerFn(getTopMarketsByIntention);
   const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
     console.log(`[Admin data] ${label}: fetch start`);
     try {
