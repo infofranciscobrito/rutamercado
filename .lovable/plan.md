@@ -1,40 +1,45 @@
 ## Problema
 
-Al subir una foto en el formulario público `/enviar`, Supabase Storage devuelve:
+El backend del sistema de recurrencia ya está migrado (BD, server functions, motor de cálculo), pero la **UI nunca se migró**. Los formularios y vistas siguen enviando/leyendo los campos viejos `event_date` y `frequency`, que ya no existen en la BD.
 
-> `permission denied for function has_role`
-
-### Causa
-
-El bucket `market-images` tiene 4 políticas RLS. Tres de ellas (admin insert/update/delete) llaman a `has_role(auth.uid(), 'admin')` **sin esquema**. En la última migración, `has_role` se movió de `public` a `private`, y el rol `anon` no tiene permiso `EXECUTE` sobre `private.has_role`.
-
-Cuando un usuario anónimo intenta `INSERT` en `storage.objects`, Postgres evalúa todas las políticas `INSERT` aplicables (no solo la primera que pase). Al intentar resolver/ejecutar `has_role` para la política de admin, falla con "permission denied" antes de llegar a la política "Anyone can upload submission images" que sí permitiría la subida.
-
-## Solución
-
-Migración que recrea las 3 políticas de admin del bucket `market-images` para que usen `private.has_role(...)` explícitamente (igual que las políticas de las tablas `markets`, `market_exceptions`, etc.):
-
-```sql
-DROP POLICY "Admins can upload market-images" ON storage.objects;
-DROP POLICY "Admins can update market-images" ON storage.objects;
-DROP POLICY "Admins can delete market-images" ON storage.objects;
-
-CREATE POLICY "Admins can upload market-images"
-  ON storage.objects FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'market-images' AND private.has_role(auth.uid(), 'admin'));
-
-CREATE POLICY "Admins can update market-images"
-  ON storage.objects FOR UPDATE TO authenticated
-  USING (bucket_id = 'market-images' AND private.has_role(auth.uid(), 'admin'))
-  WITH CHECK (bucket_id = 'market-images' AND private.has_role(auth.uid(), 'admin'));
-
-CREATE POLICY "Admins can delete market-images"
-  ON storage.objects FOR DELETE TO authenticated
-  USING (bucket_id = 'market-images' AND private.has_role(auth.uid(), 'admin'));
+El error que viste:
 ```
+[{ expected: "'unico' | 'semanal' | 'quincenal' | 'mensual_por_dia'",
+   path: ["recurrence_type"], message: "Required" },
+ { expected: "string", path: ["recurrence_start_date"], message: "Required" }]
+```
+viene del schema Zod de `createMarketSubmission` rechazando el payload del formulario público.
 
-También verifico que falte una policy de SELECT pública para que las imágenes se vean (el bucket es público a nivel de bucket, así que con eso basta para servir vía CDN — no se necesita policy de SELECT).
+## Qué arreglar
 
-Resultado: usuarios anónimos podrán subir fotos a `submissions/...` desde `/enviar`, y los admins podrán seguir gestionando todas las imágenes.
+Voy a migrar las 4 piezas de UI que quedaron rotas y limpiar los tipos legacy:
 
-No se tocan archivos de código.
+### 1. `SubmitMarketForm` (`/enviar` — formulario público)
+Reemplazar el bloque "Fecha y horario" con el selector de recurrencia:
+- Tipo: `Único / Semanal / Quincenal / Mensual por día`
+- Día de la semana (condicional para semanal/quincenal/mensual)
+- Semana del mes (condicional para mensual)
+- Fecha de inicio (siempre) + fecha fin opcional (para recurrentes)
+- Hora inicio / fin
+
+Enviar `recurrence_type`, `recurrence_day_of_week`, `recurrence_week_of_month`, `recurrence_start_date`, `recurrence_end_date` en lugar de `event_date` / `frequency`.
+
+### 2. `MarketFormDrawer` (admin — crear/editar mercados)
+Mismo selector de recurrencia. Quitar `event_date` / `frequency`, leer/escribir los 5 campos nuevos. El server fn `upsertMarket` ya los acepta.
+
+### 3. `SubmissionReviewDrawer` (admin — revisar envíos)
+Mostrar `recurrence_label` (o calcularlo) + `recurrence_start_date` + horario, en vez de `event_date` y `frequency`.
+
+### 4. `MarketDetailDialog` (público — modal de detalle)
+Cambiar el `MiniFact` de Fecha para usar la próxima fecha calculada del `EnrichedMarket` (`nextDate`, `nextStartTime`, `nextEndTime`) y el `recurrence_label` en vez de `frequency`. Actualmente recibe `Market`; pasaremos `EnrichedMarket` desde `index.tsx` (que ya los tiene).
+
+### 5. Limpieza de tipos
+Quitar `LegacyMarketFields` (`event_date`, `frequency`) de `src/types/market.ts` y la extensión equivalente en `Submission` (`src/lib/submissions.functions.ts`), una vez que ninguna UI los lea.
+
+## No tocar
+
+- La BD ya está bien.
+- Los server functions (`createMarketSubmission`, `upsertMarket`, `approveSubmission`) ya están migrados.
+- El motor `recurrence.ts` ya está completo.
+
+Resultado: el formulario `/enviar` envía correctamente, el admin puede crear/editar mercados con recurrencia, las submissions se revisan con sus datos correctos, y el detalle público muestra la próxima fecha real + etiqueta de recurrencia.
