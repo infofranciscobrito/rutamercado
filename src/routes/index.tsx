@@ -279,6 +279,15 @@ function MarketsContent({
     ? markets.find((m) => m.id === selectedId) ?? null
     : null;
 
+  useEffect(() => {
+    if (selectedId && !selected) {
+      toast.info(
+        "Este mercado ya no está disponible. Descubre otros mercados en nuestro directorio.",
+      );
+      onClose();
+    }
+  }, [selectedId, selected, onClose]);
+
   // Group by category, preserving the canonical category order
   const grouped = useMemo(() => {
     const map = new Map<MarketCategory, EnrichedMarket[]>();
