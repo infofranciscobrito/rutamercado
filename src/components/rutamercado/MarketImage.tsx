@@ -28,7 +28,7 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation 
               ratio > 1.05 ? "landscape" : ratio < 0.95 ? "portrait" : "square",
             );
           }}
-          className={`block h-full w-full object-contain object-center ${className ?? ""}`}
+          className={`mx-auto block h-auto max-h-[72dvh] w-auto max-w-full object-contain object-center ${className ?? ""}`}
         />
       );
     }
