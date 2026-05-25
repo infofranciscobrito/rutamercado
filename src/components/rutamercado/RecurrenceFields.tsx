@@ -62,7 +62,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
           rules={{ required: true }}
           render={({ field }) => (
             <Select
-              value={(field.value as string) || "unico"}
+              value={(field.value as unknown as string) || "unico"}
               onValueChange={field.onChange}
             >
               <SelectTrigger>
@@ -90,7 +90,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
                 rules={{ required: isMonthly }}
                 render={({ field }) => (
                   <Select
-                    value={(field.value as string) || ""}
+                    value={(field.value as unknown as string) || ""}
                     onValueChange={field.onChange}
                   >
                     <SelectTrigger>
@@ -115,7 +115,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
               rules={{ required: needsDay }}
               render={({ field }) => (
                 <Select
-                  value={(field.value as string) || ""}
+                  value={(field.value as unknown as string) || ""}
                   onValueChange={field.onChange}
                 >
                   <SelectTrigger>
@@ -144,7 +144,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
             render={({ field }) => (
               <Input
                 type="date"
-                value={(field.value as string) || ""}
+                value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
               />
             )}
@@ -158,7 +158,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
             render={({ field }) => (
               <Input
                 type="time"
-                value={(field.value as string) || ""}
+                value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
               />
             )}
@@ -172,7 +172,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
             render={({ field }) => (
               <Input
                 type="time"
-                value={(field.value as string) || ""}
+                value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
               />
             )}
@@ -188,7 +188,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
             render={({ field }) => (
               <Input
                 type="date"
-                value={(field.value as string) || ""}
+                value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
               />
             )}
