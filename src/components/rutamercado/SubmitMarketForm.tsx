@@ -156,7 +156,7 @@ export function SubmitMarketForm() {
               control={control}
               name="category"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value} onValueChange={field.onChange} disabled={mutation.isPending}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {MARKET_CATEGORIES.map((c) => (
@@ -172,7 +172,7 @@ export function SubmitMarketForm() {
               control={control}
               name="region"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value} onValueChange={field.onChange} disabled={mutation.isPending}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {MARKET_REGIONS.map((r) => (
@@ -188,12 +188,14 @@ export function SubmitMarketForm() {
           <Input
             {...register("municipality", { required: "Requerido", maxLength: 120 })}
             placeholder="Ponce"
+            disabled={mutation.isPending}
           />
         </Field>
         <Field label="Dirección *" error={errors.address?.message}>
           <Input
             {...register("address", { required: "Requerido", maxLength: 300 })}
             placeholder="Plaza Las Delicias, Calle Atocha"
+            disabled={mutation.isPending}
           />
         </Field>
       </Section>
