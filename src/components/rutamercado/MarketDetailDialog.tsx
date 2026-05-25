@@ -1,15 +1,20 @@
 import {
+  CalendarCheck,
   CalendarDays,
+  CheckCircle2,
   Clock,
+  Hand,
   Instagram,
   Mail,
   MapPin,
   Navigation,
   Phone,
   Repeat,
+  Star,
   X,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
@@ -23,6 +28,15 @@ import {
   incrementMarketView,
   trackMarketClick,
 } from "@/lib/analytics.functions";
+import {
+  getMarketIntentionCount,
+  recordAttendanceIntention,
+} from "@/lib/attendance.functions";
+import {
+  getOrCreateVisitorId,
+  hasVoted,
+  markVoted,
+} from "@/lib/visitor-id";
 
 interface Props {
   market: EnrichedMarket | null;
