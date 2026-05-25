@@ -353,7 +353,7 @@ function AnalyticsPage() {
                 (attTop.data ?? []).map((r) => {
                   const isExpanded = expandedId === r.id;
                   return (
-                    <>
+                    <Fragment key={r.id}>
                       <TableRow key={r.id} id={`intention-row-${r.id}`} className={isExpanded ? "bg-[#f8b625]/5" : undefined}>
                         <TableCell>{r.rank}</TableCell>
                         <TableCell>
