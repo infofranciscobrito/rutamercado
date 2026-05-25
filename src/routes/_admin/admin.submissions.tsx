@@ -82,7 +82,7 @@ function SubmissionsPage() {
                 >
                   <TableCell className="font-medium">{s.name}</TableCell>
                   <TableCell>{s.municipality}</TableCell>
-                  <TableCell>{formatDateEs(s.event_date)}</TableCell>
+                  <TableCell>{s.recurrence_label || formatDateEs(s.recurrence_start_date)}</TableCell>
                   <TableCell>{s.organizer_name}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {new Date(s.created_at).toLocaleDateString("es-PR")}
