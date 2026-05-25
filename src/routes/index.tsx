@@ -179,7 +179,9 @@ function IndexPage() {
               stats={{ markets: 0, municipalities: 0, categories: 0 }}
             />
             <main className="flex-1">
-              <SkeletonRow />
+              <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+                <SkeletonGrid count={8} />
+              </div>
             </main>
           </>
         }
