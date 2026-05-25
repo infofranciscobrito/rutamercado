@@ -98,12 +98,12 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
         {market && (
           <div className="flex max-h-[100dvh] flex-col overflow-y-auto sm:max-h-[90vh]">
             <div
-              className={`relative w-full shrink-0 overflow-hidden rounded-t-none sm:rounded-t-[20px] max-h-[50vh] ${
+              className={`relative w-full shrink-0 overflow-hidden rounded-t-none sm:rounded-t-[20px] h-[50vh] ${
                 orientation === "portrait"
-                  ? "sm:max-h-[500px]"
+                  ? "sm:h-[500px]"
                   : orientation === "square"
-                    ? "sm:max-h-[450px]"
-                    : "sm:max-h-[400px]"
+                    ? "sm:h-[450px]"
+                    : "sm:h-[400px]"
               }`}
               style={{
                 background:
@@ -115,7 +115,6 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 alt={market.name}
                 fit="contain"
                 onOrientation={setOrientation}
-                className="max-h-[50vh] sm:max-h-[inherit]"
               />
               <span className="absolute left-4 top-4 rounded-md bg-[#f8b625] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
                 {market.category}
