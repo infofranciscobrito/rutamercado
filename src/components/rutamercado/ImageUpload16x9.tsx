@@ -108,6 +108,7 @@ export function ImageUpload16x9({ value, onChange, disabled = false }: Props) {
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif"
             className="sr-only"
+            disabled={disabled}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) handleFile(f);

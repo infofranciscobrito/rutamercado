@@ -221,6 +221,7 @@ export function SubmitMarketForm() {
           <Input
             {...register("organizer_name", { required: "Requerido", maxLength: 200 })}
             placeholder="José Santiago"
+            disabled={mutation.isPending}
           />
         </Field>
         <p className="-mb-1 text-sm text-[#1c1e37]/60">
@@ -231,6 +232,7 @@ export function SubmitMarketForm() {
             <Input
               {...register("organizer_phone", { maxLength: 50 })}
               placeholder="787-555-0123"
+              disabled={mutation.isPending}
             />
           </Field>
           <Field label="Email">
@@ -238,6 +240,7 @@ export function SubmitMarketForm() {
               type="email"
               {...register("organizer_email", { maxLength: 255 })}
               placeholder="contacto@ejemplo.com"
+              disabled={mutation.isPending}
             />
           </Field>
         </div>
@@ -245,6 +248,7 @@ export function SubmitMarketForm() {
           <Input
             {...register("organizer_instagram", { maxLength: 100 })}
             placeholder="@mimercado"
+            disabled={mutation.isPending}
           />
         </Field>
       </Section>
