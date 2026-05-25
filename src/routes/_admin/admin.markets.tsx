@@ -241,9 +241,9 @@ function MarketsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar este mercado?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar este mercado permanentemente?</AlertDialogTitle>
             <AlertDialogDescription>
-              Se eliminará "{confirmDelete?.name}" y TODOS sus datos asociados: vistas, clics, excepciones y cambios de fecha. Esta acción no se puede deshacer.
+              Se eliminará "{confirmDelete?.name}" de todas las secciones del sitio — directorio público, panel de administración, envíos, analíticas y estadísticas. También se eliminará su imagen. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -262,7 +262,7 @@ function MarketsPage() {
                   Eliminando…
                 </>
               ) : (
-                "Eliminar permanentemente"
+                "Eliminar de todo el sistema"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
