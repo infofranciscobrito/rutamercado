@@ -1,5 +1,5 @@
 import { MapPin } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Orientation = "landscape" | "portrait" | "square";
 
@@ -13,11 +13,39 @@ interface Props {
 
 export function MarketImage({ src, alt, className, fit = "cover", onOrientation }: Props) {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Reset loaded state when src changes so new images start blurred again.
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
+  // Handle cached images: onLoad does not fire reliably when the browser
+  // serves an image from cache, leaving the blur stuck. Check `complete`
+  // after mount/src change and resolve manually if already available.
+  useEffect(() => {
+    if (!src) return;
+    const img = imgRef.current;
+    if (!img) return;
+    if (img.complete && img.naturalWidth > 0) {
+      setLoaded(true);
+      if (fit === "contain" && onOrientation) {
+        const { naturalWidth: w, naturalHeight: h } = img;
+        if (w && h) {
+          const ratio = w / h;
+          onOrientation(
+            ratio > 1.05 ? "landscape" : ratio < 0.95 ? "portrait" : "square",
+          );
+        }
+      }
+    }
+  }, [src, fit, onOrientation]);
 
   if (src) {
     if (fit === "contain") {
       return (
         <img
+          ref={imgRef}
           src={src}
           alt={alt}
           loading="lazy"
@@ -46,6 +74,7 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation 
     }
     return (
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
         loading="lazy"
