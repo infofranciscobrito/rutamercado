@@ -215,7 +215,7 @@ export function SubmitMarketForm() {
           />
         </Field>
         <p className="-mb-1 text-sm text-[#1c1e37]/60">
-          Provee al menos un medio de contacto:
+          Opcional: añade los medios de contacto que prefieras.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Teléfono">
@@ -232,15 +232,12 @@ export function SubmitMarketForm() {
             />
           </Field>
         </div>
-        <Field label="Instagram">
+        <Field label="Perfil de redes sociales">
           <Input
             {...register("organizer_instagram", { maxLength: 100 })}
             placeholder="@mimercado"
           />
         </Field>
-        {contactError && (
-          <p className="text-sm text-red-600">{contactError}</p>
-        )}
       </Section>
 
       <button
