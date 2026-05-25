@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { listMarkets } from "@/lib/markets.functions";
 import { trackPageView } from "@/lib/analytics.functions";
 import {
