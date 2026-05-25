@@ -120,6 +120,29 @@ function DashboardPage() {
         />
       </div>
 
+      <div className="rounded-xl border bg-card p-5">
+        <h2 className="font-display text-lg text-[#1c1e37] mb-4">Top 5 mercados por intención</h2>
+        {(topIntention.data ?? []).length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aún no hay intenciones registradas</p>
+        ) : (
+          <ol className="space-y-2">
+            {(topIntention.data ?? []).map((m) => (
+              <li key={m.id} className="flex items-baseline gap-2 text-sm">
+                <span className="text-muted-foreground w-6">{m.rank}.</span>
+                <Link
+                  to="/admin/analytics"
+                  search={{ market: m.id }}
+                  className="font-medium text-[#1c1e37] hover:text-[#f8b625] hover:underline"
+                >
+                  {m.name}
+                </Link>
+                <span className="text-muted-foreground">— {m.willAttend} van a ir · {m.interested} interesados</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border bg-card p-5">
           <h2 className="font-display text-lg text-[#1c1e37] mb-4">Vistas por Mercado (Top 10)</h2>
