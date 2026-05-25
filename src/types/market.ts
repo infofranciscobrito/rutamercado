@@ -18,9 +18,10 @@ export type ClickType =
   | "click_instagram"
   | "click_directions";
 
+/** Legacy fields kept for forms/UI not yet migrated to the recurrence model. */
 type LegacyMarketFields = {
-  event_date?: string;
-  frequency?: string | null;
+  event_date: string;
+  frequency: string | null;
 };
 
 export type Market = Database["public"]["Tables"]["markets"]["Row"] &
