@@ -40,6 +40,7 @@ interface Props {
   onClear: () => void;
   isTodayFilter?: boolean;
   onSwitchToWeek?: () => void;
+  filterSummary?: string;
 }
 
 export function EmptyState({
@@ -47,6 +48,7 @@ export function EmptyState({
   onClear,
   isTodayFilter,
   onSwitchToWeek,
+  filterSummary,
 }: Props) {
   if (isTodayFilter) {
     return (
@@ -76,10 +78,18 @@ export function EmptyState({
           ? "No encontramos mercados con esos filtros"
           : "Aún no hay mercados publicados"}
       </h2>
-      <p className="mt-2 max-w-sm text-base text-[#6B7280]">
-        {hasFilters
-          ? "Intenta cambiar los filtros o buscar por otro término."
-          : "Vuelve pronto para descubrir nuevos mercados locales."}
+      <p className="mt-2 max-w-md text-base text-[#6B7280]">
+        {hasFilters ? (
+          filterSummary ? (
+            <>
+              No hay resultados para <span className="font-medium text-[#1c1e37]">{filterSummary}</span>. Intenta cambiar los filtros o buscar por otro término.
+            </>
+          ) : (
+            "Intenta cambiar los filtros o buscar por otro término."
+          )
+        ) : (
+          "Vuelve pronto para descubrir nuevos mercados locales."
+        )}
       </p>
       {hasFilters && (
         <Button
@@ -87,7 +97,7 @@ export function EmptyState({
           variant="outline"
           className="mt-6 h-12 border-[#f8b625] px-6 text-base font-semibold text-[#d97706] hover:bg-[#FEF3C7] hover:text-[#d97706]"
         >
-          Ver todos los mercados
+          Limpiar filtros
         </Button>
       )}
     </div>

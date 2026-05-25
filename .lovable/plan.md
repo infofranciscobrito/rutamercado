@@ -1,14 +1,18 @@
-## Objective
-Replace the current `SkeletonRow` fallback in the main market listing with a grid of skeleton cards that matches the real `MarketGrid` layout.
+### Current State
+The `EmptyState` component already exists and is wired into `index.tsx` after the Suspense boundary. However, the message is generic ("con esos filtros") and doesn't tell the user which filters are actually active.
 
-## Current State
-- `index.tsx` wraps `MarketsContent` in `<Suspense>` with a fallback that renders `Hero` + `SkeletonRow`.
-- `SkeletonRow` is a horizontally scrolling row of fixed-width cards — it does not match the real grid layout.
-- `SkeletonGrid` already exists in `SkeletonCard.tsx` and uses the exact same grid classes as `MarketGrid`: `grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3`.
+### Changes
 
-## Changes
-### 1. `src/routes/index.tsx` — Update Suspense fallback
-- Replace the `<SkeletonRow />` inside the fallback with `<SkeletonGrid count={8} />`.
-- Wrap `SkeletonGrid` in `<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">` so its outer container matches the real `MarketGrid` container.
+1. **index.tsx** — Pass active filter details into `EmptyState` so it can render a contextual message.
+   - Build a small helper that describes the currently applied filters (search term, region, category, date).
+   - Pass that description as a new prop to `EmptyState`.
 
-No other files are touched. No colors, fonts, or spacing are changed.
+2. **EmptyState.tsx** — Enhance the message when filters are active.
+   - If a filter description is provided, render something like:  
+     "No encontramos mercados para *categoría: Artesanal, región: San Juan*"
+   - Keep the existing "Ver todos los mercados" / "Limpiar filtros" button logic.
+   - Keep the `isTodayFilter` branch unchanged.
+
+3. **Verify boundary** — Confirm `EmptyState` is only reachable inside `MarketsContent` (post-`useSuspenseQuery`) and never during the `Suspense` fallback. No structural change needed here; the current boundary is already correct.
+
+No colors, fonts, spacing, or layout styling will be changed.
