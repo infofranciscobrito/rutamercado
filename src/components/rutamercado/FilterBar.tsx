@@ -140,17 +140,8 @@ export function FilterBar({ filters, availableDays, onChange, onClear }: Props) 
       }`}
     >
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-        {/* Calendar strip (always visible) */}
-        <WeekStrip
-          selectedDay={filters.day}
-          availableDays={availableDays}
-          onSelectDay={(day) =>
-            onChange({ day, ...(day ? { date: "all" as const } : {}) })
-          }
-        />
-
-        {/* Row 2: pills + dropdowns */}
-        <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
+        {/* Row: pills + dropdowns */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <DatePills
             value={filters.date}
             onChange={(date) => onChange({ date, day: undefined })}
