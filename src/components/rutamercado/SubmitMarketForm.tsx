@@ -6,11 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { createMarketSubmission } from "@/lib/submissions.functions";
-import {
-  MARKET_CATEGORIES,
-  MARKET_REGIONS,
-  MARKET_FREQUENCIES,
-} from "@/types/market";
+import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -22,18 +18,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUpload16x9 } from "./ImageUpload16x9";
+import {
+  RecurrenceFields,
+  type RecurrenceFormShape,
+} from "./RecurrenceFields";
 
-type FormValues = {
+type FormValues = RecurrenceFormShape & {
   name: string;
   description: string;
   category: string;
   region: string;
   municipality: string;
   address: string;
-  event_date: string;
-  start_time: string;
-  end_time: string;
-  frequency: string;
   image_url: string;
   organizer_name: string;
   organizer_phone: string;
@@ -48,10 +44,13 @@ const defaults: FormValues = {
   region: MARKET_REGIONS[0],
   municipality: "",
   address: "",
-  event_date: "",
+  recurrence_type: "unico",
+  recurrence_day_of_week: "",
+  recurrence_week_of_month: "",
+  recurrence_start_date: "",
+  recurrence_end_date: "",
   start_time: "09:00",
   end_time: "14:00",
-  frequency: "",
   image_url: "",
   organizer_name: "",
   organizer_phone: "",
@@ -75,10 +74,21 @@ export function SubmitMarketForm() {
     mutationFn: (v: FormValues) =>
       submitFn({
         data: {
-          ...v,
+          name: v.name,
           description: v.description || undefined,
-          frequency: v.frequency || undefined,
+          category: v.category,
+          region: v.region,
+          municipality: v.municipality,
+          address: v.address,
+          start_time: v.start_time,
+          end_time: v.end_time,
+          recurrence_type: v.recurrence_type,
+          recurrence_day_of_week: v.recurrence_day_of_week || undefined,
+          recurrence_week_of_month: v.recurrence_week_of_month || undefined,
+          recurrence_start_date: v.recurrence_start_date,
+          recurrence_end_date: v.recurrence_end_date || undefined,
           image_url: v.image_url || undefined,
+          organizer_name: v.organizer_name,
           organizer_phone: v.organizer_phone || undefined,
           organizer_email: v.organizer_email || undefined,
           organizer_instagram: v.organizer_instagram || undefined,
@@ -182,34 +192,8 @@ export function SubmitMarketForm() {
         </Field>
       </Section>
 
-      <Section title="Fecha y horario">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Fecha *" error={errors.event_date?.message}>
-            <Input type="date" {...register("event_date", { required: "Requerido" })} />
-          </Field>
-          <Field label="Inicio *">
-            <Input type="time" {...register("start_time", { required: true })} />
-          </Field>
-          <Field label="Fin *">
-            <Input type="time" {...register("end_time", { required: true })} />
-          </Field>
-        </div>
-        <Field label="Frecuencia">
-          <Controller
-            control={control}
-            name="frequency"
-            render={({ field }) => (
-              <Select value={field.value || "Único"} onValueChange={field.onChange}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {MARKET_FREQUENCIES.map((f) => (
-                    <SelectItem key={f} value={f}>{f}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </Field>
+      <Section title="Cuándo ocurre">
+        <RecurrenceFields control={control} watch={watch} />
       </Section>
 
       <Section title="Foto del mercado">
