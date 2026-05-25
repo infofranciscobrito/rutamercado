@@ -9,6 +9,8 @@ import {
   Cell,
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
@@ -22,6 +24,9 @@ import {
   getTopOrganizers,
   getDistribution,
   getDailyTraffic,
+  getAttendanceMetrics,
+  getTopMarketsByIntention,
+  getIntentionsPerDay,
 } from "@/lib/admin-analytics.functions";
 import { downloadCSV } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
