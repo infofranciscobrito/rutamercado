@@ -190,7 +190,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                         onClick={() => track(market.id, "click_instagram")}
                         className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#f8b625]"
                       >
-                        <Instagram className="h-4 w-4" /> Instagram
+                        <Instagram className="h-4 w-4" /> Redes
                       </a>
                     )}
                   </div>

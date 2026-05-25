@@ -17,45 +17,36 @@ export type Submission =
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}(:\d{2})?$/;
 
-const SubmissionInputSchema = z
-  .object({
-    name: z.string().trim().min(1).max(200),
-    description: z.string().trim().max(2000).optional().or(z.literal("")),
-    category: z.enum(MARKET_CATEGORIES as [string, ...string[]]),
-    region: z.enum(MARKET_REGIONS as [string, ...string[]]),
-    municipality: z.string().trim().min(1).max(120),
-    address: z.string().trim().min(1).max(300),
-    start_time: z.string().regex(TIME_RE),
-    end_time: z.string().regex(TIME_RE),
-    recurrence_type: z.enum(RECURRENCE_TYPES as [string, ...string[]]),
-    recurrence_day_of_week: z
-      .enum(WEEKDAYS_ES as [string, ...string[]])
-      .optional(),
-    recurrence_week_of_month: z
-      .enum(WEEKS_OF_MONTH_ES as [string, ...string[]])
-      .optional(),
-    recurrence_start_date: z.string().regex(DATE_RE),
-    recurrence_end_date: z.string().regex(DATE_RE).optional().or(z.literal("")),
-    image_url: z.string().url().max(2048).optional().or(z.literal("")),
-    organizer_name: z.string().trim().min(1).max(200),
-    organizer_phone: z.string().trim().max(50).optional().or(z.literal("")),
-    organizer_email: z
-      .string()
-      .trim()
-      .max(255)
-      .email()
-      .optional()
-      .or(z.literal("")),
-    organizer_instagram: z.string().trim().max(100).optional().or(z.literal("")),
-  })
-  .refine(
-    (v) => !!(v.organizer_phone || v.organizer_email || v.organizer_instagram),
-    {
-      message:
-        "Provee al menos un medio de contacto (teléfono, email o Instagram)",
-      path: ["organizer_phone"],
-    },
-  );
+const SubmissionInputSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  description: z.string().trim().max(2000).optional().or(z.literal("")),
+  category: z.enum(MARKET_CATEGORIES as [string, ...string[]]),
+  region: z.enum(MARKET_REGIONS as [string, ...string[]]),
+  municipality: z.string().trim().min(1).max(120),
+  address: z.string().trim().min(1).max(300),
+  start_time: z.string().regex(TIME_RE),
+  end_time: z.string().regex(TIME_RE),
+  recurrence_type: z.enum(RECURRENCE_TYPES as [string, ...string[]]),
+  recurrence_day_of_week: z
+    .enum(WEEKDAYS_ES as [string, ...string[]])
+    .optional(),
+  recurrence_week_of_month: z
+    .enum(WEEKS_OF_MONTH_ES as [string, ...string[]])
+    .optional(),
+  recurrence_start_date: z.string().regex(DATE_RE),
+  recurrence_end_date: z.string().regex(DATE_RE).optional().or(z.literal("")),
+  image_url: z.string().url().max(2048).optional().or(z.literal("")),
+  organizer_name: z.string().trim().min(1).max(200),
+  organizer_phone: z.string().trim().max(50).optional().or(z.literal("")),
+  organizer_email: z
+    .string()
+    .trim()
+    .max(255)
+    .email()
+    .optional()
+    .or(z.literal("")),
+  organizer_instagram: z.string().trim().max(100).optional().or(z.literal("")),
+});
 
 export const createMarketSubmission = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SubmissionInputSchema.parse(input))

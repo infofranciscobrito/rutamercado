@@ -298,7 +298,7 @@ export function MarketFormDrawer({
               <Input type="email" {...register("organizer_email")} />
             </Field>
           </div>
-          <Field label="Instagram">
+          <Field label="Perfil de redes sociales">
             <Input placeholder="@usuario" {...register("organizer_instagram")} />
           </Field>
           <Controller

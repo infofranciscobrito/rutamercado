@@ -102,7 +102,7 @@ export function SubmissionReviewDrawer({
               <Mini label="Email" value={submission.organizer_email} />
             )}
             {submission.organizer_instagram && (
-              <Mini label="Instagram" value={submission.organizer_instagram} />
+              <Mini label="Redes sociales" value={submission.organizer_instagram} />
             )}
           </div>
 
