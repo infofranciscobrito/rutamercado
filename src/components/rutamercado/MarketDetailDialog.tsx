@@ -243,3 +243,111 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
     </Dialog>
   );
 }
+
+function AttendanceSection({ marketId }: { marketId: string }) {
+  const [voted, setVoted] = useState(false);
+  const [counts, setCounts] = useState<{
+    total: number;
+    willAttend: number;
+    interested: number;
+  }>({ total: 0, willAttend: 0, interested: 0 });
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const already = hasVoted(marketId);
+    setVoted(already);
+    let cancelled = false;
+    void getMarketIntentionCount({ data: { marketId } })
+      .then((c) => {
+        if (!cancelled) setCounts(c);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [marketId]);
+
+  const handleVote = async (intentionType: "will_attend" | "interested") => {
+    if (submitting || voted) return;
+    setSubmitting(true);
+    const visitorId = getOrCreateVisitorId() || crypto.randomUUID();
+    try {
+      const res = await recordAttendanceIntention({
+        data: { marketId, intentionType, visitorId },
+      });
+      if (!res.ok) throw new Error(res.error);
+      void trackMarketClick({
+        data: { marketId, clickType: "click_attendance" },
+      }).catch(() => {});
+      markVoted(marketId);
+      setVoted(true);
+      // Optimistic bump while server count refreshes
+      setCounts((c) => ({
+        total: c.total + 1,
+        willAttend: c.willAttend + (intentionType === "will_attend" ? 1 : 0),
+        interested: c.interested + (intentionType === "interested" ? 1 : 0),
+      }));
+      void getMarketIntentionCount({ data: { marketId } })
+        .then(setCounts)
+        .catch(() => {});
+    } catch {
+      toast.error("No se pudo registrar tu respuesta");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="my-5 border-t border-[#E5E7EB] pt-5">
+      {!voted ? (
+        <div className="space-y-3 text-center animate-in fade-in duration-200">
+          <div>
+            <h3 className="text-[15px] font-semibold text-[#1c1e37]">
+              ¿Piensas ir a este mercado?
+            </h3>
+            <p className="mt-1 text-[13px] text-[#6B7280]">
+              Tu respuesta nos ayuda a conocer el interés de la comunidad
+            </p>
+          </div>
+          <div className="flex justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleVote("will_attend")}
+              disabled={submitting}
+              className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#f8b625] px-6 text-sm font-semibold text-[#1c1e37] transition-all hover:bg-[#f8b625]/85 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
+            >
+              <CalendarCheck className="h-4 w-4" />
+              ¡Voy a ir!
+            </button>
+            <button
+              type="button"
+              onClick={() => handleVote("interested")}
+              disabled={submitting}
+              className="inline-flex h-11 items-center gap-2 rounded-[10px] border-[1.5px] border-[#f8b625] bg-transparent px-6 text-sm font-medium text-[#d97706] transition-colors hover:bg-[#FEF3C7] disabled:opacity-60"
+            >
+              <Star className="h-4 w-4" />
+              Me interesa
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-2 text-center animate-in fade-in duration-300">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f8b625]/15 animate-in zoom-in duration-300">
+            <CheckCircle2 className="h-7 w-7 text-[#f8b625]" />
+          </div>
+          <p className="text-[15px] font-semibold text-[#f8b625]">
+            ¡Gracias por tu respuesta!
+          </p>
+          <p className="text-[13px] text-[#6B7280]">
+            {counts.total === 1
+              ? "1 persona planea asistir a este mercado"
+              : `${counts.total} personas planean asistir a este mercado`}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Silence unused-import warnings for icons used conditionally above.
+void Hand;
