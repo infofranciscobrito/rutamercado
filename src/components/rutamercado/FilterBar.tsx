@@ -19,7 +19,7 @@ import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import type { DateFilter, MarketFilters } from "@/lib/market-filters";
 import { hasActiveFilters } from "@/lib/market-filters";
 import { useEffect, useState } from "react";
-import { WeekStrip } from "./WeekStrip";
+
 
 interface Props {
   filters: MarketFilters;
