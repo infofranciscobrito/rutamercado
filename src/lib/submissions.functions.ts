@@ -2,15 +2,20 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import {
-  MARKET_CATEGORIES,
-  MARKET_REGIONS,
-  MARKET_FREQUENCIES,
-} from "@/types/market";
+  generateRecurrenceLabel,
+  RECURRENCE_TYPES,
+  WEEKDAYS_ES,
+  WEEKS_OF_MONTH_ES,
+} from "@/lib/recurrence";
 import type { Database } from "@/integrations/supabase/types";
 
 export type Submission =
   Database["public"]["Tables"]["market_submissions"]["Row"];
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^\d{2}:\d{2}(:\d{2})?$/;
 
 const SubmissionInputSchema = z
   .object({
@@ -20,13 +25,17 @@ const SubmissionInputSchema = z
     region: z.enum(MARKET_REGIONS as [string, ...string[]]),
     municipality: z.string().trim().min(1).max(120),
     address: z.string().trim().min(1).max(300),
-    event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    start_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/),
-    end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/),
-    frequency: z
-      .enum(MARKET_FREQUENCIES as [string, ...string[]])
-      .optional()
-      .or(z.literal("")),
+    start_time: z.string().regex(TIME_RE),
+    end_time: z.string().regex(TIME_RE),
+    recurrence_type: z.enum(RECURRENCE_TYPES as [string, ...string[]]),
+    recurrence_day_of_week: z
+      .enum(WEEKDAYS_ES as [string, ...string[]])
+      .optional(),
+    recurrence_week_of_month: z
+      .enum(WEEKS_OF_MONTH_ES as [string, ...string[]])
+      .optional(),
+    recurrence_start_date: z.string().regex(DATE_RE),
+    recurrence_end_date: z.string().regex(DATE_RE).optional().or(z.literal("")),
     image_url: z.string().url().max(2048).optional().or(z.literal("")),
     organizer_name: z.string().trim().min(1).max(200),
     organizer_phone: z.string().trim().max(50).optional().or(z.literal("")),
@@ -42,7 +51,8 @@ const SubmissionInputSchema = z
   .refine(
     (v) => !!(v.organizer_phone || v.organizer_email || v.organizer_instagram),
     {
-      message: "Provee al menos un medio de contacto (teléfono, email o Instagram)",
+      message:
+        "Provee al menos un medio de contacto (teléfono, email o Instagram)",
       path: ["organizer_phone"],
     },
   );
@@ -50,7 +60,6 @@ const SubmissionInputSchema = z
 export const createMarketSubmission = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SubmissionInputSchema.parse(input))
   .handler(async ({ data }) => {
-    // Soft rate-limit: max 3 submissions per hour per email
     if (data.organizer_email) {
       const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
       const { count } = await supabaseAdmin
@@ -64,6 +73,11 @@ export const createMarketSubmission = createServerFn({ method: "POST" })
         );
       }
     }
+    const label = generateRecurrenceLabel(
+      data.recurrence_type,
+      data.recurrence_day_of_week ?? null,
+      data.recurrence_week_of_month ?? null,
+    );
 
     const { error } = await supabaseAdmin.from("market_submissions").insert({
       name: data.name,
@@ -72,12 +86,14 @@ export const createMarketSubmission = createServerFn({ method: "POST" })
       region: data.region as Database["public"]["Enums"]["market_region"],
       municipality: data.municipality,
       address: data.address,
-      event_date: data.event_date,
       start_time: data.start_time,
       end_time: data.end_time,
-      frequency:
-        (data.frequency as Database["public"]["Enums"]["market_frequency"]) ||
-        null,
+      recurrence_type: data.recurrence_type,
+      recurrence_day_of_week: data.recurrence_day_of_week || null,
+      recurrence_week_of_month: data.recurrence_week_of_month || null,
+      recurrence_start_date: data.recurrence_start_date,
+      recurrence_end_date: data.recurrence_end_date || null,
+      recurrence_label: label,
       image_url: data.image_url || null,
       organizer_name: data.organizer_name,
       organizer_phone: data.organizer_phone || null,
@@ -91,8 +107,7 @@ export const createMarketSubmission = createServerFn({ method: "POST" })
 export const listSubmissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
-    const { data, error } = await supabase
+    const { data, error } = await context.supabase
       .from("market_submissions")
       .select("*")
       .order("created_at", { ascending: false });
@@ -136,10 +151,14 @@ export const approveSubmission = createServerFn({ method: "POST" })
         region: sub.region,
         municipality: sub.municipality,
         address: sub.address,
-        event_date: sub.event_date,
         start_time: sub.start_time,
         end_time: sub.end_time,
-        frequency: sub.frequency,
+        recurrence_type: sub.recurrence_type,
+        recurrence_day_of_week: sub.recurrence_day_of_week,
+        recurrence_week_of_month: sub.recurrence_week_of_month,
+        recurrence_start_date: sub.recurrence_start_date,
+        recurrence_end_date: sub.recurrence_end_date,
+        recurrence_label: sub.recurrence_label,
         image_url: sub.image_url,
         organizer_name: sub.organizer_name,
         organizer_phone: sub.organizer_phone,

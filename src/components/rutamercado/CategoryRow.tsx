@@ -1,25 +1,18 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
-import type { Market, MarketCategory } from "@/types/market";
+import type { EnrichedMarket, MarketCategory } from "@/types/market";
 import { MarketCard } from "./MarketCard";
 import { CategoryIcon } from "./icons/CategoryIcons";
-import { parseEventDate } from "@/lib/market-filters";
 
 interface Props {
   category: MarketCategory;
-  markets: Market[];
+  markets: EnrichedMarket[];
   alt?: boolean;
   onSelect: (id: string) => void;
 }
 
 export function CategoryRow({ category, markets, alt, onSelect }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const sorted = [...markets].sort(
-    (a, b) =>
-      parseEventDate(a.event_date).getTime() -
-      parseEventDate(b.event_date).getTime(),
-  );
 
   const scrollBy = (dir: 1 | -1) => {
     const el = scrollRef.current;
@@ -67,7 +60,6 @@ export function CategoryRow({ category, markets, alt, onSelect }: Props) {
               <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
-
         </div>
 
         <div
@@ -75,7 +67,7 @@ export function CategoryRow({ category, markets, alt, onSelect }: Props) {
           className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0 rm-no-scrollbar"
           style={{ scrollPaddingInline: "1rem" }}
         >
-          {sorted.map((m, i) => (
+          {markets.map((m, i) => (
             <div
               key={m.id}
               className="snap-start rm-animate-fade-up"

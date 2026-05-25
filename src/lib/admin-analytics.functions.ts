@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { computeSchedule } from "@/lib/recurrence";
 
 export type DashboardMetrics = {
   activeMarkets: number;
@@ -9,63 +10,147 @@ export type DashboardMetrics = {
   totalClicks: number;
 };
 
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-function plusDaysISO(days: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
 function minusDaysISO(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() - days);
   return d.toISOString();
 }
-function throwIfDbError(error: { message: string } | null | undefined, label: string) {
-  if (error) {
-    console.error(`[Admin data] ${label}: database error`, error);
-    throw new Error(`${label}: ${error.message}`);
+function startOfToday(): Date {
+  const n = new Date();
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+
+async function fetchActiveMarketsWithSchedule(
+  supabase: ReturnType<typeof getSupabase>,
+  days = 90,
+) {
+  const { data: markets, error } = await supabase
+    .from("markets")
+    .select(
+      "id, name, municipality, view_count, start_time, end_time, recurrence_type, recurrence_day_of_week, recurrence_week_of_month, recurrence_start_date, recurrence_end_date, recurrence_label",
+    )
+    .eq("is_active", true);
+  if (error) throw new Error(error.message);
+  if (!markets || markets.length === 0)
+    return [] as Array<{
+      id: string;
+      name: string;
+      municipality: string;
+      view_count: number;
+      nextDate: string | null;
+      recurrence_label: string | null;
+    }>;
+
+  const ids = markets.map((m) => m.id);
+  const [{ data: exs }, { data: ovs }] = await Promise.all([
+    supabase
+      .from("market_exceptions")
+      .select("market_id, exception_date, reason")
+      .in("market_id", ids),
+    supabase
+      .from("market_date_overrides")
+      .select(
+        "market_id, original_date, new_date, new_start_time, new_end_time, note",
+      )
+      .in("market_id", ids),
+  ]);
+  const exByM = new Map<string, { exception_date: string; reason: string | null }[]>();
+  for (const e of exs ?? []) {
+    const arr = exByM.get(e.market_id) ?? [];
+    arr.push({ exception_date: e.exception_date, reason: e.reason });
+    exByM.set(e.market_id, arr);
   }
+  const ovByM = new Map<
+    string,
+    {
+      original_date: string;
+      new_date: string;
+      new_start_time: string | null;
+      new_end_time: string | null;
+      note: string | null;
+    }[]
+  >();
+  for (const o of ovs ?? []) {
+    const arr = ovByM.get(o.market_id) ?? [];
+    arr.push({
+      original_date: o.original_date,
+      new_date: o.new_date,
+      new_start_time: o.new_start_time,
+      new_end_time: o.new_end_time,
+      note: o.note,
+    });
+    ovByM.set(o.market_id, arr);
+  }
+
+  return markets.map((m) => {
+    const { upcoming } = computeSchedule(
+      {
+        recurrence_type: m.recurrence_type,
+        recurrence_day_of_week: m.recurrence_day_of_week,
+        recurrence_week_of_month: m.recurrence_week_of_month,
+        recurrence_start_date: m.recurrence_start_date,
+        recurrence_end_date: m.recurrence_end_date,
+        start_time: m.start_time,
+        end_time: m.end_time,
+      },
+      exByM.get(m.id) ?? [],
+      ovByM.get(m.id) ?? [],
+      { days },
+    );
+    return {
+      id: m.id,
+      name: m.name,
+      municipality: m.municipality,
+      view_count: m.view_count ?? 0,
+      nextDate: upcoming[0]?.date ?? null,
+      recurrence_label: m.recurrence_label,
+      upcoming,
+    };
+  });
+}
+
+// Helper for typing
+function getSupabase() {
+  return null as unknown as Awaited<
+    ReturnType<typeof requireSupabaseAuth.next>
+  >["context"]["supabase"];
 }
 
 export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DashboardMetrics> => {
-    console.log("[Admin data] dashboard metrics: server fetch start");
     const { supabase } = context;
-    const today = todayISO();
-    const inAWeek = plusDaysISO(7);
-
-    const [activeRes, viewsRes, upcomingRes, clicksRes] = await Promise.all([
+    const [activeRes, viewsRes, clicksRes, withSchedule] = await Promise.all([
       supabase.from("markets").select("id", { count: "exact" }).eq("is_active", true),
       supabase.from("markets").select("view_count"),
-      supabase
-        .from("markets")
-        .select("id", { count: "exact" })
-        .gte("event_date", today)
-        .lte("event_date", inAWeek)
-        .eq("is_active", true),
       supabase.from("market_clicks").select("id", { count: "exact" }),
+      fetchActiveMarketsWithSchedule(supabase, 7),
     ]);
-    throwIfDbError(activeRes.error, "dashboard active markets");
-    throwIfDbError(viewsRes.error, "dashboard total views");
-    throwIfDbError(upcomingRes.error, "dashboard upcoming markets");
-    throwIfDbError(clicksRes.error, "dashboard total clicks");
+    if (activeRes.error) throw new Error(activeRes.error.message);
+    if (viewsRes.error) throw new Error(viewsRes.error.message);
+    if (clicksRes.error) throw new Error(clicksRes.error.message);
 
     const totalViews = (viewsRes.data ?? []).reduce(
       (s, r) => s + (r.view_count ?? 0),
       0,
     );
+    const today = startOfToday();
+    const weekEnd = new Date(today);
+    weekEnd.setDate(today.getDate() + 7);
+    const upcomingThisWeek = withSchedule.filter((m) =>
+      m.upcoming.some((u) => {
+        const [y, mo, d] = u.date.split("-").map(Number);
+        const dt = new Date(y, (mo ?? 1) - 1, d ?? 1);
+        return dt >= today && dt <= weekEnd;
+      }),
+    ).length;
 
-    const result = {
+    return {
       activeMarkets: activeRes.count ?? 0,
       totalViews,
-      upcomingThisWeek: upcomingRes.count ?? 0,
+      upcomingThisWeek,
       totalClicks: clicksRes.count ?? 0,
     };
-    console.log("[Admin data] dashboard metrics: server fetch success", result);
-    return result;
   });
 
 export const getViewsPerMarket = createServerFn({ method: "GET" })
@@ -108,15 +193,19 @@ export const getClicksPerDay = createServerFn({ method: "GET" })
 export const getUpcomingMarkets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("markets")
-      .select("id, name, event_date, municipality, view_count")
-      .gte("event_date", todayISO())
-      .eq("is_active", true)
-      .order("event_date", { ascending: true })
-      .limit(5);
-    if (error) throw new Error(error.message);
-    return data ?? [];
+    const all = await fetchActiveMarketsWithSchedule(context.supabase, 30);
+    return all
+      .filter((m) => m.nextDate !== null)
+      .sort((a, b) => (a.nextDate! < b.nextDate! ? -1 : 1))
+      .slice(0, 5)
+      .map((m) => ({
+        id: m.id,
+        name: m.name,
+        municipality: m.municipality,
+        view_count: m.view_count,
+        nextDate: m.nextDate,
+        recurrence_label: m.recurrence_label,
+      }));
   });
 
 export const getAnalyticsOverview = createServerFn({ method: "GET" })
@@ -127,7 +216,6 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const since = minusDaysISO(data.days);
     const { supabase } = context;
-
     const [pvRes, clicksRes] = await Promise.all([
       supabase
         .from("page_views")
@@ -136,7 +224,6 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
         .gte("created_at", since),
       supabase.from("market_clicks").select("click_type").gte("created_at", since),
     ]);
-
     const clicks = clicksRes.data ?? [];
     const counts = { view_detail: 0, click_phone: 0, click_email: 0, click_instagram: 0, click_directions: 0 };
     for (const c of clicks) {
@@ -145,7 +232,6 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     }
     const contactClicks = counts.click_phone + counts.click_email + counts.click_instagram;
     const engagementRate = counts.view_detail > 0 ? (contactClicks / counts.view_detail) * 100 : 0;
-
     return {
       homeViews: pvRes.count ?? 0,
       detailViews: counts.view_detail,
