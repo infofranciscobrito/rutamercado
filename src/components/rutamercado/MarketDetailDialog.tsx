@@ -222,6 +222,10 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 </div>
               </div>
 
+              <AttendanceSection marketId={market.id} />
+
+
+
               <a
                 href={googleMapsUrl(market.address, market.municipality)}
                 target="_blank"
