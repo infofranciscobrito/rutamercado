@@ -1,34 +1,43 @@
-## Plan
+## Objetivo
 
-### Objetivo
-1. Eliminar la regla que obliga a proveer al menos un medio de contacto (teléfono, email o Instagram) en el formulario público de envío.
-2. Renombrar el campo visible "Instagram" a "Perfil de redes sociales" en todos los formularios y vistas.
+Que el modal de detalle muestre la imagen del mercado completa (sin recortes), adaptándose a su orientación. Las cards del directorio no se tocan.
 
-### Cambios
+## Cambios
 
-1. **Backend — Validación del envío**
-   - Archivo: `src/lib/submissions.functions.ts`
-   - Quitar el `.refine()` del `SubmissionInputSchema` que exige `organizer_phone || organizer_email || organizer_instagram`.
-   - Con esto, teléfono, email e Instagram pasan a ser 100 % opcionales (solo `organizer_name` permanece requerido).
+### 1. `src/components/rutamercado/MarketImage.tsx`
+Añadir una prop opcional `fit?: "cover" | "contain"` (default `"cover"` para no afectar a las cards) y, cuando sea `"contain"`, renderizar `<img>` con `object-contain`, `w-full`, `h-auto`, y detectar orientación con `onLoad` (comparando `naturalWidth` vs `naturalHeight`) para exponerla al padre vía un callback opcional `onOrientation?: (o: "landscape" | "portrait" | "square") => void`. El placeholder (sin `src`) sigue igual.
 
-2. **Formulario público — `/enviar`**
-   - Archivo: `src/components/rutamercado/SubmitMarketForm.tsx`
-   - Quitar el texto informativo "Provee al menos un medio de contacto".
-   - Cambiar el label del campo de "Instagram" a "Perfil de redes sociales".
-   - Eliminar el bloque de error condicional `contactError` que ya no tiene sentido.
+### 2. `src/components/rutamercado/MarketDetailDialog.tsx`
+Reemplazar el contenedor actual de la imagen:
 
-3. **Formulario admin — Mercado**
-   - Archivo: `src/components/admin/MarketFormDrawer.tsx`
-   - Cambiar el label del campo de "Instagram" a "Perfil de redes sociales".
+Antes:
+```
+<div className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#FFF8EC]">
+  <MarketImage ... />
+  <span className="...categoria">...</span>
+  <button ...cerrar />
+</div>
+```
 
-4. **Detalle del mercado — Público**
-   - Archivo: `src/components/rutamercado/MarketDetailDialog.tsx`
-   - Cambiar el texto del botón de contacto de "Instagram" a "Redes".
+Después:
+- Contenedor con `position: relative`, `overflow: hidden`, `rounded-t-none sm:rounded-t-[20px]`, sin `aspect-video`.
+- Fondo: `style={{ background: "linear-gradient(135deg, #1c1e37 0%, #2d3058 100%)" }}`.
+- Estado local `orientation` (`"landscape" | "portrait" | "square"`, default `"landscape"`).
+- Altura máxima del contenedor según orientación, con override mobile:
+  - mobile (`max-h-[50vh]`)
+  - `sm:` desktop: `landscape` → `max-h-[400px]`, `portrait` → `max-h-[500px]`, `square` → `max-h-[450px]`.
+- Imagen renderizada con `<MarketImage fit="contain" onOrientation={setOrientation} />`, que internamente aplica `w-full h-auto max-h-full object-contain mx-auto block`.
+- Mantener los overlays existentes (badge de categoría arriba-izquierda, botón cerrar arriba-derecha) con `position: absolute`.
 
-5. **Revisión de envíos — Admin**
-   - Archivo: `src/components/admin/SubmissionReviewDrawer.tsx`
-   - Cambiar el label del mini-campo de "Instagram" a "Redes sociales".
+Resetear `orientation` cuando cambia `market` (en el `useEffect` ya existente sobre `[open, market]`, o uno nuevo) para evitar que la altura previa quede aplicada al abrir otro mercado.
 
-### Notas
-- No se toca la base de datos; el campo `organizer_instagram` sigue existiendo con el mismo nombre interno, solo cambia el texto visible.
-- No se modifica el esquema Zod de `admin-markets.functions.ts` porque el admin ya no tenía la regla de contacto obligatoria.
+### 3. No tocar
+- `MarketCard.tsx`, `CategoryRow.tsx`, `MarketGrid.tsx` ni ningún otro consumidor de `MarketImage` (siguen con el default `cover` 16:9).
+- Resto del contenido del modal, animaciones ni overlay del Dialog.
+
+## Resultado
+- Landscape: imagen completa, hasta 400px de alto, fondo de marca a los lados si sobra ancho.
+- Portrait: imagen completa, hasta 500px de alto, centrada horizontalmente con gradiente a los lados.
+- Square: hasta 450px.
+- Mobile: como mucho 50vh para dejar ver el contenido debajo.
+- Las cards del directorio quedan intactas.

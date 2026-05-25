@@ -1,13 +1,37 @@
 import { MapPin } from "lucide-react";
 
+type Orientation = "landscape" | "portrait" | "square";
+
 interface Props {
   src?: string | null;
   alt: string;
   className?: string;
+  fit?: "cover" | "contain";
+  onOrientation?: (o: Orientation) => void;
 }
 
-export function MarketImage({ src, alt, className }: Props) {
+export function MarketImage({ src, alt, className, fit = "cover", onOrientation }: Props) {
   if (src) {
+    if (fit === "contain") {
+      return (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={(e) => {
+            if (!onOrientation) return;
+            const img = e.currentTarget;
+            const { naturalWidth: w, naturalHeight: h } = img;
+            if (!w || !h) return;
+            const ratio = w / h;
+            onOrientation(
+              ratio > 1.05 ? "landscape" : ratio < 0.95 ? "portrait" : "square",
+            );
+          }}
+          className={`mx-auto block h-auto max-h-full w-auto max-w-full object-contain ${className ?? ""}`}
+        />
+      );
+    }
     return (
       <img
         src={src}

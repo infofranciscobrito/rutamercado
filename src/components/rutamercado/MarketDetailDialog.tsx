@@ -9,7 +9,7 @@ import {
   Repeat,
   X,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
@@ -64,8 +64,15 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+type Orientation = "landscape" | "portrait" | "square";
+
 export function MarketDetailDialog({ market, open, onClose }: Props) {
   const trackedRef = useRef<string | null>(null);
+  const [orientation, setOrientation] = useState<Orientation>("landscape");
+
+  useEffect(() => {
+    setOrientation("landscape");
+  }, [market?.id]);
 
   useEffect(() => {
     if (!open || !market) return;
@@ -90,8 +97,26 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
       >
         {market && (
           <div className="flex max-h-[100dvh] flex-col overflow-y-auto sm:max-h-[90vh]">
-            <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#FFF8EC]">
-              <MarketImage src={market.image_url} alt={market.name} />
+            <div
+              className={`relative w-full shrink-0 overflow-hidden rounded-t-none sm:rounded-t-[20px] max-h-[50vh] ${
+                orientation === "portrait"
+                  ? "sm:max-h-[500px]"
+                  : orientation === "square"
+                    ? "sm:max-h-[450px]"
+                    : "sm:max-h-[400px]"
+              }`}
+              style={{
+                background:
+                  "linear-gradient(135deg, #1c1e37 0%, #2d3058 100%)",
+              }}
+            >
+              <MarketImage
+                src={market.image_url}
+                alt={market.name}
+                fit="contain"
+                onOrientation={setOrientation}
+                className="max-h-[50vh] sm:max-h-[inherit]"
+              />
               <span className="absolute left-4 top-4 rounded-md bg-[#f8b625] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
                 {market.category}
               </span>
@@ -104,6 +129,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 <X className="h-4 w-4" />
               </button>
             </div>
+
 
             <div className="space-y-6 p-6">
               <div>
