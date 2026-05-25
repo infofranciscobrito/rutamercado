@@ -99,15 +99,17 @@ function MarketsPage() {
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
-    onSuccess: () => {
+    onSuccess: (_d, _id, ctx) => {
+      const name = confirmDelete?.name ?? "El mercado";
       queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
       queryClient.invalidateQueries({ queryKey: ["markets"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "analytics"] });
-      toast.success("Mercado eliminado correctamente junto con todos sus datos asociados");
+      queryClient.invalidateQueries({ queryKey: ["admin", "submissions"] });
+      toast.success(`${name} ha sido eliminado completamente del sistema`);
       setConfirmDelete(null);
     },
-    onError: () => toast.error("Error al eliminar el mercado. Intenta de nuevo."),
+    onError: () => toast.error("Error al eliminar. No se borró nada. Intenta de nuevo."),
   });
 
   const openCreate = () => {
@@ -239,9 +241,9 @@ function MarketsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar este mercado?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar este mercado permanentemente?</AlertDialogTitle>
             <AlertDialogDescription>
-              Se eliminará "{confirmDelete?.name}" y TODOS sus datos asociados: vistas, clics, excepciones y cambios de fecha. Esta acción no se puede deshacer.
+              Se eliminará "{confirmDelete?.name}" de todas las secciones del sitio — directorio público, panel de administración, envíos, analíticas y estadísticas. También se eliminará su imagen. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -260,7 +262,7 @@ function MarketsPage() {
                   Eliminando…
                 </>
               ) : (
-                "Eliminar permanentemente"
+                "Eliminar de todo el sistema"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
