@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import type { Market } from "@/types/market";
+import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
 import {
   formatDateEs,
@@ -25,7 +25,7 @@ import {
 } from "@/lib/analytics.functions";
 
 interface Props {
-  market: Market | null;
+  market: EnrichedMarket | null;
   open: boolean;
   onClose: () => void;
 }
@@ -123,19 +123,26 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 <div className="grid grid-cols-2 gap-3">
                   <MiniFact
                     icon={<CalendarDays className="h-5 w-5" />}
-                    label="Fecha"
-                    value={formatDateEs(market.event_date)}
+                    label="Próxima fecha"
+                    value={
+                      market.nextDate
+                        ? formatDateEs(market.nextDate)
+                        : formatDateEs(market.recurrence_start_date)
+                    }
                   />
                   <MiniFact
                     icon={<Clock className="h-5 w-5" />}
                     label="Horario"
-                    value={formatTimeRange(market.start_time, market.end_time)}
+                    value={formatTimeRange(
+                      market.nextStartTime,
+                      market.nextEndTime,
+                    )}
                   />
-                  {market.frequency && (
+                  {market.recurrence_label && (
                     <MiniFact
                       icon={<Repeat className="h-5 w-5" />}
                       label="Frecuencia"
-                      value={market.frequency}
+                      value={market.recurrence_label}
                     />
                   )}
                   <MiniFact

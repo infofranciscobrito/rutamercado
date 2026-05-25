@@ -79,8 +79,10 @@ export function SubmissionReviewDrawer({
           )}
 
           <Row icon={<CalendarDays className="h-4 w-4" />}>
-            {formatDateEs(submission.event_date)}
-            {submission.frequency ? ` · ${submission.frequency}` : ""}
+            {submission.recurrence_label || formatDateEs(submission.recurrence_start_date)}
+            {submission.recurrence_label
+              ? ` · empieza ${formatDateEs(submission.recurrence_start_date)}`
+              : ""}
           </Row>
           <Row icon={<Clock className="h-4 w-4" />}>
             {formatTimeRange(submission.start_time, submission.end_time)}
