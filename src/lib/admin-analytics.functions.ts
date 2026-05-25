@@ -20,11 +20,21 @@ function startOfToday(): Date {
   return new Date(n.getFullYear(), n.getMonth(), n.getDate());
 }
 
+type ScheduledMarket = {
+  id: string;
+  name: string;
+  municipality: string;
+  view_count: number;
+  nextDate: string | null;
+  recurrence_label: string | null;
+  upcoming: ReturnType<typeof computeSchedule>["upcoming"];
+};
+
 async function fetchActiveMarketsWithSchedule(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   days = 90,
-) {
+): Promise<ScheduledMarket[]> {
   const { data: markets, error } = await supabase
     .from("markets")
     .select(
