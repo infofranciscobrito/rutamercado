@@ -9,7 +9,7 @@ import {
   Repeat,
   X,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
