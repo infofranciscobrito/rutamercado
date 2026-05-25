@@ -42,15 +42,7 @@ async function fetchActiveMarketsWithSchedule(
     )
     .eq("is_active", true);
   if (error) throw new Error(error.message);
-  if (!markets || markets.length === 0)
-    return [] as Array<{
-      id: string;
-      name: string;
-      municipality: string;
-      view_count: number;
-      nextDate: string | null;
-      recurrence_label: string | null;
-    }>;
+  if (!markets || markets.length === 0) return [];
 
   const ids = markets.map((m: { id: string }) => m.id);
   const [{ data: exs }, { data: ovs }] = await Promise.all([
