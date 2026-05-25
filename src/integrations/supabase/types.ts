@@ -43,6 +43,79 @@ export type Database = {
           },
         ]
       }
+      market_date_overrides: {
+        Row: {
+          created_at: string
+          id: string
+          market_id: string
+          new_date: string
+          new_end_time: string | null
+          new_start_time: string | null
+          note: string | null
+          original_date: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market_id: string
+          new_date: string
+          new_end_time?: string | null
+          new_start_time?: string | null
+          note?: string | null
+          original_date: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market_id?: string
+          new_date?: string
+          new_end_time?: string | null
+          new_start_time?: string | null
+          note?: string | null
+          original_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_date_overrides_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_exceptions: {
+        Row: {
+          created_at: string
+          exception_date: string
+          id: string
+          market_id: string
+          reason: string | null
+        }
+        Insert: {
+          created_at?: string
+          exception_date: string
+          id?: string
+          market_id: string
+          reason?: string | null
+        }
+        Update: {
+          created_at?: string
+          exception_date?: string
+          id?: string
+          market_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_exceptions_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_submissions: {
         Row: {
           address: string
@@ -51,8 +124,6 @@ export type Database = {
           created_at: string
           description: string | null
           end_time: string
-          event_date: string
-          frequency: Database["public"]["Enums"]["market_frequency"] | null
           id: string
           image_url: string | null
           municipality: string
@@ -62,6 +133,12 @@ export type Database = {
           organizer_name: string
           organizer_phone: string | null
           published_market_id: string | null
+          recurrence_day_of_week: string | null
+          recurrence_end_date: string | null
+          recurrence_label: string | null
+          recurrence_start_date: string
+          recurrence_type: string
+          recurrence_week_of_month: string | null
           region: Database["public"]["Enums"]["market_region"]
           reviewed_at: string | null
           reviewed_by: string | null
@@ -76,8 +153,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time: string
-          event_date: string
-          frequency?: Database["public"]["Enums"]["market_frequency"] | null
           id?: string
           image_url?: string | null
           municipality: string
@@ -87,6 +162,12 @@ export type Database = {
           organizer_name: string
           organizer_phone?: string | null
           published_market_id?: string | null
+          recurrence_day_of_week?: string | null
+          recurrence_end_date?: string | null
+          recurrence_label?: string | null
+          recurrence_start_date: string
+          recurrence_type?: string
+          recurrence_week_of_month?: string | null
           region: Database["public"]["Enums"]["market_region"]
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -101,8 +182,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time?: string
-          event_date?: string
-          frequency?: Database["public"]["Enums"]["market_frequency"] | null
           id?: string
           image_url?: string | null
           municipality?: string
@@ -112,6 +191,12 @@ export type Database = {
           organizer_name?: string
           organizer_phone?: string | null
           published_market_id?: string | null
+          recurrence_day_of_week?: string | null
+          recurrence_end_date?: string | null
+          recurrence_label?: string | null
+          recurrence_start_date?: string
+          recurrence_type?: string
+          recurrence_week_of_month?: string | null
           region?: Database["public"]["Enums"]["market_region"]
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -136,8 +221,6 @@ export type Database = {
           created_at: string
           description: string | null
           end_time: string
-          event_date: string
-          frequency: Database["public"]["Enums"]["market_frequency"] | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -147,6 +230,12 @@ export type Database = {
           organizer_instagram: string | null
           organizer_name: string
           organizer_phone: string | null
+          recurrence_day_of_week: string | null
+          recurrence_end_date: string | null
+          recurrence_label: string | null
+          recurrence_start_date: string
+          recurrence_type: string
+          recurrence_week_of_month: string | null
           region: Database["public"]["Enums"]["market_region"]
           start_time: string
           updated_at: string
@@ -158,8 +247,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time: string
-          event_date: string
-          frequency?: Database["public"]["Enums"]["market_frequency"] | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -169,6 +256,12 @@ export type Database = {
           organizer_instagram?: string | null
           organizer_name: string
           organizer_phone?: string | null
+          recurrence_day_of_week?: string | null
+          recurrence_end_date?: string | null
+          recurrence_label?: string | null
+          recurrence_start_date: string
+          recurrence_type?: string
+          recurrence_week_of_month?: string | null
           region: Database["public"]["Enums"]["market_region"]
           start_time: string
           updated_at?: string
@@ -180,8 +273,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time?: string
-          event_date?: string
-          frequency?: Database["public"]["Enums"]["market_frequency"] | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -191,6 +282,12 @@ export type Database = {
           organizer_instagram?: string | null
           organizer_name?: string
           organizer_phone?: string | null
+          recurrence_day_of_week?: string | null
+          recurrence_end_date?: string | null
+          recurrence_label?: string | null
+          recurrence_start_date?: string
+          recurrence_type?: string
+          recurrence_week_of_month?: string | null
           region?: Database["public"]["Enums"]["market_region"]
           start_time?: string
           updated_at?: string
@@ -272,7 +369,6 @@ export type Database = {
         | "Food Market"
         | "Mercado Mixto"
         | "Flea Market"
-      market_frequency: "Único" | "Semanal" | "Quincenal" | "Mensual"
       market_region: "Metro" | "Norte" | "Sur" | "Este" | "Oeste" | "Centro"
       submission_status: "pending" | "approved" | "rejected"
     }
@@ -418,7 +514,6 @@ export const Constants = {
         "Mercado Mixto",
         "Flea Market",
       ],
-      market_frequency: ["Único", "Semanal", "Quincenal", "Mensual"],
       market_region: ["Metro", "Norte", "Sur", "Este", "Oeste", "Centro"],
       submission_status: ["pending", "approved", "rejected"],
     },
