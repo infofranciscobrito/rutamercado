@@ -260,7 +260,7 @@ function MarketsContent({
 
   // Group by category, preserving the canonical category order
   const grouped = useMemo(() => {
-    const map = new Map<MarketCategory, Market[]>();
+    const map = new Map<MarketCategory, EnrichedMarket[]>();
     for (const m of filtered) {
       const list = map.get(m.category) ?? [];
       list.push(m);
