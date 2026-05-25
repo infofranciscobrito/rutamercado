@@ -340,5 +340,3 @@ function MarketsContent({
   );
 }
 
-// Silence unused-import warning during SSR pre-render fallback
-void SkeletonGrid;
