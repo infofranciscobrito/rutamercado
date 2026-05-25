@@ -139,6 +139,7 @@ export function SubmitMarketForm() {
           <Input
             {...register("name", { required: "Requerido", maxLength: 200 })}
             placeholder="Mercado del Pueblo"
+            disabled={mutation.isPending}
           />
         </Field>
         <Field label="Descripción">
@@ -146,6 +147,7 @@ export function SubmitMarketForm() {
             rows={3}
             {...register("description", { maxLength: 2000 })}
             placeholder="Cuéntanos brevemente qué se ofrece, ambiente, productos…"
+            disabled={mutation.isPending}
           />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
