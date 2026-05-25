@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      market_attendance_intentions: {
+        Row: {
+          created_at: string
+          id: string
+          intention_type: string
+          market_id: string
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intention_type: string
+          market_id: string
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intention_type?: string
+          market_id?: string
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_attendance_intentions_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_clicks: {
         Row: {
           click_type: Database["public"]["Enums"]["click_type"]
@@ -362,6 +394,7 @@ export type Database = {
         | "click_email"
         | "click_instagram"
         | "click_directions"
+        | "click_attendance"
       market_category:
         | "Mercado Agrícola"
         | "Bazar / Pop-up"
@@ -505,6 +538,7 @@ export const Constants = {
         "click_email",
         "click_instagram",
         "click_directions",
+        "click_attendance",
       ],
       market_category: [
         "Mercado Agrícola",
