@@ -61,7 +61,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
         </p>
 
         <div
-          className="rm-animate-fade-up mx-auto mt-8 max-w-xl"
+          className="rm-animate-fade-up mx-auto mt-10 max-w-3xl"
           style={{ animationDelay: "200ms" }}
         >
           <label htmlFor="hero-search" className="sr-only">
@@ -69,7 +69,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
           </label>
           <div className="relative">
             <Search
-              className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6B7280]"
+              className="pointer-events-none absolute left-6 top-1/2 h-6 w-6 -translate-y-1/2 text-[#6B7280]"
               aria-hidden="true"
             />
             <input
@@ -78,7 +78,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder="¿Qué mercado buscas?"
-              className="h-14 w-full rounded-xl border-2 border-transparent bg-white/95 pl-14 pr-4 text-base text-[#1c1e37] shadow-[0_8px_30px_rgba(0,0,0,0.35)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#f8b625] focus:bg-white focus:shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_0_4px_rgba(248,182,37,0.18)]"
+              className="h-16 w-full rounded-2xl border-2 border-transparent bg-white/95 pl-16 pr-5 text-lg text-[#1c1e37] shadow-[0_8px_30px_rgba(0,0,0,0.35)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#f8b625] focus:bg-white focus:shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_0_4px_rgba(248,182,37,0.18)] sm:h-[68px] sm:text-xl"
             />
           </div>
         </div>
