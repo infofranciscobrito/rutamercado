@@ -244,10 +244,11 @@ function MarketsContent({
     };
   }, [markets]);
 
-  const availableDays = useMemo(
-    () => new Set(markets.map((m) => m.event_date)),
-    [markets],
-  );
+  const availableDays = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of markets) for (const u of m.upcoming) set.add(u.date);
+    return set;
+  }, [markets]);
 
   const filtered = useMemo(
     () => applyFilters(markets, filters),
