@@ -33,6 +33,23 @@ const marketsQueryOptions = queryOptions({
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
+const DATE_LABELS: Record<MarketFilters["date"], string> = {
+  today: "hoy",
+  week: "esta semana",
+  month: "este mes",
+  all: "",
+};
+
+function describeFilters(f: MarketFilters): string | undefined {
+  const parts: string[] = [];
+  if (f.q.trim()) parts.push(`"${f.q.trim()}"`);
+  if (f.category !== "all") parts.push(`categoría: ${f.category}`);
+  if (f.region !== "all") parts.push(`región: ${f.region}`);
+  if (f.day) parts.push(`día: ${f.day}`);
+  else if (f.date !== "all") parts.push(DATE_LABELS[f.date]);
+  return parts.length ? parts.join(", ") : undefined;
+}
+
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
   date: fallback(z.enum(["today", "week", "month", "all"]), "all").default("all"),
