@@ -12,11 +12,7 @@ import {
 import type { Database } from "@/integrations/supabase/types";
 
 export type Submission =
-  Database["public"]["Tables"]["market_submissions"]["Row"] & {
-    /** Legacy fields kept for review UI not yet migrated to the recurrence model. */
-    event_date: string;
-    frequency: string | null;
-  };
+  Database["public"]["Tables"]["market_submissions"]["Row"];
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}(:\d{2})?$/;
