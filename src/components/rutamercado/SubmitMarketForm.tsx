@@ -94,8 +94,15 @@ export function SubmitMarketForm() {
           organizer_instagram: v.organizer_instagram || undefined,
         },
       }),
-    onSuccess: () => setSubmitted(true),
-    onError: (e: Error) => toast.error(e.message),
+    onSuccess: () => {
+      toast.success("¡Mercado recibido! Nuestro equipo lo revisará en 1–2 días.");
+      setSubmitted(true);
+    },
+    onError: (e: Error) => {
+      toast.error("No se pudo enviar el mercado", {
+        description: e.message,
+      });
+    },
   });
 
   const imageUrl = watch("image_url");
