@@ -156,8 +156,46 @@ export const deleteMarket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("markets").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    const { supabase } = context;
+
+    // 1. Load market to retrieve its image_url (so we can delete the file after).
+    const { data: market, error: loadErr } = await supabase
+      .from("markets")
+      .select("image_url")
+      .eq("id", data.id)
+      .single();
+    if (loadErr) throw new Error(loadErr.message);
+
+    // 2. Delete linked submissions (no CASCADE FK on published_market_id).
+    const { error: subErr } = await supabase
+      .from("market_submissions")
+      .delete()
+      .eq("published_market_id", data.id);
+    if (subErr) throw new Error(subErr.message);
+
+    // 3. Delete the market itself. CASCADE removes market_clicks,
+    //    market_exceptions, market_date_overrides.
+    //    Note: not a real cross-table transaction — if this fails after
+    //    step 2, retrying is idempotent (no submissions left to re-delete).
+    const { error: delErr } = await supabase.from("markets").delete().eq("id", data.id);
+    if (delErr) throw new Error(delErr.message);
+
+    // 4. Best-effort storage cleanup. An orphan file is preferable to a
+    //    half-deleted market, so storage errors are logged, not thrown.
+    if (market?.image_url) {
+      const marker = "/market-images/";
+      const idx = market.image_url.indexOf(marker);
+      if (idx !== -1) {
+        const path = market.image_url.slice(idx + marker.length);
+        const { error: storageErr } = await supabase.storage
+          .from("market-images")
+          .remove([path]);
+        if (storageErr) {
+          console.error("deleteMarket: storage cleanup failed", storageErr);
+        }
+      }
+    }
+
     return { ok: true as const };
   });
 
