@@ -45,7 +45,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
   compact = false,
 }: Props<T>) {
   // Cast: form field names are known constants present in T (extends RecurrenceFormShape)
-  const type = watch("recurrence_type" as never) as string;
+  const type = watch("recurrence_type" as never) as unknown as string;
   const isUnique = type === "unico";
   const isMonthly = type === "mensual_por_dia";
   const needsDay = type === "semanal" || type === "quincenal" || isMonthly;
