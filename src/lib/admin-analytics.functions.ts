@@ -110,12 +110,6 @@ async function fetchActiveMarketsWithSchedule(
   });
 }
 
-// Helper for typing
-function getSupabase() {
-  return null as unknown as Awaited<
-    ReturnType<typeof requireSupabaseAuth.next>
-  >["context"]["supabase"];
-}
 
 export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
