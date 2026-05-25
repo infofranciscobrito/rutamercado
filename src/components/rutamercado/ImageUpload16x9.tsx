@@ -23,9 +23,10 @@ async function detectMimeFromBytes(file: File): Promise<string | null> {
 interface Props {
   value: string;
   onChange: (url: string) => void;
+  disabled?: boolean;
 }
 
-export function ImageUpload16x9({ value, onChange }: Props) {
+export function ImageUpload16x9({ value, onChange, disabled = false }: Props) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -76,7 +77,8 @@ export function ImageUpload16x9({ value, onChange }: Props) {
             type="button"
             onClick={() => onChange("")}
             aria-label="Quitar foto"
-            className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+            disabled={disabled}
+            className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <X className="h-4 w-4" />
           </button>
@@ -84,7 +86,7 @@ export function ImageUpload16x9({ value, onChange }: Props) {
       ) : (
         <label
           className={`flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#1c1e37]/20 bg-[#FFF8EC] text-center text-sm text-[#1c1e37]/70 transition-colors hover:border-[#f8b625] hover:bg-[#f8b625]/5 ${
-            uploading ? "pointer-events-none opacity-60" : ""
+            uploading || disabled ? "pointer-events-none opacity-60" : ""
           }`}
         >
           {uploading ? (
@@ -106,6 +108,7 @@ export function ImageUpload16x9({ value, onChange }: Props) {
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif"
             className="sr-only"
+            disabled={disabled}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) handleFile(f);

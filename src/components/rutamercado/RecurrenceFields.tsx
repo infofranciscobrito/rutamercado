@@ -37,12 +37,14 @@ interface Props<T extends RecurrenceFormShape> {
   watch: UseFormWatch<T>;
   /** Optional compact variant for the admin drawer. */
   compact?: boolean;
+  disabled?: boolean;
 }
 
 export function RecurrenceFields<T extends RecurrenceFormShape>({
   control,
   watch,
   compact = false,
+  disabled = false,
 }: Props<T>) {
   // Cast: form field names are known constants present in T (extends RecurrenceFormShape)
   const type = watch("recurrence_type" as never) as unknown as string;
@@ -64,6 +66,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
             <Select
               value={(field.value as unknown as string) || "unico"}
               onValueChange={field.onChange}
+              disabled={disabled}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -92,6 +95,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
                   <Select
                     value={(field.value as unknown as string) || ""}
                     onValueChange={field.onChange}
+                    disabled={disabled}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona" />
@@ -117,6 +121,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
                 <Select
                   value={(field.value as unknown as string) || ""}
                   onValueChange={field.onChange}
+                  disabled={disabled}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona" />
@@ -146,6 +151,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
                 type="date"
                 value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
+                disabled={disabled}
               />
             )}
           />
@@ -160,6 +166,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
                 type="time"
                 value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
+                disabled={disabled}
               />
             )}
           />
@@ -174,6 +181,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
                 type="time"
                 value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
+                disabled={disabled}
               />
             )}
           />
@@ -190,6 +198,7 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
                 type="date"
                 value={(field.value as unknown as string) || ""}
                 onChange={field.onChange}
+                disabled={disabled}
               />
             )}
           />

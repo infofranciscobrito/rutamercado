@@ -94,8 +94,15 @@ export function SubmitMarketForm() {
           organizer_instagram: v.organizer_instagram || undefined,
         },
       }),
-    onSuccess: () => setSubmitted(true),
-    onError: (e: Error) => toast.error(e.message),
+    onSuccess: () => {
+      toast.success("¡Mercado recibido! Nuestro equipo lo revisará en 1–2 días.");
+      setSubmitted(true);
+    },
+    onError: (e: Error) => {
+      toast.error("No se pudo enviar el mercado", {
+        description: e.message,
+      });
+    },
   });
 
   const imageUrl = watch("image_url");
@@ -132,6 +139,7 @@ export function SubmitMarketForm() {
           <Input
             {...register("name", { required: "Requerido", maxLength: 200 })}
             placeholder="Mercado del Pueblo"
+            disabled={mutation.isPending}
           />
         </Field>
         <Field label="Descripción">
@@ -139,6 +147,7 @@ export function SubmitMarketForm() {
             rows={3}
             {...register("description", { maxLength: 2000 })}
             placeholder="Cuéntanos brevemente qué se ofrece, ambiente, productos…"
+            disabled={mutation.isPending}
           />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -147,7 +156,7 @@ export function SubmitMarketForm() {
               control={control}
               name="category"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value} onValueChange={field.onChange} disabled={mutation.isPending}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {MARKET_CATEGORIES.map((c) => (
@@ -163,7 +172,7 @@ export function SubmitMarketForm() {
               control={control}
               name="region"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value} onValueChange={field.onChange} disabled={mutation.isPending}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {MARKET_REGIONS.map((r) => (
@@ -179,18 +188,20 @@ export function SubmitMarketForm() {
           <Input
             {...register("municipality", { required: "Requerido", maxLength: 120 })}
             placeholder="Ponce"
+            disabled={mutation.isPending}
           />
         </Field>
         <Field label="Dirección *" error={errors.address?.message}>
           <Input
             {...register("address", { required: "Requerido", maxLength: 300 })}
             placeholder="Plaza Las Delicias, Calle Atocha"
+            disabled={mutation.isPending}
           />
         </Field>
       </Section>
 
       <Section title="Cuándo ocurre">
-        <RecurrenceFields control={control} watch={watch} />
+        <RecurrenceFields control={control} watch={watch} disabled={mutation.isPending} />
       </Section>
 
       <Section title="Foto del mercado">
@@ -201,6 +212,7 @@ export function SubmitMarketForm() {
         <ImageUpload16x9
           value={imageUrl}
           onChange={(url) => setValue("image_url", url, { shouldDirty: true })}
+          disabled={mutation.isPending}
         />
       </Section>
 
@@ -209,6 +221,7 @@ export function SubmitMarketForm() {
           <Input
             {...register("organizer_name", { required: "Requerido", maxLength: 200 })}
             placeholder="José Santiago"
+            disabled={mutation.isPending}
           />
         </Field>
         <p className="-mb-1 text-sm text-[#1c1e37]/60">
@@ -219,6 +232,7 @@ export function SubmitMarketForm() {
             <Input
               {...register("organizer_phone", { maxLength: 50 })}
               placeholder="787-555-0123"
+              disabled={mutation.isPending}
             />
           </Field>
           <Field label="Email">
@@ -226,6 +240,7 @@ export function SubmitMarketForm() {
               type="email"
               {...register("organizer_email", { maxLength: 255 })}
               placeholder="contacto@ejemplo.com"
+              disabled={mutation.isPending}
             />
           </Field>
         </div>
@@ -233,6 +248,7 @@ export function SubmitMarketForm() {
           <Input
             {...register("organizer_instagram", { maxLength: 100 })}
             placeholder="@mimercado"
+            disabled={mutation.isPending}
           />
         </Field>
       </Section>
