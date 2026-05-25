@@ -61,6 +61,7 @@ function MarketsPage() {
   const listMarketsFn = useServerFn(listAllMarkets);
   const toggleFn = useServerFn(toggleMarketActive);
   const deleteFn = useServerFn(deleteMarket);
+  const intentionsFn = useServerFn(getIntentionsPerMarketAll);
   const { data: markets = [], isLoading, error } = useQuery({
     queryKey: ["admin", "markets"],
     queryFn: async () => {
@@ -74,6 +75,10 @@ function MarketsPage() {
         throw err;
       }
     },
+  });
+  const { data: intentions = {} } = useQuery({
+    queryKey: ["admin", "markets", "intentions"],
+    queryFn: () => intentionsFn(),
   });
 
   const [search, setSearch] = useState("");
