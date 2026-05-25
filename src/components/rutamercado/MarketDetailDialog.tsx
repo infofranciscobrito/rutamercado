@@ -348,5 +348,3 @@ function AttendanceSection({ marketId }: { marketId: string }) {
   );
 }
 
-// Silence unused-import warnings for icons used conditionally above.
-void Hand;
