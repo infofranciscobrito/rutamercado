@@ -1,27 +1,14 @@
 ## Objective
-Improve image loading in `MarketImage.tsx` and `MarketCard.tsx` by adding blur placeholders and preventing layout shift, without changing any colors, fonts, spacing, or other visual styling.
+Replace the current `SkeletonRow` fallback in the main market listing with a grid of skeleton cards that matches the real `MarketGrid` layout.
 
-## Files to Modify
+## Current State
+- `index.tsx` wraps `MarketsContent` in `<Suspense>` with a fallback that renders `Hero` + `SkeletonRow`.
+- `SkeletonRow` is a horizontally scrolling row of fixed-width cards — it does not match the real grid layout.
+- `SkeletonGrid` already exists in `SkeletonCard.tsx` and uses the exact same grid classes as `MarketGrid`: `grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3`.
 
-### 1. `src/components/rutamercado/MarketImage.tsx`
-- `loading="lazy"` is already present on both `<img>` tags — confirm and preserve.
-- Add `useState` to track `loaded` state per image instance.
-- While `!loaded`, render the `<img>` with `filter: blur(8px)` and `opacity: 0.7`.
-- On `onLoad`, set `loaded = true` and transition to `filter: blur(0)` and `opacity: 1` using Tailwind `transition-all duration-500`.
-- Add explicit `width` and `height` attributes:
-  - `cover` branch: `width={320} height={180}` (16:9 ratio hint for browsers).
-  - `contain` branch: `width={800} height={600}` (4:3 generic ratio hint).
-- No changes to colors, fonts, spacing, or className defaults.
+## Changes
+### 1. `src/routes/index.tsx` — Update Suspense fallback
+- Replace the `<SkeletonRow />` inside the fallback with `<SkeletonGrid count={8} />`.
+- Wrap `SkeletonGrid` in `<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">` so its outer container matches the real `MarketGrid` container.
 
-### 2. `src/components/rutamercado/MarketCard.tsx`
-- The card image container already uses `aspect-video`, which prevents CLS at the container level.
-- No visual styling changes required; the `MarketImage` component handles the blur and intrinsic sizing.
-
-### 3. `src/components/rutamercado/MarketDetailDialog.tsx`
-- Add `min-h-[280px]` to the top image container so it does not fully collapse before the image loads, reducing modal-level CLS.
-- No other visual styling changes.
-
-## Verification
-- Open the preview, scroll to cards, and observe images loading with a soft blur that clears into focus.
-- Confirm no visual regressions in colors, spacing, fonts, or card dimensions.
-- Confirm `loading="lazy"` remains on all `<img>` elements.
+No other files are touched. No colors, fonts, or spacing are changed.

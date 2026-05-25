@@ -24,7 +24,7 @@ import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
 import { AboutSection } from "@/components/rutamercado/AboutSection";
 import { Footer } from "@/components/rutamercado/Footer";
-import { SkeletonGrid, SkeletonRow } from "@/components/rutamercado/SkeletonCard";
+import { SkeletonGrid } from "@/components/rutamercado/SkeletonCard";
 
 const marketsQueryOptions = queryOptions({
   queryKey: ["markets"],
@@ -179,7 +179,9 @@ function IndexPage() {
               stats={{ markets: 0, municipalities: 0, categories: 0 }}
             />
             <main className="flex-1">
-              <SkeletonRow />
+              <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+                <SkeletonGrid count={8} />
+              </div>
             </main>
           </>
         }
@@ -338,5 +340,3 @@ function MarketsContent({
   );
 }
 
-// Silence unused-import warning during SSR pre-render fallback
-void SkeletonGrid;
