@@ -1,54 +1,74 @@
+# Sistema de Intención de Asistencia
 
-# Eliminación completa de mercados — de TODAS partes
+## 1. Base de datos (migración)
 
-## Estado actual
+Crear tabla `market_attendance_intentions`:
+- `id` uuid PK, `market_id` uuid FK → markets(id) ON DELETE CASCADE
+- `intention_type` text con CHECK in ('will_attend','interested')
+- `visitor_id` text not null
+- `created_at` timestamptz default now()
+- Índices en `market_id`, `intention_type`, `created_at`
+- RLS: INSERT público (anon+authenticated), SELECT solo authenticated (admin)
+- Agregar `'click_attendance'` al enum `click_type` (ALTER TYPE ADD VALUE)
 
-- `markets.delete` ya tiene FK CASCADE en `market_clicks`, `market_exceptions`, `market_date_overrides` → estos se borran solos en BD.
-- **Faltan dos rastros**: la imagen en bucket `market-images` y los registros en `market_submissions` con `published_market_id` apuntando al mercado eliminado.
-- El frontend público es una sola página (`/`) con modal — al invalidar `["markets"]` el mercado desaparece de grid, category rows, búsqueda, contador y modal (porque `selected = markets.find(...)` retorna `null`). No hay ruta de detalle, ni sitemap, ni JSON-LD por mercado.
-- El admin ya cachea por query keys `["admin","markets"]`, `["admin","dashboard"]`, `["admin","analytics"]`, `["admin","submissions"]`.
+## 2. Server functions
 
-## Cambios
+**`src/lib/attendance.functions.ts`** (nuevo):
+- `recordAttendanceIntention({ marketId, intentionType, visitorId })` — usa `supabaseAdmin`, inserta en `market_attendance_intentions` y en `market_clicks` con `click_type='click_attendance'`. Valida con Zod (uuid, enum, visitorId 1–64 chars).
+- `getMarketIntentionCount({ marketId })` — público; retorna `{ total, willAttend, interested }` para mostrar en el modal tras votar.
 
-### 1. `src/lib/admin-markets.functions.ts` — `deleteMarket` atómico y completo
+**`src/lib/analytics.functions.ts`**:
+- Extender `ClickTypeSchema` con `'click_attendance'`.
 
-Reescribir el handler así (mismo nombre/firma, todo server-side con el cliente autenticado del middleware):
+**`src/lib/admin-analytics.functions.ts`**:
+- `getAttendanceMetrics()` → totales globales (will_attend, interested, uniqueVisitors, intentionRate vs `view_detail` clicks).
+- `getTopMarketsByIntention()` → top 10 con breakdown + view counts.
+- `getIntentionsPerDay({ days: 30 })` → series por día/tipo.
+- `getIntentionsPerMarketAll()` para enriquecer la tabla y CSV.
 
-1. Cargar el mercado para obtener `image_url`. Si no existe → error.
-2. `delete` en `market_submissions` con `eq("published_market_id", id)` (no hay CASCADE; hay que borrar manualmente para que el envío desaparezca de la sección Envíos).
-3. `delete` en `markets` con `eq("id", id)` — CASCADE limpia `market_clicks`, `market_exceptions`, `market_date_overrides`.
-4. Si `image_url` apunta al bucket `market-images`, extraer el path (`...storage/v1/object/public/market-images/<path>`) y llamar `supabase.storage.from("market-images").remove([path])`. Errores de storage se loguean pero NO revierten — el archivo huérfano es preferible a dejar el mercado a medio borrar; el commit en BD ya ocurrió.
-5. Si cualquier paso de BD (2 o 3) falla, lanzar error inmediatamente para que el cliente vea el toast de error. (Postgres no nos da una transacción multi-tabla desde el cliente JS, pero el orden submissions → markets es seguro: si markets falla, las submissions ya borradas no dejan inconsistencia visible al usuario — re-intento es idempotente. Documentar este trade-off con un comentario.)
+**`src/lib/admin-markets.functions.ts`**:
+- Extender `listMarkets` para incluir conteo de intenciones por mercado (left join agregado).
 
-### 2. `src/routes/_admin/admin.markets.tsx` — texto del dialog e invalidaciones
+## 3. Visitor ID helper
 
-- Título: `"¿Eliminar este mercado permanentemente?"`
-- Descripción: `"Se eliminará "{nombre}" de todas las secciones del sitio — directorio público, panel de administración, envíos, analíticas y estadísticas. También se eliminará su imagen. Esta acción no se puede deshacer."`
-- Toast success: `"{nombre} ha sido eliminado completamente del sistema"`
-- Toast error: `"Error al eliminar. No se borró nada. Intenta de nuevo."`
-- Botón confirmar: `"Eliminar de todo el sistema"` (mantener `bg-[#DC2626]` + spinner)
-- Añadir invalidación de `["admin", "submissions"]` en `onSuccess` (las otras claves ya están).
+**`src/lib/visitor-id.ts`** (nuevo): `getOrCreateVisitorId()` lee/escribe `rm_visitor_id` en localStorage (SSR-safe: retorna "" si `typeof window === 'undefined'`, sólo invocar desde event handlers/useEffect).
 
-### 3. `src/routes/index.tsx` — manejar URL directa a mercado eliminado
+## 4. Modal de detalle
 
-Cuando `search.market` existe pero `markets.find(...)` retorna `undefined`, en `MarketsContent` añadir un `useEffect` que:
-- Dispara `toast.info("Este mercado ya no está disponible. Descubre otros mercados en nuestro directorio.")` (importar `sonner`).
-- Llama `onClose()` para limpiar `?market=` del URL.
+**`src/components/rutamercado/MarketDetailDialog.tsx`**:
+- Nuevo subcomponente `AttendanceSection` insertado entre "Organizador" y botón "Cómo llegar", con separador (border-t #E5E7EB, my-5).
+- Estado: `voted` (bool, inicializado desde `localStorage['rm_voted_'+market.id]`), `counts` ({total, willAttend, interested}), `submitting`.
+- Si `!voted`: título + subtítulo centrados, dos botones (`¡Voy a ir!` primario #f8b625 con ícono `Hand`/`CalendarCheck`, `Me interesa` outline con ícono `Eye`/`Star`). Transiciones con clases CSS (fade).
+- Al click: llama `recordAttendanceIntention`, marca localStorage, fetch del conteo, muestra estado de gracias con `CheckCircle2` en círculo dorado (animación tailwind `animate-in zoom-in`), texto "¡Gracias por tu respuesta!" y "{total} personas planean asistir a este mercado".
+- Si ya votó al abrir: hacer query del conteo y mostrar estado final directamente.
+- Manejo de errores: toast sonner "No se pudo registrar tu respuesta".
 
-Esto cubre tanto el caso "modal abierto cuando se elimina" (la invalidación de `["markets"]` re-renderiza y `selected` se vuelve null → effect dispara) como "URL/bookmark directo a mercado borrado". El botón "Ver todos los mercados" del enunciado es redundante porque al limpiar el param el usuario YA está en el directorio; un toast informativo cumple el requerimiento sin añadir un estado vacío de página completa.
+## 5. Admin Dashboard
 
-## Lo que NO cambia
+**`src/routes/_admin/admin.dashboard.tsx`**:
+- Agregar 5ta `MetricCard` "Intención de Asistencia" con ícono `Users`, valor = total, subtexto custom "X van a ir · Y interesados" (extender `MetricCard` para aceptar `subtext?: string` opcional).
+- Grid cambia a `lg:grid-cols-5`.
+- Datos vía nuevo `getAttendanceMetrics`.
 
-- Esquema de BD (las CASCADE ya existen para clicks/exceptions/overrides).
-- Diseño visual del admin o del frontend.
-- Flujo de crear/editar mercados.
-- `listMarkets`, analytics functions — al re-ejecutarse no encontrarán el mercado y sus métricas/gráficos se recalculan automáticamente.
-- No hay sitemap ni rutas públicas por mercado que requieran cambio.
+## 6. Admin Analytics
 
-## Verificación
+**`src/routes/_admin/admin.analytics.tsx`**:
+- Nueva sección al final "Intención de Asistencia":
+  - 4 mini-cards: Voy a ir, Me interesa, Tasa de intención (%), Visitantes únicos.
+  - Tabla top 10 mercados (Pos, Nombre, Voy a ir, Me interesa, Total, Tasa %).
+  - `BarChart` apilado con dos `<Bar stackId="a">` colores #f8b625 y #FEF3C7.
+  - `LineChart` 30 días con dos `<Line>` (#f8b625, #6B7280).
+- Extender export CSV existente con columnas `voy_a_ir, me_interesa, total_intenciones, tasa_intencion`.
 
-1. Eliminar un mercado con imagen, clicks, excepciones, overrides y un submission asociado.
-2. Confirmar en `psql`: 0 filas en `markets`, `market_clicks`, `market_exceptions`, `market_date_overrides`, `market_submissions` para ese `id` / `published_market_id`.
-3. Confirmar que el archivo ya no existe en el bucket `market-images`.
-4. `/admin/markets`, `/admin/dashboard`, `/admin/analytics`, `/admin/submissions` ya no muestran rastro.
-5. Recargar `/` → no aparece en grid/categorías. Visitar `/?market=<id-eliminado>` → toast informativo, URL limpia.
+## 7. Admin Markets table
+
+**`src/routes/_admin/admin.markets.tsx`**:
+- Nueva columna "Intención" tras "Vistas" mostrando total con ícono `Users` y `Tooltip` shadcn con "X van a ir · Y interesados".
+- Datos provienen del `listMarkets` extendido.
+
+## Notas técnicas
+
+- Recurrencia: la intención se asocia a `market_id` (no a fecha), cumpliendo el requerimiento.
+- Atomicidad de borrado de mercados: el CASCADE de la nueva FK ya cubre la limpieza al eliminar mercados (compatible con el flujo de borrado actual).
+- SSR: toda lectura de localStorage queda dentro de `useEffect`/handlers para evitar errores de hidratación.
+- Sin cambios en diseño visual existente fuera de las áreas listadas.
