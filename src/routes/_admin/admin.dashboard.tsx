@@ -75,6 +75,10 @@ function DashboardPage() {
     queryKey: ["admin", "dashboard", "attendance"],
     queryFn: () => logFetch("dashboard attendance", () => attendanceFn()),
   });
+  const topIntention = useQuery({
+    queryKey: ["admin", "dashboard", "topIntention"],
+    queryFn: () => logFetch("dashboard topIntention", () => topIntentionFn({ data: { limit: 5 } })),
+  });
 
   const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading || attendance.isLoading;
   const error = metrics.error ?? views.error ?? clicks.error ?? upcoming.error ?? attendance.error;
