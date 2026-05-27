@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as EnviarRouteImport } from './routes/enviar'
+import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -28,6 +29,11 @@ const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
 const EnviarRoute = EnviarRouteImport.update({
   id: '/enviar',
   path: '/enviar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BazarPopUpRoute = BazarPopUpRouteImport.update({
+  id: '/bazar-pop-up',
+  path: '/bazar-pop-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -72,6 +78,7 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
+  '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bazar-pop-up'
     | '/enviar'
     | '/mercado-agricola'
     | '/admin/login'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bazar-pop-up'
     | '/enviar'
     | '/mercado-agricola'
     | '/admin/login'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_admin'
+    | '/bazar-pop-up'
     | '/enviar'
     | '/mercado-agricola'
     | '/admin/login'
@@ -145,6 +157,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  BazarPopUpRoute: typeof BazarPopUpRoute
   EnviarRoute: typeof EnviarRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       path: '/enviar'
       fullPath: '/enviar'
       preLoaderRoute: typeof EnviarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bazar-pop-up': {
+      id: '/bazar-pop-up'
+      path: '/bazar-pop-up'
+      fullPath: '/bazar-pop-up'
+      preLoaderRoute: typeof BazarPopUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin': {
@@ -246,6 +266,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  BazarPopUpRoute: BazarPopUpRoute,
   EnviarRoute: EnviarRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   AdminLoginRoute: AdminLoginRoute,
