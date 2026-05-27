@@ -347,15 +347,20 @@ function MarketsContent({
           </div>
         ) : (
           <div>
-            {grouped.map((g, i) => (
-              <CategoryRow
-                key={g.category}
-                category={g.category}
-                markets={g.markets}
-                alt={i % 2 === 1}
-                onSelect={onSelect}
-              />
-            ))}
+            {grouped.map((g, i) => {
+              const cfg = PAGE_BY_CATEGORY.get(g.category);
+              return (
+                <CategoryRow
+                  key={g.category}
+                  category={g.category}
+                  markets={g.markets}
+                  alt={i % 2 === 1}
+                  onSelect={onSelect}
+                  ctaHref={cfg ? `/${cfg.slug}` : undefined}
+                  ctaLabel={cfg?.ctaLabel}
+                />
+              );
+            })}
           </div>
         )}
 
