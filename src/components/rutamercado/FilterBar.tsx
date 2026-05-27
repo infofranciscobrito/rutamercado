@@ -26,6 +26,7 @@ interface Props {
   availableDays?: Set<string>;
   onChange: (next: Partial<MarketFilters>) => void;
   onClear: () => void;
+  hideCategory?: boolean;
 }
 
 const DATE_OPTIONS: { value: DateFilter; label: string }[] = [
