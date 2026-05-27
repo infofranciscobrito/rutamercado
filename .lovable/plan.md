@@ -1,89 +1,26 @@
-# Páginas individuales por categoría
+## Changes
 
-## Resumen
+### 1. `src/components/rutamercado/CategoryRow.tsx` — static grid
+- Remove `useRef`, scroll handlers, `ChevronLeft`/`ChevronRight` import, and the prev/next arrow buttons.
+- Sort `markets` by closest `nextDate` ascending and slice to first 4.
+- Replace the horizontal scroll container with a responsive CSS grid:
+  - `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5`
+  - Cards stretch to fill column width — update `MarketCard` usage to drop `fixedWidth` so cards adapt to their grid cell (verify `MarketCard` supports flexible width; otherwise wrap in `w-full` cell and pass a `fullWidth` prop). Quick read of `MarketCard` will confirm the right knob.
+  - If fewer than 4 markets exist, render only what's available — empty grid cells stay empty (cards do not stretch).
+- Move the "Ver todos los [categoría]" CTA OUT of the first card cell into a fixed block beneath the grid:
+  - Always rendered when `ctaHref` + `ctaLabel` are provided (independent of card count).
+  - `mt-4 mb-5` (16px top / 20px bottom), left-aligned.
+  - Same yellow styling already in use (#f8b625 bg, #1c1e37 text, DM Sans 14/600, rounded-lg).
 
-Crear 6 rutas dedicadas (una por categoría), cada una con su propio SEO, breadcrumb, filtros simplificados (sin filtro de categoría), grid vertical de mercados, estado vacío específico, y la sección About + Footer existentes. Añadir un botón "Ver todos los [categoría]" debajo de la primera card en cada fila de la homepage. Crear un sitemap.xml que incluya las nuevas rutas.
+### 2. `src/components/rutamercado/Footer.tsx` — unify with AboutSection
+- Change background from `bg-[#141628]` to `bg-[#1c1e37]` so it matches `AboutSection`.
+- At the very top of the footer, render a centered divider: `mx-auto h-[2px] w-20 bg-[#f8b625]` with `py-[30px]` wrapper (30px top + 30px bottom spacing) so the gold line sits between the two navy blocks.
+- Keep the rest of the footer (logo, copyright, links) unchanged.
 
-## Rutas nuevas
+### 3. No other files touched
+- Header, Hero, FilterBar, MarketCard internals, modal, category pages, admin — all untouched.
+- `src/routes/index.tsx` already passes `ctaHref`/`ctaLabel`; no change needed.
 
-| URL | Categoría |
-|---|---|
-| `/mercado-agricola` | Mercado Agrícola |
-| `/bazar-pop-up` | Bazar / Pop-up |
-| `/feria-artesanal` | Feria Artesanal |
-| `/food-market` | Food Market |
-| `/mercado-mixto` | Mercado Mixto |
-| `/flea-market` | Flea Market |
-
-## Archivos
-
-### 1. `src/lib/category-pages.ts` (nuevo)
-Tabla única con la configuración por categoría — usada por las páginas, la homepage y el sitemap. Cada entrada tiene:
-- `slug` (URL)
-- `category` (valor exacto de `MarketCategory`)
-- `pageTitle` ("Mercados Agrícolas en Puerto Rico", etc.)
-- `subtitle` (los descriptivos del brief)
-- `ctaLabel` ("Ver todos los Mercados Agrícolas", etc.)
-- `metaTitle`, `metaDescription` (textos del brief)
-- `pageViewKey` (`category_mercado_agricola`, etc.)
-
-### 2. `src/components/rutamercado/CategoryPage.tsx` (nuevo)
-Componente reutilizable que recibe la config + el `EnrichedMarket[]` filtrado por categoría. Renderiza:
-- `Header` (existente, sticky)
-- Breadcrumb: `Inicio > {pageTitle}` (DM Sans 14px, color `#6B7280`, container `max-w-7xl`)
-- Título + subtítulo + contador "X mercados disponibles"
-- Filtros simplificados: reutilizar `FilterBar` con una prop nueva `hideCategory?: boolean` (o un componente hermano más liviano). El selector de categoría se oculta en desktop y en el bottom sheet móvil. `DatePills` y `RegionSelect` se mantienen.
-- `MarketGrid` (existente) ordenado por `nextDate` ascendente
-- Estado vacío: ícono `CategoryIcon` grande, texto + botón "Volver al directorio" (Link a `/`)
-- `MarketDetailDialog` controlado por `?market=<uuid>` (mismo patrón que index)
-- `AboutSection` + `Footer`
-- Tracking de page view (StrictMode-safe, igual que index)
-
-### 3. `src/routes/mercado-agricola.tsx`, `bazar-pop-up.tsx`, `feria-artesanal.tsx`, `food-market.tsx`, `mercado-mixto.tsx`, `flea-market.tsx` (6 nuevos)
-Cada uno:
-- `validateSearch`: subset del schema actual (`q`, `date`, `region`, `day`, `market`) — sin `category`.
-- `loader`: reutiliza `marketsQueryOptions` (mismo `queryKey: ["markets"]`).
-- `head()`: meta tags del brief (title, description, og:title, og:description, og:url absoluta `https://rutamercadopr.com/<slug>`, og:image `/og-image.png`, twitter:*), `links: [{ rel: "canonical", href: "https://rutamercadopr.com/<slug>" }]`, y un `scripts` con JSON-LD `ItemList` cuyos `itemListElement` son objetos `Event` derivados de `loaderData` (nombre, startDate = `nextDate`, location con `municipality + region`, `url` al detail via `?market=<id>`).
-- `component`: render de `<CategoryPage config={...} />`.
-
-### 4. `src/components/rutamercado/CategoryRow.tsx` (editar)
-Añadir un botón "Ver todos los {categoría}" debajo de la primera card, alineado a la izquierda con esa card. Implementación: dentro del scroller, debajo de la primera `MarketCard` (no de cada una), un `Link` con los estilos del brief (`bg-[#f8b625] text-[#1c1e37]`, DM Sans 14px/600, `rounded-lg`, padding 10px 20px, h-40, hover scale + sombra dorada). Pasar `ctaHref` y `ctaLabel` como props desde `index.tsx` (resueltos vía la tabla de `category-pages.ts`).
-
-Posición exacta: la primera card del scroll se envuelve en un wrapper flex-col que contiene la `MarketCard` arriba y el botón debajo, alineado al inicio.
-
-### 5. `src/routes/index.tsx` (editar mínimo)
-Pasar `ctaHref` y `ctaLabel` a cada `<CategoryRow>` leyendo `category-pages.ts`. Nada más cambia.
-
-### 6. `src/components/rutamercado/FilterBar.tsx` (editar)
-Aceptar prop opcional `hideCategory?: boolean`. Cuando es `true`, no renderizar `CategorySelect` (ni en la fila desktop ni en el sheet móvil). Default `false` para preservar el comportamiento del home.
-
-### 7. `src/routes/sitemap[.]xml.ts` (nuevo)
-Server route que emite el sitemap. Incluye:
-- `/` (priority 1.0, changefreq weekly)
-- `/enviar` (priority 0.5, monthly)
-- Las 6 rutas de categoría (priority 0.7, weekly)
-`BASE_URL = "https://rutamercadopr.com"`. Sin fetch a DB (no hay rutas dinámicas públicas por slug).
-
-### 8. `public/robots.txt` (nuevo)
-```
-User-agent: *
-Allow: /
-Disallow: /admin/
-
-Sitemap: https://rutamercadopr.com/sitemap.xml
-```
-
-## Detalles técnicos
-
-- **Filtrado**: cada página filtra `markets.filter(m => m.category === config.category)` y luego aplica el `applyFilters` existente con `category: "all"` forzado, para reusar la lógica de fecha/región/día/búsqueda. Ordenar por `nextDate` ascendente al final.
-- **Selección por modal**: mismo patrón que index (`?market=<uuid>` en search params, `MarketDetailDialog` controlado, toast si el mercado deja de existir).
-- **Tracking**: `trackPageView({ data: { page: config.pageViewKey, referrer, userAgent } })` con `useRef` para evitar doble disparo en StrictMode.
-- **JSON-LD**: generado en `head()` desde `loaderData` (los markets ya están en cache vía `ensureQueryData`). Solo incluir mercados con `nextDate` no nulo.
-- **Header**: el menú de navegación del `Header` no se toca — las rutas quedan fuera del nav, accesibles solo por el botón del home y por Google.
-- **Responsive**: el grid usa `MarketGrid` existente (1/2/3 columnas).
-- **No tocar**: admin, modal de detalle, diseño visual de home, sitemap plugin de Vite (no está activo).
-
-## Riesgos
-
-- `MARKET_CATEGORIES` define los valores canónicos — la tabla `category-pages.ts` debe mapear cada slug a uno de esos strings exactos para que el filtro funcione.
-- El botón "Ver todos" debe ir dentro del scroller horizontal para alinearse con la primera card; verificar que no rompa el `snap-x` ni la altura uniforme de las cards (se ubica debajo, fuera del flujo de snap).
+## Technical notes
+- MarketCard currently accepts `fixedWidth` (used for the horizontal carousel). Will read it to decide: if it has a non-fixed mode, use that; otherwise pass `style={{ width: "100%" }}` via a small wrapper and rely on the existing card max-width being overridden by the grid cell. Goal: 4 equal cards in one desktop row inside the `max-w-7xl` container without horizontal scroll.
+- Sorting source: `EnrichedMarket.upcoming[0]?.date` (already what filtering uses); fall back to original order if missing.
