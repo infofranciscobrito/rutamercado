@@ -199,15 +199,17 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
                       onChange={(region) => onChange({ region })}
                     />
                   </div>
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
-                      Categoría
-                    </p>
-                    <CategorySelect
-                      value={filters.category}
-                      onChange={(category) => onChange({ category })}
-                    />
-                  </div>
+                  {!hideCategory && (
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                        Categoría
+                      </p>
+                      <CategorySelect
+                        value={filters.category}
+                        onChange={(category) => onChange({ category })}
+                      />
+                    </div>
+                  )}
                 </div>
                 <SheetFooter className="flex-row gap-2">
                   <Button
