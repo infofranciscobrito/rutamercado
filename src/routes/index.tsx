@@ -20,6 +20,7 @@ import { FilterBar } from "@/components/rutamercado/FilterBar";
 import { ActiveFilterChips } from "@/components/rutamercado/ActiveFilterChips";
 import { ViewToggle, type ViewMode } from "@/components/rutamercado/ViewToggle";
 import { CategoryRow } from "@/components/rutamercado/CategoryRow";
+import { PAGE_BY_CATEGORY } from "@/lib/category-pages";
 import { MarketGrid } from "@/components/rutamercado/MarketGrid";
 import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
