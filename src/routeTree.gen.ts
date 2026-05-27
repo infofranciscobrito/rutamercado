@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
+import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
 import { Route as EnviarRouteImport } from './routes/enviar'
 import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
@@ -24,6 +25,11 @@ import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.a
 const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
   id: '/mercado-agricola',
   path: '/mercado-agricola',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeriaArtesanalRoute = FeriaArtesanalRouteImport.update({
+  id: '/feria-artesanal',
+  path: '/feria-artesanal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnviarRoute = EnviarRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
+  '/feria-artesanal': typeof FeriaArtesanalRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
+  '/feria-artesanal': typeof FeriaArtesanalRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/_admin': typeof AdminRouteWithChildren
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
+  '/feria-artesanal': typeof FeriaArtesanalRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bazar-pop-up'
     | '/enviar'
+    | '/feria-artesanal'
     | '/mercado-agricola'
     | '/admin/login'
     | '/admin/analytics'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bazar-pop-up'
     | '/enviar'
+    | '/feria-artesanal'
     | '/mercado-agricola'
     | '/admin/login'
     | '/admin/analytics'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/_admin'
     | '/bazar-pop-up'
     | '/enviar'
+    | '/feria-artesanal'
     | '/mercado-agricola'
     | '/admin/login'
     | '/_admin/admin/analytics'
@@ -159,6 +171,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   BazarPopUpRoute: typeof BazarPopUpRoute
   EnviarRoute: typeof EnviarRoute
+  FeriaArtesanalRoute: typeof FeriaArtesanalRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
@@ -170,6 +183,13 @@ declare module '@tanstack/react-router' {
       path: '/mercado-agricola'
       fullPath: '/mercado-agricola'
       preLoaderRoute: typeof MercadoAgricolaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feria-artesanal': {
+      id: '/feria-artesanal'
+      path: '/feria-artesanal'
+      fullPath: '/feria-artesanal'
+      preLoaderRoute: typeof FeriaArtesanalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/enviar': {
@@ -268,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   BazarPopUpRoute: BazarPopUpRoute,
   EnviarRoute: EnviarRoute,
+  FeriaArtesanalRoute: FeriaArtesanalRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
