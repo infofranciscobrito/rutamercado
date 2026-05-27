@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as EnviarRouteImport } from './routes/enviar'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -19,6 +20,11 @@ import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.mar
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 
+const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
+  id: '/mercado-agricola',
+  path: '/mercado-agricola',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnviarRoute = EnviarRouteImport.update({
   id: '/enviar',
   path: '/enviar',
@@ -67,6 +73,7 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/enviar': typeof EnviarRoute
+  '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/enviar': typeof EnviarRoute
+  '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
   '/enviar': typeof EnviarRoute
+  '/mercado-agricola': typeof MercadoAgricolaRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/enviar'
+    | '/mercado-agricola'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/enviar'
+    | '/mercado-agricola'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_admin'
     | '/enviar'
+    | '/mercado-agricola'
     | '/admin/login'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
@@ -134,11 +146,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   EnviarRoute: typeof EnviarRoute
+  MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mercado-agricola': {
+      id: '/mercado-agricola'
+      path: '/mercado-agricola'
+      fullPath: '/mercado-agricola'
+      preLoaderRoute: typeof MercadoAgricolaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enviar': {
       id: '/enviar'
       path: '/enviar'
@@ -227,8 +247,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   EnviarRoute: EnviarRoute,
+  MercadoAgricolaRoute: MercadoAgricolaRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
