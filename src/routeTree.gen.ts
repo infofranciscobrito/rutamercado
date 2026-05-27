@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as FoodMarketRouteImport } from './routes/food-market'
 import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
@@ -23,6 +24,11 @@ import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.mar
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 
+const MercadoMixtoRoute = MercadoMixtoRouteImport.update({
+  id: '/mercado-mixto',
+  path: '/mercado-mixto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
   id: '/mercado-agricola',
   path: '/mercado-agricola',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
+  '/mercado-mixto': typeof MercadoMixtoRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
+  '/mercado-mixto': typeof MercadoMixtoRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
+  '/mercado-mixto': typeof MercadoMixtoRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/feria-artesanal'
     | '/food-market'
     | '/mercado-agricola'
+    | '/mercado-mixto'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/feria-artesanal'
     | '/food-market'
     | '/mercado-agricola'
+    | '/mercado-mixto'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '/feria-artesanal'
     | '/food-market'
     | '/mercado-agricola'
+    | '/mercado-mixto'
     | '/admin/login'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
@@ -186,11 +198,19 @@ export interface RootRouteChildren {
   FeriaArtesanalRoute: typeof FeriaArtesanalRoute
   FoodMarketRoute: typeof FoodMarketRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
+  MercadoMixtoRoute: typeof MercadoMixtoRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mercado-mixto': {
+      id: '/mercado-mixto'
+      path: '/mercado-mixto'
+      fullPath: '/mercado-mixto'
+      preLoaderRoute: typeof MercadoMixtoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mercado-agricola': {
       id: '/mercado-agricola'
       path: '/mercado-agricola'
@@ -311,6 +331,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeriaArtesanalRoute: FeriaArtesanalRoute,
   FoodMarketRoute: FoodMarketRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
+  MercadoMixtoRoute: MercadoMixtoRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
