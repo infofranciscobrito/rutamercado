@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as FoodMarketRouteImport } from './routes/food-market'
+import { Route as FleaMarketRouteImport } from './routes/flea-market'
 import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
 import { Route as EnviarRouteImport } from './routes/enviar'
 import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
@@ -37,6 +38,11 @@ const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
 const FoodMarketRoute = FoodMarketRouteImport.update({
   id: '/food-market',
   path: '/food-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FleaMarketRoute = FleaMarketRouteImport.update({
+  id: '/flea-market',
+  path: '/flea-market',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeriaArtesanalRoute = FeriaArtesanalRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/bazar-pop-up'
     | '/enviar'
     | '/feria-artesanal'
+    | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/bazar-pop-up'
     | '/enviar'
     | '/feria-artesanal'
+    | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/bazar-pop-up'
     | '/enviar'
     | '/feria-artesanal'
+    | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   BazarPopUpRoute: typeof BazarPopUpRoute
   EnviarRoute: typeof EnviarRoute
   FeriaArtesanalRoute: typeof FeriaArtesanalRoute
+  FleaMarketRoute: typeof FleaMarketRoute
   FoodMarketRoute: typeof FoodMarketRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   MercadoMixtoRoute: typeof MercadoMixtoRoute
@@ -223,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/food-market'
       fullPath: '/food-market'
       preLoaderRoute: typeof FoodMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flea-market': {
+      id: '/flea-market'
+      path: '/flea-market'
+      fullPath: '/flea-market'
+      preLoaderRoute: typeof FleaMarketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feria-artesanal': {
@@ -329,6 +349,7 @@ const rootRouteChildren: RootRouteChildren = {
   BazarPopUpRoute: BazarPopUpRoute,
   EnviarRoute: EnviarRoute,
   FeriaArtesanalRoute: FeriaArtesanalRoute,
+  FleaMarketRoute: FleaMarketRoute,
   FoodMarketRoute: FoodMarketRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   MercadoMixtoRoute: MercadoMixtoRoute,
