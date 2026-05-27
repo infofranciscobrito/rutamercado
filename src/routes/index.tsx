@@ -20,6 +20,7 @@ import { FilterBar } from "@/components/rutamercado/FilterBar";
 import { ActiveFilterChips } from "@/components/rutamercado/ActiveFilterChips";
 import { ViewToggle, type ViewMode } from "@/components/rutamercado/ViewToggle";
 import { CategoryRow } from "@/components/rutamercado/CategoryRow";
+import { PAGE_BY_CATEGORY } from "@/lib/category-pages";
 import { MarketGrid } from "@/components/rutamercado/MarketGrid";
 import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
@@ -346,15 +347,20 @@ function MarketsContent({
           </div>
         ) : (
           <div>
-            {grouped.map((g, i) => (
-              <CategoryRow
-                key={g.category}
-                category={g.category}
-                markets={g.markets}
-                alt={i % 2 === 1}
-                onSelect={onSelect}
-              />
-            ))}
+            {grouped.map((g, i) => {
+              const cfg = PAGE_BY_CATEGORY.get(g.category);
+              return (
+                <CategoryRow
+                  key={g.category}
+                  category={g.category}
+                  markets={g.markets}
+                  alt={i % 2 === 1}
+                  onSelect={onSelect}
+                  ctaHref={cfg ? `/${cfg.slug}` : undefined}
+                  ctaLabel={cfg?.ctaLabel}
+                />
+              );
+            })}
           </div>
         )}
 

@@ -26,6 +26,7 @@ interface Props {
   availableDays?: Set<string>;
   onChange: (next: Partial<MarketFilters>) => void;
   onClear: () => void;
+  hideCategory?: boolean;
 }
 
 const DATE_OPTIONS: { value: DateFilter; label: string }[] = [
@@ -118,7 +119,7 @@ function CategorySelect({
   );
 }
 
-export function FilterBar({ filters, onChange, onClear }: Props) {
+export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -153,10 +154,12 @@ export function FilterBar({ filters, onChange, onClear }: Props) {
               value={filters.region}
               onChange={(region) => onChange({ region })}
             />
-            <CategorySelect
-              value={filters.category}
-              onChange={(category) => onChange({ category })}
-            />
+            {!hideCategory && (
+              <CategorySelect
+                value={filters.category}
+                onChange={(category) => onChange({ category })}
+              />
+            )}
             {hasActiveFilters(filters) && (
               <button
                 type="button"
@@ -196,15 +199,17 @@ export function FilterBar({ filters, onChange, onClear }: Props) {
                       onChange={(region) => onChange({ region })}
                     />
                   </div>
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
-                      Categoría
-                    </p>
-                    <CategorySelect
-                      value={filters.category}
-                      onChange={(category) => onChange({ category })}
-                    />
-                  </div>
+                  {!hideCategory && (
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                        Categoría
+                      </p>
+                      <CategorySelect
+                        value={filters.category}
+                        onChange={(category) => onChange({ category })}
+                      />
+                    </div>
+                  )}
                 </div>
                 <SheetFooter className="flex-row gap-2">
                   <Button

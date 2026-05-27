@@ -9,7 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
+import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
+import { Route as FoodMarketRouteImport } from './routes/food-market'
+import { Route as FleaMarketRouteImport } from './routes/flea-market'
+import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
 import { Route as EnviarRouteImport } from './routes/enviar'
+import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -19,9 +26,44 @@ import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.mar
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadoMixtoRoute = MercadoMixtoRouteImport.update({
+  id: '/mercado-mixto',
+  path: '/mercado-mixto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
+  id: '/mercado-agricola',
+  path: '/mercado-agricola',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoodMarketRoute = FoodMarketRouteImport.update({
+  id: '/food-market',
+  path: '/food-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FleaMarketRoute = FleaMarketRouteImport.update({
+  id: '/flea-market',
+  path: '/flea-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeriaArtesanalRoute = FeriaArtesanalRouteImport.update({
+  id: '/feria-artesanal',
+  path: '/feria-artesanal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnviarRoute = EnviarRouteImport.update({
   id: '/enviar',
   path: '/enviar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BazarPopUpRoute = BazarPopUpRouteImport.update({
+  id: '/bazar-pop-up',
+  path: '/bazar-pop-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -66,7 +108,14 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
+  '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/flea-market': typeof FleaMarketRoute
+  '/food-market': typeof FoodMarketRoute
+  '/mercado-agricola': typeof MercadoAgricolaRoute
+  '/mercado-mixto': typeof MercadoMixtoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -76,7 +125,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
+  '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/flea-market': typeof FleaMarketRoute
+  '/food-market': typeof FoodMarketRoute
+  '/mercado-agricola': typeof MercadoAgricolaRoute
+  '/mercado-mixto': typeof MercadoMixtoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -88,7 +144,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
+  '/bazar-pop-up': typeof BazarPopUpRoute
   '/enviar': typeof EnviarRoute
+  '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/flea-market': typeof FleaMarketRoute
+  '/food-market': typeof FoodMarketRoute
+  '/mercado-agricola': typeof MercadoAgricolaRoute
+  '/mercado-mixto': typeof MercadoMixtoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -100,7 +163,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bazar-pop-up'
     | '/enviar'
+    | '/feria-artesanal'
+    | '/flea-market'
+    | '/food-market'
+    | '/mercado-agricola'
+    | '/mercado-mixto'
+    | '/sitemap.xml'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -110,7 +180,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bazar-pop-up'
     | '/enviar'
+    | '/feria-artesanal'
+    | '/flea-market'
+    | '/food-market'
+    | '/mercado-agricola'
+    | '/mercado-mixto'
+    | '/sitemap.xml'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -121,7 +198,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_admin'
+    | '/bazar-pop-up'
     | '/enviar'
+    | '/feria-artesanal'
+    | '/flea-market'
+    | '/food-market'
+    | '/mercado-agricola'
+    | '/mercado-mixto'
+    | '/sitemap.xml'
     | '/admin/login'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
@@ -133,17 +217,73 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  BazarPopUpRoute: typeof BazarPopUpRoute
   EnviarRoute: typeof EnviarRoute
+  FeriaArtesanalRoute: typeof FeriaArtesanalRoute
+  FleaMarketRoute: typeof FleaMarketRoute
+  FoodMarketRoute: typeof FoodMarketRoute
+  MercadoAgricolaRoute: typeof MercadoAgricolaRoute
+  MercadoMixtoRoute: typeof MercadoMixtoRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercado-mixto': {
+      id: '/mercado-mixto'
+      path: '/mercado-mixto'
+      fullPath: '/mercado-mixto'
+      preLoaderRoute: typeof MercadoMixtoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercado-agricola': {
+      id: '/mercado-agricola'
+      path: '/mercado-agricola'
+      fullPath: '/mercado-agricola'
+      preLoaderRoute: typeof MercadoAgricolaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/food-market': {
+      id: '/food-market'
+      path: '/food-market'
+      fullPath: '/food-market'
+      preLoaderRoute: typeof FoodMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flea-market': {
+      id: '/flea-market'
+      path: '/flea-market'
+      fullPath: '/flea-market'
+      preLoaderRoute: typeof FleaMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feria-artesanal': {
+      id: '/feria-artesanal'
+      path: '/feria-artesanal'
+      fullPath: '/feria-artesanal'
+      preLoaderRoute: typeof FeriaArtesanalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enviar': {
       id: '/enviar'
       path: '/enviar'
       fullPath: '/enviar'
       preLoaderRoute: typeof EnviarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bazar-pop-up': {
+      id: '/bazar-pop-up'
+      path: '/bazar-pop-up'
+      fullPath: '/bazar-pop-up'
+      preLoaderRoute: typeof BazarPopUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin': {
@@ -226,19 +366,16 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  BazarPopUpRoute: BazarPopUpRoute,
   EnviarRoute: EnviarRoute,
+  FeriaArtesanalRoute: FeriaArtesanalRoute,
+  FleaMarketRoute: FleaMarketRoute,
+  FoodMarketRoute: FoodMarketRoute,
+  MercadoAgricolaRoute: MercadoAgricolaRoute,
+  MercadoMixtoRoute: MercadoMixtoRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

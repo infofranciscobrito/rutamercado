@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
+import { Link } from "@tanstack/react-router";
 import type { EnrichedMarket, MarketCategory } from "@/types/market";
 import { MarketCard } from "./MarketCard";
 import { CategoryIcon } from "./icons/CategoryIcons";
@@ -9,9 +10,18 @@ interface Props {
   markets: EnrichedMarket[];
   alt?: boolean;
   onSelect: (id: string) => void;
+  ctaHref?: string;
+  ctaLabel?: string;
 }
 
-export function CategoryRow({ category, markets, alt, onSelect }: Props) {
+export function CategoryRow({
+  category,
+  markets,
+  alt,
+  onSelect,
+  ctaHref,
+  ctaLabel,
+}: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollBy = (dir: 1 | -1) => {
@@ -64,7 +74,7 @@ export function CategoryRow({ category, markets, alt, onSelect }: Props) {
 
         <div
           ref={scrollRef}
-          className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0 rm-no-scrollbar"
+          className="-mx-4 flex snap-x snap-mandatory items-start gap-5 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0 rm-no-scrollbar"
           style={{ scrollPaddingInline: "1rem" }}
         >
           {markets.map((m, i) => (
@@ -73,7 +83,21 @@ export function CategoryRow({ category, markets, alt, onSelect }: Props) {
               className="snap-start rm-animate-fade-up"
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
-              <MarketCard market={m} onClick={() => onSelect(m.id)} fixedWidth />
+              <div className="flex flex-col items-start gap-3">
+                <MarketCard market={m} onClick={() => onSelect(m.id)} fixedWidth />
+                {i === 0 && ctaHref && ctaLabel && (
+                  <Link
+                    to={ctaHref}
+                    className="inline-flex h-10 items-center justify-center rounded-lg bg-[#f8b625] px-5 text-sm font-semibold text-[#1c1e37] shadow-sm transition-all duration-200 hover:bg-[#f59e0b] hover:scale-[1.02] hover:shadow-[0_6px_16px_rgba(248,182,37,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f8b625] focus-visible:ring-offset-2"
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      padding: "10px 20px",
+                    }}
+                  >
+                    {ctaLabel}
+                  </Link>
+                )}
+              </div>
             </div>
           ))}
           <div className="w-2 shrink-0 sm:w-0" aria-hidden="true" />
@@ -82,3 +106,4 @@ export function CategoryRow({ category, markets, alt, onSelect }: Props) {
     </section>
   );
 }
+
