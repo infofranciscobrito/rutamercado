@@ -1,53 +1,89 @@
-# Desglose de intención de asistencia por mercado individual
+# Páginas individuales por categoría
 
-Corregir las queries y vistas de intención para que toda la data esté agrupada por mercado individual (con nombre, categoría, municipio, vistas y tasa), añadir drill-down por mercado, y hacer todo navegable con filtro.
+## Resumen
 
-## 1. Backend — `src/lib/admin-analytics.functions.ts`
+Crear 6 rutas dedicadas (una por categoría), cada una con su propio SEO, breadcrumb, filtros simplificados (sin filtro de categoría), grid vertical de mercados, estado vacío específico, y la sección About + Footer existentes. Añadir un botón "Ver todos los [categoría]" debajo de la primera card en cada fila de la homepage. Crear un sitemap.xml que incluya las nuevas rutas.
 
-- **Reescribir `getTopMarketsByIntention`**: hacer `GROUP BY market_id` real trayendo de `markets` los campos `name, category, municipality, view_count`, hacer left join con `market_attendance_intentions` (no descartar mercados sin intención si se quiere ver el universo — pero para el "Top 10" sí filtrar `total > 0`). Conteo de vistas de detalle desde `market_clicks` con `click_type='view_detail'` agrupado por `market_id`. Devolver: `id, rank, name, category, municipality, willAttend, interested, total, detailViews, intentionRate`. Ordenado por `total DESC`. Aceptar input opcional `{ limit?: number }` para reutilizar la query para el dashboard (top 5) y para el CSV (sin límite).
-- **Nueva `getIntentionMarketDetail({ marketId })`**: para el drill-down de una fila. Devuelve:
-  - `market`: `{ id, name, category, municipality, view_count }`
-  - `willAttend`, `interested`, `total`, `detailViews`, `intentionRate`
-  - `uniqueVisitors`: count distinct `visitor_id` filtrado por ese `market_id`
-  - `daily`: serie de 30 días `[{ date, willAttend, interested }]` filtrada por ese `market_id`
-- **Mantener** `getAttendanceMetrics`, `getIntentionsPerDay` (global) tal cual.
-- Validación zod estricta de `marketId` uuid.
+## Rutas nuevas
 
-## 2. Dashboard — `src/routes/_admin/admin.dashboard.tsx`
+| URL | Categoría |
+|---|---|
+| `/mercado-agricola` | Mercado Agrícola |
+| `/bazar-pop-up` | Bazar / Pop-up |
+| `/feria-artesanal` | Feria Artesanal |
+| `/food-market` | Food Market |
+| `/mercado-mixto` | Mercado Mixto |
+| `/flea-market` | Flea Market |
 
-- La `MetricCard` "Intención de Asistencia" se mantiene con total + subtexto "X van a ir · Y interesados".
-- Debajo de la grid de métricas, agregar una nueva card "Top 5 mercados por intención":
-  - Lista numerada `1. {nombre} — {X} van a ir · {Y} interesados`
-  - Cada item es un `Link` a `/admin/analytics?market={id}` (TanStack Router con search params)
-  - Si no hay datos: estado vacío "Aún no hay intenciones registradas"
-- Datos vía `getTopMarketsByIntention({ limit: 5 })`.
+## Archivos
 
-## 3. Analíticas — `src/routes/_admin/admin.analytics.tsx`
+### 1. `src/lib/category-pages.ts` (nuevo)
+Tabla única con la configuración por categoría — usada por las páginas, la homepage y el sitemap. Cada entrada tiene:
+- `slug` (URL)
+- `category` (valor exacto de `MarketCategory`)
+- `pageTitle` ("Mercados Agrícolas en Puerto Rico", etc.)
+- `subtitle` (los descriptivos del brief)
+- `ctaLabel` ("Ver todos los Mercados Agrícolas", etc.)
+- `metaTitle`, `metaDescription` (textos del brief)
+- `pageViewKey` (`category_mercado_agricola`, etc.)
 
-- **Search param `?market={id}`** opcional para destacar/expandir un mercado.
-- **Tabla "Top 10 Mercados por Intención"** — corregir columnas:
-  - `#`, `Mercado` (clickeable — toggle expand), `Categoría` (Badge), `Municipio`, `Voy a ir`, `Me interesa`, `Total`, `Vistas`, `Tasa %`
-  - Click en el nombre → expandir la fila para mostrar el panel de detalle (carga `getIntentionMarketDetail` on-demand con `useQuery` enabled).
-  - Si `?market={id}` está en la URL al cargar, expandir automáticamente esa fila y hacer scroll.
-- **Panel de detalle expandido por fila**:
-  - Nombre completo + badges (categoría, municipio)
-  - Grid 2 columnas: `PieChart` dona (Voy a ir #f8b625 vs Me interesa #FEF3C7) + `LineChart` 30 días por tipo (mismos colores que la línea global)
-  - Mini-cards: visitantes únicos, tasa de conversión (`intentionRate`)
-- **BarChart "Intención por Mercado"** — corregir:
-  - `dataKey="name"` en `XAxis` con `tickFormatter` que trunca a ~14 chars + ellipsis
-  - `Tooltip` custom que muestra nombre completo + "X van a ir · Y interesados · Z total"
-  - Barras apiladas dorado/crema (ya están)
-- **CSV** — reemplazar columnas por: `nombre_mercado, categoria, municipio, vistas, voy_a_ir, me_interesa, total_intenciones, tasa_intencion`. Una fila por mercado (usar `getTopMarketsByIntention()` sin limit, no solo top 10 → el handler ya soporta `limit` opcional).
+### 2. `src/components/rutamercado/CategoryPage.tsx` (nuevo)
+Componente reutilizable que recibe la config + el `EnrichedMarket[]` filtrado por categoría. Renderiza:
+- `Header` (existente, sticky)
+- Breadcrumb: `Inicio > {pageTitle}` (DM Sans 14px, color `#6B7280`, container `max-w-7xl`)
+- Título + subtítulo + contador "X mercados disponibles"
+- Filtros simplificados: reutilizar `FilterBar` con una prop nueva `hideCategory?: boolean` (o un componente hermano más liviano). El selector de categoría se oculta en desktop y en el bottom sheet móvil. `DatePills` y `RegionSelect` se mantienen.
+- `MarketGrid` (existente) ordenado por `nextDate` ascendente
+- Estado vacío: ícono `CategoryIcon` grande, texto + botón "Volver al directorio" (Link a `/`)
+- `MarketDetailDialog` controlado por `?market=<uuid>` (mismo patrón que index)
+- `AboutSection` + `Footer`
+- Tracking de page view (StrictMode-safe, igual que index)
 
-## 4. Tabla de mercados — `src/routes/_admin/admin.markets.tsx`
+### 3. `src/routes/mercado-agricola.tsx`, `bazar-pop-up.tsx`, `feria-artesanal.tsx`, `food-market.tsx`, `mercado-mixto.tsx`, `flea-market.tsx` (6 nuevos)
+Cada uno:
+- `validateSearch`: subset del schema actual (`q`, `date`, `region`, `day`, `market`) — sin `category`.
+- `loader`: reutiliza `marketsQueryOptions` (mismo `queryKey: ["markets"]`).
+- `head()`: meta tags del brief (title, description, og:title, og:description, og:url absoluta `https://rutamercadopr.com/<slug>`, og:image `/og-image.png`, twitter:*), `links: [{ rel: "canonical", href: "https://rutamercadopr.com/<slug>" }]`, y un `scripts` con JSON-LD `ItemList` cuyos `itemListElement` son objetos `Event` derivados de `loaderData` (nombre, startDate = `nextDate`, location con `municipality + region`, `url` al detail via `?market=<id>`).
+- `component`: render de `<CategoryPage config={...} />`.
 
-- Columna "Intención" muestra `{X} van / {Y} interés` (con íconos pequeños `Hand` dorado y `Eye` muted), o "—" si 0.
-- La celda es un `Link` a `/admin/analytics?market={id}`.
-- Quitar el tooltip (el desglose ya está visible).
+### 4. `src/components/rutamercado/CategoryRow.tsx` (editar)
+Añadir un botón "Ver todos los {categoría}" debajo de la primera card, alineado a la izquierda con esa card. Implementación: dentro del scroller, debajo de la primera `MarketCard` (no de cada una), un `Link` con los estilos del brief (`bg-[#f8b625] text-[#1c1e37]`, DM Sans 14px/600, `rounded-lg`, padding 10px 20px, h-40, hover scale + sombra dorada). Pasar `ctaHref` y `ctaLabel` como props desde `index.tsx` (resueltos vía la tabla de `category-pages.ts`).
 
-## 5. Notas técnicas
+Posición exacta: la primera card del scroll se envuelve en un wrapper flex-col que contiene la `MarketCard` arriba y el botón debajo, alineado al inicio.
 
-- Toda agregación se hace en JS sobre `select` de Supabase (no hay PostgREST GROUP BY) — el patrón es traer las filas crudas y agruparlas con `Map`, como ya hace el archivo. La "query SQL ejemplo" del usuario sirve de referencia conceptual; la implementación equivalente es: `select id,name,category,municipality,view_count from markets` + `select market_id,intention_type from market_attendance_intentions` + agrupar por `market_id`.
-- Sin cambios en el modal público ni en el sistema de votación.
-- Sin cambios visuales fuera del panel de detalle nuevo y los formatos de celda mencionados.
-- Cache keys de React Query incluyen `marketId` para drill-down.
+### 5. `src/routes/index.tsx` (editar mínimo)
+Pasar `ctaHref` y `ctaLabel` a cada `<CategoryRow>` leyendo `category-pages.ts`. Nada más cambia.
+
+### 6. `src/components/rutamercado/FilterBar.tsx` (editar)
+Aceptar prop opcional `hideCategory?: boolean`. Cuando es `true`, no renderizar `CategorySelect` (ni en la fila desktop ni en el sheet móvil). Default `false` para preservar el comportamiento del home.
+
+### 7. `src/routes/sitemap[.]xml.ts` (nuevo)
+Server route que emite el sitemap. Incluye:
+- `/` (priority 1.0, changefreq weekly)
+- `/enviar` (priority 0.5, monthly)
+- Las 6 rutas de categoría (priority 0.7, weekly)
+`BASE_URL = "https://rutamercadopr.com"`. Sin fetch a DB (no hay rutas dinámicas públicas por slug).
+
+### 8. `public/robots.txt` (nuevo)
+```
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://rutamercadopr.com/sitemap.xml
+```
+
+## Detalles técnicos
+
+- **Filtrado**: cada página filtra `markets.filter(m => m.category === config.category)` y luego aplica el `applyFilters` existente con `category: "all"` forzado, para reusar la lógica de fecha/región/día/búsqueda. Ordenar por `nextDate` ascendente al final.
+- **Selección por modal**: mismo patrón que index (`?market=<uuid>` en search params, `MarketDetailDialog` controlado, toast si el mercado deja de existir).
+- **Tracking**: `trackPageView({ data: { page: config.pageViewKey, referrer, userAgent } })` con `useRef` para evitar doble disparo en StrictMode.
+- **JSON-LD**: generado en `head()` desde `loaderData` (los markets ya están en cache vía `ensureQueryData`). Solo incluir mercados con `nextDate` no nulo.
+- **Header**: el menú de navegación del `Header` no se toca — las rutas quedan fuera del nav, accesibles solo por el botón del home y por Google.
+- **Responsive**: el grid usa `MarketGrid` existente (1/2/3 columnas).
+- **No tocar**: admin, modal de detalle, diseño visual de home, sitemap plugin de Vite (no está activo).
+
+## Riesgos
+
+- `MARKET_CATEGORIES` define los valores canónicos — la tabla `category-pages.ts` debe mapear cada slug a uno de esos strings exactos para que el filtro funcione.
+- El botón "Ver todos" debe ir dentro del scroller horizontal para alinearse con la primera card; verificar que no rompa el `snap-x` ni la altura uniforme de las cards (se ubica debajo, fuera del flujo de snap).
