@@ -154,10 +154,12 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
               value={filters.region}
               onChange={(region) => onChange({ region })}
             />
-            <CategorySelect
-              value={filters.category}
-              onChange={(category) => onChange({ category })}
-            />
+            {!hideCategory && (
+              <CategorySelect
+                value={filters.category}
+                onChange={(category) => onChange({ category })}
+              />
+            )}
             {hasActiveFilters(filters) && (
               <button
                 type="button"
