@@ -1,60 +1,320 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Header } from "@/components/rutamercado/Header";
-import { Footer } from "@/components/rutamercado/Footer";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { MapPin, CalendarDays, Gift } from "lucide-react";
 import { SubmitMarketForm } from "@/components/rutamercado/SubmitMarketForm";
 
 export const Route = createFileRoute("/enviar")({
   head: () => ({
     meta: [
-      { title: "Enviar mi Mercado — RutaMercado" },
+      { title: "Registra tu mercado — RutaMercado" },
       {
         name: "description",
         content:
-          "¿Organizas un mercado, feria o bazar en Puerto Rico? Envíanos la info y lo publicamos gratis en el directorio de RutaMercado.",
+          "Publica gratis tu mercado, feria o bazar en RutaMercado y llega a miles de puertorriqueños que buscan dónde ir cada fin de semana.",
       },
-      { property: "og:title", content: "Enviar mi Mercado — RutaMercado" },
+      { property: "og:title", content: "Registra tu mercado — RutaMercado" },
       {
         property: "og:description",
         content:
-          "Comparte tu mercadito local con miles de personas que buscan dónde ir el fin de semana.",
+          "Publica gratis tu mercado en el directorio que la comunidad de Puerto Rico usa cada semana.",
+      },
+    ],
+    links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Karla:wght@400;500;600;700&display=swap",
       },
     ],
   }),
   component: SubmitPage,
 });
 
+const DISPLAY = '"Cormorant Garamond", Georgia, serif';
+const BODY = '"Karla", system-ui, sans-serif';
+
+function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.12 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-[opacity,transform] duration-[400ms] ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function scrollToForm() {
+  document.getElementById("formulario")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function SubmitPage() {
   return (
-    <div className="min-h-screen bg-[#fff8ec]">
-      <Header />
-      <section
-        className="relative overflow-hidden bg-[#1c1e37] text-white"
-        style={{ paddingTop: "clamp(3rem, 2rem + 3vw, 5rem)", paddingBottom: "3rem" }}
+    <div className="min-h-screen bg-white" style={{ fontFamily: BODY, color: "#2d2d2d" }}>
+      {/* 1. HEADER */}
+      <header
+        className="sticky top-0 z-50 bg-[#1c1e37] text-white shadow-[0_2px_20px_rgba(28,30,55,0.25)]"
+        style={{ height: 64 }}
       >
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#f8b625]">
-            Para organizadores
-          </p>
-          <h1 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl">
-            Publica tu mercado, gratis
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-white/75">
-            Cuéntanos los detalles de tu evento y lo añadimos al directorio
-            después de una revisión rápida.
-          </p>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-        <SubmitMarketForm />
-        <div className="mt-6 text-center">
-          <Link to="/" className="text-sm text-[#1c1e37]/70 underline-offset-4 hover:underline">
-            ← Volver al directorio
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link to="/" aria-label="RutaMercado — Inicio" className="flex items-center">
+            <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-10 w-auto sm:h-11" />
+          </Link>
+          <Link
+            to="/"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-[#f8b625] px-4 text-sm font-semibold text-[#f8b625] transition-colors hover:bg-[#f8b625] hover:text-[#1c1e37]"
+          >
+            Ver Directorio
           </Link>
         </div>
+      </header>
+
+      {/* 2. HERO */}
+      <section
+        className="relative overflow-hidden bg-[#1c1e37] text-white"
+        style={{
+          paddingTop: "clamp(3.5rem, 4vw + 2rem, 6rem)",
+          paddingBottom: "clamp(3.5rem, 4vw + 2rem, 6rem)",
+        }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
+            backgroundSize: "3px 3px",
+          }}
+        />
+        <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <p
+            className="text-xs font-semibold uppercase tracking-[0.25em] text-[#f8b625]"
+            style={{ fontFamily: BODY }}
+          >
+            Para organizadores
+          </p>
+          <h1
+            className="mt-4 text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
+            style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+          >
+            Registra tu mercado. Llega a miles de puertorriqueños.
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-base text-white/80 sm:text-lg">
+            RutaMercado es el directorio donde la comunidad busca mercaditos, ferias y bazares
+            en toda la isla. Publica tu evento gratis y aumenta tu audiencia.
+          </p>
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={scrollToForm}
+              className="inline-flex h-14 w-full max-w-sm items-center justify-center rounded-xl bg-[#f8b625] px-8 text-base font-bold text-[#1c1e37] shadow-[0_8px_24px_rgba(248,182,37,0.35)] transition-all hover:bg-[#f59e0b] hover:scale-[1.02] sm:w-auto"
+            >
+              Registrar mi mercado ahora
+            </button>
+          </div>
+        </div>
       </section>
 
-      <Footer />
+      {/* 3. MÉTRICAS */}
+      <section className="bg-[#f7f7f5]" style={{ paddingTop: "3.5rem", paddingBottom: "3.5rem" }}>
+        <Reveal>
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-4 text-center sm:px-6 md:grid-cols-3 md:divide-x md:divide-[#1c1e37]/10">
+            {[
+              { num: "10+ municipios", label: "Mercados en toda la isla" },
+              { num: "Directorio activo", label: "Actualizado cada semana" },
+              { num: "Gratis", label: "Sin costo para publicar" },
+            ].map((m) => (
+              <div key={m.num} className="px-4">
+                <div
+                  className="text-3xl text-[#f8b625] sm:text-4xl"
+                  style={{ fontFamily: DISPLAY, fontWeight: 700 }}
+                >
+                  {m.num}
+                </div>
+                <p className="mt-2 text-sm font-medium text-[#1c1e37] sm:text-base">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 4. POR QUÉ */}
+      <section className="bg-white" style={{ paddingTop: "4.5rem", paddingBottom: "4.5rem" }}>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <h2
+              className="text-center text-3xl text-[#1c1e37] sm:text-4xl"
+              style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+            >
+              ¿Por qué registrar tu mercado en RutaMercado?
+            </h2>
+          </Reveal>
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              {
+                Icon: MapPin,
+                title: "Visibilidad donde la gente busca",
+                desc: "Los compradores que andan buscando su próximo mercadito van a encontrar el tuyo directamente en el directorio.",
+              },
+              {
+                Icon: CalendarDays,
+                title: "Tu mercado siempre al día",
+                desc: "Aparece en los filtros de fecha para que nadie se pierda cuándo y dónde es tu próximo evento.",
+              },
+              {
+                Icon: Gift,
+                title: "Completamente gratis",
+                desc: "Registrar tu mercado no tiene ningún costo. Solo llena el formulario y nosotros publicamos tu evento.",
+              },
+            ].map(({ Icon, title, desc }) => (
+              <Reveal key={title}>
+                <div className="h-full rounded-2xl border border-[#1c1e37]/10 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#f8b625]/15 text-[#f8b625]">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3
+                    className="mt-5 text-xl text-[#1c1e37]"
+                    style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+                  >
+                    {title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[#2d2d2d]/80">{desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. CÓMO FUNCIONA */}
+      <section
+        className="bg-[#1c1e37] text-white"
+        style={{ paddingTop: "4.5rem", paddingBottom: "4.5rem" }}
+      >
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <h2
+              className="text-center text-3xl sm:text-4xl"
+              style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+            >
+              Así de fácil es publicar tu mercado
+            </h2>
+          </Reveal>
+
+          <div className="relative mt-12">
+            {/* Desktop connector line */}
+            <div
+              aria-hidden="true"
+              className="absolute left-0 right-0 top-6 hidden h-px bg-[#f8b625]/30 md:block"
+              style={{ marginLeft: "16.66%", marginRight: "16.66%" }}
+            />
+
+            <ol className="relative grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+              {[
+                {
+                  n: 1,
+                  title: "Llena el formulario",
+                  desc: "Cuéntanos los detalles de tu mercado: nombre, fecha, lugar y cómo contactarte.",
+                },
+                {
+                  n: 2,
+                  title: "Revisamos y publicamos",
+                  desc: "El equipo de RutaMercado revisa la información y la sube al directorio.",
+                },
+                {
+                  n: 3,
+                  title: "Tu mercado aparece en el directorio",
+                  desc: "Miles de personas en Puerto Rico podrán encontrar tu mercado directamente desde rutamercadopr.com",
+                },
+              ].map((s, i, arr) => (
+                <li key={s.n} className="relative flex flex-col items-center text-center">
+                  <div
+                    className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#f8b625] text-xl font-bold text-[#1c1e37] shadow-[0_0_0_6px_#1c1e37]"
+                    style={{ fontFamily: DISPLAY }}
+                  >
+                    {s.n}
+                  </div>
+                  <h3
+                    className="mt-5 text-xl text-white"
+                    style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/75">{s.desc}</p>
+
+                  {/* Mobile connector below step (except last) */}
+                  {i < arr.length - 1 && (
+                    <div
+                      aria-hidden="true"
+                      className="mt-6 h-8 w-px bg-[#f8b625]/30 md:hidden"
+                    />
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FORMULARIO */}
+      <section
+        id="formulario"
+        className="scroll-mt-20 bg-[#f7f7f5]"
+        style={{ paddingTop: "4.5rem", paddingBottom: "4.5rem" }}
+      >
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <Reveal>
+            <h2
+              className="text-3xl text-[#1c1e37] sm:text-4xl"
+              style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+            >
+              Registra tu mercado
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-[#2d2d2d]/75">
+              Completa los campos y tu mercado estará en el directorio en menos de 24 horas.
+            </p>
+          </Reveal>
+        </div>
+        <div className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
+          <SubmitMarketForm />
+        </div>
+      </section>
+
+      {/* 7. FOOTER */}
+      <footer className="bg-[#1c1e37] text-white" style={{ paddingTop: "3rem", paddingBottom: "3rem" }}>
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 text-center sm:px-6">
+          <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-8 w-auto opacity-80" />
+          <p className="text-sm text-white/60">© 2025 RutaMercado. Todos los derechos reservados.</p>
+          <Link to="/" className="text-sm font-semibold text-[#f8b625] hover:underline">
+            Ver directorio completo
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }
