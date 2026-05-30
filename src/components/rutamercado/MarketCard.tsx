@@ -20,13 +20,13 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
       type="button"
       onClick={onClick}
       aria-label={`Ver detalles de ${market.name}`}
-      className={`group flex shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f8b625] focus-visible:ring-offset-2 ${
+      className={`group flex shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
         fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
       }`}
     >
       <div className="relative aspect-video w-full overflow-hidden bg-[#FFF8EC]">
         <MarketImage src={market.image_url} alt={market.name} />
-        <span className="absolute left-3 top-3 rounded-md bg-[#f8b625] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+        <span className="absolute left-3 top-3 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
           {market.category}
         </span>
         {today && (
@@ -44,18 +44,18 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
         <h3 className="font-display rm-text-card-title text-[#1c1e37] line-clamp-2">
           {market.name}
         </h3>
-        <div className="h-[2px] w-10 bg-[#f8b625]" aria-hidden="true" />
+        <div className="h-[2px] w-10 bg-[#54b678]" aria-hidden="true" />
         <div className="mt-1 space-y-1.5 text-sm">
           <div className="flex items-center gap-2 text-[#1c1e37]">
-            <CalendarDays className="h-4 w-4 shrink-0 text-[#f8b625]" />
+            <CalendarDays className="h-4 w-4 shrink-0 text-[#54b678]" />
             <span>{formatDateEs(nextDate)}</span>
           </div>
           <div className="flex items-center gap-2 text-[#6B7280]">
-            <Clock className="h-4 w-4 shrink-0 text-[#f8b625]" />
+            <Clock className="h-4 w-4 shrink-0 text-[#54b678]" />
             <span>{formatTimeRange(market.nextStartTime ?? market.start_time, market.nextEndTime ?? market.end_time)}</span>
           </div>
           <div className="flex items-center gap-2 text-[#6B7280]">
-            <MapPin className="h-4 w-4 shrink-0 text-[#f8b625]" />
+            <MapPin className="h-4 w-4 shrink-0 text-[#54b678]" />
             <span>
               {market.municipality}, {market.region}
             </span>
@@ -66,7 +66,7 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
             className="mt-2 inline-flex w-fit items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium"
             style={{
               backgroundColor: "#FFF8EC",
-              borderColor: "#f8b625",
+              borderColor: "#54b678",
               color: "#92400E",
             }}
           >
@@ -75,7 +75,7 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
           </span>
         )}
         {market.nextIsOverridden && (
-          <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#d97706]">
+          <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#2f7a4c]">
             <AlertTriangle className="h-3 w-3" />
             Fecha modificada{market.nextOverrideNote ? `: ${market.nextOverrideNote}` : ""}
           </span>

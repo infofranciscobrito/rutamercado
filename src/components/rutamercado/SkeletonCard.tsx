@@ -12,7 +12,7 @@ export function SkeletonCard({ fixedWidth }: Props) {
       <div className="aspect-video w-full rm-skeleton" />
       <div className="space-y-2.5 p-5">
         <div className="h-5 w-3/4 rounded rm-skeleton" />
-        <div className="h-[2px] w-10 bg-[#f8b625]/50" />
+        <div className="h-[2px] w-10 bg-[#54b678]/50" />
         <div className="h-4 w-1/2 rounded rm-skeleton" />
         <div className="h-4 w-2/3 rounded rm-skeleton" />
         <div className="h-4 w-1/3 rounded rm-skeleton" />

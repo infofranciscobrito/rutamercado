@@ -93,7 +93,7 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation 
   }
   return (
     <div
-      className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f8b625] to-[#1c1e37] ${className ?? ""}`}
+      className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-[#54b678] to-[#1c1e37] ${className ?? ""}`}
       aria-label={alt}
     >
       <MapPin className="h-12 w-12 text-white/90" strokeWidth={2} />

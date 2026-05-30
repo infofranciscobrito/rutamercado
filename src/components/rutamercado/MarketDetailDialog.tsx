@@ -58,7 +58,7 @@ function MiniFact({
 }) {
   return (
     <div className="rounded-xl bg-[#FFF8EC] p-3.5">
-      <div className="text-[#f8b625]">{icon}</div>
+      <div className="text-[#54b678]">{icon}</div>
       <div className="mt-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">
         {label}
       </div>
@@ -115,7 +115,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 alt={market.name}
                 fit="contain"
               />
-              <span className="absolute left-4 top-4 rounded-md bg-[#f8b625] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
+              <span className="absolute left-4 top-4 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
                 {market.category}
               </span>
               <button
@@ -134,7 +134,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 <h2 className="font-display text-2xl leading-tight text-[#1c1e37]">
                   {market.name}
                 </h2>
-                <div className="mt-3 h-[3px] w-12 bg-[#f8b625]" aria-hidden="true" />
+                <div className="mt-3 h-[3px] w-12 bg-[#54b678]" aria-hidden="true" />
                 {market.description && (
                   <p className="mt-4 text-base leading-relaxed text-[#4B5563]">
                     {market.description}
@@ -192,7 +192,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                       <a
                         href={`tel:${market.organizer_phone}`}
                         onClick={() => track(market.id, "click_phone")}
-                        className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#f8b625] px-3 text-sm font-semibold text-[#1c1e37] transition-colors hover:bg-[#f59e0b]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#54b678] px-3 text-sm font-semibold text-[#1c1e37] transition-colors hover:bg-[#3f9560]"
                       >
                         <Phone className="h-4 w-4" /> Llamar
                       </a>
@@ -201,7 +201,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                       <a
                         href={`mailto:${market.organizer_email}`}
                         onClick={() => track(market.id, "click_email")}
-                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#f8b625]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#54b678]"
                       >
                         <Mail className="h-4 w-4" /> Email
                       </a>
@@ -212,7 +212,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => track(market.id, "click_instagram")}
-                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#f8b625]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#54b678]"
                       >
                         <Instagram className="h-4 w-4" /> Redes
                       </a>
@@ -313,7 +313,7 @@ function AttendanceSection({ marketId }: { marketId: string }) {
               type="button"
               onClick={() => handleVote("will_attend")}
               disabled={submitting}
-              className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#f8b625] px-6 text-sm font-semibold text-[#1c1e37] transition-all hover:bg-[#f8b625]/85 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
+              className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#54b678] px-6 text-sm font-semibold text-[#1c1e37] transition-all hover:bg-[#54b678]/85 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
             >
               <CalendarCheck className="h-4 w-4" />
               ¡Voy a ir!
@@ -322,7 +322,7 @@ function AttendanceSection({ marketId }: { marketId: string }) {
               type="button"
               onClick={() => handleVote("interested")}
               disabled={submitting}
-              className="inline-flex h-11 items-center gap-2 rounded-[10px] border-[1.5px] border-[#f8b625] bg-transparent px-6 text-sm font-medium text-[#d97706] transition-colors hover:bg-[#FEF3C7] disabled:opacity-60"
+              className="inline-flex h-11 items-center gap-2 rounded-[10px] border-[1.5px] border-[#54b678] bg-transparent px-6 text-sm font-medium text-[#2f7a4c] transition-colors hover:bg-[#FEF3C7] disabled:opacity-60"
             >
               <Star className="h-4 w-4" />
               Me interesa
@@ -331,10 +331,10 @@ function AttendanceSection({ marketId }: { marketId: string }) {
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2 text-center animate-in fade-in duration-300">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f8b625]/15 animate-in zoom-in duration-300">
-            <CheckCircle2 className="h-7 w-7 text-[#f8b625]" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#54b678]/15 animate-in zoom-in duration-300">
+            <CheckCircle2 className="h-7 w-7 text-[#54b678]" />
           </div>
-          <p className="text-[15px] font-semibold text-[#f8b625]">
+          <p className="text-[15px] font-semibold text-[#54b678]">
             ¡Gracias por tu respuesta!
           </p>
           <p className="text-[13px] text-[#6B7280]">

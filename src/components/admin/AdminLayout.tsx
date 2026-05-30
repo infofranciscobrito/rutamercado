@@ -28,7 +28,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="font-display text-[#f8b625]">RutaMercado Admin</span>
+          <span className="font-display text-[#54b678]">RutaMercado Admin</span>
         </header>
         <main className="flex-1 p-6 md:p-8 overflow-x-hidden">{children}</main>
       </div>

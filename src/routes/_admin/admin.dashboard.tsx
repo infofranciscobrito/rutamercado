@@ -132,7 +132,7 @@ function DashboardPage() {
                 <Link
                   to="/admin/analytics"
                   search={{ market: m.id }}
-                  className="font-medium text-[#1c1e37] hover:text-[#f8b625] hover:underline"
+                  className="font-medium text-[#1c1e37] hover:text-[#54b678] hover:underline"
                 >
                   {m.name}
                 </Link>
@@ -153,7 +153,7 @@ function DashboardPage() {
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-25} textAnchor="end" height={70} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="views" fill="#f8b625" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="views" fill="#54b678" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

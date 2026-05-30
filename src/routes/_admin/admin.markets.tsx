@@ -142,7 +142,7 @@ function MarketsPage() {
           <h1 className="font-display text-3xl text-[#1c1e37]">Gestión de Mercados</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} mercados</p>
         </div>
-        <Button onClick={openCreate} className="bg-[#f8b625] text-[#1c1e37] hover:bg-[#f8b625]/90">
+        <Button onClick={openCreate} className="bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]/90">
           <Plus className="h-4 w-4 mr-1" /> Agregar Mercado
         </Button>
       </header>
@@ -197,7 +197,7 @@ function MarketsPage() {
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="bg-[#f8b625]/15 text-[#1c1e37] border-0">
+                    <Badge variant="secondary" className="bg-[#54b678]/15 text-[#1c1e37] border-0">
                       {m.category}
                     </Badge>
                   </TableCell>
@@ -211,10 +211,10 @@ function MarketsPage() {
                       <Link
                         to="/admin/analytics"
                         search={{ market: m.id }}
-                        className="inline-flex items-center gap-2 whitespace-nowrap text-[#1c1e37] hover:text-[#f8b625] hover:underline"
+                        className="inline-flex items-center gap-2 whitespace-nowrap text-[#1c1e37] hover:text-[#54b678] hover:underline"
                       >
                         <span className="inline-flex items-center gap-1">
-                          <Hand className="h-3.5 w-3.5 text-[#f8b625]" />
+                          <Hand className="h-3.5 w-3.5 text-[#54b678]" />
                           {int.willAttend}
                         </span>
                         <span className="text-muted-foreground">·</span>

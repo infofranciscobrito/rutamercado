@@ -22,7 +22,7 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
         type="button"
         onClick={onRemove}
         aria-label={`Quitar filtro ${label}`}
-        className="inline-flex h-4 w-4 items-center justify-center rounded hover:bg-[#f8b625]/30"
+        className="inline-flex h-4 w-4 items-center justify-center rounded hover:bg-[#54b678]/30"
       >
         <X className="h-3 w-3" />
       </button>

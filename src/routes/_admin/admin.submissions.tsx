@@ -108,7 +108,7 @@ function SubmissionsPage() {
 
 function StatusBadge({ status }: { status: Submission["status"] }) {
   if (status === "pending")
-    return <Badge className="bg-[#f8b625] text-[#1c1e37] hover:bg-[#f8b625]">Pendiente</Badge>;
+    return <Badge className="bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]">Pendiente</Badge>;
   if (status === "approved")
     return <Badge className="bg-[#22C55E] text-white hover:bg-[#22C55E]">Aprobado</Badge>;
   return <Badge variant="secondary">Rechazado</Badge>;

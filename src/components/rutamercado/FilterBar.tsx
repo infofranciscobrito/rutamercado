@@ -56,8 +56,8 @@ function DatePills({
             onClick={() => onChange(opt.value)}
             className={`min-h-11 rounded-full px-4 text-sm transition-all duration-150 ${
               active
-                ? "bg-[#f8b625] font-semibold text-[#1c1e37] scale-[1.02]"
-                : "border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#f8b625] hover:text-[#1c1e37]"
+                ? "bg-[#54b678] font-semibold text-[#1c1e37] scale-[1.02]"
+                : "border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#54b678] hover:text-[#1c1e37]"
             } ${disabled ? "opacity-50" : ""}`}
           >
             {opt.label}
@@ -164,7 +164,7 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
               <button
                 type="button"
                 onClick={onClear}
-                className="inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-[#d97706] hover:bg-[#FEF3C7]"
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-[#2f7a4c] hover:bg-[#FEF3C7]"
               >
                 <X className="h-4 w-4" /> Limpiar
               </button>
@@ -221,7 +221,7 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
                     Limpiar
                   </Button>
                   <Button
-                    className="flex-1 bg-[#f8b625] text-[#1c1e37] hover:bg-[#f8b625]/90"
+                    className="flex-1 bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]/90"
                     onClick={() => setSheetOpen(false)}
                   >
                     Aplicar Filtros

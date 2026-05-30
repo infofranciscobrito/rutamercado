@@ -1,29 +1,32 @@
 ## Problema
 
-El botón "Ver Directorio" en el header de `/enviar` no se ve bien porque ya cambiamos parte de la página a verde pero el botón sigue con clases amarillas viejas (`#f8b625`), y además el contraste sobre el fondo oscuro `#1c1e37` no destaca.
+Solo se cambió `/enviar` a verde. La página principal (`/`), las páginas de categoría y todo el panel de administración (`/admin/*`) siguen mostrando el dorado `#f8b625`.
 
 ## Solución
 
-Reemplazar TODO el amarillo restante en `src/routes/enviar.tsx` por el verde `#54b678` (y un verde más oscuro `#3f9560` para los hovers), de modo que el botón y todos los acentos queden consistentes y visibles.
+Reemplazo global de la paleta amarilla por la verde en **todos** los archivos del proyecto (front público + backend admin + tokens globales).
 
-### Cambios en `src/routes/enviar.tsx`
+### Sustituciones
 
-Sustituciones globales en el archivo:
 - `#f8b625` → `#54b678` (color principal)
-- `#f59e0b` → `#3f9560` (hover del CTA)
-- `rgba(248,182,37,...)` → `rgba(84,182,120,...)` (sombra del CTA)
+- `#f59e0b` → `#3f9560` (hover / gradiente medio)
+- `#d97706` → `#2f7a4c` (gradiente final, solo en `--rm-gradient-brand`)
+- `rgba(248, 182, 37, X)` → `rgba(84, 182, 120, X)` (sombras, patrón de puntos, focus rings)
 
-Esto afecta:
-1. **Botón "Ver Directorio"** del header → borde y texto verdes, hover con fondo verde sólido.
-2. **CTA "Registrar mi mercado ahora"** del hero → fondo verde con sombra verde.
-3. **Etiqueta "Para organizadores"** del hero → texto verde.
-4. **Números de métricas** (10+ municipios, Directorio activo, Gratis) → verdes.
-5. **Iconos circulares** de la sección "¿Por qué registrar...?" → fondo verde claro + ícono verde.
-6. **Línea conectora y círculos numerados** de "Así de fácil es publicar..." → verdes.
-7. **Link "Ver directorio completo"** del footer → verde.
+### Archivos a modificar
 
-No se toca ningún otro archivo, ni la lógica del formulario, ni los componentes globales (`Header.tsx`, `Footer.tsx`, etc., que pertenecen al resto del portal).
+1. **Tokens globales** — `src/styles.css` (`--color-gold`, `--rm-shadow-gold`, `--rm-gradient-brand`, `--rm-dot-pattern`, focus outline y comentario de paleta).
+2. **Front público** — todos los componentes en `src/components/rutamercado/` que usan amarillo: `Header`, `Hero`, `Footer`, `AboutSection`, `FilterBar`, `ActiveFilterChips`, `ViewToggle`, `WeekStrip`, `MarketCard`, `MarketImage`, `MarketDetailDialog`, `CategoryRow`, `CategoryPage`, `EmptyState`, `SkeletonCard`, `SubmitMarketForm`, `ImageUpload16x9`.
+3. **Panel admin (backend)**:
+   - `src/components/admin/AdminLayout.tsx`, `AdminSidebar.tsx`, `MetricCard.tsx`, `MarketFormDrawer.tsx`, `SubmissionReviewDrawer.tsx`
+   - `src/routes/admin.login.tsx`
+   - `src/routes/_admin/admin.dashboard.tsx`, `admin.analytics.tsx`, `admin.markets.tsx`, `admin.submissions.tsx`
+   - `src/hooks/use-auth-ready.tsx`
+
+### Cómo se aplicará
+
+Un único script de sustitución recorre los archivos listados aplicando las 4 reglas, garantizando consistencia y sin amarillo residual.
 
 ## Resultado esperado
 
-El botón "Ver Directorio" se verá claramente en verde `#54b678` sobre el header oscuro, y toda la página `/enviar` quedará unificada en la nueva paleta verde sin restos amarillos.
+Toda la aplicación (home, categorías, `/enviar`, login de admin y todas las pantallas del panel administrativo) queda unificada en verde `#54b678`.
