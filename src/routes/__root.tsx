@@ -118,8 +118,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "El más completo directorio de mercados locales en Puerto Rico | Bazares | Mercados agrícolas | Ferias de  artesanía | Pop Up | Flea Market |" },
       { property: "og:description", content: "El más completo directorio de mercados locales en Puerto Rico | Bazares | Mercados agrícolas | Ferias de  artesanía | Pop Up | Flea Market |" },
       { name: "twitter:description", content: "El más completo directorio de mercados locales en Puerto Rico | Bazares | Mercados agrícolas | Ferias de  artesanía | Pop Up | Flea Market |" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7df97f60-e599-48d1-9194-46f3a6bc1afe/id-preview-8423ed65--1181a1c8-570c-4e2f-a053-1d52a6bfde61.lovable.app-1779649869763.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7df97f60-e599-48d1-9194-46f3a6bc1afe/id-preview-8423ed65--1181a1c8-570c-4e2f-a053-1d52a6bfde61.lovable.app-1779649869763.png" },
+      { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
+      { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
