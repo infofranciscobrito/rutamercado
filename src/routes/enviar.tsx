@@ -87,7 +87,7 @@ function SubmitPage() {
           </Link>
           <Link
             to="/"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-[#f8b625] px-4 text-sm font-semibold text-[#f8b625] transition-colors hover:bg-[#f8b625] hover:text-[#1c1e37]"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#1c1e37]"
           >
             Ver Directorio
           </Link>
@@ -113,7 +113,7 @@ function SubmitPage() {
         />
         <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p
-            className="text-xs font-semibold uppercase tracking-[0.25em] text-[#f8b625]"
+            className="text-xs font-semibold uppercase tracking-[0.25em] text-[#54b678]"
             style={{ fontFamily: BODY }}
           >
             Para organizadores
@@ -132,7 +132,7 @@ function SubmitPage() {
             <button
               type="button"
               onClick={scrollToForm}
-              className="inline-flex h-14 w-full max-w-sm items-center justify-center rounded-xl bg-[#f8b625] px-8 text-base font-bold text-[#1c1e37] shadow-[0_8px_24px_rgba(248,182,37,0.35)] transition-all hover:bg-[#f59e0b] hover:scale-[1.02] sm:w-auto"
+              className="inline-flex h-14 w-full max-w-sm items-center justify-center rounded-xl bg-[#54b678] px-8 text-base font-bold text-[#1c1e37] shadow-[0_8px_24px_rgba(84,182,120,0.35)] transition-all hover:bg-[#3f9560] hover:scale-[1.02] sm:w-auto"
             >
               Registrar mi mercado ahora
             </button>
@@ -151,7 +151,7 @@ function SubmitPage() {
             ].map((m) => (
               <div key={m.num} className="px-4">
                 <div
-                  className="text-3xl text-[#f8b625] sm:text-4xl"
+                  className="text-3xl text-[#54b678] sm:text-4xl"
                   style={{ fontFamily: DISPLAY, fontWeight: 700 }}
                 >
                   {m.num}
@@ -194,7 +194,7 @@ function SubmitPage() {
             ].map(({ Icon, title, desc }) => (
               <Reveal key={title}>
                 <div className="h-full rounded-2xl border border-[#1c1e37]/10 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#f8b625]/15 text-[#f8b625]">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#54b678]/15 text-[#54b678]">
                     <Icon className="h-6 w-6" />
                   </div>
                   <h3
@@ -230,7 +230,7 @@ function SubmitPage() {
             {/* Desktop connector line */}
             <div
               aria-hidden="true"
-              className="absolute left-0 right-0 top-6 hidden h-px bg-[#f8b625]/30 md:block"
+              className="absolute left-0 right-0 top-6 hidden h-px bg-[#54b678]/30 md:block"
               style={{ marginLeft: "16.66%", marginRight: "16.66%" }}
             />
 
@@ -254,7 +254,7 @@ function SubmitPage() {
               ].map((s, i, arr) => (
                 <li key={s.n} className="relative flex flex-col items-center text-center">
                   <div
-                    className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#f8b625] text-xl font-bold text-[#1c1e37] shadow-[0_0_0_6px_#1c1e37]"
+                    className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#54b678] text-xl font-bold text-[#1c1e37] shadow-[0_0_0_6px_#1c1e37]"
                     style={{ fontFamily: DISPLAY }}
                   >
                     {s.n}
@@ -271,7 +271,7 @@ function SubmitPage() {
                   {i < arr.length - 1 && (
                     <div
                       aria-hidden="true"
-                      className="mt-6 h-8 w-px bg-[#f8b625]/30 md:hidden"
+                      className="mt-6 h-8 w-px bg-[#54b678]/30 md:hidden"
                     />
                   )}
                 </li>
@@ -310,7 +310,7 @@ function SubmitPage() {
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 text-center sm:px-6">
           <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-8 w-auto opacity-80" />
           <p className="text-sm text-white/60">© 2025 RutaMercado. Todos los derechos reservados.</p>
-          <Link to="/" className="text-sm font-semibold text-[#f8b625] hover:underline">
+          <Link to="/" className="text-sm font-semibold text-[#54b678] hover:underline">
             Ver directorio completo
           </Link>
         </div>
