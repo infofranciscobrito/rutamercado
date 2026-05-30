@@ -5,7 +5,7 @@ import { Footer } from "@/components/rutamercado/Footer";
 export const Route = createFileRoute("/politica-de-privacidad")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidad y Términos de Uso — RutaMercado" },
+      { title: "Políticas de Privacidad y Términos de Uso — RutaMercado" },
       {
         name: "description",
         content:
