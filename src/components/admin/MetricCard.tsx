@@ -13,8 +13,8 @@ export function MetricCard({
 }) {
   return (
     <div className="rounded-xl border bg-card p-5 flex items-center gap-4">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f8b625]/15">
-        <Icon className="h-6 w-6 text-[#f8b625]" />
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#54b678]/15">
+        <Icon className="h-6 w-6 text-[#54b678]" />
       </div>
       <div className="min-w-0">
         <div className="font-display text-3xl text-[#1c1e37] leading-tight">{value}</div>

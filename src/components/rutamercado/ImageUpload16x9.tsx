@@ -85,18 +85,18 @@ export function ImageUpload16x9({ value, onChange, disabled = false }: Props) {
         </div>
       ) : (
         <label
-          className={`flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#1c1e37]/20 bg-[#FFF8EC] text-center text-sm text-[#1c1e37]/70 transition-colors hover:border-[#f8b625] hover:bg-[#f8b625]/5 ${
+          className={`flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#1c1e37]/20 bg-[#FFF8EC] text-center text-sm text-[#1c1e37]/70 transition-colors hover:border-[#54b678] hover:bg-[#54b678]/5 ${
             uploading || disabled ? "pointer-events-none opacity-60" : ""
           }`}
         >
           {uploading ? (
             <>
-              <Loader2 className="h-6 w-6 animate-spin text-[#f8b625]" />
+              <Loader2 className="h-6 w-6 animate-spin text-[#54b678]" />
               <span>Procesando…</span>
             </>
           ) : (
             <>
-              <Upload className="h-6 w-6 text-[#f8b625]" />
+              <Upload className="h-6 w-6 text-[#54b678]" />
               <span className="font-medium">Sube una foto</span>
               <span className="text-xs text-[#1c1e37]/55">
                 JPG, PNG o WebP · máx 5 MB · se conserva completa

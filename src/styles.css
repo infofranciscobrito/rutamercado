@@ -7,7 +7,7 @@
 
 /*
  * RutaMercado design tokens — premium edition.
- * Brand: #FAFAF8 fondo, #FFF8EC crema, #1c1e37 navy, #f8b625 dorado.
+ * Brand: #FAFAF8 fondo, #FFF8EC crema, #1c1e37 navy, #54b678 dorado.
  * Sombras cálidas (tinte navy), gradientes de marca, escala fluida con clamp().
  */
 
@@ -65,8 +65,8 @@
   --color-navy: #1c1e37;
   --color-navy-deep: #141628;
   --color-navy-soft: #2d3058;
-  --color-gold: #f8b625;
-  --color-gold-deep: #d97706;
+  --color-gold: #54b678;
+  --color-gold-deep: #2f7a4c;
   --color-gold-text: #92400e;
   --color-today: #22c55e;
   --color-tomorrow: #3b82f6;
@@ -125,10 +125,10 @@
   --rm-shadow-sm: 0 2px 12px rgba(28, 30, 55, 0.06);
   --rm-shadow-md: 0 4px 20px rgba(28, 30, 55, 0.08);
   --rm-shadow-lg: 0 8px 30px rgba(28, 30, 55, 0.12);
-  --rm-shadow-gold: 0 8px 30px rgba(248, 182, 37, 0.25);
-  --rm-gradient-brand: linear-gradient(135deg, #f8b625 0%, #f59e0b 50%, #d97706 100%);
+  --rm-shadow-gold: 0 8px 30px rgba(84, 182, 120, 0.25);
+  --rm-gradient-brand: linear-gradient(135deg, #54b678 0%, #3f9560 50%, #2f7a4c 100%);
   --rm-gradient-hero: linear-gradient(180deg, #1c1e37 0%, #2d3058 100%);
-  --rm-dot-pattern: radial-gradient(rgba(248, 182, 37, 0.18) 1px, transparent 1px);
+  --rm-dot-pattern: radial-gradient(rgba(84, 182, 120, 0.18) 1px, transparent 1px);
 }
 
 .dark {
@@ -183,7 +183,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid #f8b625;
+    outline: 2px solid #54b678;
     outline-offset: 2px;
     border-radius: 4px;
   }

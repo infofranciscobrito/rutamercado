@@ -70,11 +70,11 @@ export function WeekStrip({ selectedDay, availableDays, onSelectDay }: Props) {
               aria-pressed={isSelected}
               className={`relative flex h-14 w-14 shrink-0 snap-start flex-col items-center justify-center rounded-2xl border text-center transition-all duration-150 ${
                 isSelected
-                  ? "border-[#f8b625] bg-[#f8b625] text-[#1c1e37] scale-[1.04] shadow-[0_4px_14px_rgba(248,182,37,0.35)]"
+                  ? "border-[#54b678] bg-[#54b678] text-[#1c1e37] scale-[1.04] shadow-[0_4px_14px_rgba(84,182,120,0.35)]"
                   : hasMarkets
-                    ? "border-[#E5E7EB] bg-white text-[#1c1e37] hover:border-[#f8b625]"
+                    ? "border-[#E5E7EB] bg-white text-[#1c1e37] hover:border-[#54b678]"
                     : "border-transparent bg-transparent text-[#6B7280]/50"
-              } ${isToday && !isSelected ? "ring-2 ring-[#f8b625]/30" : ""}`}
+              } ${isToday && !isSelected ? "ring-2 ring-[#54b678]/30" : ""}`}
             >
               <span className="text-base font-bold leading-none">{d.getDate()}</span>
               <span className="mt-0.5 text-[10px] uppercase tracking-wide">
@@ -82,7 +82,7 @@ export function WeekStrip({ selectedDay, availableDays, onSelectDay }: Props) {
               </span>
               {hasMarkets && !isSelected && (
                 <span
-                  className="absolute bottom-1.5 h-1 w-1 rounded-full bg-[#f8b625]"
+                  className="absolute bottom-1.5 h-1 w-1 rounded-full bg-[#54b678]"
                   aria-hidden="true"
                 />
               )}

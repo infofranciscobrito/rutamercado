@@ -77,7 +77,7 @@ function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#f8b625] text-[#1c1e37] hover:bg-[#f8b625]/90 font-medium"
+            className="w-full bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]/90 font-medium"
           >
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Iniciar Sesión

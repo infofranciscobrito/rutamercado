@@ -15,7 +15,7 @@ export function AboutSection() {
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#f8b625]">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#54b678]">
             Conoce RutaMercado
           </p>
           <h2
@@ -34,7 +34,7 @@ export function AboutSection() {
           </p>
           <Link
             to="/enviar"
-            className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-[#f8b625] px-7 text-base font-semibold text-[#1c1e37] transition-all hover:scale-[1.02] hover:bg-[#f59e0b] hover:shadow-[0_4px_15px_rgba(248,182,37,0.3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f8b625] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1e37]"
+            className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-[#54b678] px-7 text-base font-semibold text-[#1c1e37] transition-all hover:scale-[1.02] hover:bg-[#3f9560] hover:shadow-[0_4px_15px_rgba(84,182,120,0.3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1e37]"
           >
             Enviar mi Mercado
           </Link>
@@ -42,16 +42,16 @@ export function AboutSection() {
         </div>
 
         <div className="relative hidden h-72 lg:block" aria-hidden="true">
-          <div className="absolute left-12 top-4 h-32 w-32 rounded-full bg-[#f8b625]/10 blur-2xl" />
-          <div className="absolute right-8 bottom-4 h-40 w-40 rounded-full bg-[#f8b625]/15 blur-3xl" />
-          <div className="absolute left-1/4 top-8 inline-flex h-20 w-20 items-center justify-center rounded-full border border-[#f8b625]/30">
-            <MapPin className="h-8 w-8 text-[#f8b625]/60" strokeWidth={1.5} />
+          <div className="absolute left-12 top-4 h-32 w-32 rounded-full bg-[#54b678]/10 blur-2xl" />
+          <div className="absolute right-8 bottom-4 h-40 w-40 rounded-full bg-[#54b678]/15 blur-3xl" />
+          <div className="absolute left-1/4 top-8 inline-flex h-20 w-20 items-center justify-center rounded-full border border-[#54b678]/30">
+            <MapPin className="h-8 w-8 text-[#54b678]/60" strokeWidth={1.5} />
           </div>
-          <div className="absolute right-12 top-24 inline-flex h-28 w-28 items-center justify-center rounded-full border border-[#f8b625]/40">
-            <MapPin className="h-12 w-12 text-[#f8b625]/80" strokeWidth={1.5} />
+          <div className="absolute right-12 top-24 inline-flex h-28 w-28 items-center justify-center rounded-full border border-[#54b678]/40">
+            <MapPin className="h-12 w-12 text-[#54b678]/80" strokeWidth={1.5} />
           </div>
-          <div className="absolute bottom-6 left-24 inline-flex h-16 w-16 items-center justify-center rounded-full border border-[#f8b625]/20">
-            <MapPin className="h-6 w-6 text-[#f8b625]/40" strokeWidth={1.5} />
+          <div className="absolute bottom-6 left-24 inline-flex h-16 w-16 items-center justify-center rounded-full border border-[#54b678]/20">
+            <MapPin className="h-6 w-6 text-[#54b678]/40" strokeWidth={1.5} />
           </div>
         </div>
       </div>

@@ -57,7 +57,7 @@ export const Route = createFileRoute("/_admin/admin/analytics")({
   component: AnalyticsPage,
 });
 
-const COLORS = ["#f8b625", "#1c1e37", "#22C55E", "#0ea5e9", "#a855f7", "#ef4444"];
+const COLORS = ["#54b678", "#1c1e37", "#22C55E", "#0ea5e9", "#a855f7", "#ef4444"];
 
 function truncate(s: string, n: number) {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
@@ -282,7 +282,7 @@ function AnalyticsPage() {
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Line type="monotone" dataKey="views" stroke="#f8b625" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="views" stroke="#54b678" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -354,20 +354,20 @@ function AnalyticsPage() {
                   const isExpanded = expandedId === r.id;
                   return (
                     <Fragment key={r.id}>
-                      <TableRow key={r.id} id={`intention-row-${r.id}`} className={isExpanded ? "bg-[#f8b625]/5" : undefined}>
+                      <TableRow key={r.id} id={`intention-row-${r.id}`} className={isExpanded ? "bg-[#54b678]/5" : undefined}>
                         <TableCell>{r.rank}</TableCell>
                         <TableCell>
                           <button
                             type="button"
                             onClick={() => setExpandedId(isExpanded ? null : r.id)}
-                            className="inline-flex items-center gap-1 font-medium text-[#1c1e37] hover:text-[#f8b625] hover:underline"
+                            className="inline-flex items-center gap-1 font-medium text-[#1c1e37] hover:text-[#54b678] hover:underline"
                           >
                             {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                             {r.name}
                           </button>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className="bg-[#f8b625]/15 text-[#1c1e37] border-0">
+                          <Badge variant="secondary" className="bg-[#54b678]/15 text-[#1c1e37] border-0">
                             {r.category}
                           </Badge>
                         </TableCell>
@@ -379,7 +379,7 @@ function AnalyticsPage() {
                         <TableCell className="text-right">{r.intentionRate.toFixed(1)}%</TableCell>
                       </TableRow>
                       {isExpanded && (
-                        <TableRow key={`${r.id}-detail`} className="bg-[#f8b625]/5 hover:bg-[#f8b625]/5">
+                        <TableRow key={`${r.id}-detail`} className="bg-[#54b678]/5 hover:bg-[#54b678]/5">
                           <TableCell colSpan={9} className="p-0">
                             <IntentionDetailPanel
                               loading={attDetail.isLoading || attDetail.isFetching}
@@ -433,7 +433,7 @@ function AnalyticsPage() {
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="willAttend" name="Voy a ir" stackId="a" fill="#f8b625" />
+                  <Bar dataKey="willAttend" name="Voy a ir" stackId="a" fill="#54b678" />
                   <Bar dataKey="interested" name="Me interesa" stackId="a" fill="#FEF3C7" />
                 </BarChart>
               </ResponsiveContainer>
@@ -449,7 +449,7 @@ function AnalyticsPage() {
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke="#f8b625" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke="#54b678" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="interested" name="Me interesa" stroke="#6B7280" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
@@ -504,7 +504,7 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
     <div className="p-6 space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-display text-lg text-[#1c1e37]">{data.market.name}</h3>
-        <Badge variant="secondary" className="bg-[#f8b625]/15 text-[#1c1e37] border-0">{data.market.category}</Badge>
+        <Badge variant="secondary" className="bg-[#54b678]/15 text-[#1c1e37] border-0">{data.market.category}</Badge>
         <Badge variant="outline">{data.market.municipality}</Badge>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -520,7 +520,7 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
             <ResponsiveContainer>
               <PieChart>
                 <Pie data={donutData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} label>
-                  <Cell fill="#f8b625" />
+                  <Cell fill="#54b678" />
                   <Cell fill="#FEF3C7" />
                 </Pie>
                 <Tooltip />
@@ -539,7 +539,7 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke="#f8b625" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke="#54b678" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="interested" name="Me interesa" stroke="#6B7280" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -549,7 +549,7 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
       <div>
         <Link
           to="/admin/markets"
-          className="text-xs text-[#f8b625] hover:underline"
+          className="text-xs text-[#54b678] hover:underline"
         >
           Ver en gestión de mercados →
         </Link>

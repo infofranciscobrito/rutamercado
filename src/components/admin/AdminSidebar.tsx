@@ -46,14 +46,14 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
               onClick={onNavigate}
               className={`flex items-center gap-3 px-6 py-3 text-sm transition-colors ${
                 active
-                  ? "bg-[#f8b625]/15 border-l-[3px] border-[#f8b625] text-[#f8b625] font-medium"
+                  ? "bg-[#54b678]/15 border-l-[3px] border-[#54b678] text-[#54b678] font-medium"
                   : "border-l-[3px] border-transparent text-white/70 hover:bg-white/5 hover:text-white"
               }`}
             >
               <Icon className="h-5 w-5" />
               <span className="flex-1">{item.label}</span>
               {item.to === "/admin/submissions" && (pending?.count ?? 0) > 0 && (
-                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f8b625] px-1.5 text-xs font-bold text-[#1c1e37]">
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#1c1e37]">
                   {pending!.count}
                 </span>
               )}

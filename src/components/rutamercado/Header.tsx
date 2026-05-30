@@ -40,13 +40,13 @@ export function Header() {
         <nav className="hidden items-center gap-2 md:flex">
           <a
             href="#sobre-nosotros"
-            className="rounded-md px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:text-[#f8b625]"
+            className="rounded-md px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:text-[#54b678]"
           >
             Sobre Nosotros
           </a>
           <Link
             to="/enviar"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-[#f8b625] px-4 text-sm font-semibold text-[#f8b625] transition-colors hover:bg-[#f8b625] hover:text-[#1c1e37]"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#1c1e37]"
           >
             Enviar mi Mercado
           </Link>
@@ -80,7 +80,7 @@ export function Header() {
                 <Link
                   to="/enviar"
                   onClick={() => setOpen(false)}
-                  className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#f8b625] px-4 text-base font-semibold text-[#1c1e37]"
+                  className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-[#1c1e37]"
                 >
                   Enviar mi Mercado
                 </Link>

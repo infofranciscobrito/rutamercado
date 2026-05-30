@@ -262,7 +262,7 @@ function Content({
         {filtered.length === 0 ? (
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
             <div className="flex flex-col items-center justify-center rounded-2xl bg-white px-6 py-16 text-center rm-shadow-warm">
-              <span className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-[#f8b625]/15 text-[#d97706]">
+              <span className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-[#54b678]/15 text-[#2f7a4c]">
                 <CategoryIcon category={config.category} className="h-10 w-10" />
               </span>
               <h2 className="mt-6 font-display text-2xl text-[#1c1e37]">
@@ -279,14 +279,14 @@ function Content({
                 <Button
                   onClick={onClear}
                   variant="outline"
-                  className="mt-6 h-12 border-[#f8b625] px-6 text-base font-semibold text-[#d97706] hover:bg-[#FEF3C7] hover:text-[#d97706]"
+                  className="mt-6 h-12 border-[#54b678] px-6 text-base font-semibold text-[#2f7a4c] hover:bg-[#FEF3C7] hover:text-[#2f7a4c]"
                 >
                   Limpiar filtros
                 </Button>
               ) : (
                 <Link
                   to="/"
-                  className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-[#f8b625] px-6 text-base font-semibold text-[#1c1e37] hover:bg-[#f59e0b]"
+                  className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-base font-semibold text-[#1c1e37] hover:bg-[#3f9560]"
                 >
                   Volver al directorio
                 </Link>

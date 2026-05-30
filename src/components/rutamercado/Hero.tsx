@@ -9,7 +9,7 @@ interface Props {
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="text-center">
-      <div className="font-display text-3xl text-[#f8b625] sm:text-4xl">
+      <div className="font-display text-3xl text-[#54b678] sm:text-4xl">
         {value}
       </div>
       <div className="mt-1 text-xs uppercase tracking-wider text-white/60">
@@ -78,7 +78,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder="¿Qué mercado buscas?"
-              className="h-16 w-full rounded-2xl border-2 border-transparent bg-white/95 pl-16 pr-5 text-lg text-[#1c1e37] shadow-[0_8px_30px_rgba(0,0,0,0.35)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#f8b625] focus:bg-white focus:shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_0_4px_rgba(248,182,37,0.18)] sm:h-[68px] sm:text-xl"
+              className="h-16 w-full rounded-2xl border-2 border-transparent bg-white/95 pl-16 pr-5 text-lg text-[#1c1e37] shadow-[0_8px_30px_rgba(0,0,0,0.35)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#54b678] focus:bg-white focus:shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_0_4px_rgba(84,182,120,0.18)] sm:h-[68px] sm:text-xl"
             />
           </div>
         </div>
@@ -88,9 +88,9 @@ export function Hero({ query, onQueryChange, stats }: Props) {
           style={{ animationDelay: "300ms" }}
         >
           <Stat value={stats.markets} label="Mercados Activos" />
-          <span className="h-1.5 w-1.5 rounded-full bg-[#f8b625]" aria-hidden="true" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#54b678]" aria-hidden="true" />
           <Stat value={stats.municipalities} label="Municipios" />
-          <span className="h-1.5 w-1.5 rounded-full bg-[#f8b625]" aria-hidden="true" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#54b678]" aria-hidden="true" />
           <Stat value={stats.categories} label="Categorías" />
         </div>
       </div>

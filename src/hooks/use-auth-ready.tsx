@@ -70,7 +70,7 @@ export function useAuthReady(): {
 export function AuthLoadingSpinner() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8]">
-      <div className="h-10 w-10 rounded-full border-4 border-[#f8b625]/20 border-t-[#f8b625] animate-spin" />
+      <div className="h-10 w-10 rounded-full border-4 border-[#54b678]/20 border-t-[#54b678] animate-spin" />
     </div>
   );
 }

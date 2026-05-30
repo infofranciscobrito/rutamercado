@@ -177,7 +177,7 @@ export function SubmissionReviewDrawer({
 function Row({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-2 text-sm">
-      <span className="mt-0.5 text-[#f8b625]">{icon}</span>
+      <span className="mt-0.5 text-[#54b678]">{icon}</span>
       <span>{children}</span>
     </div>
   );

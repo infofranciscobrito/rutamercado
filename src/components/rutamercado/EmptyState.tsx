@@ -12,7 +12,7 @@ function SleepyPin() {
     >
       <path
         d="M60 12c-19.33 0-35 15.67-35 35 0 25 35 61 35 61s35-36 35-61c0-19.33-15.67-35-35-35z"
-        fill="#f8b625"
+        fill="#54b678"
       />
       <circle cx="60" cy="47" r="18" fill="#FFF8EC" />
       <path
@@ -62,7 +62,7 @@ export function EmptyState({
         </p>
         <Button
           onClick={onSwitchToWeek}
-          className="mt-6 h-12 bg-[#f8b625] px-6 text-base font-semibold text-[#1c1e37] hover:bg-[#f59e0b]"
+          className="mt-6 h-12 bg-[#54b678] px-6 text-base font-semibold text-[#1c1e37] hover:bg-[#3f9560]"
         >
           Ver esta semana
         </Button>
@@ -95,7 +95,7 @@ export function EmptyState({
         <Button
           onClick={onClear}
           variant="outline"
-          className="mt-6 h-12 border-[#f8b625] px-6 text-base font-semibold text-[#d97706] hover:bg-[#FEF3C7] hover:text-[#d97706]"
+          className="mt-6 h-12 border-[#54b678] px-6 text-base font-semibold text-[#2f7a4c] hover:bg-[#FEF3C7] hover:text-[#2f7a4c]"
         >
           Limpiar filtros
         </Button>

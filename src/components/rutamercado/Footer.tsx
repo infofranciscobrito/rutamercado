@@ -2,7 +2,7 @@ export function Footer() {
   return (
     <>
       <div className="bg-[#1c1e37]" style={{ paddingTop: "30px", paddingBottom: "30px" }}>
-        <div className="mx-auto h-[2px] w-20 bg-[#f8b625]" aria-hidden="true" />
+        <div className="mx-auto h-[2px] w-20 bg-[#54b678]" aria-hidden="true" />
       </div>
       <footer
         className="bg-[#1c1e37] text-white"
@@ -21,11 +21,11 @@ export function Footer() {
             © 2025 RutaMercado — Descubre los mercados locales de Puerto Rico
           </p>
           <div className="mt-3 flex items-center gap-3 text-sm">
-            <a href="#sobre-nosotros" className="text-white/60 transition-colors hover:text-[#f8b625]">
+            <a href="#sobre-nosotros" className="text-white/60 transition-colors hover:text-[#54b678]">
               Sobre Nosotros
             </a>
-            <span className="text-[#f8b625]/30" aria-hidden="true">·</span>
-            <a href="#sobre-nosotros" className="text-white/60 transition-colors hover:text-[#f8b625]">
+            <span className="text-[#54b678]/30" aria-hidden="true">·</span>
+            <a href="#sobre-nosotros" className="text-white/60 transition-colors hover:text-[#54b678]">
               Contacto
             </a>
           </div>

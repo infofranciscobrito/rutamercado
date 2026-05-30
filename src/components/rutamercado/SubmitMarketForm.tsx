@@ -120,7 +120,7 @@ export function SubmitMarketForm() {
         </p>
         <Link
           to="/"
-          className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#f8b625] px-6 font-semibold text-[#1c1e37] hover:bg-[#f59e0b]"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#54b678] px-6 font-semibold text-[#1c1e37] hover:bg-[#3f9560]"
         >
           Volver al inicio
         </Link>
@@ -256,7 +256,7 @@ export function SubmitMarketForm() {
       <button
         type="submit"
         disabled={mutation.isPending}
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f8b625] text-base font-semibold text-[#1c1e37] transition-all hover:bg-[#f59e0b] hover:shadow-[0_4px_15px_rgba(248,182,37,0.3)] disabled:opacity-60"
+        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#54b678] text-base font-semibold text-[#1c1e37] transition-all hover:bg-[#3f9560] hover:shadow-[0_4px_15px_rgba(84,182,120,0.3)] disabled:opacity-60"
       >
         {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         Enviar mi mercado

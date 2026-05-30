@@ -39,7 +39,7 @@ export function CategoryRow({
     >
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="mb-5 flex items-center gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f8b625]/15 text-[#d97706]">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#54b678]/15 text-[#2f7a4c]">
             <CategoryIcon category={category} className="h-5 w-5" />
           </span>
           <div>
@@ -71,7 +71,7 @@ export function CategoryRow({
           <div style={{ marginTop: "16px", marginBottom: "20px" }}>
             <Link
               to={ctaHref}
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-[#f8b625] px-5 text-sm font-semibold text-[#1c1e37] shadow-sm transition-all duration-200 hover:bg-[#f59e0b] hover:scale-[1.02] hover:shadow-[0_6px_16px_rgba(248,182,37,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f8b625] focus-visible:ring-offset-2"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-[#54b678] px-5 text-sm font-semibold text-[#1c1e37] shadow-sm transition-all duration-200 hover:bg-[#3f9560] hover:scale-[1.02] hover:shadow-[0_6px_16px_rgba(84,182,120,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2"
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 padding: "10px 20px",
