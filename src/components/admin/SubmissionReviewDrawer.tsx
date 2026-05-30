@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, CalendarDays, Clock, MapPin, User } from "lucide-react";
+import { Loader2, CalendarDays, Clock, MapPin, User, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -9,10 +9,21 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   approveSubmission,
+  deleteSubmission,
   rejectSubmission,
   type Submission,
 } from "@/lib/submissions.functions";
