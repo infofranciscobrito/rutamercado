@@ -41,7 +41,9 @@ export function SubmissionReviewDrawer({
   const qc = useQueryClient();
   const approveFn = useServerFn(approveSubmission);
   const rejectFn = useServerFn(rejectSubmission);
+  const deleteFn = useServerFn(deleteSubmission);
   const [notes, setNotes] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const approve = useMutation({
     mutationFn: () => approveFn({ data: { id: submission!.id } }),
