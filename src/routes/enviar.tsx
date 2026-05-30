@@ -125,7 +125,7 @@ function SubmitPage() {
             Registra tu mercado. Llega a miles de puertorriqueños.
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-base text-white/80 sm:text-lg">
-            RutaMercado es el directorio donde la comunidad busca mercados ferias y bazares
+            RutaMercado es el directorio donde la comunidad busca mercados, ferias y bazares
             en toda la isla. Publica tu evento gratis y aumenta tu audiencia.
           </p>
           <div className="mt-8 flex justify-center">
