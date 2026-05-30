@@ -14,12 +14,12 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         </div>
       </div>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-[250px] p-0 bg-[#1c1e37] border-0">
+        <SheetContent side="left" className="w-[250px] p-0 bg-[#18253f] border-0">
           <AdminSidebar onNavigate={() => setOpen(false)} />
         </SheetContent>
       </Sheet>
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="md:hidden flex items-center gap-2 px-4 py-3 border-b bg-[#1c1e37] text-white">
+        <header className="md:hidden flex items-center gap-2 px-4 py-3 border-b bg-[#18253f] text-white">
           <Button
             variant="ghost"
             size="icon"

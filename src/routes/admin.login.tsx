@@ -44,11 +44,11 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1c1e37] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#18253f] p-4">
       <div className="w-full max-w-sm bg-white rounded-xl p-8 shadow-xl">
         <div className="text-center mb-6">
           <img src="/logo-placeholder.svg" alt="RutaMercado" className="h-12 mx-auto mb-3" />
-          <h1 className="font-display text-2xl text-[#1c1e37]">Panel de Administración</h1>
+          <h1 className="font-display text-2xl text-[#18253f]">Panel de Administración</h1>
           <p className="text-sm text-muted-foreground mt-1">Inicia sesión para continuar</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,7 +77,7 @@ function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]/90 font-medium"
+            className="w-full bg-[#54b678] text-[#18253f] hover:bg-[#54b678]/90 font-medium"
           >
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Iniciar Sesión

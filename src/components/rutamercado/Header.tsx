@@ -22,8 +22,8 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-[#1c1e37] text-white transition-shadow duration-300 ${
-        scrolled ? "shadow-[0_2px_20px_rgba(28,30,55,0.35)]" : ""
+      className={`sticky top-0 z-50 bg-[#18253f] text-white transition-shadow duration-300 ${
+        scrolled ? "shadow-[0_2px_20px_rgba(24,37,63,0.35)]" : ""
       }`}
       style={{ height: 64 }}
     >
@@ -46,7 +46,7 @@ export function Header() {
           </a>
           <Link
             to="/enviar"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#1c1e37]"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#18253f]"
           >
             Enviar mi Mercado
           </Link>
@@ -63,7 +63,7 @@ export function Header() {
                 <Menu className="h-6 w-6" />
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 bg-[#1c1e37] text-white border-l-0">
+            <SheetContent side="right" className="w-72 bg-[#18253f] text-white border-l-0">
               <SheetHeader>
                 <SheetTitle className="font-display text-xl text-white">
                   Menú
@@ -80,7 +80,7 @@ export function Header() {
                 <Link
                   to="/enviar"
                   onClick={() => setOpen(false)}
-                  className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-[#1c1e37]"
+                  className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-[#18253f]"
                 >
                   Enviar mi Mercado
                 </Link>

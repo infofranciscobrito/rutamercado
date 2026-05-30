@@ -216,18 +216,18 @@ function Content({
           className="flex items-center gap-1.5 text-sm text-[#6B7280]"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          <Link to="/" className="hover:text-[#1c1e37]">
+          <Link to="/" className="hover:text-[#18253f]">
             Inicio
           </Link>
           <ChevronRight className="h-4 w-4 text-[#9CA3AF]" />
-          <span className="text-[#1c1e37]">{config.pageTitle}</span>
+          <span className="text-[#18253f]">{config.pageTitle}</span>
         </nav>
       </div>
 
       {/* Title block */}
       <div className="mx-auto w-full max-w-7xl px-4 pb-2 pt-6 sm:px-6">
         <h1
-          className="font-display text-[#1c1e37]"
+          className="font-display text-[#18253f]"
           style={{ fontSize: "clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem)" }}
         >
           {config.pageTitle}
@@ -265,7 +265,7 @@ function Content({
               <span className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-[#54b678]/15 text-[#2f7a4c]">
                 <CategoryIcon category={config.category} className="h-10 w-10" />
               </span>
-              <h2 className="mt-6 font-display text-2xl text-[#1c1e37]">
+              <h2 className="mt-6 font-display text-2xl text-[#18253f]">
                 {hasActiveFilters(filters)
                   ? "No encontramos mercados con esos filtros"
                   : config.emptyText}
@@ -286,7 +286,7 @@ function Content({
               ) : (
                 <Link
                   to="/"
-                  className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-base font-semibold text-[#1c1e37] hover:bg-[#3f9560]"
+                  className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-base font-semibold text-[#18253f] hover:bg-[#3f9560]"
                 >
                   Volver al directorio
                 </Link>

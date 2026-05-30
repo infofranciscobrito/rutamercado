@@ -57,7 +57,7 @@ export const Route = createFileRoute("/_admin/admin/analytics")({
   component: AnalyticsPage,
 });
 
-const COLORS = ["#54b678", "#1c1e37", "#22C55E", "#0ea5e9", "#a855f7", "#ef4444"];
+const COLORS = ["#54b678", "#18253f", "#22C55E", "#0ea5e9", "#a855f7", "#ef4444"];
 
 function truncate(s: string, n: number) {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
@@ -157,7 +157,7 @@ function AnalyticsPage() {
     <div className="space-y-6 max-w-7xl">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl text-[#1c1e37]">Analíticas</h1>
+          <h1 className="font-display text-3xl text-[#18253f]">Analíticas</h1>
           <p className="text-sm text-muted-foreground">Métricas de actividad y engagement</p>
         </div>
         <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
@@ -180,7 +180,7 @@ function AnalyticsPage() {
 
       <div className="rounded-xl border bg-card p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg text-[#1c1e37]">Top 10 Mercados por Vistas</h2>
+          <h2 className="font-display text-lg text-[#18253f]">Top 10 Mercados por Vistas</h2>
           <Button
             variant="outline"
             size="sm"
@@ -216,7 +216,7 @@ function AnalyticsPage() {
 
       <div className="rounded-xl border bg-card p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg text-[#1c1e37]">Top Organizadores</h2>
+          <h2 className="font-display text-lg text-[#18253f]">Top Organizadores</h2>
           <Button
             variant="outline"
             size="sm"
@@ -274,7 +274,7 @@ function AnalyticsPage() {
       </div>
 
       <div className="rounded-xl border bg-card p-5">
-        <h2 className="font-display text-lg text-[#1c1e37] mb-4">Tráfico Diario</h2>
+        <h2 className="font-display text-lg text-[#18253f] mb-4">Tráfico Diario</h2>
         <div className="h-72">
           <ResponsiveContainer>
             <LineChart data={traffic.data ?? []}>
@@ -291,7 +291,7 @@ function AnalyticsPage() {
       {/* Attendance Intention */}
       <div className="space-y-6 pt-2">
         <div>
-          <h2 className="font-display text-2xl text-[#1c1e37]">Intención de Asistencia</h2>
+          <h2 className="font-display text-2xl text-[#18253f]">Intención de Asistencia</h2>
           <p className="text-sm text-muted-foreground">Interés expresado por los visitantes</p>
         </div>
 
@@ -304,7 +304,7 @@ function AnalyticsPage() {
 
         <div className="rounded-xl border bg-card p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg text-[#1c1e37]">Top 10 Mercados por Intención de Asistencia</h2>
+            <h2 className="font-display text-lg text-[#18253f]">Top 10 Mercados por Intención de Asistencia</h2>
             <Button
               variant="outline"
               size="sm"
@@ -360,14 +360,14 @@ function AnalyticsPage() {
                           <button
                             type="button"
                             onClick={() => setExpandedId(isExpanded ? null : r.id)}
-                            className="inline-flex items-center gap-1 font-medium text-[#1c1e37] hover:text-[#54b678] hover:underline"
+                            className="inline-flex items-center gap-1 font-medium text-[#18253f] hover:text-[#54b678] hover:underline"
                           >
                             {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                             {r.name}
                           </button>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className="bg-[#54b678]/15 text-[#1c1e37] border-0">
+                          <Badge variant="secondary" className="bg-[#54b678]/15 text-[#18253f] border-0">
                             {r.category}
                           </Badge>
                         </TableCell>
@@ -398,7 +398,7 @@ function AnalyticsPage() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-xl border bg-card p-5">
-            <h2 className="font-display text-lg text-[#1c1e37] mb-4">Intención por Mercado</h2>
+            <h2 className="font-display text-lg text-[#18253f] mb-4">Intención por Mercado</h2>
             <div className="h-72">
               <ResponsiveContainer>
                 <BarChart data={attTop.data ?? []}>
@@ -424,7 +424,7 @@ function AnalyticsPage() {
                       };
                       return (
                         <div className="rounded-md border bg-white px-3 py-2 text-xs shadow-md">
-                          <div className="font-medium text-[#1c1e37] mb-1">{row.name}</div>
+                          <div className="font-medium text-[#18253f] mb-1">{row.name}</div>
                           <div className="text-muted-foreground">
                             {row.willAttend} van a ir · {row.interested} interesados · {row.total} total
                           </div>
@@ -440,7 +440,7 @@ function AnalyticsPage() {
             </div>
           </div>
           <div className="rounded-xl border bg-card p-5">
-            <h2 className="font-display text-lg text-[#1c1e37] mb-4">Intenciones por Día</h2>
+            <h2 className="font-display text-lg text-[#18253f] mb-4">Intenciones por Día</h2>
             <div className="h-72">
               <ResponsiveContainer>
                 <LineChart data={attDaily.data ?? []}>
@@ -464,7 +464,7 @@ function AnalyticsPage() {
 function Metric({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl border bg-card p-4">
-      <div className="font-display text-2xl text-[#1c1e37]">{value}</div>
+      <div className="font-display text-2xl text-[#18253f]">{value}</div>
       <div className="text-xs text-muted-foreground mt-1">{label}</div>
     </div>
   );
@@ -473,7 +473,7 @@ function Metric({ label, value }: { label: string; value: number | string }) {
 function ChartCard({ title, children }: { title: string; children: React.ReactElement }) {
   return (
     <div className="rounded-xl border bg-card p-5">
-      <h2 className="font-display text-lg text-[#1c1e37] mb-4">{title}</h2>
+      <h2 className="font-display text-lg text-[#18253f] mb-4">{title}</h2>
       <div className="h-72">
         <ResponsiveContainer>{children}</ResponsiveContainer>
       </div>
@@ -503,8 +503,8 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
   return (
     <div className="p-6 space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h3 className="font-display text-lg text-[#1c1e37]">{data.market.name}</h3>
-        <Badge variant="secondary" className="bg-[#54b678]/15 text-[#1c1e37] border-0">{data.market.category}</Badge>
+        <h3 className="font-display text-lg text-[#18253f]">{data.market.name}</h3>
+        <Badge variant="secondary" className="bg-[#54b678]/15 text-[#18253f] border-0">{data.market.category}</Badge>
         <Badge variant="outline">{data.market.municipality}</Badge>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -515,7 +515,7 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border bg-card p-4">
-          <h4 className="text-sm font-medium text-[#1c1e37] mb-2">Proporción</h4>
+          <h4 className="text-sm font-medium text-[#18253f] mb-2">Proporción</h4>
           <div className="h-56">
             <ResponsiveContainer>
               <PieChart>
@@ -530,7 +530,7 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
           </div>
         </div>
         <div className="rounded-xl border bg-card p-4">
-          <h4 className="text-sm font-medium text-[#1c1e37] mb-2">Últimos 30 días</h4>
+          <h4 className="text-sm font-medium text-[#18253f] mb-2">Últimos 30 días</h4>
           <div className="h-56">
             <ResponsiveContainer>
               <LineChart data={data.daily}>

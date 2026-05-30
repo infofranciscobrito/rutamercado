@@ -26,7 +26,7 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
     >
       <div className="relative aspect-video w-full overflow-hidden bg-[#FFF8EC]">
         <MarketImage src={market.image_url} alt={market.name} />
-        <span className="absolute left-3 top-3 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+        <span className="absolute left-3 top-3 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
           {market.category}
         </span>
         {today && (
@@ -41,12 +41,12 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 px-5 pb-5 pt-4">
-        <h3 className="font-display rm-text-card-title text-[#1c1e37] line-clamp-2">
+        <h3 className="font-display rm-text-card-title text-[#18253f] line-clamp-2">
           {market.name}
         </h3>
         <div className="h-[2px] w-10 bg-[#54b678]" aria-hidden="true" />
         <div className="mt-1 space-y-1.5 text-sm">
-          <div className="flex items-center gap-2 text-[#1c1e37]">
+          <div className="flex items-center gap-2 text-[#18253f]">
             <CalendarDays className="h-4 w-4 shrink-0 text-[#54b678]" />
             <span>{formatDateEs(nextDate)}</span>
           </div>

@@ -44,7 +44,7 @@ export function CategoryRow({
           </span>
           <div>
             <h2
-              className="font-display text-[#1c1e37]"
+              className="font-display text-[#18253f]"
               style={{ fontSize: "clamp(1.3rem, 1.1rem + 1vw, 1.75rem)" }}
             >
               {category}
@@ -71,7 +71,7 @@ export function CategoryRow({
           <div style={{ marginTop: "16px", marginBottom: "20px" }}>
             <Link
               to={ctaHref}
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-[#54b678] px-5 text-sm font-semibold text-[#1c1e37] shadow-sm transition-all duration-200 hover:bg-[#3f9560] hover:scale-[1.02] hover:shadow-[0_6px_16px_rgba(84,182,120,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-[#54b678] px-5 text-sm font-semibold text-[#18253f] shadow-sm transition-all duration-200 hover:bg-[#3f9560] hover:scale-[1.02] hover:shadow-[0_6px_16px_rgba(84,182,120,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2"
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 padding: "10px 20px",

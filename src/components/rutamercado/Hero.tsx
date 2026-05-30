@@ -22,7 +22,7 @@ function Stat({ value, label }: { value: number; label: string }) {
 export function Hero({ query, onQueryChange, stats }: Props) {
   return (
     <section
-      className="relative overflow-hidden bg-[#1c1e37]"
+      className="relative overflow-hidden bg-[#18253f]"
       aria-labelledby="hero-title"
     >
       {/* Capa 1: imagen de fondo (más zoom en mobile para mostrar personajes) */}
@@ -33,13 +33,13 @@ export function Hero({ query, onQueryChange, stats }: Props) {
       />
 
       {/* Capa 2: tinte navy (multiply) — convierte la ilustración en monocroma azul */}
-      <div className="absolute inset-0 bg-[#1c1e37]/65 mix-blend-multiply" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[#18253f]/65 mix-blend-multiply" aria-hidden="true" />
       {/* Capa 3: gradiente vertical para legibilidad del texto */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1c1e37]/40 via-transparent to-[#1c1e37]/85" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#18253f]/40 via-transparent to-[#18253f]/85" aria-hidden="true" />
       {/* Capa 4: patrón de puntos dorados sutil */}
       <div className="absolute inset-0 rm-hero-pattern opacity-40" aria-hidden="true" />
       {/* Capa 5: fade final hacia el contenido */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#1c1e37]" aria-hidden="true" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#18253f]" aria-hidden="true" />
 
 
       <div
@@ -78,7 +78,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder="¿Qué mercado buscas?"
-              className="h-16 w-full rounded-2xl border-2 border-transparent bg-white/95 pl-16 pr-5 text-lg text-[#1c1e37] shadow-[0_8px_30px_rgba(0,0,0,0.35)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#54b678] focus:bg-white focus:shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_0_4px_rgba(84,182,120,0.18)] sm:h-[68px] sm:text-xl"
+              className="h-16 w-full rounded-2xl border-2 border-transparent bg-white/95 pl-16 pr-5 text-lg text-[#18253f] shadow-[0_8px_30px_rgba(0,0,0,0.35)] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#54b678] focus:bg-white focus:shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_0_4px_rgba(84,182,120,0.18)] sm:h-[68px] sm:text-xl"
             />
           </div>
         </div>

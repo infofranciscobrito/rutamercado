@@ -50,7 +50,7 @@ export function WeekStrip({ selectedDay, availableDays, onSelectDay }: Props) {
         type="button"
         aria-label="Semana anterior"
         onClick={() => shiftWeek(-1)}
-        className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#1c1e37] hover:bg-[#FEF3C7] sm:inline-flex"
+        className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#18253f] hover:bg-[#FEF3C7] sm:inline-flex"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
@@ -70,9 +70,9 @@ export function WeekStrip({ selectedDay, availableDays, onSelectDay }: Props) {
               aria-pressed={isSelected}
               className={`relative flex h-14 w-14 shrink-0 snap-start flex-col items-center justify-center rounded-2xl border text-center transition-all duration-150 ${
                 isSelected
-                  ? "border-[#54b678] bg-[#54b678] text-[#1c1e37] scale-[1.04] shadow-[0_4px_14px_rgba(84,182,120,0.35)]"
+                  ? "border-[#54b678] bg-[#54b678] text-[#18253f] scale-[1.04] shadow-[0_4px_14px_rgba(84,182,120,0.35)]"
                   : hasMarkets
-                    ? "border-[#E5E7EB] bg-white text-[#1c1e37] hover:border-[#54b678]"
+                    ? "border-[#E5E7EB] bg-white text-[#18253f] hover:border-[#54b678]"
                     : "border-transparent bg-transparent text-[#6B7280]/50"
               } ${isToday && !isSelected ? "ring-2 ring-[#54b678]/30" : ""}`}
             >
@@ -95,7 +95,7 @@ export function WeekStrip({ selectedDay, availableDays, onSelectDay }: Props) {
         type="button"
         aria-label="Semana siguiente"
         onClick={() => shiftWeek(1)}
-        className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#1c1e37] hover:bg-[#FEF3C7] sm:inline-flex"
+        className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#18253f] hover:bg-[#FEF3C7] sm:inline-flex"
       >
         <ChevronRight className="h-5 w-5" />
       </button>

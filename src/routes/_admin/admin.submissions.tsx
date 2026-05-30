@@ -48,8 +48,8 @@ function SubmissionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl text-[#1c1e37]">Envíos</h1>
-        <p className="mt-1 text-sm text-[#1c1e37]/60">
+        <h1 className="font-display text-3xl text-[#18253f]">Envíos</h1>
+        <p className="mt-1 text-sm text-[#18253f]/60">
           Mercados enviados por la comunidad. Revisa, aprueba o rechaza.
         </p>
       </div>
@@ -108,7 +108,7 @@ function SubmissionsPage() {
 
 function StatusBadge({ status }: { status: Submission["status"] }) {
   if (status === "pending")
-    return <Badge className="bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]">Pendiente</Badge>;
+    return <Badge className="bg-[#54b678] text-[#18253f] hover:bg-[#54b678]">Pendiente</Badge>;
   if (status === "approved")
     return <Badge className="bg-[#22C55E] text-white hover:bg-[#22C55E]">Aprobado</Badge>;
   return <Badge variant="secondary">Rechazado</Badge>;

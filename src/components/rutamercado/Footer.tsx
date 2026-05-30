@@ -1,11 +1,11 @@
 export function Footer() {
   return (
     <>
-      <div className="bg-[#1c1e37]" style={{ paddingTop: "30px", paddingBottom: "30px" }}>
+      <div className="bg-[#18253f]" style={{ paddingTop: "30px", paddingBottom: "30px" }}>
         <div className="mx-auto h-[2px] w-20 bg-[#54b678]" aria-hidden="true" />
       </div>
       <footer
-        className="bg-[#1c1e37] text-white"
+        className="bg-[#18253f] text-white"
         style={{
           paddingTop: "clamp(2.5rem, 2rem + 2vw, 4rem)",
           paddingBottom: "clamp(2.5rem, 2rem + 2vw, 4rem)",
