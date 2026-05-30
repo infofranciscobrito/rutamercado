@@ -11,7 +11,7 @@ export const Route = createFileRoute("/politica-de-privacidad")({
         content:
           "Política de Privacidad y Términos de Uso del portal RutaMercado PR, directorio de mercados, ferias y bazares en Puerto Rico.",
       },
-      { property: "og:title", content: "Política de Privacidad y Términos de Uso — RutaMercado" },
+      { property: "og:title", content: "Políticas de Privacidad y Términos de Uso — RutaMercado" },
       {
         property: "og:description",
         content:
