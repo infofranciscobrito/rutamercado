@@ -1,25 +1,21 @@
-## Cambio
+## Iconos sociales en el footer
 
-Generar una nueva imagen Open Graph (1200x630) con el logo verde actualizado centrado sobre fondo `#18253f`, y actualizar las referencias en el código para que apunten a esa imagen con URL absoluta.
+Editar `src/components/rutamercado/Footer.tsx` para agregar una fila de iconos sociales debajo del copyright (encima de los enlaces de texto existentes).
 
-## Pasos
+### Cambios
 
-1. **Generar la imagen `public/og-image.png` (1200x630)** usando composición programática (ImageMagick) a partir de `public/logo-rutamercado-horizontal.png`:
-   - Fondo sólido `#18253f`.
-   - Logo centrado, ocupando ~60% del ancho (≈720px) para que sea legible en miniaturas de WhatsApp/redes.
-   - Exportar como PNG optimizado.
-   - QA: abrir la imagen resultante y verificar visualmente que el logo se vea nítido y centrado.
+1. Importar `Instagram` y `Facebook` desde `lucide-react`.
+2. Agregar un bloque nuevo después del `<p>` del copyright:
+   - Contenedor `flex` centrado con `gap-4`, `mt-4`.
+   - Dos `<a>` con:
+     - `href` correspondiente (instagram.com/rutamercadopr y facebook.com/rutamercadopr)
+     - `target="_blank"` y `rel="noopener noreferrer"`
+     - `aria-label` ("Instagram" / "Facebook")
+     - Clase: `text-[#54b678] transition-opacity hover:opacity-80`
+     - Icono con `size={24}`
 
-2. **Actualizar `src/routes/__root.tsx`**:
-   - Reemplazar la URL externa de R2 actualmente usada en `og:image` y `twitter:image` por la URL absoluta `https://rutamercadopr.com/og-image.png` (dominio canónico del proyecto).
+### Consideraciones
 
-3. **Actualizar `src/routes/index.tsx`**:
-   - Cambiar `/og-image.png` y `/twitter:image` por `https://rutamercadopr.com/og-image.png` (URL absoluta, requisito de OG).
-
-4. **Actualizar `src/lib/category-route-helpers.ts`**:
-   - Cambiar `/og-image.png` por `https://rutamercadopr.com/og-image.png` en `og:image` y `twitter:image`.
-
-## Fuera de alcance
-
-- No se tocan layouts, colores ni otras metadatos.
-- No se generan variantes por categoría — todas las páginas usan la misma OG image.
+- Color verde `#54b678` (mismo que ya usa el footer en separadores/hover).
+- Tamaño 24px funciona igual en mobile y desktop (no breakpoints).
+- Posición: entre el copyright y la fila de enlaces de texto, queda visible y centrado.
