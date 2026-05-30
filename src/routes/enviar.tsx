@@ -83,7 +83,7 @@ function SubmitPage() {
       >
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link to="/" aria-label="RutaMercado — Inicio" className="flex items-center">
-            <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-10 w-auto sm:h-11" />
+            <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-16 w-auto" />
           </Link>
           <Link
             to="/"
