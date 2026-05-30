@@ -84,14 +84,14 @@ export const Route = createFileRoute("/")({
           "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico. Encuentra el mercado más cercano a ti.",
       },
       { property: "og:url", content: "/" },
-      { property: "og:image", content: "/og-image.png" },
+      { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
       { name: "twitter:title", content: "RutaMercado — Mercados Locales en Puerto Rico" },
       {
         name: "twitter:description",
         content:
           "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico.",
       },
-      { name: "twitter:image", content: "/og-image.png" },
+      { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
