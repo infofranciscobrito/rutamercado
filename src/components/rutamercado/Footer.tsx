@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 export function Footer() {
   return (
     <>
@@ -20,7 +22,7 @@ export function Footer() {
           <p className="mt-5 text-sm text-white/50">
             © 2025 RutaMercado — Descubre los mercados locales de Puerto Rico
           </p>
-          <div className="mt-3 flex items-center gap-3 text-sm">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm">
             <a href="#sobre-nosotros" className="text-white/60 transition-colors hover:text-[#54b678]">
               Sobre Nosotros
             </a>
@@ -28,6 +30,13 @@ export function Footer() {
             <a href="#sobre-nosotros" className="text-white/60 transition-colors hover:text-[#54b678]">
               Contacto
             </a>
+            <span className="text-[#54b678]/30" aria-hidden="true">·</span>
+            <Link
+              to="/politica-de-privacidad"
+              className="text-white/60 transition-colors hover:text-[#54b678]"
+            >
+              Política de Privacidad
+            </Link>
           </div>
         </div>
       </footer>

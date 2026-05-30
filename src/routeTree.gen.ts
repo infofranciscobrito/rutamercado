@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
 import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as FoodMarketRouteImport } from './routes/food-market'
@@ -29,6 +30,11 @@ import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.a
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDePrivacidadRoute = PoliticaDePrivacidadRouteImport.update({
+  id: '/politica-de-privacidad',
+  path: '/politica-de-privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MercadoMixtoRoute = MercadoMixtoRouteImport.update({
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
+  '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
+  '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
+  '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
+    | '/politica-de-privacidad'
     | '/sitemap.xml'
     | '/admin/login'
     | '/admin/analytics'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
+    | '/politica-de-privacidad'
     | '/sitemap.xml'
     | '/admin/login'
     | '/admin/analytics'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
+    | '/politica-de-privacidad'
     | '/sitemap.xml'
     | '/admin/login'
     | '/_admin/admin/analytics'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   FoodMarketRoute: typeof FoodMarketRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   MercadoMixtoRoute: typeof MercadoMixtoRoute
+  PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
@@ -235,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-privacidad': {
+      id: '/politica-de-privacidad'
+      path: '/politica-de-privacidad'
+      fullPath: '/politica-de-privacidad'
+      preLoaderRoute: typeof PoliticaDePrivacidadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mercado-mixto': {
@@ -373,6 +393,7 @@ const rootRouteChildren: RootRouteChildren = {
   FoodMarketRoute: FoodMarketRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   MercadoMixtoRoute: MercadoMixtoRoute,
+  PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
