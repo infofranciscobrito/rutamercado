@@ -62,10 +62,10 @@ export function buildCategoryHead(
       { property: "og:description", content: config.metaDescription },
       { property: "og:url", content: url },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "/og-image.png" },
+      { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
       { name: "twitter:title", content: config.metaTitle },
       { name: "twitter:description", content: config.metaDescription },
-      { name: "twitter:image", content: "/og-image.png" },
+      { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
     ],
     links: [{ rel: "canonical", href: url }],
     scripts: [
