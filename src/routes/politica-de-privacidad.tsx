@@ -35,7 +35,7 @@ function PrivacyPage() {
             className="text-3xl sm:text-4xl font-bold leading-tight"
             style={{ color: "#1c1e37" }}
           >
-            Política de Privacidad y Términos de Uso — RutaMercado PR
+            Políticas de Privacidad y Términos de Uso — RutaMercado PR
           </h1>
           <p className="mt-3 text-sm text-[#555]">
             <strong style={{ color: "#1c1e37" }}>Fecha de vigencia:</strong> 1 de junio de 2026
