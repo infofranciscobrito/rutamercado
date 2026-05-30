@@ -48,7 +48,7 @@ function SubmissionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl text-[#18253f]">Envíos</h1>
+        <h1 className="font-display text-3xl text-[#18253f]">Solicitudes de Mercados</h1>
         <p className="mt-1 text-sm text-[#18253f]/60">
           Mercados enviados por la comunidad. Revisa, aprueba o rechaza.
         </p>
