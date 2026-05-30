@@ -15,7 +15,7 @@ export function Footer() {
           <img
             src="/logo-rutamercado-horizontal.png"
             alt="RutaMercado"
-            className="h-8 w-auto opacity-80"
+            className="h-24 w-auto md:h-28"
           />
           <p className="mt-5 text-sm text-white/50">
             © 2025 RutaMercado — Descubre los mercados locales de Puerto Rico
