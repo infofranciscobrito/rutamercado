@@ -17,20 +17,20 @@ function SleepyPin() {
       <circle cx="60" cy="47" r="18" fill="#FFF8EC" />
       <path
         d="M51 46c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"
-        fill="#1c1e37"
+        fill="#18253f"
       />
       <path
         d="M69 46c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"
-        fill="#1c1e37"
+        fill="#18253f"
       />
       <path
         d="M52 54c2 2 5 3 8 3s6-1 8-3"
-        stroke="#1c1e37"
+        stroke="#18253f"
         strokeWidth="2.5"
         strokeLinecap="round"
         fill="none"
       />
-      <circle cx="60" cy="108" r="4" fill="#1c1e37" opacity="0.15" />
+      <circle cx="60" cy="108" r="4" fill="#18253f" opacity="0.15" />
     </svg>
   );
 }
@@ -54,7 +54,7 @@ export function EmptyState({
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl bg-white px-6 py-16 text-center rm-shadow-warm">
         <SleepyPin />
-        <h2 className="mt-6 font-display text-2xl text-[#1c1e37]">
+        <h2 className="mt-6 font-display text-2xl text-[#18253f]">
           No hay mercados programados para hoy
         </h2>
         <p className="mt-2 max-w-sm text-base text-[#6B7280]">
@@ -62,7 +62,7 @@ export function EmptyState({
         </p>
         <Button
           onClick={onSwitchToWeek}
-          className="mt-6 h-12 bg-[#54b678] px-6 text-base font-semibold text-[#1c1e37] hover:bg-[#3f9560]"
+          className="mt-6 h-12 bg-[#54b678] px-6 text-base font-semibold text-[#18253f] hover:bg-[#3f9560]"
         >
           Ver esta semana
         </Button>
@@ -73,7 +73,7 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl bg-white px-6 py-16 text-center rm-shadow-warm">
       <SleepyPin />
-      <h2 className="mt-6 font-display text-2xl text-[#1c1e37]">
+      <h2 className="mt-6 font-display text-2xl text-[#18253f]">
         {hasFilters
           ? "No encontramos mercados con esos filtros"
           : "Aún no hay mercados publicados"}
@@ -82,7 +82,7 @@ export function EmptyState({
         {hasFilters ? (
           filterSummary ? (
             <>
-              No hay resultados para <span className="font-medium text-[#1c1e37]">{filterSummary}</span>. Intenta cambiar los filtros o buscar por otro término.
+              No hay resultados para <span className="font-medium text-[#18253f]">{filterSummary}</span>. Intenta cambiar los filtros o buscar por otro término.
             </>
           ) : (
             "Intenta cambiar los filtros o buscar por otro término."

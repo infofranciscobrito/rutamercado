@@ -320,7 +320,7 @@ function MarketsContent({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-sm text-[#6B7280]">
-                Mostrando <span className="font-semibold text-[#1c1e37]">{filtered.length}</span>{" "}
+                Mostrando <span className="font-semibold text-[#18253f]">{filtered.length}</span>{" "}
                 {filtered.length === 1 ? "mercado" : "mercados"}
               </p>
               <ActiveFilterChips filters={filters} onRemove={onRemove} />

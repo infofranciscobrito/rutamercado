@@ -315,7 +315,7 @@ export function MarketFormDrawer({
             <Button
               type="submit"
               disabled={mutation.isPending}
-              className="flex-1 bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]/90"
+              className="flex-1 bg-[#54b678] text-[#18253f] hover:bg-[#54b678]/90"
             >
               {mutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Guardar

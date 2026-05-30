@@ -56,8 +56,8 @@ function DatePills({
             onClick={() => onChange(opt.value)}
             className={`min-h-11 rounded-full px-4 text-sm transition-all duration-150 ${
               active
-                ? "bg-[#54b678] font-semibold text-[#1c1e37] scale-[1.02]"
-                : "border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#54b678] hover:text-[#1c1e37]"
+                ? "bg-[#54b678] font-semibold text-[#18253f] scale-[1.02]"
+                : "border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#54b678] hover:text-[#18253f]"
             } ${disabled ? "opacity-50" : ""}`}
           >
             {opt.label}
@@ -136,7 +136,7 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
     <div
       className={`sticky top-[64px] z-40 bg-white transition-shadow duration-300 ${
         scrolled
-          ? "shadow-[0_4px_12px_rgba(28,30,55,0.06)]"
+          ? "shadow-[0_4px_12px_rgba(24,37,63,0.06)]"
           : "border-b border-[#E5E7EB]"
       }`}
     >
@@ -177,7 +177,7 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
-                  className="min-h-11 gap-2 border-[#E5E7EB] text-[#1c1e37]"
+                  className="min-h-11 gap-2 border-[#E5E7EB] text-[#18253f]"
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   Filtros
@@ -185,7 +185,7 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
               </SheetTrigger>
               <SheetContent side="bottom" className="rounded-t-2xl">
                 <SheetHeader>
-                  <SheetTitle className="font-display text-2xl text-[#1c1e37]">
+                  <SheetTitle className="font-display text-2xl text-[#18253f]">
                     Filtros
                   </SheetTitle>
                 </SheetHeader>
@@ -221,7 +221,7 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
                     Limpiar
                   </Button>
                   <Button
-                    className="flex-1 bg-[#54b678] text-[#1c1e37] hover:bg-[#54b678]/90"
+                    className="flex-1 bg-[#54b678] text-[#18253f] hover:bg-[#54b678]/90"
                     onClick={() => setSheetOpen(false)}
                   >
                     Aplicar Filtros

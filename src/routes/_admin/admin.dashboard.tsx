@@ -103,7 +103,7 @@ function DashboardPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <header>
-        <h1 className="font-display text-3xl text-[#1c1e37]">Dashboard</h1>
+        <h1 className="font-display text-3xl text-[#18253f]">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Resumen general de RutaMercado</p>
       </header>
 
@@ -121,7 +121,7 @@ function DashboardPage() {
       </div>
 
       <div className="rounded-xl border bg-card p-5">
-        <h2 className="font-display text-lg text-[#1c1e37] mb-4">Top 5 mercados por intención</h2>
+        <h2 className="font-display text-lg text-[#18253f] mb-4">Top 5 mercados por intención</h2>
         {(topIntention.data ?? []).length === 0 ? (
           <p className="text-sm text-muted-foreground">Aún no hay intenciones registradas</p>
         ) : (
@@ -132,7 +132,7 @@ function DashboardPage() {
                 <Link
                   to="/admin/analytics"
                   search={{ market: m.id }}
-                  className="font-medium text-[#1c1e37] hover:text-[#54b678] hover:underline"
+                  className="font-medium text-[#18253f] hover:text-[#54b678] hover:underline"
                 >
                   {m.name}
                 </Link>
@@ -145,7 +145,7 @@ function DashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border bg-card p-5">
-          <h2 className="font-display text-lg text-[#1c1e37] mb-4">Vistas por Mercado (Top 10)</h2>
+          <h2 className="font-display text-lg text-[#18253f] mb-4">Vistas por Mercado (Top 10)</h2>
           <div className="h-72">
             <ResponsiveContainer>
               <BarChart data={viewsData}>
@@ -160,7 +160,7 @@ function DashboardPage() {
         </div>
 
         <div className="rounded-xl border bg-card p-5">
-          <h2 className="font-display text-lg text-[#1c1e37] mb-4">Actividad de Clics (30 días)</h2>
+          <h2 className="font-display text-lg text-[#18253f] mb-4">Actividad de Clics (30 días)</h2>
           <div className="h-72">
             <ResponsiveContainer>
               <LineChart data={clicksData}>
@@ -168,7 +168,7 @@ function DashboardPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Line type="monotone" dataKey="clicks" stroke="#1c1e37" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="clicks" stroke="#18253f" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -176,7 +176,7 @@ function DashboardPage() {
       </div>
 
       <div className="rounded-xl border bg-card p-5">
-        <h2 className="font-display text-lg text-[#1c1e37] mb-4">Mercados Próximos</h2>
+        <h2 className="font-display text-lg text-[#18253f] mb-4">Mercados Próximos</h2>
         <Table>
           <TableHeader>
             <TableRow>

@@ -62,7 +62,7 @@ function MiniFact({
       <div className="mt-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">
         {label}
       </div>
-      <div className="mt-0.5 text-[15px] font-semibold text-[#1c1e37]">
+      <div className="mt-0.5 text-[15px] font-semibold text-[#18253f]">
         {value}
       </div>
     </div>
@@ -107,7 +107,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
               className="relative w-full shrink-0 overflow-hidden rounded-t-none min-h-[280px] sm:rounded-t-[20px]"
               style={{
                 background:
-                  "linear-gradient(135deg, #1c1e37 0%, #2d3058 100%)",
+                  "linear-gradient(135deg, #18253f 0%, #2d3058 100%)",
               }}
             >
               <MarketImage
@@ -115,14 +115,14 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 alt={market.name}
                 fit="contain"
               />
-              <span className="absolute left-4 top-4 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1c1e37] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
+              <span className="absolute left-4 top-4 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
                 {market.category}
               </span>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Cerrar"
-                className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#1c1e37] shadow-md transition-transform hover:scale-105"
+                className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#18253f] shadow-md transition-transform hover:scale-105"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -131,7 +131,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
 
             <div className="space-y-6 p-6">
               <div>
-                <h2 className="font-display text-2xl leading-tight text-[#1c1e37]">
+                <h2 className="font-display text-2xl leading-tight text-[#18253f]">
                   {market.name}
                 </h2>
                 <div className="mt-3 h-[3px] w-12 bg-[#54b678]" aria-hidden="true" />
@@ -177,14 +177,14 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 </div>
                 <div className="flex items-start gap-2 rounded-lg bg-[#F9FAFB] px-4 py-3">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#6B7280]" />
-                  <span className="text-sm text-[#1c1e37]">{market.address}</span>
+                  <span className="text-sm text-[#18253f]">{market.address}</span>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <SectionTitle>Organizador</SectionTitle>
                 <div className="rounded-xl bg-[#FAFAF8] p-4">
-                  <p className="text-base font-semibold text-[#1c1e37]">
+                  <p className="text-base font-semibold text-[#18253f]">
                     {market.organizer_name}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -192,7 +192,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                       <a
                         href={`tel:${market.organizer_phone}`}
                         onClick={() => track(market.id, "click_phone")}
-                        className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#54b678] px-3 text-sm font-semibold text-[#1c1e37] transition-colors hover:bg-[#3f9560]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#54b678] px-3 text-sm font-semibold text-[#18253f] transition-colors hover:bg-[#3f9560]"
                       >
                         <Phone className="h-4 w-4" /> Llamar
                       </a>
@@ -201,7 +201,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                       <a
                         href={`mailto:${market.organizer_email}`}
                         onClick={() => track(market.id, "click_email")}
-                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#54b678]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f] transition-colors hover:border-[#54b678]"
                       >
                         <Mail className="h-4 w-4" /> Email
                       </a>
@@ -212,7 +212,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => track(market.id, "click_instagram")}
-                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#1c1e37] transition-colors hover:border-[#54b678]"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f] transition-colors hover:border-[#54b678]"
                       >
                         <Instagram className="h-4 w-4" /> Redes
                       </a>
@@ -230,7 +230,7 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track(market.id, "click_directions")}
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1c1e37] text-base font-semibold text-white transition-colors hover:bg-[#2d3058]"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#18253f] text-base font-semibold text-white transition-colors hover:bg-[#2d3058]"
               >
                 <Navigation className="h-5 w-5" />
                 Cómo llegar
@@ -301,7 +301,7 @@ function AttendanceSection({ marketId }: { marketId: string }) {
       {!voted ? (
         <div className="space-y-3 text-center animate-in fade-in duration-200">
           <div>
-            <h3 className="text-[15px] font-semibold text-[#1c1e37]">
+            <h3 className="text-[15px] font-semibold text-[#18253f]">
               ¿Piensas ir a este mercado?
             </h3>
             <p className="mt-1 text-[13px] text-[#6B7280]">
@@ -313,7 +313,7 @@ function AttendanceSection({ marketId }: { marketId: string }) {
               type="button"
               onClick={() => handleVote("will_attend")}
               disabled={submitting}
-              className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#54b678] px-6 text-sm font-semibold text-[#1c1e37] transition-all hover:bg-[#54b678]/85 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
+              className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#54b678] px-6 text-sm font-semibold text-[#18253f] transition-all hover:bg-[#54b678]/85 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
             >
               <CalendarCheck className="h-4 w-4" />
               ¡Voy a ir!

@@ -1,32 +1,20 @@
-## Problema
+## Cambio
 
-Solo se cambió `/enviar` a verde. La página principal (`/`), las páginas de categoría y todo el panel de administración (`/admin/*`) siguen mostrando el dorado `#f8b625`.
+Reemplazo global del azul oscuro `#1c1e37` → `#18253f` en toda la plataforma (front público + panel admin + tokens).
 
-## Solución
+## Alcance
 
-Reemplazo global de la paleta amarilla por la verde en **todos** los archivos del proyecto (front público + backend admin + tokens globales).
+Se aplica en los 28 archivos que actualmente usan `#1c1e37` / `#1C1E37`:
 
-### Sustituciones
+- **Tokens globales**: `src/styles.css` (variables `--color-navy`, sombras, gradientes que referencian el navy).
+- **Front público** (`src/components/rutamercado/*`): Header, Footer, Hero, AboutSection, FilterBar, MarketCard, MarketDetailDialog, CategoryRow, CategoryPage, EmptyState, SubmitMarketForm, WeekStrip, ViewToggle, ActiveFilterChips, ImageUpload16x9, SkeletonCard, etc.
+- **Páginas**: `src/routes/enviar.tsx`, `src/routes/index.tsx` y rutas de categoría si tienen referencias.
+- **Panel admin**: `src/components/admin/*` (AdminLayout, AdminSidebar, MetricCard, MarketFormDrawer, SubmissionReviewDrawer), `src/routes/admin.login.tsx`, `src/routes/_admin/*` (dashboard, analytics, markets, submissions), `src/hooks/use-auth-ready.tsx`.
 
-- `#f8b625` → `#54b678` (color principal)
-- `#f59e0b` → `#3f9560` (hover / gradiente medio)
-- `#d97706` → `#2f7a4c` (gradiente final, solo en `--rm-gradient-brand`)
-- `rgba(248, 182, 37, X)` → `rgba(84, 182, 120, X)` (sombras, patrón de puntos, focus rings)
+## Cómo se aplicará
 
-### Archivos a modificar
+Un único script de sustitución case-insensitive reemplaza `#1c1e37` → `#18253f` en todos los archivos detectados, incluyendo cualquier `rgba(28, 30, 55, X)` por `rgba(24, 37, 63, X)` para mantener consistencia en sombras y overlays.
 
-1. **Tokens globales** — `src/styles.css` (`--color-gold`, `--rm-shadow-gold`, `--rm-gradient-brand`, `--rm-dot-pattern`, focus outline y comentario de paleta).
-2. **Front público** — todos los componentes en `src/components/rutamercado/` que usan amarillo: `Header`, `Hero`, `Footer`, `AboutSection`, `FilterBar`, `ActiveFilterChips`, `ViewToggle`, `WeekStrip`, `MarketCard`, `MarketImage`, `MarketDetailDialog`, `CategoryRow`, `CategoryPage`, `EmptyState`, `SkeletonCard`, `SubmitMarketForm`, `ImageUpload16x9`.
-3. **Panel admin (backend)**:
-   - `src/components/admin/AdminLayout.tsx`, `AdminSidebar.tsx`, `MetricCard.tsx`, `MarketFormDrawer.tsx`, `SubmissionReviewDrawer.tsx`
-   - `src/routes/admin.login.tsx`
-   - `src/routes/_admin/admin.dashboard.tsx`, `admin.analytics.tsx`, `admin.markets.tsx`, `admin.submissions.tsx`
-   - `src/hooks/use-auth-ready.tsx`
+## Resultado
 
-### Cómo se aplicará
-
-Un único script de sustitución recorre los archivos listados aplicando las 4 reglas, garantizando consistencia y sin amarillo residual.
-
-## Resultado esperado
-
-Toda la aplicación (home, categorías, `/enviar`, login de admin y todas las pantallas del panel administrativo) queda unificada en verde `#54b678`.
+Header, footer, tipografías navy, fondos del hero, panel admin y todos los acentos azul oscuro quedan unificados en `#18253f`. El verde `#54b678` no se toca.

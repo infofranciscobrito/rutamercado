@@ -17,8 +17,8 @@ export function ViewToggle({ value, onChange }: Props) {
         aria-label="Vista por categoría"
         className={`inline-flex h-8 w-9 items-center justify-center rounded-md transition-colors ${
           value === "category"
-            ? "bg-[#54b678] text-[#1c1e37]"
-            : "text-[#6B7280] hover:text-[#1c1e37]"
+            ? "bg-[#54b678] text-[#18253f]"
+            : "text-[#6B7280] hover:text-[#18253f]"
         }`}
       >
         <Rows3 className="h-4 w-4" />
@@ -30,8 +30,8 @@ export function ViewToggle({ value, onChange }: Props) {
         aria-label="Vista cuadrícula"
         className={`inline-flex h-8 w-9 items-center justify-center rounded-md transition-colors ${
           value === "grid"
-            ? "bg-[#54b678] text-[#1c1e37]"
-            : "text-[#6B7280] hover:text-[#1c1e37]"
+            ? "bg-[#54b678] text-[#18253f]"
+            : "text-[#6B7280] hover:text-[#18253f]"
         }`}
       >
         <LayoutGrid className="h-4 w-4" />

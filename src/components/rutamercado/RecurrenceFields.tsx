@@ -220,7 +220,7 @@ function Wrap({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-semibold uppercase tracking-wide text-[#1c1e37]/70">
+      <Label className="text-xs font-semibold uppercase tracking-wide text-[#18253f]/70">
         {label}
       </Label>
       {children}

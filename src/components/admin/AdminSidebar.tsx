@@ -27,7 +27,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   return (
-    <aside className="flex h-full w-full flex-col bg-[#1c1e37] text-white">
+    <aside className="flex h-full w-full flex-col bg-[#18253f] text-white">
       <div className="flex items-center justify-center px-4 py-5 border-b border-white/10">
         <img
           src="/logo-rutamercado-horizontal.png"
@@ -53,7 +53,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
               <Icon className="h-5 w-5" />
               <span className="flex-1">{item.label}</span>
               {item.to === "/admin/submissions" && (pending?.count ?? 0) > 0 && (
-                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#1c1e37]">
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#18253f]">
                   {pending!.count}
                 </span>
               )}

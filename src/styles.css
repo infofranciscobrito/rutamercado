@@ -7,7 +7,7 @@
 
 /*
  * RutaMercado design tokens — premium edition.
- * Brand: #FAFAF8 fondo, #FFF8EC crema, #1c1e37 navy, #54b678 dorado.
+ * Brand: #FAFAF8 fondo, #FFF8EC crema, #18253f navy, #54b678 dorado.
  * Sombras cálidas (tinte navy), gradientes de marca, escala fluida con clamp().
  */
 
@@ -62,7 +62,7 @@
   /* RutaMercado custom */
   --color-cream: #fff8ec;
   --color-cream-soft: #fef3c7;
-  --color-navy: #1c1e37;
+  --color-navy: #18253f;
   --color-navy-deep: #141628;
   --color-navy-soft: #2d3058;
   --color-gold: #54b678;
@@ -122,12 +122,12 @@
 
   /* Custom RutaMercado utilities */
   --rm-ease: cubic-bezier(0.23, 1, 0.32, 1);
-  --rm-shadow-sm: 0 2px 12px rgba(28, 30, 55, 0.06);
-  --rm-shadow-md: 0 4px 20px rgba(28, 30, 55, 0.08);
-  --rm-shadow-lg: 0 8px 30px rgba(28, 30, 55, 0.12);
+  --rm-shadow-sm: 0 2px 12px rgba(24, 37, 63, 0.06);
+  --rm-shadow-md: 0 4px 20px rgba(24, 37, 63, 0.08);
+  --rm-shadow-lg: 0 8px 30px rgba(24, 37, 63, 0.12);
   --rm-shadow-gold: 0 8px 30px rgba(84, 182, 120, 0.25);
   --rm-gradient-brand: linear-gradient(135deg, #54b678 0%, #3f9560 50%, #2f7a4c 100%);
-  --rm-gradient-hero: linear-gradient(180deg, #1c1e37 0%, #2d3058 100%);
+  --rm-gradient-hero: linear-gradient(180deg, #18253f 0%, #2d3058 100%);
   --rm-dot-pattern: radial-gradient(rgba(84, 182, 120, 0.18) 1px, transparent 1px);
 }
 

@@ -111,16 +111,16 @@ export function SubmitMarketForm() {
     return (
       <div className="mx-auto max-w-xl rounded-2xl bg-white p-10 text-center rm-shadow-warm">
         <CheckCircle2 className="mx-auto h-14 w-14 text-[#22C55E]" />
-        <h2 className="mt-4 font-display text-2xl text-[#1c1e37]">
+        <h2 className="mt-4 font-display text-2xl text-[#18253f]">
           ¡Gracias! Recibimos tu mercado
         </h2>
-        <p className="mt-3 text-[#1c1e37]/70">
+        <p className="mt-3 text-[#18253f]/70">
           Nuestro equipo revisará la información y lo publicaremos en 1–2 días.
           Te contactaremos si necesitamos algo más.
         </p>
         <Link
           to="/"
-          className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#54b678] px-6 font-semibold text-[#1c1e37] hover:bg-[#3f9560]"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#54b678] px-6 font-semibold text-[#18253f] hover:bg-[#3f9560]"
         >
           Volver al inicio
         </Link>
@@ -205,7 +205,7 @@ export function SubmitMarketForm() {
       </Section>
 
       <Section title="Foto del mercado">
-        <p className="-mt-2 text-sm text-[#1c1e37]/60">
+        <p className="-mt-2 text-sm text-[#18253f]/60">
           Opcional. Tu foto se recorta automáticamente al formato del directorio
           (16:9) para que se vea perfecta.
         </p>
@@ -224,7 +224,7 @@ export function SubmitMarketForm() {
             disabled={mutation.isPending}
           />
         </Field>
-        <p className="-mb-1 text-sm text-[#1c1e37]/60">
+        <p className="-mb-1 text-sm text-[#18253f]/60">
           Opcional: añade los medios de contacto que prefieras.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -256,12 +256,12 @@ export function SubmitMarketForm() {
       <button
         type="submit"
         disabled={mutation.isPending}
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#54b678] text-base font-semibold text-[#1c1e37] transition-all hover:bg-[#3f9560] hover:shadow-[0_4px_15px_rgba(84,182,120,0.3)] disabled:opacity-60"
+        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#54b678] text-base font-semibold text-[#18253f] transition-all hover:bg-[#3f9560] hover:shadow-[0_4px_15px_rgba(84,182,120,0.3)] disabled:opacity-60"
       >
         {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         Enviar mi mercado
       </button>
-      <p className="text-center text-xs text-[#1c1e37]/55">
+      <p className="text-center text-xs text-[#18253f]/55">
         Tu mercado será revisado antes de publicarse. No compartimos tus datos.
       </p>
     </form>
@@ -271,7 +271,7 @@ export function SubmitMarketForm() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <h3 className="font-display text-lg text-[#1c1e37]">{title}</h3>
+      <h3 className="font-display text-lg text-[#18253f]">{title}</h3>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -288,7 +288,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-semibold uppercase tracking-wide text-[#1c1e37]/70">
+      <Label className="text-xs font-semibold uppercase tracking-wide text-[#18253f]/70">
         {label}
       </Label>
       {children}

@@ -6,7 +6,7 @@ export function AboutSection() {
   return (
     <section
       id="sobre-nosotros"
-      className="relative overflow-hidden bg-[#1c1e37] text-white"
+      className="relative overflow-hidden bg-[#18253f] text-white"
       style={{
         paddingTop: "clamp(4rem, 3rem + 4vw, 7rem)",
         paddingBottom: "clamp(4rem, 3rem + 4vw, 7rem)",
@@ -34,7 +34,7 @@ export function AboutSection() {
           </p>
           <Link
             to="/enviar"
-            className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-[#54b678] px-7 text-base font-semibold text-[#1c1e37] transition-all hover:scale-[1.02] hover:bg-[#3f9560] hover:shadow-[0_4px_15px_rgba(84,182,120,0.3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1e37]"
+            className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-[#54b678] px-7 text-base font-semibold text-[#18253f] transition-all hover:scale-[1.02] hover:bg-[#3f9560] hover:shadow-[0_4px_15px_rgba(84,182,120,0.3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 focus-visible:ring-offset-[#18253f]"
           >
             Enviar mi Mercado
           </Link>
