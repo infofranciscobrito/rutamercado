@@ -70,6 +70,18 @@ export function SubmissionReviewDrawer({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const remove = useMutation({
+    mutationFn: () => deleteFn({ data: { id: submission!.id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+      qc.invalidateQueries({ queryKey: ["admin", "submissions", "pending-count"] });
+      toast.success("Solicitud eliminada correctamente");
+      setConfirmDelete(false);
+      onOpenChange(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (!submission) return null;
   const pending = submission.status === "pending";
 
