@@ -83,7 +83,7 @@ function SubmitPage() {
       >
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link to="/" aria-label="RutaMercado — Inicio" className="flex items-center">
-            <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-10 w-auto sm:h-11" />
+            <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-16 w-auto" />
           </Link>
           <Link
             to="/"
@@ -308,7 +308,7 @@ function SubmitPage() {
       {/* 7. FOOTER */}
       <footer className="bg-[#18253f] text-white" style={{ paddingTop: "3rem", paddingBottom: "3rem" }}>
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 text-center sm:px-6">
-          <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-8 w-auto opacity-80" />
+          <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-24 w-auto md:h-28" />
           <p className="text-sm text-white/60">© 2025 RutaMercado. Todos los derechos reservados.</p>
           <Link to="/" className="text-sm font-semibold text-[#54b678] hover:underline">
             Ver directorio completo

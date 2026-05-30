@@ -32,7 +32,7 @@ export function Header() {
           <img
             src="/logo-rutamercado-horizontal.png"
             alt="RutaMercado"
-            className="h-12 w-auto sm:h-11"
+            className="h-16 w-auto"
           />
 
         </a>
