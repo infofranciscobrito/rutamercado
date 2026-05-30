@@ -5,13 +5,13 @@ import { Footer } from "@/components/rutamercado/Footer";
 export const Route = createFileRoute("/politica-de-privacidad")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidad y Términos de Uso — RutaMercado" },
+      { title: "Políticas de Privacidad y Términos de Uso — RutaMercado" },
       {
         name: "description",
         content:
           "Política de Privacidad y Términos de Uso del portal RutaMercado PR, directorio de mercados, ferias y bazares en Puerto Rico.",
       },
-      { property: "og:title", content: "Política de Privacidad y Términos de Uso — RutaMercado" },
+      { property: "og:title", content: "Políticas de Privacidad y Términos de Uso — RutaMercado" },
       {
         property: "og:description",
         content:
@@ -35,7 +35,7 @@ function PrivacyPage() {
             className="text-3xl sm:text-4xl font-bold leading-tight"
             style={{ color: "#1c1e37" }}
           >
-            Política de Privacidad y Términos de Uso — RutaMercado PR
+            Políticas de Privacidad y Términos de Uso — RutaMercado PR
           </h1>
           <p className="mt-3 text-sm text-[#555]">
             <strong style={{ color: "#1c1e37" }}>Fecha de vigencia:</strong> 1 de junio de 2026
