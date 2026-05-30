@@ -1,21 +1,26 @@
-## Iconos sociales en el footer
+## Cambios
 
-Editar `src/components/rutamercado/Footer.tsx` para agregar una fila de iconos sociales debajo del copyright (encima de los enlaces de texto existentes).
+### 1. Renombrar "Envíos" → "Solicitudes de Mercados"
 
-### Cambios
+- `src/components/admin/AdminSidebar.tsx` — cambiar `label: "Envíos"` por `"Solicitudes de Mercados"` en el item del menú.
+- `src/routes/_admin/admin.submissions.tsx` — cambiar el `<h1>` de "Envíos" a "Solicitudes de Mercados". (La URL `/admin/submissions` se mantiene para no romper enlaces; no hay breadcrumbs en el admin.)
 
-1. Importar `Instagram` y `Facebook` desde `lucide-react`.
-2. Agregar un bloque nuevo después del `<p>` del copyright:
-   - Contenedor `flex` centrado con `gap-4`, `mt-4`.
-   - Dos `<a>` con:
-     - `href` correspondiente (instagram.com/rutamercadopr y facebook.com/rutamercadopr)
-     - `target="_blank"` y `rel="noopener noreferrer"`
-     - `aria-label` ("Instagram" / "Facebook")
-     - Clase: `text-[#54b678] transition-opacity hover:opacity-80`
-     - Icono con `size={24}`
+### 2. Botón "Borrar Solicitud" en el panel de aprobación
 
-### Consideraciones
+**Backend — `src/lib/submissions.functions.ts`:**
+- Agregar nueva server function `deleteSubmission` (POST, `requireSupabaseAuth`) que valida `{ id: uuid }` y ejecuta `delete` sobre `market_submissions` por id. Las RLS ya permiten DELETE solo a admins, y el borrado de una solicitud no afecta la tabla `markets` (no hay FK), así que mercados ya publicados quedan intactos.
 
-- Color verde `#54b678` (mismo que ya usa el footer en separadores/hover).
-- Tamaño 24px funciona igual en mobile y desktop (no breakpoints).
-- Posición: entre el copyright y la fila de enlaces de texto, queda visible y centrado.
+**UI — `src/components/admin/SubmissionReviewDrawer.tsx`:**
+- Importar `AlertDialog` (y subcomponentes) de `@/components/ui/alert-dialog`, y la nueva `deleteSubmission`.
+- Agregar `useMutation` para borrar, que invalida `["admin","submissions"]` y `["admin","submissions","pending-count"]`, muestra toast `"Solicitud eliminada correctamente"` y cierra el drawer.
+- Agregar un tercer botón "Borrar Solicitud" con fondo `#DC2626` / texto blanco / hover más oscuro, junto a Aprobar y Rechazar (mismo contenedor flex; se mostrará también para solicitudes ya revisadas para permitir limpieza).
+- Al hacer click, abrir `AlertDialog`:
+  - Título: "¿Borrar esta solicitud?"
+  - Descripción: `Esta acción eliminará permanentemente la solicitud de ${submission.name}. No se puede deshacer.`
+  - Cancel: variante outline.
+  - Action: fondo `#DC2626`, texto blanco → ejecuta la mutación.
+
+### Notas técnicas
+
+- No se necesita migración: las políticas RLS de `market_submissions` ya incluyen `Admins can delete submissions`.
+- El delete es independiente de `markets`: aprobar copia datos a `markets` y guarda `published_market_id`, pero no hay FK, así que borrar la solicitud no toca el mercado publicado.

@@ -8,7 +8,7 @@ import { countPendingSubmissions } from "@/lib/submissions.functions";
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/markets", label: "Mercados", icon: Store },
-  { to: "/admin/submissions", label: "Envíos", icon: Inbox },
+  { to: "/admin/submissions", label: "Solicitudes de Mercados", icon: Inbox },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
 ] as const;
 

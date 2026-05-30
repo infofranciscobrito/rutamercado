@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, CalendarDays, Clock, MapPin, User } from "lucide-react";
+import { Loader2, CalendarDays, Clock, MapPin, User, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -9,10 +9,21 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   approveSubmission,
+  deleteSubmission,
   rejectSubmission,
   type Submission,
 } from "@/lib/submissions.functions";
@@ -30,7 +41,9 @@ export function SubmissionReviewDrawer({
   const qc = useQueryClient();
   const approveFn = useServerFn(approveSubmission);
   const rejectFn = useServerFn(rejectSubmission);
+  const deleteFn = useServerFn(deleteSubmission);
   const [notes, setNotes] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const approve = useMutation({
     mutationFn: () => approveFn({ data: { id: submission!.id } }),
@@ -52,6 +65,18 @@ export function SubmissionReviewDrawer({
       qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
       qc.invalidateQueries({ queryKey: ["admin", "submissions", "pending-count"] });
       toast.success("Envío rechazado");
+      onOpenChange(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteFn({ data: { id: submission!.id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+      qc.invalidateQueries({ queryKey: ["admin", "submissions", "pending-count"] });
+      toast.success("Solicitud eliminada correctamente");
+      setConfirmDelete(false);
       onOpenChange(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -137,10 +162,10 @@ export function SubmissionReviewDrawer({
                   placeholder="Motivo del rechazo…"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   className="flex-1 bg-[#22C55E] text-white hover:bg-[#16a34a]"
-                  disabled={approve.isPending || reject.isPending}
+                  disabled={approve.isPending || reject.isPending || remove.isPending}
                   onClick={() => approve.mutate()}
                 >
                   {approve.isPending && (
@@ -151,7 +176,7 @@ export function SubmissionReviewDrawer({
                 <Button
                   variant="outline"
                   className="flex-1"
-                  disabled={approve.isPending || reject.isPending}
+                  disabled={approve.isPending || reject.isPending || remove.isPending}
                   onClick={() => reject.mutate()}
                 >
                   {reject.isPending && (
@@ -159,17 +184,63 @@ export function SubmissionReviewDrawer({
                   )}
                   Rechazar
                 </Button>
+                <Button
+                  className="flex-1 bg-[#DC2626] text-white hover:bg-[#b91c1c]"
+                  disabled={approve.isPending || reject.isPending || remove.isPending}
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Borrar Solicitud
+                </Button>
               </div>
             </div>
           ) : (
-            <div className="rounded-md border bg-muted/30 p-3 text-sm">
-              Estado:{" "}
-              <span className="font-semibold capitalize">{submission.status}</span>
-              {submission.admin_notes ? ` · ${submission.admin_notes}` : ""}
+            <div className="space-y-3 border-t pt-4">
+              <div className="rounded-md border bg-muted/30 p-3 text-sm">
+                Estado:{" "}
+                <span className="font-semibold capitalize">{submission.status}</span>
+                {submission.admin_notes ? ` · ${submission.admin_notes}` : ""}
+              </div>
+              <Button
+                className="w-full bg-[#DC2626] text-white hover:bg-[#b91c1c]"
+                disabled={remove.isPending}
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Borrar Solicitud
+              </Button>
             </div>
           )}
         </div>
       </SheetContent>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Borrar esta solicitud?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente la solicitud de{" "}
+              {submission.name}. No se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={remove.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-[#DC2626] text-white hover:bg-[#b91c1c]"
+              disabled={remove.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                remove.mutate();
+              }}
+            >
+              {remove.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Borrar permanentemente
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sheet>
   );
 }
