@@ -1,0 +1,1 @@
+ALTER TYPE public.market_category RENAME VALUE 'Bazar / Pop-up' TO 'Bazaar/Pop Up';

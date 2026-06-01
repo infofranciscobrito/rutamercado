@@ -11,7 +11,7 @@ import type { MarketCategory } from "@/types/market";
 
 export const CATEGORY_ICONS: Record<MarketCategory, LucideIcon> = {
   "Mercado Agrícola": Leaf,
-  "Bazar / Pop-up": Tent,
+  "Bazaar/Pop Up": Tent,
   "Feria Artesanal": Hand,
   "Food Market": UtensilsCrossed,
   "Mercado Mixto": ShoppingBag,

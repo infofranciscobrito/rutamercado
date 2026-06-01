@@ -28,16 +28,16 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
   },
   {
     slug: "bazar-pop-up",
-    category: "Bazar / Pop-up",
-    pageTitle: "Bazares y Pop-ups en Puerto Rico",
+    category: "Bazaar/Pop Up",
+    pageTitle: "Bazaar / Pop Up en Puerto Rico",
     subtitle:
-      "Bazares y pop-ups con artículos únicos, ropa, accesorios y más",
-    ctaLabel: "Ver todos los Bazares / Pop-up",
-    metaTitle: "Bazares y Pop-ups en Puerto Rico | RutaMercado",
+      "Bazaar / Pop Up con artículos únicos, ropa, accesorios y más",
+    ctaLabel: "Ver todos los Bazaar / Pop Up",
+    metaTitle: "Bazaar / Pop Up en Puerto Rico | RutaMercado",
     metaDescription:
-      "Descubre los bazares y pop-ups en Puerto Rico. Ropa, accesorios, artículos únicos y más. Encuentra el próximo bazar cerca de ti.",
+      "Descubre los Bazaar / Pop Up en Puerto Rico. Ropa, accesorios, artículos únicos y más. Encuentra el próximo bazaar cerca de ti.",
     pageViewKey: "category_bazar_popup",
-    emptyText: "No hay Bazares / Pop-up programados por ahora",
+    emptyText: "No hay Bazaar / Pop Up programados por ahora",
   },
   {
     slug: "feria-artesanal",

@@ -3,7 +3,7 @@ import type { UpcomingDate, CancelledDate } from "@/lib/recurrence";
 
 export type MarketCategory =
   | "Mercado Agrícola"
-  | "Bazar / Pop-up"
+  | "Bazaar/Pop Up"
   | "Feria Artesanal"
   | "Food Market"
   | "Mercado Mixto"
@@ -38,7 +38,7 @@ export interface EnrichedMarket extends Market {
 
 export const MARKET_CATEGORIES: MarketCategory[] = [
   "Mercado Agrícola",
-  "Bazar / Pop-up",
+  "Bazaar/Pop Up",
   "Feria Artesanal",
   "Food Market",
   "Mercado Mixto",
