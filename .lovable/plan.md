@@ -1,26 +1,30 @@
-## Cambios
+## Plan — Renombrar categoría "Bazar / Pop-up" → "Bazaar/Pop Up"
 
-### 1. Renombrar "Envíos" → "Solicitudes de Mercados"
+### Cambios
 
-- `src/components/admin/AdminSidebar.tsx` — cambiar `label: "Envíos"` por `"Solicitudes de Mercados"` en el item del menú.
-- `src/routes/_admin/admin.submissions.tsx` — cambiar el `<h1>` de "Envíos" a "Solicitudes de Mercados". (La URL `/admin/submissions` se mantiene para no romper enlaces; no hay breadcrumbs en el admin.)
+**1. Base de datos (migración)**
+Renombrar el valor del enum `public.market_category`:
+```sql
+ALTER TYPE public.market_category RENAME VALUE 'Bazar / Pop-up' TO 'Bazaar/Pop Up';
+```
+Esto actualiza automáticamente todos los mercados existentes con esa categoría. No se pierde data.
 
-### 2. Botón "Borrar Solicitud" en el panel de aprobación
+**2. Código (frontend)**
+Actualizar las referencias literales al valor de la categoría:
+- `src/types/market.ts` (líneas 6 y 41) — tipo `MarketCategory` y array `MARKET_CATEGORIES`
+- `src/components/rutamercado/icons/CategoryIcons.tsx` (línea 14) — mapa de íconos
+- `src/lib/category-pages.ts` (línea 31) — campo `category` de la config de la página
 
-**Backend — `src/lib/submissions.functions.ts`:**
-- Agregar nueva server function `deleteSubmission` (POST, `requireSupabaseAuth`) que valida `{ id: uuid }` y ejecuta `delete` sobre `market_submissions` por id. Las RLS ya permiten DELETE solo a admins, y el borrado de una solicitud no afecta la tabla `markets` (no hay FK), así que mercados ya publicados quedan intactos.
+**3. Textos visibles asociados (mismo archivo `category-pages.ts`)**
+Actualizar los textos en español que mencionan "Bazares / Pop-up" para que sigan siendo coherentes con el nuevo nombre:
+- `pageTitle`: "Bazaar / Pop Up en Puerto Rico"
+- `subtitle`, `ctaLabel`, `metaTitle`, `metaDescription`, `emptyText` — reemplazar "Bazares y Pop-ups" / "Bazares / Pop-up" por "Bazaar / Pop Up"
 
-**UI — `src/components/admin/SubmissionReviewDrawer.tsx`:**
-- Importar `AlertDialog` (y subcomponentes) de `@/components/ui/alert-dialog`, y la nueva `deleteSubmission`.
-- Agregar `useMutation` para borrar, que invalida `["admin","submissions"]` y `["admin","submissions","pending-count"]`, muestra toast `"Solicitud eliminada correctamente"` y cierra el drawer.
-- Agregar un tercer botón "Borrar Solicitud" con fondo `#DC2626` / texto blanco / hover más oscuro, junto a Aprobar y Rechazar (mismo contenedor flex; se mostrará también para solicitudes ya revisadas para permitir limpieza).
-- Al hacer click, abrir `AlertDialog`:
-  - Título: "¿Borrar esta solicitud?"
-  - Descripción: `Esta acción eliminará permanentemente la solicitud de ${submission.name}. No se puede deshacer.`
-  - Cancel: variante outline.
-  - Action: fondo `#DC2626`, texto blanco → ejecuta la mutación.
+### Cosas que NO se cambian
+- **Slug de URL** (`/bazar-pop-up`) — se mantiene para no romper SEO/links existentes
+- `pageViewKey` (`category_bazar_popup`) — se mantiene para preservar continuidad de analytics
+- `src/integrations/supabase/types.ts` — se regenera automáticamente tras la migración
 
-### Notas técnicas
-
-- No se necesita migración: las políticas RLS de `market_submissions` ya incluyen `Admins can delete submissions`.
-- El delete es independiente de `markets`: aprobar copia datos a `markets` y guarda `published_market_id`, pero no hay FK, así que borrar la solicitud no toca el mercado publicado.
+### Notas
+- Tras la migración, cualquier hardcode antiguo del string viejo dejará de funcionar; los 3 archivos listados arriba son todos los puntos donde aparece.
+- Confirmar ortografía deseada: la plan usa **"Bazaar/Pop Up"** exactamente como lo escribiste.

@@ -397,7 +397,7 @@ export type Database = {
         | "click_attendance"
       market_category:
         | "Mercado Agrícola"
-        | "Bazar / Pop-up"
+        | "Bazaar/Pop Up"
         | "Feria Artesanal"
         | "Food Market"
         | "Mercado Mixto"
@@ -542,7 +542,7 @@ export const Constants = {
       ],
       market_category: [
         "Mercado Agrícola",
-        "Bazar / Pop-up",
+        "Bazaar/Pop Up",
         "Feria Artesanal",
         "Food Market",
         "Mercado Mixto",
