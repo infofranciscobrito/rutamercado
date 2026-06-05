@@ -142,6 +142,8 @@ export function MarketFormDrawer({
           organizer_email: v.organizer_email || null,
           organizer_instagram: v.organizer_instagram || null,
           is_active: v.is_active,
+          focal_x: v.focal_x,
+          focal_y: v.focal_y,
         },
       });
     },
