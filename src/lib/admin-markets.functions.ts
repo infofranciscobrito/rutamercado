@@ -139,6 +139,8 @@ export const upsertMarket = createServerFn({ method: "POST" })
       organizer_email: data.organizer_email ?? null,
       organizer_instagram: data.organizer_instagram ?? null,
       is_active: data.is_active,
+      focal_x: data.focal_x,
+      focal_y: data.focal_y,
     };
     if (data.id) {
       const { error } = await supabase.from("markets").update(payload).eq("id", data.id);
