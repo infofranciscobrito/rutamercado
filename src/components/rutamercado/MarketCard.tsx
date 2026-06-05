@@ -25,7 +25,11 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
       }`}
     >
       <div className="relative aspect-video w-full overflow-hidden bg-[#FFF8EC]">
-        <MarketImage src={market.image_url} alt={market.name} />
+        <MarketImage
+          src={market.image_url}
+          alt={market.name}
+          objectPosition={`${market.focal_x ?? 50}% ${market.focal_y ?? 50}%`}
+        />
         <span className="absolute left-3 top-3 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
           {market.category}
         </span>
