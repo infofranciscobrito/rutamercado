@@ -66,6 +66,8 @@ const empty: FormValues = {
   organizer_email: "",
   organizer_instagram: "",
   is_active: true,
+  focal_x: 50,
+  focal_y: 50,
 };
 
 function marketToForm(m: Market): FormValues {
