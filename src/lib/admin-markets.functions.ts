@@ -62,6 +62,8 @@ const MarketInputSchema = z
       .or(z.literal("").transform(() => null)),
     organizer_instagram: z.string().trim().max(100).nullable().optional(),
     is_active: z.boolean(),
+    focal_x: z.number().min(0).max(100).default(50),
+    focal_y: z.number().min(0).max(100).default(50),
   })
   .superRefine((v, ctx) => {
     if (v.recurrence_type === "unico") {
@@ -137,6 +139,8 @@ export const upsertMarket = createServerFn({ method: "POST" })
       organizer_email: data.organizer_email ?? null,
       organizer_instagram: data.organizer_instagram ?? null,
       is_active: data.is_active,
+      focal_x: data.focal_x,
+      focal_y: data.focal_y,
     };
     if (data.id) {
       const { error } = await supabase.from("markets").update(payload).eq("id", data.id);

@@ -28,6 +28,7 @@ import {
   RecurrenceFields,
   type RecurrenceFormShape,
 } from "@/components/rutamercado/RecurrenceFields";
+import { FocalPointSelector } from "./FocalPointSelector";
 
 type FormValues = RecurrenceFormShape & {
   name: string;
@@ -42,6 +43,8 @@ type FormValues = RecurrenceFormShape & {
   organizer_email: string;
   organizer_instagram: string;
   is_active: boolean;
+  focal_x: number;
+  focal_y: number;
 };
 
 const empty: FormValues = {
@@ -64,6 +67,8 @@ const empty: FormValues = {
   organizer_email: "",
   organizer_instagram: "",
   is_active: true,
+  focal_x: 50,
+  focal_y: 50,
 };
 
 function marketToForm(m: Market): FormValues {
@@ -87,6 +92,8 @@ function marketToForm(m: Market): FormValues {
     organizer_email: m.organizer_email ?? "",
     organizer_instagram: m.organizer_instagram ?? "",
     is_active: m.is_active,
+    focal_x: m.focal_x ?? 50,
+    focal_y: m.focal_y ?? 50,
   };
 }
 
@@ -136,6 +143,8 @@ export function MarketFormDrawer({
           organizer_email: v.organizer_email || null,
           organizer_instagram: v.organizer_instagram || null,
           is_active: v.is_active,
+          focal_x: v.focal_x,
+          focal_y: v.focal_y,
         },
       });
     },
@@ -194,6 +203,8 @@ export function MarketFormDrawer({
       if (error) throw error;
       const { data } = supabase.storage.from("market-images").getPublicUrl(path);
       setValue("image_url", data.publicUrl, { shouldDirty: true });
+      setValue("focal_x", 50, { shouldDirty: true });
+      setValue("focal_y", 50, { shouldDirty: true });
       toast.success("Imagen subida");
     } catch (e) {
       toast.error((e as Error).message);
@@ -287,6 +298,29 @@ export function MarketFormDrawer({
               </div>
             </div>
           </Field>
+          {imageUrl ? (
+            <Controller
+              control={control}
+              name="focal_x"
+              render={({ field: fx }) => (
+                <Controller
+                  control={control}
+                  name="focal_y"
+                  render={({ field: fy }) => (
+                    <FocalPointSelector
+                      src={imageUrl}
+                      valueX={fx.value}
+                      valueY={fy.value}
+                      onChange={(x, y) => {
+                        fx.onChange(x);
+                        fy.onChange(y);
+                      }}
+                    />
+                  )}
+                />
+              )}
+            />
+          ) : null}
           <Field label="Nombre del organizador *">
             <Input {...register("organizer_name", { required: true })} />
           </Field>

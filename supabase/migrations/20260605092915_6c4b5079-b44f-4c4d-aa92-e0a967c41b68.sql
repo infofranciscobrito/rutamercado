@@ -1,0 +1,3 @@
+ALTER TABLE public.markets
+  ADD COLUMN focal_x real NOT NULL DEFAULT 50 CHECK (focal_x BETWEEN 0 AND 100),
+  ADD COLUMN focal_y real NOT NULL DEFAULT 50 CHECK (focal_y BETWEEN 0 AND 100);

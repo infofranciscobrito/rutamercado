@@ -9,9 +9,10 @@ interface Props {
   className?: string;
   fit?: "cover" | "contain";
   onOrientation?: (o: Orientation) => void;
+  objectPosition?: string;
 }
 
-export function MarketImage({ src, alt, className, fit = "cover", onOrientation }: Props) {
+export function MarketImage({ src, alt, className, fit = "cover", onOrientation, objectPosition }: Props) {
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -86,6 +87,7 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation 
           filter: loaded ? "blur(0px)" : "blur(8px)",
           opacity: loaded ? 1 : 0.7,
           transition: "filter 500ms ease-out, opacity 500ms ease-out",
+          objectPosition: objectPosition ?? "50% 50%",
         }}
         className={`h-full w-full object-cover ${className ?? ""}`}
       />
