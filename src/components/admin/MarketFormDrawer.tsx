@@ -298,6 +298,29 @@ export function MarketFormDrawer({
               </div>
             </div>
           </Field>
+          {imageUrl ? (
+            <Controller
+              control={control}
+              name="focal_x"
+              render={({ field: fx }) => (
+                <Controller
+                  control={control}
+                  name="focal_y"
+                  render={({ field: fy }) => (
+                    <FocalPointSelector
+                      src={imageUrl}
+                      valueX={fx.value}
+                      valueY={fy.value}
+                      onChange={(x, y) => {
+                        fx.onChange(x);
+                        fy.onChange(y);
+                      }}
+                    />
+                  )}
+                />
+              )}
+            />
+          ) : null}
           <Field label="Nombre del organizador *">
             <Input {...register("organizer_name", { required: true })} />
           </Field>
