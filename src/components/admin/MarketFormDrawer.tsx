@@ -333,7 +333,13 @@ export function MarketFormDrawer({
             </Field>
           </div>
           <Field label="Perfil de redes sociales">
-            <Input placeholder="@usuario" {...register("organizer_instagram")} />
+            <Input
+              placeholder="@usuario"
+              autoComplete="new-password"
+              data-lpignore="true"
+              data-form-type="other"
+              {...register("organizer_instagram")}
+            />
           </Field>
           <Controller
             control={control}
