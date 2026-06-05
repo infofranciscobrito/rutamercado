@@ -62,6 +62,8 @@ const MarketInputSchema = z
       .or(z.literal("").transform(() => null)),
     organizer_instagram: z.string().trim().max(100).nullable().optional(),
     is_active: z.boolean(),
+    focal_x: z.number().min(0).max(100).default(50),
+    focal_y: z.number().min(0).max(100).default(50),
   })
   .superRefine((v, ctx) => {
     if (v.recurrence_type === "unico") {
