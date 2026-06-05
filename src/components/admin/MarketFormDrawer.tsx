@@ -202,6 +202,8 @@ export function MarketFormDrawer({
       if (error) throw error;
       const { data } = supabase.storage.from("market-images").getPublicUrl(path);
       setValue("image_url", data.publicUrl, { shouldDirty: true });
+      setValue("focal_x", 50, { shouldDirty: true });
+      setValue("focal_y", 50, { shouldDirty: true });
       toast.success("Imagen subida");
     } catch (e) {
       toast.error((e as Error).message);
