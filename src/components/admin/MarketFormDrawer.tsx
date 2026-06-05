@@ -42,6 +42,8 @@ type FormValues = RecurrenceFormShape & {
   organizer_email: string;
   organizer_instagram: string;
   is_active: boolean;
+  focal_x: number;
+  focal_y: number;
 };
 
 const empty: FormValues = {
