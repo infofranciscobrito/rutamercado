@@ -91,6 +91,8 @@ function marketToForm(m: Market): FormValues {
     organizer_email: m.organizer_email ?? "",
     organizer_instagram: m.organizer_instagram ?? "",
     is_active: m.is_active,
+    focal_x: m.focal_x ?? 50,
+    focal_y: m.focal_y ?? 50,
   };
 }
 
