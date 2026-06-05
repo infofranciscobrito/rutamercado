@@ -9,9 +9,10 @@ interface Props {
   className?: string;
   fit?: "cover" | "contain";
   onOrientation?: (o: Orientation) => void;
+  objectPosition?: string;
 }
 
-export function MarketImage({ src, alt, className, fit = "cover", onOrientation }: Props) {
+export function MarketImage({ src, alt, className, fit = "cover", onOrientation, objectPosition }: Props) {
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
