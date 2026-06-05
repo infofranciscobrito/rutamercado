@@ -253,6 +253,8 @@ export type Database = {
           created_at: string
           description: string | null
           end_time: string
+          focal_x: number
+          focal_y: number
           id: string
           image_url: string | null
           is_active: boolean
@@ -279,6 +281,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time: string
+          focal_x?: number
+          focal_y?: number
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -305,6 +309,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time?: string
+          focal_x?: number
+          focal_y?: number
           id?: string
           image_url?: string | null
           is_active?: boolean
