@@ -28,6 +28,7 @@ import {
   RecurrenceFields,
   type RecurrenceFormShape,
 } from "@/components/rutamercado/RecurrenceFields";
+import { FocalPointSelector } from "./FocalPointSelector";
 
 type FormValues = RecurrenceFormShape & {
   name: string;
