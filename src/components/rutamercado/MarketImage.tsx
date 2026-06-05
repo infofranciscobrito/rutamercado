@@ -87,6 +87,7 @@ export function MarketImage({ src, alt, className, fit = "cover", onOrientation,
           filter: loaded ? "blur(0px)" : "blur(8px)",
           opacity: loaded ? 1 : 0.7,
           transition: "filter 500ms ease-out, opacity 500ms ease-out",
+          objectPosition: objectPosition ?? "50% 50%",
         }}
         className={`h-full w-full object-cover ${className ?? ""}`}
       />
