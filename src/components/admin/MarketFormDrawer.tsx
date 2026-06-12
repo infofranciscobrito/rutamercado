@@ -222,6 +222,7 @@ export function MarketFormDrawer({
         <form
           onSubmit={handleSubmit((v) => mutation.mutate(v))}
           className="mt-6 space-y-4"
+          autoComplete="off"
         >
           <Field label="Nombre del mercado *">
             <Input {...register("name", { required: true })} />
@@ -326,19 +327,41 @@ export function MarketFormDrawer({
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Teléfono">
-              <Input {...register("organizer_phone")} />
+              <Input
+                type="text"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
+                {...register("organizer_phone")}
+                name="contact-field-a"
+                id="contact-field-a"
+              />
             </Field>
             <Field label="Email">
-              <Input type="email" {...register("organizer_email")} />
+              <Input
+                type="text"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
+                {...register("organizer_email")}
+                name="contact-field-b"
+                id="contact-field-b"
+              />
             </Field>
           </div>
           <Field label="Perfil de redes sociales">
             <Input
               placeholder="@usuario"
-              autoComplete="new-password"
+              type="text"
+              autoComplete="off"
               data-lpignore="true"
+              data-1p-ignore="true"
               data-form-type="other"
               {...register("organizer_instagram")}
+              name="contact-field-c"
+              id="contact-field-c"
             />
           </Field>
           <Controller
