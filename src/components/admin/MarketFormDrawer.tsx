@@ -322,56 +322,74 @@ export function MarketFormDrawer({
               )}
             />
           ) : null}
+          {/* Fuente: markets.organizer_name del registro editado. Nunca de la sesión del admin. */}
           <Field label="Nombre del organizador *">
-            <Input
-              type="text"
-              autoComplete="off"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              data-form-type="other"
-              {...register("organizer_name", { required: true })}
-              name="contact-field-d"
-              id="contact-field-d"
-            />
+            <div data-lpignore="true">
+              <Input
+                type="text"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
+                {...register("organizer_name", { required: true })}
+                name="contact-field-d"
+                id="contact-field-d"
+              />
+            </div>
           </Field>
           <div className="grid grid-cols-2 gap-3">
+            {/* Fuente: markets.organizer_phone del registro editado. Nunca de la sesión del admin. */}
             <Field label="Teléfono">
-              <Input
-                type="text"
-                autoComplete="off"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-form-type="other"
-                {...register("organizer_phone")}
-                name="contact-field-a"
-                id="contact-field-a"
-              />
+              <div data-lpignore="true">
+                <Input
+                  type="text"
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
+                  readOnly
+                  onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
+                  {...register("organizer_phone")}
+                  name="contact-field-a"
+                  id="contact-field-a"
+                />
+              </div>
             </Field>
+            {/* Fuente: markets.organizer_email del registro editado. Nunca de la sesión del admin. */}
             <Field label="Email">
-              <Input
-                type="text"
-                autoComplete="off"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-form-type="other"
-                {...register("organizer_email")}
-                name="contact-field-b"
-                id="contact-field-b"
-              />
+              <div data-lpignore="true">
+                <Input
+                  type="text"
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
+                  readOnly
+                  onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
+                  {...register("organizer_email")}
+                  name="contact-field-b"
+                  id="contact-field-b"
+                />
+              </div>
             </Field>
           </div>
+          {/* Fuente: markets.organizer_instagram del registro editado. Nunca de la sesión del admin. */}
           <Field label="Perfil de redes sociales">
-            <Input
-              placeholder="@usuario"
-              type="text"
-              autoComplete="off"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              data-form-type="other"
-              {...register("organizer_instagram")}
-              name="contact-field-c"
-              id="contact-field-c"
-            />
+            <div data-lpignore="true">
+              <Input
+                placeholder="@usuario"
+                type="text"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
+                readOnly
+                onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
+                {...register("organizer_instagram")}
+                name="contact-field-c"
+                id="contact-field-c"
+              />
+            </div>
           </Field>
           <Controller
             control={control}
