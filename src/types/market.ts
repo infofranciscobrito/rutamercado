@@ -16,6 +16,7 @@ export type ClickType =
   | "click_phone"
   | "click_email"
   | "click_instagram"
+  | "click_contact"
   | "click_directions";
 
 export type Market = Database["public"]["Tables"]["markets"]["Row"];

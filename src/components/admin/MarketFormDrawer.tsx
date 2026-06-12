@@ -100,6 +100,13 @@ function marketToForm(m: Market): FormValues {
   };
 }
 
+function normalizeUrl(input: string): string | null {
+  const v = (input ?? "").trim();
+  if (!v) return null;
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://${v}`;
+}
+
 export function MarketFormDrawer({
   open,
   onOpenChange,
@@ -398,6 +405,29 @@ export function MarketFormDrawer({
                   data-form-type="other"
                   readOnly
                   onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
+                />
+              )}
+            />
+          </Field>
+          <Field label="Enlace de contacto">
+            {/* URL opcional (Linktree, WhatsApp, web, etc.). Se guarda en markets.organizer_contact_url. */}
+            <Controller
+              control={control}
+              name="organizer_contact_url"
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="https://..."
+                  name="contact-field-url"
+                  id="contact-field-url"
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
                 />
               )}
             />

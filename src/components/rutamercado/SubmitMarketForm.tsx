@@ -35,6 +35,7 @@ type FormValues = RecurrenceFormShape & {
   organizer_phone: string;
   organizer_email: string;
   organizer_instagram: string;
+  organizer_contact_url: string;
 };
 
 const defaults: FormValues = {
@@ -56,7 +57,15 @@ const defaults: FormValues = {
   organizer_phone: "",
   organizer_email: "",
   organizer_instagram: "",
+  organizer_contact_url: "",
 };
+
+function normalizeUrl(input: string): string | undefined {
+  const v = (input ?? "").trim();
+  if (!v) return undefined;
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://${v}`;
+}
 
 export function SubmitMarketForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -92,6 +101,7 @@ export function SubmitMarketForm() {
           organizer_phone: v.organizer_phone || undefined,
           organizer_email: v.organizer_email || undefined,
           organizer_instagram: v.organizer_instagram || undefined,
+          organizer_contact_url: normalizeUrl(v.organizer_contact_url),
         },
       }),
     onSuccess: () => {
@@ -255,6 +265,18 @@ export function SubmitMarketForm() {
             data-form-type="other"
             readOnly
             onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
+          />
+        </Field>
+        <Field label="Enlace de contacto">
+          <Input
+            type="text"
+            {...register("organizer_contact_url", { maxLength: 500 })}
+            placeholder="https://..."
+            disabled={mutation.isPending}
+            autoComplete="off"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
           />
         </Field>
       </Section>
