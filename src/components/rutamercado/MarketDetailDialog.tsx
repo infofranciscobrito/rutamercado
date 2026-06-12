@@ -209,6 +209,17 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                         Redes: {market.organizer_instagram}
                       </span>
                     )}
+                    {market.organizer_contact_url && (
+                      <a
+                        href={market.organizer_contact_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => track(market.id, "click_contact")}
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f] transition-colors hover:border-[#54b678]"
+                      >
+                        Contactar al productor
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

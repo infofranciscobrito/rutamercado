@@ -42,6 +42,7 @@ type FormValues = RecurrenceFormShape & {
   organizer_phone: string;
   organizer_email: string;
   organizer_instagram: string;
+  organizer_contact_url: string;
   is_active: boolean;
   focal_x: number;
   focal_y: number;
@@ -66,6 +67,7 @@ const empty: FormValues = {
   organizer_phone: "",
   organizer_email: "",
   organizer_instagram: "",
+  organizer_contact_url: "",
   is_active: true,
   focal_x: 50,
   focal_y: 50,
@@ -91,10 +93,18 @@ function marketToForm(m: Market): FormValues {
     organizer_phone: m.organizer_phone ?? "",
     organizer_email: m.organizer_email ?? "",
     organizer_instagram: m.organizer_instagram ?? "",
+    organizer_contact_url: (m as { organizer_contact_url?: string | null }).organizer_contact_url ?? "",
     is_active: m.is_active,
     focal_x: m.focal_x ?? 50,
     focal_y: m.focal_y ?? 50,
   };
+}
+
+function normalizeUrl(input: string): string | null {
+  const v = (input ?? "").trim();
+  if (!v) return null;
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://${v}`;
 }
 
 export function MarketFormDrawer({
@@ -142,6 +152,7 @@ export function MarketFormDrawer({
           organizer_phone: v.organizer_phone || null,
           organizer_email: v.organizer_email || null,
           organizer_instagram: v.organizer_instagram || null,
+          organizer_contact_url: normalizeUrl(v.organizer_contact_url),
           is_active: v.is_active,
           focal_x: v.focal_x,
           focal_y: v.focal_y,
@@ -394,6 +405,29 @@ export function MarketFormDrawer({
                   data-form-type="other"
                   readOnly
                   onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
+                />
+              )}
+            />
+          </Field>
+          <Field label="Enlace de contacto">
+            {/* URL opcional (Linktree, WhatsApp, web, etc.). Se guarda en markets.organizer_contact_url. */}
+            <Controller
+              control={control}
+              name="organizer_contact_url"
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="https://..."
+                  name="contact-field-url"
+                  id="contact-field-url"
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
                 />
               )}
             />
