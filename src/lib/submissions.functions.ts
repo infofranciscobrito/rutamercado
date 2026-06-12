@@ -46,6 +46,13 @@ const SubmissionInputSchema = z.object({
     .optional()
     .or(z.literal("")),
   organizer_instagram: z.string().trim().max(100).optional().or(z.literal("")),
+  organizer_contact_url: z
+    .string()
+    .trim()
+    .max(500)
+    .url()
+    .optional()
+    .or(z.literal("")),
 });
 
 export const createMarketSubmission = createServerFn({ method: "POST" })
@@ -90,6 +97,7 @@ export const createMarketSubmission = createServerFn({ method: "POST" })
       organizer_phone: data.organizer_phone || null,
       organizer_email: data.organizer_email || null,
       organizer_instagram: data.organizer_instagram || null,
+      organizer_contact_url: data.organizer_contact_url || null,
     });
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -155,6 +163,7 @@ export const approveSubmission = createServerFn({ method: "POST" })
         organizer_phone: sub.organizer_phone,
         organizer_email: sub.organizer_email,
         organizer_instagram: sub.organizer_instagram,
+        organizer_contact_url: sub.organizer_contact_url,
         is_active: true,
       })
       .select("id")

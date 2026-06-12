@@ -42,6 +42,7 @@ type FormValues = RecurrenceFormShape & {
   organizer_phone: string;
   organizer_email: string;
   organizer_instagram: string;
+  organizer_contact_url: string;
   is_active: boolean;
   focal_x: number;
   focal_y: number;
@@ -66,6 +67,7 @@ const empty: FormValues = {
   organizer_phone: "",
   organizer_email: "",
   organizer_instagram: "",
+  organizer_contact_url: "",
   is_active: true,
   focal_x: 50,
   focal_y: 50,
@@ -91,6 +93,7 @@ function marketToForm(m: Market): FormValues {
     organizer_phone: m.organizer_phone ?? "",
     organizer_email: m.organizer_email ?? "",
     organizer_instagram: m.organizer_instagram ?? "",
+    organizer_contact_url: (m as { organizer_contact_url?: string | null }).organizer_contact_url ?? "",
     is_active: m.is_active,
     focal_x: m.focal_x ?? 50,
     focal_y: m.focal_y ?? 50,
@@ -142,6 +145,7 @@ export function MarketFormDrawer({
           organizer_phone: v.organizer_phone || null,
           organizer_email: v.organizer_email || null,
           organizer_instagram: v.organizer_instagram || null,
+          organizer_contact_url: normalizeUrl(v.organizer_contact_url),
           is_active: v.is_active,
           focal_x: v.focal_x,
           focal_y: v.focal_y,
