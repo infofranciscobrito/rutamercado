@@ -323,7 +323,16 @@ export function MarketFormDrawer({
             />
           ) : null}
           <Field label="Nombre del organizador *">
-            <Input {...register("organizer_name", { required: true })} />
+            <Input
+              type="text"
+              autoComplete="off"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              {...register("organizer_name", { required: true })}
+              name="contact-field-d"
+              id="contact-field-d"
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Teléfono">
