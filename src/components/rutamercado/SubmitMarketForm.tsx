@@ -246,9 +246,15 @@ export function SubmitMarketForm() {
         </div>
         <Field label="Perfil de redes sociales">
           <Input
+            type="text"
             {...register("organizer_instagram", { maxLength: 100 })}
-            placeholder="@mimercado"
             disabled={mutation.isPending}
+            autoComplete="off"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
+            readOnly
+            onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
           />
         </Field>
       </Section>
