@@ -160,6 +160,7 @@ export type Database = {
           image_url: string | null
           municipality: string
           name: string
+          organizer_contact_url: string | null
           organizer_email: string | null
           organizer_instagram: string | null
           organizer_name: string
@@ -189,6 +190,7 @@ export type Database = {
           image_url?: string | null
           municipality: string
           name: string
+          organizer_contact_url?: string | null
           organizer_email?: string | null
           organizer_instagram?: string | null
           organizer_name: string
@@ -218,6 +220,7 @@ export type Database = {
           image_url?: string | null
           municipality?: string
           name?: string
+          organizer_contact_url?: string | null
           organizer_email?: string | null
           organizer_instagram?: string | null
           organizer_name?: string
@@ -260,6 +263,7 @@ export type Database = {
           is_active: boolean
           municipality: string
           name: string
+          organizer_contact_url: string | null
           organizer_email: string | null
           organizer_instagram: string | null
           organizer_name: string
@@ -288,6 +292,7 @@ export type Database = {
           is_active?: boolean
           municipality: string
           name: string
+          organizer_contact_url?: string | null
           organizer_email?: string | null
           organizer_instagram?: string | null
           organizer_name: string
@@ -316,6 +321,7 @@ export type Database = {
           is_active?: boolean
           municipality?: string
           name?: string
+          organizer_contact_url?: string | null
           organizer_email?: string | null
           organizer_instagram?: string | null
           organizer_name?: string
