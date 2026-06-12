@@ -207,15 +207,9 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                       </a>
                     )}
                     {market.organizer_instagram && (
-                      <a
-                        href={instagramUrl(market.organizer_instagram)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => track(market.id, "click_instagram")}
-                        className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f] transition-colors hover:border-[#54b678]"
-                      >
-                        <Instagram className="h-4 w-4" /> Redes
-                      </a>
+                      <span className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f]">
+                        Redes: {market.organizer_instagram}
+                      </span>
                     )}
                   </div>
                 </div>
