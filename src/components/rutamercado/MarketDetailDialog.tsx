@@ -3,7 +3,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
-  Instagram,
   Mail,
   MapPin,
   Navigation,
@@ -21,7 +20,6 @@ import {
   formatDateEs,
   formatTimeRange,
   googleMapsUrl,
-  instagramUrl,
 } from "@/lib/format";
 import {
   incrementMarketView,
