@@ -1,0 +1,1 @@
+ALTER TYPE public.click_type ADD VALUE IF NOT EXISTS 'click_contact';

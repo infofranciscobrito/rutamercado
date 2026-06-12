@@ -400,6 +400,7 @@ export type Database = {
         | "click_instagram"
         | "click_directions"
         | "click_attendance"
+        | "click_contact"
       market_category:
         | "Mercado Agrícola"
         | "Bazaar/Pop Up"
@@ -544,6 +545,7 @@ export const Constants = {
         "click_instagram",
         "click_directions",
         "click_attendance",
+        "click_contact",
       ],
       market_category: [
         "Mercado Agrícola",
