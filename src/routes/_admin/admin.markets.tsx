@@ -149,6 +149,7 @@ function MarketsPage() {
 
       <div className="flex flex-wrap gap-3 items-center">
         <Input
+          type="text"
           placeholder="Buscar por nombre..."
           value={search}
           onChange={(e) => {
@@ -156,7 +157,16 @@ function MarketsPage() {
             setPage(1);
           }}
           className="max-w-xs"
+          name="market-filter-q"
+          id="market-filter-q"
+          autoComplete="off"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          data-form-type="other"
+          readOnly
+          onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
         />
+
         <Select value={category} onValueChange={(v) => { setCategory(v); setPage(1); }}>
           <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
           <SelectContent>
