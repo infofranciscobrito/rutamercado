@@ -373,23 +373,13 @@ export function MarketFormDrawer({
               </div>
             </Field>
           </div>
-          {/* Fuente: markets.organizer_instagram del registro editado. Nunca de la sesión del admin. */}
           <Field label="Perfil de redes sociales">
-            <div data-lpignore="true">
-              <Input
-                placeholder="@usuario"
-                type="text"
-                autoComplete="off"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-form-type="other"
-                readOnly
-                onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
-                {...register("organizer_instagram")}
-                name="contact-field-c"
-                id="contact-field-c"
-              />
-            </div>
+            {/* Fuente: markets.organizer_instagram del registro editado. Campo de texto libre. */}
+            <Input
+              type="text"
+              placeholder="Información de contacto adicional"
+              {...register("organizer_instagram")}
+            />
           </Field>
           <Controller
             control={control}
