@@ -374,11 +374,28 @@ export function MarketFormDrawer({
             </Field>
           </div>
           <Field label="Perfil de redes sociales">
-            {/* Fuente: markets.organizer_instagram del registro editado. Campo de texto libre. */}
-            <Input
-              type="text"
-              placeholder="Información de contacto adicional"
-              {...register("organizer_instagram")}
+            {/* Fuente: markets.organizer_instagram. Input de texto genérico con name/id neutros
+                para que LastPass/1Password no lo detecten como campo social/login. */}
+            <Controller
+              control={control}
+              name="organizer_instagram"
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  name="contact-field-e"
+                  id="contact-field-e"
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
+                  readOnly
+                  onFocus={(e) => e.currentTarget.removeAttribute("readonly")}
+                />
+              )}
             />
           </Field>
           <Controller
