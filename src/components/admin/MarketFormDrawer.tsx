@@ -222,6 +222,7 @@ export function MarketFormDrawer({
         <form
           onSubmit={handleSubmit((v) => mutation.mutate(v))}
           className="mt-6 space-y-4"
+          autoComplete="off"
         >
           <Field label="Nombre del mercado *">
             <Input {...register("name", { required: true })} />
