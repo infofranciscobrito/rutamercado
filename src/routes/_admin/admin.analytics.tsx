@@ -668,7 +668,7 @@ function AnalyticsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              (subm?.recent ?? []).map((s) => (
+              (subm?.recent ?? []).map((s: { id: string; name: string; municipality: string; status: string; created_at: string }) => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.name}</TableCell>
                   <TableCell>{s.municipality}</TableCell>
