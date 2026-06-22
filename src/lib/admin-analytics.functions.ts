@@ -20,6 +20,25 @@ function startOfToday(): Date {
   return new Date(n.getFullYear(), n.getMonth(), n.getDate());
 }
 
+// Shared range validator: {from, to} ISO strings, with fallback to {days}.
+const rangeSchema = z
+  .object({
+    from: z.string().datetime().optional(),
+    to: z.string().datetime().optional(),
+    days: z.number().int().min(1).max(3650).optional(),
+  })
+  .transform((v) => {
+    let fromISO = v.from;
+    const toISO = v.to;
+    if (!fromISO) {
+      const days = v.days ?? 30;
+      fromISO = minusDaysISO(days);
+    }
+    return { from: fromISO, to: toISO };
+  });
+
+type RangeInput = { from?: string; to?: string; days?: number };
+
 type ScheduledMarket = {
   id: string;
   name: string;
@@ -206,85 +225,141 @@ export const getUpcomingMarkets = createServerFn({ method: "GET" })
       }));
   });
 
+// Helper to apply a range to a Supabase query.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyRange(query: any, range: { from: string; to?: string }) {
+  let q = query.gte("created_at", range.from);
+  if (range.to) q = q.lte("created_at", range.to);
+  return q;
+}
+
 export const getAnalyticsOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { days: number }) =>
-    z.object({ days: z.number().min(1).max(365) }).parse(input),
-  )
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const since = minusDaysISO(data.days);
     const { supabase } = context;
-    const [pvRes, clicksRes] = await Promise.all([
-      supabase
-        .from("page_views")
-        .select("id", { count: "exact", head: true })
-        .eq("page", "home")
-        .gte("created_at", since),
-      supabase.from("market_clicks").select("click_type").gte("created_at", since),
+    const [pvRes, clicksRes, intRes, activeRes, inactiveRes, pendingRes] = await Promise.all([
+      applyRange(
+        supabase.from("page_views").select("id", { count: "exact", head: true }).eq("page", "home"),
+        data,
+      ),
+      applyRange(supabase.from("market_clicks").select("click_type"), data),
+      applyRange(
+        supabase.from("market_attendance_intentions").select("intention_type"),
+        data,
+      ),
+      supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", true),
+      supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", false),
+      supabase.from("market_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
     const clicks = clicksRes.data ?? [];
-    const counts = { view_detail: 0, click_phone: 0, click_email: 0, click_instagram: 0, click_directions: 0 };
+    const counts = {
+      view_detail: 0,
+      click_phone: 0,
+      click_email: 0,
+      click_instagram: 0,
+      click_directions: 0,
+      click_contact: 0,
+      click_attendance: 0,
+    };
     for (const c of clicks) {
       const k = c.click_type as keyof typeof counts;
       if (k in counts) counts[k]++;
     }
-    const contactClicks = counts.click_phone + counts.click_email + counts.click_instagram;
-    const engagementRate = counts.view_detail > 0 ? (contactClicks / counts.view_detail) * 100 : 0;
+    let willAttend = 0;
+    let interested = 0;
+    for (const r of intRes.data ?? []) {
+      if (r.intention_type === "will_attend") willAttend++;
+      else if (r.intention_type === "interested") interested++;
+    }
+    const contactClicksAll =
+      counts.click_phone + counts.click_email + counts.click_instagram + counts.click_contact;
+    const engagementRate =
+      counts.view_detail > 0 ? (contactClicksAll / counts.view_detail) * 100 : 0;
     return {
       homeViews: pvRes.count ?? 0,
       detailViews: counts.view_detail,
-      contactClicks,
+      clickPhone: counts.click_phone,
+      clickEmail: counts.click_email,
+      clickInstagram: counts.click_instagram,
+      clickContact: counts.click_contact,
+      contactClicks: contactClicksAll,
       directionsClicks: counts.click_directions,
+      willAttend,
+      interested,
       engagementRate,
+      activeMarkets: activeRes.count ?? 0,
+      inactiveMarkets: inactiveRes.count ?? 0,
+      pendingSubmissions: pendingRes.count ?? 0,
     };
   });
 
 export const getTopMarkets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { days: number }) =>
-    z.object({ days: z.number().min(1).max(365) }).parse(input),
-  )
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const since = minusDaysISO(data.days);
     const { supabase } = context;
-    const [marketsRes, clicksRes] = await Promise.all([
+    const [marketsRes, clicksRes, intRes] = await Promise.all([
       supabase
         .from("markets")
-        .select("id, name, view_count")
+        .select("id, name, view_count, recurrence_type")
         .order("view_count", { ascending: false })
         .limit(10),
-      supabase.from("market_clicks").select("market_id, click_type").gte("created_at", since),
+      applyRange(supabase.from("market_clicks").select("market_id, click_type"), data),
+      applyRange(
+        supabase.from("market_attendance_intentions").select("market_id, intention_type"),
+        data,
+      ),
     ]);
     if (marketsRes.error) throw new Error(marketsRes.error.message);
     const clicks = clicksRes.data ?? [];
-    const byMarket = new Map<string, { contact: number; directions: number }>();
+    const byMarket = new Map<
+      string,
+      { phone: number; email: number; contact: number; directions: number }
+    >();
     for (const c of clicks) {
-      const cur = byMarket.get(c.market_id) ?? { contact: 0, directions: 0 };
-      if (c.click_type === "click_phone" || c.click_type === "click_email" || c.click_type === "click_instagram") cur.contact++;
-      if (c.click_type === "click_directions") cur.directions++;
+      const cur =
+        byMarket.get(c.market_id) ?? { phone: 0, email: 0, contact: 0, directions: 0 };
+      if (c.click_type === "click_phone") cur.phone++;
+      else if (c.click_type === "click_email") cur.email++;
+      else if (c.click_type === "click_contact") cur.contact++;
+      else if (c.click_type === "click_directions") cur.directions++;
       byMarket.set(c.market_id, cur);
     }
-    return (marketsRes.data ?? []).map((m, i) => ({
-      rank: i + 1,
-      id: m.id,
-      name: m.name,
-      views: m.view_count ?? 0,
-      contactClicks: byMarket.get(m.id)?.contact ?? 0,
-      directionsClicks: byMarket.get(m.id)?.directions ?? 0,
-    }));
+    const intByMarket = new Map<string, { willAttend: number; interested: number }>();
+    for (const r of intRes.data ?? []) {
+      const cur = intByMarket.get(r.market_id) ?? { willAttend: 0, interested: 0 };
+      if (r.intention_type === "will_attend") cur.willAttend++;
+      else if (r.intention_type === "interested") cur.interested++;
+      intByMarket.set(r.market_id, cur);
+    }
+    return (marketsRes.data ?? []).map((m, i) => {
+      const c = byMarket.get(m.id) ?? { phone: 0, email: 0, contact: 0, directions: 0 };
+      const ai = intByMarket.get(m.id) ?? { willAttend: 0, interested: 0 };
+      return {
+        rank: i + 1,
+        id: m.id,
+        name: m.name,
+        views: m.view_count ?? 0,
+        clickPhone: c.phone,
+        clickEmail: c.email,
+        clickContact: c.contact,
+        directionsClicks: c.directions,
+        willAttend: ai.willAttend,
+        interested: ai.interested,
+        recurrenceType: m.recurrence_type ?? "",
+      };
+    });
   });
 
 export const getTopOrganizers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { days: number }) =>
-    z.object({ days: z.number().min(1).max(365) }).parse(input),
-  )
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const since = minusDaysISO(data.days);
     const { supabase } = context;
     const [marketsRes, clicksRes] = await Promise.all([
       supabase.from("markets").select("id, organizer_name, view_count"),
-      supabase.from("market_clicks").select("market_id, click_type").gte("created_at", since),
+      applyRange(supabase.from("market_clicks").select("market_id, click_type"), data),
     ]);
     if (marketsRes.error) throw new Error(marketsRes.error.message);
     const marketToOrg = new Map<string, string>();
@@ -329,20 +404,19 @@ export const getDistribution = createServerFn({ method: "GET" })
 
 export const getDailyTraffic = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { days: number }) =>
-    z.object({ days: z.number().min(1).max(365) }).parse(input),
-  )
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const since = minusDaysISO(data.days);
-    const { data: rows, error } = await context.supabase
-      .from("page_views")
-      .select("created_at")
-      .gte("created_at", since);
+    const { data: rows, error } = await applyRange(
+      context.supabase.from("page_views").select("created_at"),
+      data,
+    );
     if (error) throw new Error(error.message);
+    const fromDay = data.from.slice(0, 10);
+    const toDay = (data.to ?? new Date().toISOString()).slice(0, 10);
     const buckets = new Map<string, number>();
-    for (let i = data.days - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+    const start = new Date(fromDay + "T00:00:00");
+    const end = new Date(toDay + "T00:00:00");
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       buckets.set(d.toISOString().slice(0, 10), 0);
     }
     for (const r of rows ?? []) {
@@ -362,14 +436,18 @@ export type AttendanceMetrics = {
 
 export const getAttendanceMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<AttendanceMetrics> => {
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
+  .handler(async ({ data, context }): Promise<AttendanceMetrics> => {
     const { supabase } = context;
     const [intRes, viewsRes] = await Promise.all([
-      supabase.from("market_attendance_intentions").select("intention_type, visitor_id"),
-      supabase
-        .from("market_clicks")
-        .select("id", { count: "exact", head: true })
-        .eq("click_type", "view_detail"),
+      applyRange(
+        supabase.from("market_attendance_intentions").select("intention_type, visitor_id"),
+        data,
+      ),
+      applyRange(
+        supabase.from("market_clicks").select("id", { count: "exact", head: true }).eq("click_type", "view_detail"),
+        data,
+      ),
     ]);
     if (intRes.error) throw new Error(intRes.error.message);
     const rows = intRes.data ?? [];
@@ -533,20 +611,21 @@ export const getIntentionMarketDetail = createServerFn({ method: "GET" })
 
 export const getIntentionsPerDay = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { days: number } | undefined) =>
-    z.object({ days: z.number().min(1).max(365) }).parse(input ?? { days: 30 }),
-  )
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const since = minusDaysISO(data.days);
-    const { data: rows, error } = await context.supabase
-      .from("market_attendance_intentions")
-      .select("created_at, intention_type")
-      .gte("created_at", since);
+    const { data: rows, error } = await applyRange(
+      context.supabase
+        .from("market_attendance_intentions")
+        .select("created_at, intention_type"),
+      data,
+    );
     if (error) throw new Error(error.message);
+    const fromDay = data.from.slice(0, 10);
+    const toDay = (data.to ?? new Date().toISOString()).slice(0, 10);
     const buckets = new Map<string, { willAttend: number; interested: number }>();
-    for (let i = data.days - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+    const start = new Date(fromDay + "T00:00:00");
+    const end = new Date(toDay + "T00:00:00");
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       buckets.set(d.toISOString().slice(0, 10), { willAttend: 0, interested: 0 });
     }
     for (const r of rows ?? []) {
@@ -579,4 +658,139 @@ export const getIntentionsPerMarketAll = createServerFn({ method: "GET" })
       byMarket.set(r.market_id, cur);
     }
     return Object.fromEntries(byMarket);
+  });
+
+// ============================================================
+// New analytics functions for expanded panel
+// ============================================================
+
+export const getClicksByType = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await applyRange(
+      context.supabase.from("market_clicks").select("click_type"),
+      data,
+    );
+    if (error) throw new Error(error.message);
+    const counts: Record<string, number> = {
+      view_detail: 0,
+      click_phone: 0,
+      click_email: 0,
+      click_directions: 0,
+      click_contact: 0,
+      click_attendance: 0,
+      click_instagram: 0,
+    };
+    for (const r of rows ?? []) {
+      const k = r.click_type as string;
+      counts[k] = (counts[k] ?? 0) + 1;
+    }
+    const labels: Record<string, string> = {
+      view_detail: "Ver detalle",
+      click_phone: "Teléfono",
+      click_email: "Email",
+      click_directions: "Cómo llegar",
+      click_contact: "URL contacto",
+      click_attendance: "Asistencia",
+      click_instagram: "Instagram",
+    };
+    return Object.entries(counts)
+      .map(([type, count]) => ({ type, label: labels[type] ?? type, count }))
+      .sort((a, b) => b.count - a.count);
+  });
+
+function categorizeReferrer(referrer: string | null): { category: string; host: string } {
+  if (!referrer || referrer.trim() === "") return { category: "Directo", host: "(directo)" };
+  let host = "";
+  try {
+    host = new URL(referrer).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return { category: "Otro", host: referrer.slice(0, 80) };
+  }
+  if (host.includes("google.")) return { category: "Google", host };
+  if (host.includes("instagram.")) return { category: "Instagram", host };
+  if (host.includes("facebook.") || host.includes("fb.") || host === "l.facebook.com")
+    return { category: "Facebook", host };
+  return { category: "Otro", host };
+}
+
+export const getTrafficSources = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await applyRange(
+      context.supabase.from("page_views").select("referrer"),
+      data,
+    );
+    if (error) throw new Error(error.message);
+    const byCategory = new Map<string, number>();
+    const byHost = new Map<string, { host: string; category: string; count: number }>();
+    for (const r of rows ?? []) {
+      const { category, host } = categorizeReferrer(r.referrer);
+      byCategory.set(category, (byCategory.get(category) ?? 0) + 1);
+      const cur = byHost.get(host) ?? { host, category, count: 0 };
+      cur.count++;
+      byHost.set(host, cur);
+    }
+    return {
+      byCategory: Array.from(byCategory.entries())
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value),
+      topReferrers: Array.from(byHost.values())
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10),
+    };
+  });
+
+export const getPageActivity = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await applyRange(
+      context.supabase.from("page_views").select("page"),
+      data,
+    );
+    if (error) throw new Error(error.message);
+    const byPage = new Map<string, number>();
+    for (const r of rows ?? []) {
+      const p = (r.page ?? "(desconocido)") as string;
+      byPage.set(p, (byPage.get(p) ?? 0) + 1);
+    }
+    return Array.from(byPage.entries())
+      .map(([page, views]) => ({ page, views }))
+      .sort((a, b) => b.views - a.views);
+  });
+
+export const getSubmissionsStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const baseFilter = (q: ReturnType<typeof supabase.from>) => applyRange(q, data);
+    const [allRes, recentRes] = await Promise.all([
+      baseFilter(supabase.from("market_submissions").select("status")),
+      baseFilter(
+        supabase
+          .from("market_submissions")
+          .select("id, name, municipality, status, created_at")
+          .order("created_at", { ascending: false })
+          .limit(10),
+      ),
+    ]);
+    if (allRes.error) throw new Error(allRes.error.message);
+    if (recentRes.error) throw new Error(recentRes.error.message);
+    const rows = allRes.data ?? [];
+    const counts = { pending: 0, approved: 0, rejected: 0 };
+    for (const r of rows) {
+      const k = r.status as keyof typeof counts;
+      if (k in counts) counts[k]++;
+    }
+    return {
+      total: rows.length,
+      pending: counts.pending,
+      approved: counts.approved,
+      rejected: counts.rejected,
+      recent: recentRes.data ?? [],
+    };
   });

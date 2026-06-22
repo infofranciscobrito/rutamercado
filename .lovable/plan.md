@@ -1,41 +1,88 @@
-# Agregar "Enlace de contacto" del productor
+# Expansión del panel de Analíticas
 
-## 1. Base de datos
-Nueva columna `organizer_contact_url` (text, nullable) en la tabla `markets`. También en `market_submissions` para que los formularios públicos puedan enviarla.
+Solo lecturas sobre tablas existentes (`market_clicks`, `page_views`, `market_attendance_intentions`, `markets`, `market_submissions`). Sin migraciones, sin nuevos eventos de tracking. Estética actual (cards `rounded-xl border bg-card p-5`, paleta `#54b678` / `#18253f`, `recharts`, shadcn `Table`/`Select`).
 
-## 2. Formulario admin (`MarketFormDrawer.tsx`)
-Dentro de la sección "Información del productor", debajo de "Perfil de redes sociales", agregar un nuevo `Field` con label **"Enlace de contacto"**:
-- Input tipo texto, bindeado vía `Controller` a `organizer_contact_url`.
-- Placeholder: `https://...` (Linktree, WhatsApp, web, etc.).
-- Atributos anti-autofill: `autoComplete="off"`, `data-lpignore="true"`, `data-1p-ignore="true"`, `data-form-type="other"`, `readOnly`+`onFocus` para quitar readonly, `name`/`id` neutros (`contact-field-url`).
-- Al guardar: si el valor no está vacío y no empieza con `http://` o `https://`, anteponer automáticamente `https://`.
-- Validación: si tiene valor, debe ser URL válida (Zod `.url()`); si está vacío se guarda `null`. Campo opcional.
+## 1. Filtro de fecha unificado
 
-## 3. Formulario público de envío (`SubmitMarketForm.tsx`)
-Mismo campo opcional con la misma normalización y atributos anti-autofill, para que nuevos mercados puedan registrarlo desde el inicio.
+Reemplazar el `<Select>` actual por un control que soporte:
+- Últimos 7 días
+- Últimos 30 días (default)
+- Últimos 90 días
+- Este año (desde 1 de enero)
+- Rango personalizado (date picker con `Popover` + `Calendar` shadcn, dos fechas)
 
-## 4. Validación servidor
-- `admin-markets.functions.ts`: agregar `organizer_contact_url: z.string().trim().url().max(500).nullable().optional()` y mapear en el upsert.
-- `submissions.functions.ts`: agregar el mismo campo en el schema de creación y en la promoción de submission a market.
+El estado se modela como `{ preset, from, to }` donde `from`/`to` son ISO. Todas las queries (existentes y nuevas) reciben `{ from, to }` en lugar de `days`. Los server functions se actualizan para aceptar `from`/`to` (z.string().datetime()) manteniendo compatibilidad: si solo viene `days`, se calcula `from`.
 
-## 5. Vista pública (`MarketDetailDialog.tsx`)
-En la tarjeta "Organizador", junto a los botones existentes (Llamar / Email / Redes), agregar **solo si `market.organizer_contact_url` tiene valor**:
+## 2. Cambios en `src/lib/admin-analytics.functions.ts`
 
-```
-<a href={market.organizer_contact_url} target="_blank" rel="noopener noreferrer"
-   onClick={() => track(market.id, "click_contact")}
-   className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f] transition-colors hover:border-[#54b678]">
-  Contactar al productor
-</a>
-```
+Ampliar funciones existentes y añadir nuevas (todas con `requireSupabaseAuth`, rango por `from`/`to`):
 
-Mismo estilo que los botones secundarios actuales (Email/Redes): mismo radio, tipografía y paleta. Si la URL está vacía/null, no se renderiza.
+- `getAnalyticsOverview` → devolver además: `clickPhone`, `clickEmail`, `clickInstagram`, `clickContact` (nuevo `click_contact`), `willAttend`, `interested`, `activeMarkets`, `inactiveMarkets`, `pendingSubmissions`. Lecturas adicionales:
+  - `markets` agrupado por `is_active` (count exact head, dos queries).
+  - `market_submissions` count head `status='pending'` (sin filtro de fecha, es estado actual).
+  - `market_attendance_intentions` en el rango, agregado por `intention_type`.
+- `getTopMarkets` → desglosar `contactClicks` en `clickPhone`, `clickEmail`, `clickContact` (URL contacto), mantener `directionsClicks`, e incluir `willAttend`, `interested`, `recurrenceType` (campo `recurrence_type` de `markets`). Join en memoria con `market_attendance_intentions` filtrado por rango.
+- `getClicksByType` (nuevo) → group by `click_type` en el rango, devuelve `[{ type, count }]` para los 6 tipos.
+- `getTrafficSources` (nuevo) → lee `page_views.referrer` en el rango, normaliza host:
+  - vacío/null → "Directo"
+  - host contiene `google.` → "Google"
+  - `instagram.` → "Instagram"
+  - `facebook.`/`fb.` → "Facebook"
+  - resto → host limpio
+  Devuelve top 10 categorías + tabla detallada por referrer.
+- `getPageActivity` (nuevo) → group by `page` en `page_views` en el rango, ordenado desc.
+- `getSubmissionsStats` (nuevo) → en el rango: total, breakdown por `status`, y últimas 10 (`name`, `municipality`, `created_at`, `status`) ordenadas desc.
 
-## 6. Tipos y tracking
-- Después de la migración, los tipos de Supabase se regeneran automáticamente.
-- Agregar `"click_contact"` a `ClickType` en `src/types/market.ts` (opcional, para tipado del tracking).
+## 3. Cambios en `src/routes/_admin/admin.analytics.tsx`
 
-## Notas
-- No se modifica diseño general ni otros campos.
-- El campo es opcional en todos los puntos.
-- En `MarketDetailDialog` no se importa ningún icono nuevo, se mantiene el estilo de los botones secundarios existentes.
+Header:
+- Nuevo control de fecha (preset + popover de rango).
+- Estado se persiste en URL search params (`from`, `to`, `preset`) para deep-linking.
+
+Cards de resumen (reorganizadas en dos filas de `grid lg:grid-cols-4` o `5`):
+1. Vistas directorio
+2. Vistas de detalle
+3. Engagement
+4. Clics teléfono
+5. Clics email
+6. Clics Instagram
+7. Clics URL contacto
+8. Clics "Cómo llegar"
+9. "Iré"
+10. "Me interesa"
+11. Mercados activos / inactivos (una card con dos valores apilados o dos cards)
+12. Submissions pendientes
+
+Tabla Top Mercados — columnas finales:
+`# | Mercado | Vistas | Tel | Email | Direcciones | Contacto | Iré | Me interesa | Recurrencia`
+
+Nuevas secciones (en orden, debajo de Top Organizadores):
+
+- **Análisis de Clicks por Tipo**: `BarChart` horizontal (`layout="vertical"`) con 6 barras, etiquetas en español (`Ver detalle`, `Teléfono`, `Email`, `Cómo llegar`, `URL contacto`, `Asistencia`). Color `#54b678`.
+- **Fuentes de Tráfico**: dos columnas — `PieChart` de las 5 categorías + tabla top 10 referrers (`Referrer | Categoría | Visitas`).
+- **Actividad por Página**: tabla (`Página | Visitas`) ordenada desc, con scroll si excede 15 filas.
+- **Submissions de Mercados**: card con total + tres badges (pendientes / aprobadas / rechazadas) + tabla últimas 10 (`Nombre | Municipio | Fecha | Estado`).
+
+CSV download en cada tabla nueva, usando el helper existente `downloadCSV`.
+
+## 4. Detalles técnicos
+
+- `recurrence_type` ya está en `markets`; usar mapeo legible (`Único`, `Semanal`, etc.) reutilizando lógica existente si la hay en `src/lib/recurrence.ts`, si no, mapeo inline.
+- `click_contact` ya existe en el enum `click_type` (migración previa) y en `ClickType`. Incluido en overview y desglose.
+- Para `getTrafficSources`, parsear referrer con `new URL(referrer).hostname` envuelto en try/catch (referrers inválidos → "Otro").
+- Todos los queries en paralelo via `Promise.all` dentro de cada server function; en el cliente usar `useQuery` independientes con `queryKey` que incluya `from`/`to`.
+- `queryKey` se actualiza a `["admin","analytics", <sección>, from, to]`.
+- Loading: mantener el patrón actual (un único `isLoading` agregado), pero usar skeleton por sección si alguna sección nueva tarda más para no bloquear todo (opcional — primera versión mantiene patrón actual).
+- Labels en español en toda la UI nueva.
+
+## 5. Archivos a modificar
+
+- `src/lib/admin-analytics.functions.ts` — ampliar 3 functions, añadir 4 nuevas.
+- `src/routes/_admin/admin.analytics.tsx` — control de fecha, cards extra, columnas extra, 4 secciones nuevas, search params.
+- (Opcional) `src/components/admin/MetricCard.tsx` — sin cambios; el panel usa `Metric` local que ya existe.
+
+## Fuera de alcance
+
+- Sin cambios de esquema, triggers, RLS, ni nuevos eventos de tracking.
+- Sin cambios al Pixel de Facebook.
+- Sin cambios al diseño general del admin.

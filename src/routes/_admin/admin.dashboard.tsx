@@ -73,7 +73,7 @@ function DashboardPage() {
   });
   const attendance = useQuery({
     queryKey: ["admin", "dashboard", "attendance"],
-    queryFn: () => logFetch("dashboard attendance", () => attendanceFn()),
+    queryFn: () => logFetch("dashboard attendance", () => attendanceFn({ data: {} })),
   });
   const topIntention = useQuery({
     queryKey: ["admin", "dashboard", "topIntention"],
