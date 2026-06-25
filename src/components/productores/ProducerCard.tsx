@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Mail, Phone, Instagram, Globe, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { Producer } from "@/lib/producers.functions";
 import { UpdateProducerDialog } from "./UpdateProducerDialog";
 
@@ -28,86 +29,70 @@ function displayUrl(raw: string): string {
 export function ProducerCard({ producer }: { producer: Producer }) {
   const [open, setOpen] = useState(false);
   const hasContact = Boolean(
-    producer.organizer_email ||
-      producer.organizer_phone ||
-      producer.organizer_instagram ||
-      producer.organizer_contact_url,
+    producer.email || producer.telefono || producer.instagram || producer.website,
   );
-
-  const primary = producer.markets[0];
-  const rest = producer.markets.slice(1, 4);
-  const extra = producer.markets.length - 1 - rest.length;
-  const primaryLocation = primary
-    ? [primary.municipality, primary.region].filter(Boolean).join(" · ")
-    : "";
 
   return (
     <article className="flex h-full flex-col rounded-2xl border border-[#18253f]/10 bg-white p-6 shadow-[0_2px_12px_rgba(24,37,63,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#54b678]/40 hover:shadow-[0_8px_28px_rgba(24,37,63,0.12)]">
-      <header className="flex items-start gap-3">
-        {producer.organizer_logo_url ? (
+      {producer.logo_url ? (
+        <div className="mb-4 flex justify-center">
           <img
-            src={producer.organizer_logo_url}
-            alt={`Logo de ${producer.organizer_name}`}
-            className="h-14 w-14 shrink-0 rounded-full border border-[#18253f]/10 object-cover"
+            src={producer.logo_url}
+            alt={`Logo de ${producer.nombre}`}
+            className="h-24 w-24 rounded-2xl border border-[#18253f]/10 object-cover"
             loading="lazy"
           />
-        ) : null}
-        <div className="min-w-0 flex-1">
-          <h3 className="font-display text-2xl leading-tight text-[#18253f]">
-            {primary?.name ?? producer.organizer_name}
-          </h3>
-          <p className="mt-1 text-sm text-[#18253f]/60">
-            Contacto:{" "}
-            <span className="text-[#18253f]/80">{producer.organizer_name}</span>
-          </p>
-          {primaryLocation ? (
-            <div className="mt-2 flex items-center gap-1.5 text-sm text-[#18253f]/70">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#54b678]" />
-              <span>{primaryLocation}</span>
-            </div>
-          ) : null}
         </div>
+      ) : null}
+
+      <header>
+        <h3 className="font-display text-2xl leading-tight text-[#18253f]">
+          {producer.nombre}
+        </h3>
+        {producer.region ? (
+          <div className="mt-2 flex items-center gap-1.5 text-sm text-[#18253f]/70">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#54b678]" />
+            <span>{producer.region}</span>
+          </div>
+        ) : null}
       </header>
 
-      {rest.length > 0 ? (
-        <div className="mt-4 space-y-1.5 border-t border-[#18253f]/5 pt-3">
+      {producer.mercados.length > 0 ? (
+        <div className="mt-4 border-t border-[#18253f]/5 pt-3">
           <p className="text-xs font-medium uppercase tracking-wide text-[#18253f]/50">
-            Otros mercados
+            Mercados que organiza:
           </p>
-          {rest.map((m) => (
-            <div key={m.id} className="flex items-start gap-2 text-sm text-[#18253f]/75">
-              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#54b678]" />
-              <span>
-                <span className="font-medium text-[#18253f]">{m.name}</span>
-                {m.municipality ? (
-                  <span className="text-[#18253f]/60"> · {m.municipality}</span>
-                ) : null}
-              </span>
-            </div>
-          ))}
-          {extra > 0 ? (
-            <div className="pl-5 text-xs text-[#18253f]/50">+{extra} mercado(s) más</div>
-          ) : null}
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {producer.mercados.map((nombre) => (
+              <Badge
+                key={nombre}
+                variant="secondary"
+                className="bg-[#54b678]/10 text-[#18253f] hover:bg-[#54b678]/15"
+              >
+                {nombre}
+              </Badge>
+            ))}
+          </div>
         </div>
       ) : null}
 
       <div className="mt-5 flex-1 space-y-2">
         {hasContact ? (
           <>
-            {producer.organizer_contact_url ? (
+            {producer.website ? (
               <a
-                href={safeUrl(producer.organizer_contact_url)}
+                href={safeUrl(producer.website)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
               >
                 <Globe className="h-4 w-4 text-[#54b678]" />
-                <span className="truncate">{displayUrl(producer.organizer_contact_url)}</span>
+                <span className="truncate">{displayUrl(producer.website)}</span>
               </a>
             ) : null}
-            {producer.organizer_instagram
+            {producer.instagram
               ? (() => {
-                  const ig = instagramHandle(producer.organizer_instagram!);
+                  const ig = instagramHandle(producer.instagram!);
                   return (
                     <a
                       href={ig.href}
@@ -121,22 +106,22 @@ export function ProducerCard({ producer }: { producer: Producer }) {
                   );
                 })()
               : null}
-            {producer.organizer_email ? (
+            {producer.email ? (
               <a
-                href={`mailto:${producer.organizer_email}`}
+                href={`mailto:${producer.email}`}
                 className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
               >
                 <Mail className="h-4 w-4 text-[#54b678]" />
-                <span className="truncate">{producer.organizer_email}</span>
+                <span className="truncate">{producer.email}</span>
               </a>
             ) : null}
-            {producer.organizer_phone ? (
+            {producer.telefono ? (
               <a
-                href={`tel:${producer.organizer_phone.replace(/\s+/g, "")}`}
+                href={`tel:${producer.telefono.replace(/\s+/g, "")}`}
                 className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
               >
                 <Phone className="h-4 w-4 text-[#54b678]" />
-                <span className="truncate">{producer.organizer_phone}</span>
+                <span className="truncate">{producer.telefono}</span>
               </a>
             ) : null}
           </>
@@ -158,8 +143,8 @@ export function ProducerCard({ producer }: { producer: Producer }) {
       <UpdateProducerDialog
         open={open}
         onOpenChange={setOpen}
-        producerName={producer.organizer_name}
-        marketNames={producer.markets.map((m) => m.name).join(", ")}
+        producerName={producer.nombre}
+        marketNames={producer.mercados.join(", ")}
       />
     </article>
   );

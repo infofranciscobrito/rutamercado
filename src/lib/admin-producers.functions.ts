@@ -1,29 +1,25 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { MARKET_REGIONS, type MarketRegion } from "@/types/market";
 
 export type AdminProducer = {
-  key: string;
-  organizer_name: string;
-  region: MarketRegion | null;
-  organizer_phone: string | null;
-  organizer_email: string | null;
-  organizer_instagram: string | null;
-  organizer_contact_url: string | null;
-  organizer_logo_url: string | null;
-  market_ids: string[];
-  market_names: string[];
+  id: string;
+  nombre: string;
+  region: string | null;
+  email: string | null;
+  telefono: string | null;
+  instagram: string | null;
+  website: string | null;
+  logo_url: string | null;
+  mercados: { id: string; nombre: string }[];
 };
 
-// Optional text: accepts string | "" | null | undefined -> string | null
 const optText = (max: number) =>
   z.preprocess(
     (v) => (v == null ? null : typeof v === "string" ? v.trim() : v),
     z.union([z.string().max(max), z.null()]).transform((v) => (v && v.length > 0 ? v : null)),
   );
 
-// Optional email: accepts valid email | "" | null -> string | null
 const optEmail = z.preprocess(
   (v) => {
     if (v == null) return null;
@@ -36,7 +32,6 @@ const optEmail = z.preprocess(
   z.union([z.string().email().max(255), z.null()]),
 );
 
-// Optional URL: accepts valid URL | "" | null -> string | null
 const optUrl = (max: number) =>
   z.preprocess(
     (v) => {
@@ -50,138 +45,161 @@ const optUrl = (max: number) =>
     z.union([z.string().url().max(max), z.null()]),
   );
 
-const EditSchema = z.object({
-  original_name: z.string().trim().min(1).max(200),
-  organizer_name: z.string().trim().min(1).max(200),
-  region: z.enum(MARKET_REGIONS as [string, ...string[]]).nullable().optional(),
-  organizer_phone: optText(500),
-  organizer_email: optEmail,
-  organizer_instagram: optText(500),
-  organizer_contact_url: optUrl(500),
-  organizer_logo_url: optUrl(1000),
+const LogoSchema = z
+  .object({
+    logo_base64: z.string().max(8_500_000),
+    logo_filename: z.string().max(200),
+    logo_mime: z.enum(["image/jpeg", "image/png"]),
+  })
+  .partial()
+  .optional();
+
+const UpsertSchema = z.object({
+  id: z.string().uuid().optional().nullable(),
+  nombre: z.string().trim().min(1).max(200),
+  region: optText(100),
+  email: optEmail,
+  telefono: optText(500),
+  instagram: optText(500),
+  website: optUrl(500),
+  logo_url: optUrl(1000),
+  logo: LogoSchema,
 });
 
-export const listAdminProducers = createServerFn({ method: "GET" })
+const MAX_LOGO_BYTES = 5 * 1024 * 1024;
+
+export const adminListProducers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminProducer[]> => {
     const { data, error } = await context.supabase
-      .from("markets")
+      .from("productores")
       .select(
-        "id, name, region, organizer_name, organizer_phone, organizer_email, organizer_instagram, organizer_contact_url, organizer_logo_url",
-      );
+        "id, nombre, email, telefono, instagram, website, region, logo_url, productor_mercados(id, mercado_nombre)",
+      )
+      .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
 
-    const map = new Map<string, AdminProducer>();
-    for (const m of data ?? []) {
-      const name = (m.organizer_name ?? "").trim();
-      if (!name) continue;
-      const key = name.toLowerCase();
-      const existing = map.get(key);
-      const logo = (m as { organizer_logo_url?: string | null }).organizer_logo_url ?? null;
-      if (existing) {
-        existing.market_ids.push(m.id);
-        existing.market_names.push(m.name);
-        if (!existing.organizer_phone && m.organizer_phone)
-          existing.organizer_phone = m.organizer_phone;
-        if (!existing.organizer_email && m.organizer_email)
-          existing.organizer_email = m.organizer_email;
-        if (!existing.organizer_instagram && m.organizer_instagram)
-          existing.organizer_instagram = m.organizer_instagram;
-        if (!existing.organizer_contact_url && m.organizer_contact_url)
-          existing.organizer_contact_url = m.organizer_contact_url;
-        if (!existing.organizer_logo_url && logo) existing.organizer_logo_url = logo;
-        if (!existing.region && m.region) existing.region = m.region as MarketRegion;
-      } else {
-        map.set(key, {
-          key,
-          organizer_name: name,
-          region: (m.region as MarketRegion | null) ?? null,
-          organizer_phone: m.organizer_phone ?? null,
-          organizer_email: m.organizer_email ?? null,
-          organizer_instagram: m.organizer_instagram ?? null,
-          organizer_contact_url: m.organizer_contact_url ?? null,
-          organizer_logo_url: logo,
-          market_ids: [m.id],
-          market_names: [m.name],
-        });
-      }
+    return (data ?? []).map((p) => ({
+      id: p.id,
+      nombre: p.nombre,
+      region: p.region ?? null,
+      email: p.email ?? null,
+      telefono: p.telefono ?? null,
+      instagram: p.instagram ?? null,
+      website: p.website ?? null,
+      logo_url: p.logo_url ?? null,
+      mercados: (p.productor_mercados ?? [])
+        .map((m) => ({ id: m.id, nombre: m.mercado_nombre }))
+        .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })),
+    }));
+  });
+
+async function uploadLogoIfPresent(logo: {
+  logo_base64?: string;
+  logo_filename?: string;
+  logo_mime?: "image/jpeg" | "image/png";
+}): Promise<string | null> {
+  if (!logo.logo_base64 || !logo.logo_mime || !logo.logo_filename) return null;
+  const bytes = Buffer.from(logo.logo_base64, "base64");
+  if (bytes.byteLength > MAX_LOGO_BYTES) {
+    throw new Error("La imagen es demasiado grande. El tamaño máximo es 5MB.");
+  }
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const ext = logo.logo_mime === "image/png" ? "png" : "jpg";
+  const safeName = logo.logo_filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
+  const path = `producers/${crypto.randomUUID()}-${safeName.replace(/\.[^.]+$/, "")}.${ext}`;
+  const { error: upErr } = await supabaseAdmin.storage
+    .from("market-images")
+    .upload(path, bytes, { contentType: logo.logo_mime, upsert: false });
+  if (upErr) throw new Error(upErr.message);
+  const { data: pub } = supabaseAdmin.storage.from("market-images").getPublicUrl(path);
+  return pub.publicUrl;
+}
+
+export const adminUpsertProducer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => UpsertSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    let logoUrl: string | null = data.logo_url;
+    if (data.logo && data.logo.logo_base64) {
+      logoUrl = await uploadLogoIfPresent(data.logo);
     }
 
-    return Array.from(map.values()).sort((a, b) =>
-      a.organizer_name.localeCompare(b.organizer_name, "es", { sensitivity: "base" }),
-    );
-  });
-
-export const updateAdminProducer = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => EditSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    const update = {
-      organizer_name: data.organizer_name,
-      organizer_phone: data.organizer_phone,
-      organizer_email: data.organizer_email,
-      organizer_instagram: data.organizer_instagram,
-      organizer_contact_url: data.organizer_contact_url,
-      organizer_logo_url: data.organizer_logo_url ?? null,
-      ...(data.region ? { region: data.region as MarketRegion } : {}),
+    const payload = {
+      nombre: data.nombre,
+      region: data.region,
+      email: data.email,
+      telefono: data.telefono,
+      instagram: data.instagram,
+      website: data.website,
+      logo_url: logoUrl,
     };
 
-    const { error, count } = await context.supabase
-      .from("markets")
-      .update(update, { count: "exact" })
-      .ilike("organizer_name", data.original_name);
-    if (error) throw new Error(error.message);
-    return { ok: true as const, updated: count ?? 0 };
+    if (data.id) {
+      const { error } = await context.supabase
+        .from("productores")
+        .update(payload)
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true as const, id: data.id };
+    } else {
+      const { data: inserted, error } = await context.supabase
+        .from("productores")
+        .insert(payload)
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      return { ok: true as const, id: inserted.id };
+    }
   });
 
-export const deleteAdminProducer = createServerFn({ method: "POST" })
+export const adminDeleteProducer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { original_name: string; hardDelete?: boolean }) =>
+  .inputValidator((input: { id: string }) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("productores")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const adminAddProducerMarket = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { productor_id: string; mercado_nombre: string }) =>
     z
       .object({
-        original_name: z.string().trim().min(1).max(200),
-        hardDelete: z.boolean().optional(),
+        productor_id: z.string().uuid(),
+        mercado_nombre: z.string().trim().min(1).max(300),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    if (data.hardDelete) {
-      // Find market IDs to delete cascading dependents first.
-      const { data: rows, error: selErr } = await context.supabase
-        .from("markets")
-        .select("id")
-        .ilike("organizer_name", data.original_name);
-      if (selErr) throw new Error(selErr.message);
-      const ids = (rows ?? []).map((r) => r.id);
-      if (ids.length === 0) return { ok: true as const, affected: 0 };
-
-      // Detach submissions then delete markets (cascades remove clicks/intentions).
-      await context.supabase
-        .from("market_submissions")
-        .delete()
-        .in("published_market_id", ids);
-      const { error: delErr } = await context.supabase
-        .from("markets")
-        .delete()
-        .in("id", ids);
-      if (delErr) throw new Error(delErr.message);
-      return { ok: true as const, affected: ids.length };
-    }
-
-    // Soft remove: deactivate and clear organizer contact fields.
-    const { error, count } = await context.supabase
-      .from("markets")
-      .update(
-        {
-          is_active: false,
-          organizer_phone: null,
-          organizer_email: null,
-          organizer_instagram: null,
-          organizer_contact_url: null,
-        },
-        { count: "exact" },
-      )
-      .ilike("organizer_name", data.original_name);
+    const { data: row, error } = await context.supabase
+      .from("productor_mercados")
+      .insert({
+        productor_id: data.productor_id,
+        mercado_nombre: data.mercado_nombre,
+      })
+      .select("id, mercado_nombre")
+      .single();
     if (error) throw new Error(error.message);
-    return { ok: true as const, affected: count ?? 0 };
+    return { ok: true as const, id: row.id, mercado_nombre: row.mercado_nombre };
+  });
+
+export const adminRemoveProducerMarket = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("productor_mercados")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
   });

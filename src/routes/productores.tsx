@@ -7,24 +7,20 @@ import { Header } from "@/components/rutamercado/Header";
 import { Footer } from "@/components/rutamercado/Footer";
 import { Input } from "@/components/ui/input";
 import { ProducerCard } from "@/components/productores/ProducerCard";
-import { MARKET_REGIONS, type MarketRegion } from "@/types/market";
+import { MARKET_REGIONS } from "@/types/market";
 
 const producersQueryOptions = queryOptions({
   queryKey: ["producers"],
   queryFn: () => listProducers(),
 });
 
-const REGION_ORDER: (MarketRegion | "Otros")[] = [
-  ...MARKET_REGIONS,
-  "Otros",
-];
+const REGION_ORDER: string[] = [...MARKET_REGIONS, "Otros"];
 
 export const Route = createFileRoute("/productores")({
   head: () => ({
     meta: [
       {
-        title:
-          "Productores de Mercados Locales en Puerto Rico — RutaMercado",
+        title: "Productores de Mercados Locales en Puerto Rico — RutaMercado",
       },
       {
         name: "description",
@@ -61,19 +57,15 @@ function ProducersPage() {
     const q = query.trim().toLowerCase();
     const filtered = q
       ? data.filter((p) => {
-          if (p.organizer_name.toLowerCase().includes(q)) return true;
+          if (p.nombre.toLowerCase().includes(q)) return true;
           if ((p.region ?? "").toLowerCase().includes(q)) return true;
-          return p.markets.some(
-            (m) =>
-              m.name.toLowerCase().includes(q) ||
-              (m.municipality ?? "").toLowerCase().includes(q),
-          );
+          return p.mercados.some((m) => m.toLowerCase().includes(q));
         })
       : data;
 
-    const buckets = new Map<MarketRegion | "Otros", Producer[]>();
+    const buckets = new Map<string, Producer[]>();
     for (const p of filtered) {
-      const key: MarketRegion | "Otros" = p.region ?? "Otros";
+      const key: string = p.region && REGION_ORDER.includes(p.region) ? p.region : "Otros";
       if (!buckets.has(key)) buckets.set(key, []);
       buckets.get(key)!.push(p);
     }
@@ -134,7 +126,7 @@ function ProducersPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {bucket.items.map((p) => (
-                    <ProducerCard key={p.key} producer={p} />
+                    <ProducerCard key={p.id} producer={p} />
                   ))}
                 </div>
               </section>
