@@ -71,6 +71,7 @@ async function fileToBase64(file: File): Promise<string> {
 const emptyProducer = (): AdminProducer => ({
   id: "",
   nombre: "",
+  contacto: null,
   region: null,
   email: null,
   telefono: null,
@@ -79,6 +80,7 @@ const emptyProducer = (): AdminProducer => ({
   logo_url: null,
   mercados: [],
 });
+
 
 function ProducersAdminPage() {
   const queryClient = useQueryClient();
@@ -281,6 +283,7 @@ function ProducersAdminPage() {
 type UpsertVars = {
   id?: string | null;
   nombre: string;
+  contacto: string | null;
   region: string | null;
   email: string | null;
   telefono: string | null;
@@ -293,6 +296,7 @@ type UpsertVars = {
     logo_mime: "image/jpeg" | "image/png";
   };
 };
+
 
 function EditForm({
   initial,
@@ -310,6 +314,8 @@ function EditForm({
   const removeMarketFn = useServerFn(adminRemoveProducerMarket);
 
   const [nombre, setNombre] = useState(initial.nombre);
+  const [contacto, setContacto] = useState(initial.contacto ?? "");
+
   const [region, setRegion] = useState<string>(initial.region ?? "");
   const [telefono, setTelefono] = useState(initial.telefono ?? "");
   const [email, setEmail] = useState(initial.email ?? "");
@@ -389,6 +395,8 @@ function EditForm({
     onSubmit({
       id: initial.id || undefined,
       nombre: nombre.trim(),
+      contacto: contacto.trim() || null,
+
       region: region || null,
       email: email.trim() || null,
       telefono: telefono.trim() || null,
@@ -411,6 +419,18 @@ function EditForm({
           className="mt-1"
         />
       </div>
+
+      <div>
+        <Label htmlFor="admin-prod-contacto">Nombre de contacto</Label>
+        <Input
+          id="admin-prod-contacto"
+          value={contacto}
+          onChange={(e) => setContacto(e.target.value)}
+          placeholder="Persona de contacto (opcional)"
+          className="mt-1"
+        />
+      </div>
+
 
       <div>
         <Label>Logo del productor</Label>

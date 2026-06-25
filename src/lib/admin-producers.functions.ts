@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export type AdminProducer = {
   id: string;
   nombre: string;
+  contacto: string | null;
   region: string | null;
   email: string | null;
   telefono: string | null;
@@ -13,6 +14,7 @@ export type AdminProducer = {
   logo_url: string | null;
   mercados: { id: string; nombre: string }[];
 };
+
 
 const optText = (max: number) =>
   z.preprocess(
@@ -57,6 +59,7 @@ const LogoSchema = z
 const UpsertSchema = z.object({
   id: z.string().uuid().optional().nullable(),
   nombre: z.string().trim().min(1).max(200),
+  contacto: optText(200),
   region: optText(100),
   email: optEmail,
   telefono: optText(500),
@@ -66,6 +69,7 @@ const UpsertSchema = z.object({
   logo: LogoSchema,
 });
 
+
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 
 export const adminListProducers = createServerFn({ method: "GET" })
@@ -74,7 +78,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("productores")
       .select(
-        "id, nombre, email, telefono, instagram, website, region, logo_url, productor_mercados(id, mercado_nombre)",
+        "id, nombre, contacto, email, telefono, instagram, website, region, logo_url, productor_mercados(id, mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -82,6 +86,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     return (data ?? []).map((p) => ({
       id: p.id,
       nombre: p.nombre,
+      contacto: p.contacto ?? null,
       region: p.region ?? null,
       email: p.email ?? null,
       telefono: p.telefono ?? null,
@@ -92,6 +97,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
         .map((m) => ({ id: m.id, nombre: m.mercado_nombre }))
         .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })),
     }));
+
   });
 
 async function uploadLogoIfPresent(logo: {
@@ -127,6 +133,7 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
 
     const payload = {
       nombre: data.nombre,
+      contacto: data.contacto,
       region: data.region,
       email: data.email,
       telefono: data.telefono,
@@ -134,6 +141,7 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
       website: data.website,
       logo_url: logoUrl,
     };
+
 
     if (data.id) {
       const { error } = await context.supabase

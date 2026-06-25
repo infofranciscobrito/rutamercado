@@ -433,6 +433,7 @@ export type Database = {
       }
       productores: {
         Row: {
+          contacto: string | null
           created_at: string
           email: string | null
           id: string
@@ -445,6 +446,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          contacto?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -457,6 +459,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          contacto?: string | null
           created_at?: string
           email?: string | null
           id?: string
