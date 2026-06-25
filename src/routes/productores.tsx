@@ -77,27 +77,27 @@ function ProducersPage() {
   const total = data.length;
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="min-h-screen bg-[#18253f]">
       <Header />
 
-      <section className="border-b border-[#18253f]/10 bg-white">
+      <section className="border-b border-white/15 bg-[#18253f]">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
-          <h1 className="font-display text-4xl text-[#18253f] md:text-5xl">
+          <h1 className="font-display text-4xl text-white md:text-5xl">
             Productores de mercados locales en Puerto Rico
           </h1>
-          <p className="mt-4 max-w-2xl text-base text-[#18253f]/70 md:text-lg">
+          <p className="mt-4 max-w-2xl text-base text-white/80 md:text-lg">
             Conoce a las personas y organizaciones detrás de cada mercado, feria y
             bazar publicado en RutaMercado. {total} productor{total === 1 ? "" : "es"} en el directorio.
           </p>
 
           <div className="mt-6 max-w-xl">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#18253f]/40" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Busca por productor, mercado o región..."
-                className="h-12 pl-10 text-base"
+                className="h-12 border-white/20 bg-white/10 pl-10 text-base text-white placeholder:text-white/50"
                 aria-label="Buscar productores"
               />
             </div>
@@ -107,8 +107,8 @@ function ProducersPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         {grouped.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#18253f]/15 bg-white py-16 text-center">
-            <p className="text-[#18253f]/60">
+          <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 py-16 text-center">
+            <p className="text-white/70">
               No encontramos productores con esos criterios.
             </p>
           </div>
@@ -116,14 +116,15 @@ function ProducersPage() {
           <div className="space-y-12">
             {grouped.map((bucket) => (
               <section key={bucket.region}>
-                <div className="mb-6 flex items-baseline gap-3">
-                  <h2 className="font-display text-2xl text-[#18253f] md:text-3xl">
+                <div className="mb-2 flex items-baseline gap-3">
+                  <h2 className="font-display text-2xl text-white md:text-3xl">
                     {bucket.region}
                   </h2>
-                  <span className="text-sm text-[#18253f]/50">
+                  <span className="text-sm text-white/60">
                     {bucket.items.length} productor{bucket.items.length === 1 ? "" : "es"}
                   </span>
                 </div>
+                <div className="mb-6 h-px bg-white/20" />
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {bucket.items.map((p) => (
                     <ProducerCard key={p.id} producer={p} />
@@ -139,3 +140,4 @@ function ProducersPage() {
     </div>
   );
 }
+
