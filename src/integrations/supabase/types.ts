@@ -363,6 +363,39 @@ export type Database = {
         }
         Relationships: []
       }
+      producer_update_requests: {
+        Row: {
+          created_at: string
+          id: string
+          market_names: string | null
+          message: string
+          producer_name: string
+          requester_email: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market_names?: string | null
+          message: string
+          producer_name: string
+          requester_email: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market_names?: string | null
+          message?: string
+          producer_name?: string
+          requester_email?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
