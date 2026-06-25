@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 export type Producer = {
   id: string;
   nombre: string;
+  contacto: string | null;
   region: string | null;
   email: string | null;
   telefono: string | null;
@@ -14,6 +15,7 @@ export type Producer = {
   logo_url: string | null;
   mercados: string[];
 };
+
 
 function serverPublic() {
   return createClient<Database>(
