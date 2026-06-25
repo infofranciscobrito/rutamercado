@@ -16,44 +16,49 @@ export type AdminProducer = {
   market_names: string[];
 };
 
-const optStr = z
-  .string()
-  .trim()
-  .max(500)
-  .optional()
-  .or(z.literal(""))
-  .transform((v) => (v && v.length > 0 ? v : null));
+// Optional text: accepts string | "" | null | undefined -> string | null
+const optText = (max: number) =>
+  z.preprocess(
+    (v) => (v == null ? null : typeof v === "string" ? v.trim() : v),
+    z.union([z.string().max(max), z.null()]).transform((v) => (v && v.length > 0 ? v : null)),
+  );
+
+// Optional email: accepts valid email | "" | null -> string | null
+const optEmail = z.preprocess(
+  (v) => {
+    if (v == null) return null;
+    if (typeof v === "string") {
+      const t = v.trim();
+      return t.length === 0 ? null : t;
+    }
+    return v;
+  },
+  z.union([z.string().email().max(255), z.null()]),
+);
+
+// Optional URL: accepts valid URL | "" | null -> string | null
+const optUrl = (max: number) =>
+  z.preprocess(
+    (v) => {
+      if (v == null) return null;
+      if (typeof v === "string") {
+        const t = v.trim();
+        return t.length === 0 ? null : t;
+      }
+      return v;
+    },
+    z.union([z.string().url().max(max), z.null()]),
+  );
 
 const EditSchema = z.object({
   original_name: z.string().trim().min(1).max(200),
   organizer_name: z.string().trim().min(1).max(200),
   region: z.enum(MARKET_REGIONS as [string, ...string[]]).nullable().optional(),
-  organizer_phone: optStr,
-  organizer_email: z
-    .string()
-    .trim()
-    .email()
-    .max(255)
-    .nullable()
-    .optional()
-    .or(z.literal("").transform(() => null)),
-  organizer_instagram: optStr,
-  organizer_contact_url: z
-    .string()
-    .trim()
-    .url()
-    .max(500)
-    .nullable()
-    .optional()
-    .or(z.literal("").transform(() => null)),
-  organizer_logo_url: z
-    .string()
-    .trim()
-    .url()
-    .max(1000)
-    .nullable()
-    .optional()
-    .or(z.literal("").transform(() => null)),
+  organizer_phone: optText(500),
+  organizer_email: optEmail,
+  organizer_instagram: optText(500),
+  organizer_contact_url: optUrl(500),
+  organizer_logo_url: optUrl(1000),
 });
 
 export const listAdminProducers = createServerFn({ method: "GET" })
