@@ -9,7 +9,6 @@ export type AdminProducer = {
   region: string | null;
   email: string | null;
   telefono: string | null;
-  instagram: string | null;
   website: string | null;
   logo_url: string | null;
   mercados: { id: string; nombre: string }[];
