@@ -71,6 +71,7 @@ async function fileToBase64(file: File): Promise<string> {
 const emptyProducer = (): AdminProducer => ({
   id: "",
   nombre: "",
+  contacto: null,
   region: null,
   email: null,
   telefono: null,
@@ -79,6 +80,7 @@ const emptyProducer = (): AdminProducer => ({
   logo_url: null,
   mercados: [],
 });
+
 
 function ProducersAdminPage() {
   const queryClient = useQueryClient();
