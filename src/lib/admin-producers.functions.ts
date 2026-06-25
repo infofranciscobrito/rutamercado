@@ -11,6 +11,7 @@ export type AdminProducer = {
   organizer_email: string | null;
   organizer_instagram: string | null;
   organizer_contact_url: string | null;
+  organizer_logo_url: string | null;
   market_ids: string[];
   market_names: string[];
 };
