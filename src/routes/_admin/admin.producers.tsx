@@ -86,7 +86,7 @@ function ProducersAdminPage() {
       organizer_email: string | null;
       organizer_instagram: string | null;
       organizer_contact_url: string | null;
-    }) => updateFn({ data: vars as Parameters<typeof updateFn>[0]["data"] }),
+    }) => updateFn({ data: vars }),
     onSuccess: (res) => {
       toast.success(`Productor actualizado (${res.updated} mercado(s)).`);
       queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });

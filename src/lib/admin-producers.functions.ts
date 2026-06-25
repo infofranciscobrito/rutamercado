@@ -99,14 +99,14 @@ export const updateAdminProducer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => EditSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const update: Record<string, unknown> = {
+    const update = {
       organizer_name: data.organizer_name,
       organizer_phone: data.organizer_phone,
       organizer_email: data.organizer_email,
       organizer_instagram: data.organizer_instagram,
       organizer_contact_url: data.organizer_contact_url,
+      ...(data.region ? { region: data.region as MarketRegion } : {}),
     };
-    if (data.region) update.region = data.region;
 
     const { error, count } = await context.supabase
       .from("markets")

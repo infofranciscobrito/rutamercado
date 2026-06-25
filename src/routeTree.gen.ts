@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ProductoresRouteImport } from './routes/productores'
 import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
 import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
@@ -23,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
+import { Route as AdminAdminProducersRouteImport } from './routes/_admin/admin.producers'
 import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
@@ -30,6 +32,11 @@ import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.a
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductoresRoute = ProductoresRouteImport.update({
+  id: '/productores',
+  path: '/productores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliticaDePrivacidadRoute = PoliticaDePrivacidadRouteImport.update({
@@ -96,6 +103,11 @@ const AdminAdminSubmissionsRoute = AdminAdminSubmissionsRouteImport.update({
   path: '/admin/submissions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminProducersRoute = AdminAdminProducersRouteImport.update({
+  id: '/admin/producers',
+  path: '/admin/producers',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminMarketsRoute = AdminAdminMarketsRouteImport.update({
   id: '/admin/markets',
   path: '/admin/markets',
@@ -122,11 +134,13 @@ export interface FileRoutesByFullPath {
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
+  '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin/producers': typeof AdminAdminProducersRoute
   '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin/': typeof AdminAdminIndexRoute
 }
@@ -140,11 +154,13 @@ export interface FileRoutesByTo {
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
+  '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
+  '/admin/producers': typeof AdminAdminProducersRoute
   '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin': typeof AdminAdminIndexRoute
 }
@@ -160,11 +176,13 @@ export interface FileRoutesById {
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
+  '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_admin/admin/markets': typeof AdminAdminMarketsRoute
+  '/_admin/admin/producers': typeof AdminAdminProducersRoute
   '/_admin/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
 }
@@ -180,11 +198,13 @@ export interface FileRouteTypes {
     | '/mercado-agricola'
     | '/mercado-mixto'
     | '/politica-de-privacidad'
+    | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/markets'
+    | '/admin/producers'
     | '/admin/submissions'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -198,11 +218,13 @@ export interface FileRouteTypes {
     | '/mercado-agricola'
     | '/mercado-mixto'
     | '/politica-de-privacidad'
+    | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/markets'
+    | '/admin/producers'
     | '/admin/submissions'
     | '/admin'
   id:
@@ -217,11 +239,13 @@ export interface FileRouteTypes {
     | '/mercado-agricola'
     | '/mercado-mixto'
     | '/politica-de-privacidad'
+    | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
     | '/_admin/admin/markets'
+    | '/_admin/admin/producers'
     | '/_admin/admin/submissions'
     | '/_admin/admin/'
   fileRoutesById: FileRoutesById
@@ -237,6 +261,7 @@ export interface RootRouteChildren {
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   MercadoMixtoRoute: typeof MercadoMixtoRoute
   PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
+  ProductoresRoute: typeof ProductoresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
@@ -248,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/productores': {
+      id: '/productores'
+      path: '/productores'
+      fullPath: '/productores'
+      preLoaderRoute: typeof ProductoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/politica-de-privacidad': {
@@ -341,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminSubmissionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/producers': {
+      id: '/_admin/admin/producers'
+      path: '/admin/producers'
+      fullPath: '/admin/producers'
+      preLoaderRoute: typeof AdminAdminProducersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/markets': {
       id: '/_admin/admin/markets'
       path: '/admin/markets'
@@ -369,6 +408,7 @@ interface AdminRouteChildren {
   AdminAdminAnalyticsRoute: typeof AdminAdminAnalyticsRoute
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminAdminMarketsRoute: typeof AdminAdminMarketsRoute
+  AdminAdminProducersRoute: typeof AdminAdminProducersRoute
   AdminAdminSubmissionsRoute: typeof AdminAdminSubmissionsRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
@@ -377,6 +417,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminAnalyticsRoute: AdminAdminAnalyticsRoute,
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminAdminMarketsRoute: AdminAdminMarketsRoute,
+  AdminAdminProducersRoute: AdminAdminProducersRoute,
   AdminAdminSubmissionsRoute: AdminAdminSubmissionsRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
@@ -394,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   MercadoMixtoRoute: MercadoMixtoRoute,
   PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
+  ProductoresRoute: ProductoresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
