@@ -266,6 +266,7 @@ export type Database = {
           organizer_contact_url: string | null
           organizer_email: string | null
           organizer_instagram: string | null
+          organizer_logo_url: string | null
           organizer_name: string
           organizer_phone: string | null
           recurrence_day_of_week: string | null
@@ -295,6 +296,7 @@ export type Database = {
           organizer_contact_url?: string | null
           organizer_email?: string | null
           organizer_instagram?: string | null
+          organizer_logo_url?: string | null
           organizer_name: string
           organizer_phone?: string | null
           recurrence_day_of_week?: string | null
@@ -324,6 +326,7 @@ export type Database = {
           organizer_contact_url?: string | null
           organizer_email?: string | null
           organizer_instagram?: string | null
+          organizer_logo_url?: string | null
           organizer_name?: string
           organizer_phone?: string | null
           recurrence_day_of_week?: string | null
@@ -367,6 +370,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          logo_url: string | null
           market_names: string | null
           message: string
           producer_name: string
@@ -377,6 +381,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          logo_url?: string | null
           market_names?: string | null
           message: string
           producer_name: string
@@ -387,6 +392,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          logo_url?: string | null
           market_names?: string | null
           message?: string
           producer_name?: string

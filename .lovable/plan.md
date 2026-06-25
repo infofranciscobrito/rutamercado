@@ -1,104 +1,57 @@
-# Plan — Directorio de Productores
 
-## Datos disponibles (verificados en `markets`)
+## 1. Cambios visuales en la tarjeta (`ProducerCard.tsx`)
 
-Campos del productor que existen en la tabla `markets`:
-- `organizer_name`, `organizer_phone`, `organizer_email`, `organizer_instagram`, `organizer_contact_url`
-- Asociados: `name` (mercado), `region`, `municipality`, `is_active`
+- Mantener una tarjeta por productor (agrupado por `organizer_name`).
+- Nuevo encabezado:
+  - **Título grande** (DM Serif / `font-display text-2xl`) = nombre del **primer mercado** del productor (`producer.markets[0].name`).
+  - Debajo, en texto pequeño y secundario (`text-sm text-[#18253f]/60`): `Contacto: {organizer_name}`.
+- Si hay logo del productor, mostrar thumbnail circular 56–64 px a la izquierda del título.
+- Eliminar el duplicado en la línea de ubicación: la primera fila de mercado ya no repite el nombre (porque ya es el título). Mostrar solo municipio · región para el mercado principal, y para los demás mercados sí mostrar `nombre · municipio · región`. Se agrega un check para nunca renderizar dos veces el mismo `m.name`.
 
-**No existe** un campo "página web" separado — se usará `organizer_contact_url` como "Enlace de contacto / web". No se crean campos nuevos.
+## 2. Base de datos (una migración)
 
-No hay una tabla `producers` separada: cada mercado activo lleva la información de su productor. La página agrupará por `organizer_name` (normalizado) para evitar duplicados si un productor organiza varios mercados.
+- `ALTER TABLE public.markets ADD COLUMN organizer_logo_url text;` — compartido entre todos los mercados del mismo `organizer_name`.
+- `ALTER TABLE public.producer_update_requests ADD COLUMN logo_url text;` para registrar el archivo adjunto enviado desde el popup.
+- Sin cambios de RLS (las políticas existentes cubren los nuevos campos).
+- Reutilizar el bucket existente `market-images` con la subcarpeta `producers/`. Ya es público y tiene los límites de tamaño/MIME correctos.
 
----
+## 3. Server functions
 
-## 1. Página pública `/productores`
+- `producers.functions.ts`:
+  - Añadir `organizer_logo_url` al `select` y al objeto `Producer`. Tomar el primer valor no vacío al agrupar.
+  - Ampliar `submitProducerUpdateRequest` para aceptar opcionalmente `logo_base64` + `logo_filename` + `logo_mime`. Si llega:
+    1. Validar tamaño ≤ 5 MB y MIME (`image/jpeg` / `image/png`).
+    2. Subir a `market-images/producers/updates/{uuid}-{filename}` con el cliente service-role (cargado dentro del handler).
+    3. Guardar la URL pública en `producer_update_requests.logo_url`.
+    4. Adjuntarla en el correo de Resend (`attachments: [{ filename, content: base64 }]`).
+- `admin-producers.functions.ts`:
+  - Aceptar `organizer_logo_url` en `updateAdminProducer` y propagarlo a todos los mercados del productor.
+  - Devolver `organizer_logo_url` en `listAdminProducers`.
 
-Archivo nuevo: `src/routes/productores.tsx` (ruta pública, SSR).
+## 4. Popup `UpdateProducerDialog.tsx`
 
-- **Loader**: server function pública (`getProducers`) que lee `markets` con cliente publishable y filtro `is_active = true`, proyectando solo columnas seguras (organizer_*, name, region, municipality). Agrupa por `organizer_name` (trim + lowercase como clave); si un productor tiene varios mercados, lista todos.
-- **Head**: title y description únicos en español, og:title/og:description.
-- **Hero corto**: título "Productores de mercados locales en Puerto Rico" + subtítulo + barra de búsqueda (input controlado, filtra por nombre productor / mercado / región / municipio).
-- **Secciones por región**: encabezados Metro, Norte, Sur, Este, Oeste (solo los que tengan resultados). Productores sin región van a "Otros".
-- **Grid responsivo**: 1 col mobile / 2 tablet / 3 desktop. Orden alfabético por `organizer_name` dentro de cada región.
-- **Card** (`ProducerCard`):
-  - Nombre del productor (tipografía DM Serif Display, más prominente)
-  - Mercado(s) que produce y región/municipio (DM Sans)
-  - Botones de contacto con iconos lucide-react (Phone, Mail, Instagram, Globe), solo si el dato existe; targets ≥ 44px
-  - Instagram mostrado como `@handle`, web como URL clicable
-  - Si no hay ningún contacto: texto "Contacto no disponible"
-  - Botón "Actualizar información" (variant outline) que abre el modal
-- **Estilo**: tokens existentes de `src/styles.css` (mismos colores, radius, shadows, hover sutil) — sin nuevas variables. Reutiliza `Card`, `Button`, `Input` de shadcn.
+Nueva sección "Logo o imagen del mercado":
+- Subtexto: "Sube el logo o imagen de tu mercado. Formatos aceptados: JPG, PNG. Tamaño máximo: 5MB."
+- Botón estilizado (verde con icono `ImagePlus` de lucide) "Seleccionar imagen" que dispara un `<input type="file" hidden>` con `accept="image/jpeg,image/png"`.
+- Al elegir archivo: validar tamaño/MIME en cliente y mostrar mensajes exactos pedidos.
+- Preview: thumbnail 96×96 con botón "X" para remover.
+- Al enviar: leer como base64 y enviarlo en el payload al server fn. Campo opcional — no bloquea el envío.
 
-## 2. Modal "Actualizar perfil de productor"
+## 5. Admin (`/admin/producers`)
 
-Componente nuevo: `src/components/productores/UpdateProducerDialog.tsx` usando `Dialog` de shadcn.
+En `EditForm`, añadir una nueva sección "Logo del productor":
+- Reutilizar `ImageUpload16x9` (ya existe en el proyecto) o un componente local más sencillo que suba al bucket `market-images` bajo `producers/{producer_key}-{uuid}.{ext}` usando el cliente browser de Supabase, mostrando thumbnail si ya existe.
+- Guardar `organizer_logo_url` y pasarlo a `updateAdminProducer` — se replica a todos los mercados del productor.
 
-Campos:
-- Nombre productor (read-only, pre-cargado)
-- Textarea "¿Qué información deseas actualizar?" (validado con zod, requerido, max 2000)
-- Input email "Tu email de contacto" (zod email, requerido)
-- Botón "Enviar solicitud"
+## 6. Restricciones respetadas
 
-Al enviar llama a server fn `requestProducerUpdate` que envía email a `productores@rutamercadopr.com`:
-- Asunto: `Solicitud de actualización — {organizer_name}`
-- Cuerpo: nombre productor, mercado(s), email del solicitante, texto libre
+- El logo en el popup es opcional; el envío funciona sin imagen.
+- Sin cambios al resto de la funcionalidad existente de `/productores`.
+- Estilo visual consistente con la paleta actual (`#18253f`, `#54b678`, `font-display`).
 
-Tras éxito muestra: "Recibimos tu solicitud. Actualizaremos tu información en 24 horas o menos." Modal cierra con X o clic afuera (comportamiento por defecto del Dialog).
+## Detalles técnicos
 
-### Servicio de email
-
-El proyecto **no tiene email configurado todavía**. Propuesta: usar **Lovable Emails** (built-in, dominio propio). Esto requiere:
-1. Configurar dominio de email (`rutamercadopr.com` subdomain) vía el diálogo de setup.
-2. `setup_email_infra` + `scaffold_transactional_email`.
-3. Crear template `producer-update-request` y enviarlo desde la server fn al destinatario fijo `productores@rutamercadopr.com`.
-
-> Nota: estos pasos requieren acción del usuario (configurar DNS del subdominio). Mientras DNS se verifica, el código queda listo y los envíos arrancan al activarse el dominio.
-
-## 3. Panel admin → "Productores"
-
-Nueva ruta: `src/routes/_admin/admin.producers.tsx` + entrada en `AdminSidebar`.
-
-Como los datos viven en `markets`, "productor" = agrupación por `organizer_name`. El panel ofrece dos modos:
-
-- **Vista lista**: tabla con organizer_name, email, phone, instagram, contact_url, región, # mercados asociados, con buscador.
-- **Editar productor**: drawer que edita los campos `organizer_*` y región en **todos los mercados** que comparten ese `organizer_name` (un solo UPDATE filtrado). Confirma cuántos mercados se afectarán.
-- **Añadir productor manualmente**: como no hay tabla independiente y un productor sin mercado no aparece en `/productores`, esta acción crea un registro mínimo en `markets` con `is_active=false` (placeholder) usando los datos del productor. Se documenta en el UI: "Se creará un mercado borrador asociado al productor; podrás completarlo luego en Mercados."
-- **Eliminar productor**: AlertDialog de confirmación; borra todos los mercados con ese `organizer_name` (o limpia campos organizer_* — el equipo decide). Por seguridad, el plan implementa **soft remove**: pone `is_active=false` en todos los mercados de ese productor y limpia campos organizer_* solo si el usuario marca "borrar también los mercados".
-
-Todas las operaciones via server fns con `requireSupabaseAuth` + check de rol admin (patrón ya usado en `admin-markets.functions.ts`).
-
-## 4. Navegación
-
-Añadir link "Productores" → `/productores` en `src/components/rutamercado/Header.tsx` (desktop nav + mobile menu), usando el patrón existente.
-
-## 5. Restricciones cumplidas
-
-- Sin la palabra "mercaditos".
-- Sin nuevos campos en Supabase (se reutilizan los `organizer_*` existentes).
-- Solo se muestran productores con `is_active=true`.
-- Sin colores/fuentes nuevas — solo tokens y componentes ya presentes.
-- Admin integrado en el dashboard existente (mismo layout, mismo sidebar).
-
-## Archivos a crear/editar
-
-Crear:
-- `src/routes/productores.tsx`
-- `src/components/productores/ProducerCard.tsx`
-- `src/components/productores/UpdateProducerDialog.tsx`
-- `src/lib/producers.functions.ts` (getProducers pública + requestProducerUpdate)
-- `src/routes/_admin/admin.producers.tsx`
-- `src/components/admin/ProducerEditDrawer.tsx`
-- `src/lib/admin-producers.functions.ts`
-- Template email `src/lib/email-templates/producer-update-request.tsx` + registro
-
-Editar:
-- `src/components/rutamercado/Header.tsx` (link nav)
-- `src/components/admin/AdminSidebar.tsx` (entrada Productores)
-- `src/lib/email-templates/registry.ts`
-
-## Pregunta antes de implementar
-
-1. **Email**: ¿OK configurar Lovable Emails con un subdominio de `rutamercadopr.com` (te pediré confirmar DNS)? Si prefieres Resend u otro, dime.
-2. **Eliminar productor en admin**: ¿soft-remove (desactivar mercados) o hard-delete (borrar filas)? Por defecto propongo soft-remove con opción explícita de hard-delete.
-3. **Añadir productor manual**: ¿OK que cree un mercado borrador `is_active=false`, o prefieres que esta acción quede deshabilitada hasta que exista una tabla `producers` dedicada (requeriría migración)?
+- Bucket: `market-images` (público, ya existe, límite 5 MB, MIME jpg/png/webp ya configurado).
+- Email Resend: misma ruta actual; añadir `attachments` cuando exista logo (`content` = base64 sin prefijo data URL).
+- Para evitar saturar el payload RPC, el límite de 5 MB se valida tanto en cliente como en servidor antes de subir.
+- `producer_update_requests.logo_url` permite que admin vea la imagen aun si el correo falla.
