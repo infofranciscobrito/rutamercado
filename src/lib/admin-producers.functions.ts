@@ -46,6 +46,14 @@ const EditSchema = z.object({
     .nullable()
     .optional()
     .or(z.literal("").transform(() => null)),
+  organizer_logo_url: z
+    .string()
+    .trim()
+    .url()
+    .max(1000)
+    .nullable()
+    .optional()
+    .or(z.literal("").transform(() => null)),
 });
 
 export const listAdminProducers = createServerFn({ method: "GET" })
