@@ -314,6 +314,8 @@ function EditForm({
   const removeMarketFn = useServerFn(adminRemoveProducerMarket);
 
   const [nombre, setNombre] = useState(initial.nombre);
+  const [contacto, setContacto] = useState(initial.contacto ?? "");
+
   const [region, setRegion] = useState<string>(initial.region ?? "");
   const [telefono, setTelefono] = useState(initial.telefono ?? "");
   const [email, setEmail] = useState(initial.email ?? "");
