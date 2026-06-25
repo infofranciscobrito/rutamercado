@@ -134,7 +134,6 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
       region: data.region,
       email: data.email,
       telefono: data.telefono,
-      instagram: data.instagram,
       website: data.website,
       logo_url: logoUrl,
     };
