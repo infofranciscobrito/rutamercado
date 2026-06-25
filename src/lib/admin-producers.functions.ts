@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export type AdminProducer = {
   id: string;
   nombre: string;
+  contacto: string | null;
   region: string | null;
   email: string | null;
   telefono: string | null;
@@ -13,6 +14,7 @@ export type AdminProducer = {
   logo_url: string | null;
   mercados: { id: string; nombre: string }[];
 };
+
 
 const optText = (max: number) =>
   z.preprocess(
