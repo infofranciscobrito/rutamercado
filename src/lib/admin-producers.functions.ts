@@ -78,7 +78,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("productores")
       .select(
-        "id, nombre, email, telefono, instagram, website, region, logo_url, productor_mercados(id, mercado_nombre)",
+        "id, nombre, contacto, email, telefono, instagram, website, region, logo_url, productor_mercados(id, mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -86,6 +86,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     return (data ?? []).map((p) => ({
       id: p.id,
       nombre: p.nombre,
+      contacto: p.contacto ?? null,
       region: p.region ?? null,
       email: p.email ?? null,
       telefono: p.telefono ?? null,
@@ -96,6 +97,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
         .map((m) => ({ id: m.id, nombre: m.mercado_nombre }))
         .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })),
     }));
+
   });
 
 async function uploadLogoIfPresent(logo: {
