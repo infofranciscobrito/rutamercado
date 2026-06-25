@@ -11,6 +11,7 @@ import {
   type AdminProducer,
 } from "@/lib/admin-producers.functions";
 import { MARKET_REGIONS } from "@/types/market";
+import { ImageUpload16x9 } from "@/components/rutamercado/ImageUpload16x9";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
