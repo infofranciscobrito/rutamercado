@@ -402,6 +402,74 @@ export type Database = {
         }
         Relationships: []
       }
+      productor_mercados: {
+        Row: {
+          created_at: string
+          id: string
+          mercado_nombre: string
+          productor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mercado_nombre: string
+          productor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mercado_nombre?: string
+          productor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "productor_mercados_productor_id_fkey"
+            columns: ["productor_id"]
+            isOneToOne: false
+            referencedRelation: "productores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      productores: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          instagram: string | null
+          logo_url: string | null
+          nombre: string
+          region: string | null
+          telefono: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          nombre: string
+          region?: string | null
+          telefono?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          nombre?: string
+          region?: string | null
+          telefono?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

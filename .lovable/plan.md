@@ -1,50 +1,91 @@
-## Problema
 
-En `src/lib/admin-producers.functions.ts`, el `EditSchema` valida los campos de contacto con un helper (`optStr`) que **no acepta `null`**. El formulario en `src/routes/_admin/admin.producers.tsx` envía `null` cuando un campo está vacío (línea 294: `phone.trim() || null`), por eso Zod lanza:
+## Objetivo
+Eliminar la duplicidad en `/productores` separando los productores en sus propias tablas, sin tocar la tabla `markets`.
 
-- `Expected string, received null` (para `organizer_phone`, `organizer_instagram`)
-- `Invalid literal value, expected ''` (la rama `.or(z.literal(""))` tampoco coincide con `null`)
+## Paso 1 — Base de datos (migración Supabase)
 
-Los campos `organizer_email`, `organizer_contact_url` y `organizer_logo_url` sí tienen `.nullable()`, pero la combinación con `.or(z.literal("").transform(...))` es frágil y conviene normalizarla.
+Crear dos tablas nuevas en `public`:
 
-## Cambio
+**`productores`**
+- `id uuid pk default gen_random_uuid()`
+- `nombre text not null`
+- `email text`, `telefono text`, `instagram text`, `website text`, `region text`, `logo_url text`
+- `created_at timestamptz default now()`, `updated_at timestamptz default now()`
+- Índice único case-insensitive sobre `lower(nombre)` para evitar duplicados futuros.
 
-Reescribir los helpers de validación en `src/lib/admin-producers.functions.ts` para que **todos los campos de contacto opcionales** acepten `string`, `""` o `null` y siempre normalicen a `string | null`:
+**`productor_mercados`**
+- `id uuid pk default gen_random_uuid()`
+- `productor_id uuid not null references productores(id) on delete cascade`
+- `mercado_nombre text not null`
+- `created_at timestamptz default now()`
+- Único `(productor_id, lower(mercado_nombre))`.
 
-```ts
-// Texto opcional: acepta string, "", null, undefined -> string | null
-const optText = (max: number) =>
-  z.preprocess(
-    (v) => (v == null ? null : typeof v === "string" ? v.trim() : v),
-    z.union([z.string().max(max), z.null()]).transform((v) => (v && v.length > 0 ? v : null)),
-  );
+GRANTs + RLS:
+- `productores`: `GRANT SELECT TO anon, authenticated` (directorio público); INSERT/UPDATE/DELETE solo `service_role` (admin pasa por server fn con role check). Política `select` abierta.
+- `productor_mercados`: igual patrón (`SELECT` público, mutaciones vía service_role).
+- `service_role`: `GRANT ALL` en ambas.
 
-// Email opcional: acepta email válido, "", null -> string | null
-const optEmail = z.preprocess(
-  (v) => (v == null || v === "" ? null : typeof v === "string" ? v.trim() : v),
-  z.union([z.string().email().max(255), z.null()]),
-);
+Trigger `set_updated_at` en `productores`.
 
-// URL opcional: acepta URL válida, "", null -> string | null
-const optUrl = (max: number) =>
-  z.preprocess(
-    (v) => (v == null || v === "" ? null : typeof v === "string" ? v.trim() : v),
-    z.union([z.string().url().max(max), z.null()]),
-  );
-```
+## Paso 2 — Migración de datos (en la MISMA migración SQL, idempotente)
 
-Aplicar al `EditSchema`:
+Dentro del mismo archivo de migración, ejecutar un bloque `DO $$ ... $$` que:
 
-- `organizer_phone: optText(500)`
-- `organizer_instagram: optText(500)`
-- `organizer_email: optEmail`
-- `organizer_contact_url: optUrl(500)`
-- `organizer_logo_url: optUrl(1000)`
+1. Inserta en `productores` un registro por cada `organizer_name` único (consolidando por `lower(trim(organizer_name))`) tomando de `markets` (donde `is_active = true` y nombre no vacío) el primer valor no-vacío de `organizer_email`, `organizer_phone`, `organizer_instagram`, `organizer_contact_url` (→ `website`), `organizer_logo_url` (→ `logo_url`), `region`. Usa `ON CONFLICT` sobre el índice único para que sea re-ejecutable sin efecto.
+2. Inserta en `productor_mercados` un registro por cada `(productor_id, markets.name)` distinct, con `ON CONFLICT DO NOTHING`.
 
-No se cambia nada del componente cliente ni la lógica de subida a Storage; el upload del logo ya ocurre antes de invocar la server function y solo se envía la URL pública, así que al desbloquear la validación el guardado y la subida funcionan correctamente.
+La tabla `markets` y sus columnas `organizer_*` quedan intactas (siguen siendo la fuente para el formulario público de envío).
 
-## Verificación
+## Paso 3 — Server functions nuevas (`src/lib/producers.functions.ts`)
 
-1. Editar un productor dejando `organizer_phone` vacío → guarda sin error.
-2. Editar con `organizer_email` vacío y con un email válido → ambos casos guardan.
-3. Subir un logo nuevo (≤5MB, JPG/PNG) → se sube a `market-images` y la URL persiste en todos los mercados del productor.
+Reescribir el archivo para leer de las nuevas tablas:
+
+- `listProducers()` (público, server publishable client): `SELECT` de `productores` + join a `productor_mercados`. Devuelve `{ id, nombre, region, email, telefono, instagram, website, logo_url, mercados: string[] }[]`, ordenado por nombre.
+- Mantener `submitProducerUpdateRequest` (popup público) sin tocar tabla `productores`; solo inserta en `producer_update_requests` y manda email. Añadir al schema Zod el campo `market_names` ya existente (se reutiliza para "Mercados que organizas").
+
+Server functions admin nuevas (`src/lib/admin-producers.functions.ts`, todas con `requireSupabaseAuth` + check `has_role(admin)`):
+
+- `adminListProducers()` — todos los productores con sus mercados.
+- `adminUpsertProducer(input)` — crea o actualiza un productor. Zod schema con todos los campos de contacto aceptando `string | "" | null` (normaliza a `string | null`); soporta `logo_base64/logo_mime/logo_filename` opcional (sube a bucket `market-images/producers/`).
+- `adminDeleteProducer(id)`.
+- `adminAddProducerMarket(productor_id, mercado_nombre)`.
+- `adminRemoveProducerMarket(id)`.
+
+## Paso 4 — UI pública `/productores`
+
+`src/components/productores/ProducerCard.tsx`:
+- Logo (si existe) en la parte superior, circular/cuadrado con `rounded-2xl`.
+- **Título principal**: `nombre` del productor en DM Serif Display.
+- Bloque "Mercados que organiza:" con pills (`Badge` shadcn) listando cada `mercado_nombre`.
+- Región, email, teléfono, Instagram, website con sus íconos lucide (los actuales).
+- Botón "Actualizar información" (sin cambios funcionales).
+
+`src/routes/productores.tsx`: adaptar el tipo `Producer` al nuevo shape, mantener búsqueda + agrupación por región existentes.
+
+`src/components/productores/UpdateProducerDialog.tsx`: ya existe `market_names`; solo cambiar su label a "Mercados que organizas" y el helper text indicando que se separen por coma.
+
+## Paso 5 — Admin `/admin/producers`
+
+Rediseñar el drawer/form de edición:
+- Campos contacto: `nombre`, `email`, `telefono`, `instagram`, `website`, `region`, `logo_url` (con upload — reutilizar el uploader actual).
+- Nueva sección **"Mercados que organiza"**:
+  - Lista actual de pills con `× ` que llama a `adminRemoveProducerMarket`.
+  - Input + botón "Añadir" que llama a `adminAddProducerMarket`.
+- Botón "Eliminar productor" con confirmación.
+
+La tabla principal de `/admin/producers` pasa a listar `adminListProducers()`.
+
+## Paso 6 — Tipos
+
+`src/integrations/supabase/types.ts` se regenera automáticamente tras la migración. Crear `src/types/producer.ts` con el tipo de dominio `Producer` que consume la UI.
+
+## Restricciones respetadas
+- `markets` no se modifica ni se elimina.
+- Todos los campos de contacto son opcionales y aceptan `null`/`""` sin romper Zod.
+- Migración de datos corre dentro del archivo SQL (automática en deploy), idempotente.
+- Estilo visual se mantiene (mismos componentes shadcn, tokens, fuentes).
+
+## Notas técnicas
+- El popup público sigue siendo solo "solicitud" — no escribe directo en `productores`. El admin aplica los cambios manualmente desde `/admin/producers`.
+- El índice único `lower(nombre)` previene duplicados nuevos al añadir productores desde el admin.
+- Para borrar mercados vinculados se cascadea por `on delete cascade`.
