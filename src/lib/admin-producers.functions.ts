@@ -133,6 +133,7 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
 
     const payload = {
       nombre: data.nombre,
+      contacto: data.contacto,
       region: data.region,
       email: data.email,
       telefono: data.telefono,
@@ -140,6 +141,7 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
       website: data.website,
       logo_url: logoUrl,
     };
+
 
     if (data.id) {
       const { error } = await context.supabase
