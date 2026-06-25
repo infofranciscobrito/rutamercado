@@ -105,8 +105,7 @@ function ProducersAdminPage() {
   }, [data, q]);
 
   const upsertMutation = useMutation({
-    mutationFn: async (vars: Parameters<typeof upsertFn>[0]["data"]) =>
-      upsertFn({ data: vars }),
+    mutationFn: async (vars: UpsertVars) => upsertFn({ data: vars }),
     onSuccess: () => {
       toast.success("Productor guardado.");
       queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
