@@ -26,6 +26,13 @@ function displayUrl(raw: string): string {
   return raw.trim().replace(/^https?:\/\//i, "").replace(/\/$/, "");
 }
 
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export function ProducerCard({ producer }: { producer: Producer }) {
   const [open, setOpen] = useState(false);
   const hasContact = Boolean(
@@ -33,38 +40,45 @@ export function ProducerCard({ producer }: { producer: Producer }) {
   );
 
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-[#18253f]/10 bg-white p-6 shadow-[0_2px_12px_rgba(24,37,63,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#54b678]/40 hover:shadow-[0_8px_28px_rgba(24,37,63,0.12)]">
-      {producer.logo_url ? (
-        <div className="mb-4 flex justify-center">
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#54b678] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.2)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+      <div className="-mx-6 -mt-6 mb-4 flex justify-center bg-black/15 px-6 pb-4 pt-6">
+        {producer.logo_url ? (
           <img
             src={producer.logo_url}
             alt={`Logo de ${producer.nombre}`}
-            className="h-24 w-24 rounded-2xl border border-[#18253f]/10 object-cover"
+            className="h-24 w-24 rounded-full border-2 border-white bg-white object-cover"
             loading="lazy"
           />
-        </div>
-      ) : null}
+        ) : (
+          <div
+            aria-hidden
+            className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-white bg-white font-display text-2xl text-[#54b678]"
+          >
+            {initials(producer.nombre)}
+          </div>
+        )}
+      </div>
 
       <header>
-        <h3 className="font-display text-2xl leading-tight text-[#18253f]">
+        <h3 className="font-display text-2xl leading-tight text-white">
           {producer.nombre}
         </h3>
         {producer.contacto ? (
-          <p className="mt-1 text-sm text-[#18253f]/70">
-            Contacto: <span className="text-[#18253f]">{producer.contacto}</span>
+          <p className="mt-1 text-sm text-white/85">
+            Contacto: <span className="text-white">{producer.contacto}</span>
           </p>
         ) : null}
         {producer.region ? (
-          <div className="mt-2 flex items-center gap-1.5 text-sm text-[#18253f]/70">
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#54b678]" />
+          <div className="mt-2 flex items-center gap-1.5 text-sm text-white/85">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-white" />
             <span>{producer.region}</span>
           </div>
         ) : null}
       </header>
 
       {producer.mercados.length > 0 ? (
-        <div className="mt-4 border-t border-[#18253f]/5 pt-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#18253f]/50">
+        <div className="mt-4 border-t border-white/20 pt-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/85">
             Mercados
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -72,7 +86,7 @@ export function ProducerCard({ producer }: { producer: Producer }) {
               <Badge
                 key={nombre}
                 variant="secondary"
-                className="bg-[#54b678]/10 text-[#18253f] hover:bg-[#54b678]/15"
+                className="bg-white/15 text-white hover:bg-white/25"
               >
                 {nombre}
               </Badge>
@@ -80,7 +94,6 @@ export function ProducerCard({ producer }: { producer: Producer }) {
           </div>
         </div>
       ) : null}
-
 
       <div className="mt-5 flex-1 space-y-2">
         {hasContact ? (
@@ -90,9 +103,9 @@ export function ProducerCard({ producer }: { producer: Producer }) {
                 href={safeUrl(producer.website)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
+                className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-white hover:bg-white/10 [&_span]:hover:underline"
               >
-                <Globe className="h-4 w-4 text-[#54b678]" />
+                <Globe className="h-4 w-4 text-white" />
                 <span className="truncate">{displayUrl(producer.website)}</span>
               </a>
             ) : null}
@@ -104,9 +117,9 @@ export function ProducerCard({ producer }: { producer: Producer }) {
                       href={ig.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
+                      className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-white hover:bg-white/10 [&_span]:hover:underline"
                     >
-                      <Instagram className="h-4 w-4 text-[#54b678]" />
+                      <Instagram className="h-4 w-4 text-white" />
                       <span className="truncate">{ig.handle}</span>
                     </a>
                   );
@@ -115,31 +128,31 @@ export function ProducerCard({ producer }: { producer: Producer }) {
             {producer.email ? (
               <a
                 href={`mailto:${producer.email}`}
-                className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
+                className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-white hover:bg-white/10 [&_span]:hover:underline"
               >
-                <Mail className="h-4 w-4 text-[#54b678]" />
+                <Mail className="h-4 w-4 text-white" />
                 <span className="truncate">{producer.email}</span>
               </a>
             ) : null}
             {producer.telefono ? (
               <a
                 href={`tel:${producer.telefono.replace(/\s+/g, "")}`}
-                className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
+                className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-white hover:bg-white/10 [&_span]:hover:underline"
               >
-                <Phone className="h-4 w-4 text-[#54b678]" />
+                <Phone className="h-4 w-4 text-white" />
                 <span className="truncate">{producer.telefono}</span>
               </a>
             ) : null}
           </>
         ) : (
-          <p className="text-sm italic text-[#18253f]/50">Contacto no disponible</p>
+          <p className="text-sm italic text-white/70">Contacto no disponible</p>
         )}
       </div>
 
-      <div className="mt-5 border-t border-[#18253f]/5 pt-4">
+      <div className="mt-5 border-t border-white/20 pt-4">
         <Button
           variant="outline"
-          className="w-full border-[#18253f]/20 text-[#18253f] hover:border-[#54b678] hover:bg-[#54b678]/5 hover:text-[#18253f]"
+          className="w-full border-white bg-transparent text-white transition-colors duration-200 ease-out hover:bg-white hover:text-[#54b678]"
           onClick={() => setOpen(true)}
         >
           Actualizar información

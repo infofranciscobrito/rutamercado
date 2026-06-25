@@ -1,56 +1,42 @@
-## Objetivo
+## Cambio de esquema de colores en /productores
 
-Corregir la jerarquía visual de `ProducerCard` en `/productores` y `/admin/producers`:
+Aplicar el rediseño únicamente en `src/routes/productores.tsx` y `src/components/productores/ProducerCard.tsx`. Usar los tokens existentes: `#18253f` (navy del sitio) y `#54b678` (verde primario). No tocar `src/styles.css`, datos, ni el popup.
 
-1. Título = `productores.nombre` (nombre real del productor, no del mercado).
-2. Subtítulo "Contacto: …" desde nuevo campo `productores.contacto`.
-3. Región con ícono pin (sin ciudad).
-4. Sección "MERCADOS" con pills, **entre región y contacto**.
-5. Links de contacto (web, IG, email, tel).
-6. Botón "Actualizar información" al final.
+### 1. `src/routes/productores.tsx` — fondo navy
 
-## Cambios
+- Contenedor raíz: `bg-[#18253f]` en lugar de `bg-[#FAFAF8]`.
+- Sección hero: quitar `bg-white`; usar el mismo navy. Borde inferior `border-white/15`.
+- H1, párrafo y contador: texto blanco / `text-white/80`.
+- Input de búsqueda: fondo `bg-white/10`, borde `border-white/20`, texto blanco, placeholder `placeholder:text-white/50`; icono `text-white/60`.
+- Estado vacío: caja con `border-white/20 bg-white/5` y texto `text-white/70`.
+- Encabezados de región (`h2`): `text-white`; contador `text-white/60`.
+- Añadir `<div className="mt-4 h-px bg-white/20" />` dentro del bloque de cada región para el separador sutil.
 
-### 1. Base de datos (migración)
-- `ALTER TABLE productores ADD COLUMN contacto text` (nullable).
-- Re-migrar `productores.nombre` desde `markets.organizer_name` usando el vínculo de `productor_mercados`:
-  - Para cada productor, tomar el `organizer_name` del primer mercado vinculado (o el más reciente). Si `organizer_name` es nulo/vacío, dejar el `nombre` actual.
-  - Backfill opcional: `contacto` puede quedar NULL inicialmente; lo poblará el admin.
-- Sin cambios en RLS (la tabla ya tiene políticas y grants).
+### 2. `src/components/productores/ProducerCard.tsx` — tarjeta verde sobre navy
 
-### 2. Tipos y server functions
-- Regenerar tipos tras la migración (`productores.contacto`).
-- `src/lib/producers.functions.ts`: agregar `contacto: string | null` al tipo `Producer` y al `select`/mapeo de `listProducers`.
-- `src/lib/admin-producers.functions.ts`: incluir `contacto` en el schema Zod (nullable + literal "") y en create/update.
+Reemplazar todos los tonos navy/blanco internos manteniendo la estructura JSX actual:
 
-### 3. UI tarjeta pública (`src/components/productores/ProducerCard.tsx`)
-Orden exacto del JSX:
-```
-[logo opcional centrado]
-<h3> producer.nombre </h3>
-{contacto && <p>Contacto: {contacto}</p>}
-{region && <div><MapPin/> {region}</div>}
-{mercados.length>0 && (
-  <section>
-    <p class="uppercase text-xs">MERCADOS</p>
-    <pills/>
-  </section>
-)}
-{links de contacto: web, IG, email, tel}
-<Button>Actualizar información</Button>
-```
-- Mantener tokens visuales actuales (`#18253f`, `#54b678`, `font-display`).
-- Cambiar label "Mercados que organiza:" → "MERCADOS".
+- `<article>`: fondo `bg-[#54b678]`, borde `border-white/15`, sombra base `shadow-[0_2px_12px_rgba(0,0,0,0.2)]`, hover `hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.35)]`, transición 200ms.
+- Header oscurecido: envolver el avatar circular en un bloque superior con `bg-black/15` y márgenes negativos (`-mx-6 -mt-6 px-6 pt-6 pb-4`) para crear profundidad sin nuevos colores.
+- Avatar:
+  - Con logo: `border-2 border-white` (rounded-full), fondo blanco si la imagen es transparente.
+  - Sin logo: placeholder circular `bg-white` con iniciales del productor en `text-[#54b678] font-display`.
+- Tipografía dentro de la tarjeta:
+  - Nombre: `text-white` (DM Serif Display).
+  - "Contacto:", región, etiqueta "MERCADOS": `text-white/85`.
+  - Icono MapPin: `text-white`.
+- Sección mercados:
+  - Separador superior: `border-t border-white/20`.
+  - Pills `Badge`: `bg-white/15 text-white hover:bg-white/25` (sin colores nuevos).
+- Links de contacto:
+  - Texto `text-white`, iconos `text-white`, hover `hover:bg-white/10` y subrayado del texto (`hover:[&_span]:underline`).
+- Separador antes del botón: `border-t border-white/20`.
+- Botón "Actualizar información": variant `outline` con `border-white text-white bg-transparent hover:bg-white hover:text-[#54b678] transition-colors duration-200 ease-out`.
+- Mensaje "Contacto no disponible": `text-white/70 italic`.
 
-### 4. Admin (`src/routes/_admin/admin.producers.tsx`)
-- Añadir input "Nombre de contacto" en el sheet de edición/creación, mapeado a `contacto`.
-- Sin cambios en flujo de logo ni vínculos de mercados.
+### Restricciones cubiertas
 
-### 5. (No incluido)
-- Popup `UpdateProducerDialog` no cambia (sigue enviando `producer_name` + mercados; el admin actualiza el campo `contacto` manualmente al procesar la solicitud).
-
-## Verificación
-
-- Build pasa con tipos regenerados.
-- En `/productores`: las tarjetas muestran el nombre del productor como título (no el del mercado) y los mercados como pills entre región y contacto.
-- En `/admin/producers`: se puede editar `contacto` y se persiste.
+- Solo se editan los dos archivos de la página /productores; el resto del sitio queda intacto.
+- Se reutilizan los tokens existentes (`#18253f`, `#54b678`); los valores `rgba(0,0,0,…)` y `white/xx` son sombras/opacidades, no colores de marca nuevos.
+- No se modifica la estructura de datos ni el `UpdateProducerDialog` (sólo el botón que lo dispara cambia de estilo).
+- No se usa la palabra "mercaditos".
