@@ -11,6 +11,7 @@ import {
   type AdminProducer,
 } from "@/lib/admin-producers.functions";
 import { MARKET_REGIONS } from "@/types/market";
+import { ImageUpload16x9 } from "@/components/rutamercado/ImageUpload16x9";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,6 +87,7 @@ function ProducersAdminPage() {
       organizer_email: string | null;
       organizer_instagram: string | null;
       organizer_contact_url: string | null;
+      organizer_logo_url: string | null;
     }) => updateFn({ data: vars }),
     onSuccess: (res) => {
       toast.success(`Productor actualizado (${res.updated} mercado(s)).`);
@@ -271,6 +273,7 @@ function EditForm({
     organizer_email: string | null;
     organizer_instagram: string | null;
     organizer_contact_url: string | null;
+    organizer_logo_url: string | null;
   }) => void;
   submitting: boolean;
 }) {
@@ -280,6 +283,7 @@ function EditForm({
   const [email, setEmail] = useState(initial.organizer_email ?? "");
   const [instagram, setInstagram] = useState(initial.organizer_instagram ?? "");
   const [contactUrl, setContactUrl] = useState(initial.organizer_contact_url ?? "");
+  const [logoUrl, setLogoUrl] = useState(initial.organizer_logo_url ?? "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -291,6 +295,7 @@ function EditForm({
       organizer_email: email.trim() || null,
       organizer_instagram: instagram.trim() || null,
       organizer_contact_url: contactUrl.trim() || null,
+      organizer_logo_url: logoUrl.trim() || null,
     });
   };
 
@@ -305,6 +310,15 @@ function EditForm({
           required
           className="mt-1"
         />
+      </div>
+      <div>
+        <Label>Logo del productor</Label>
+        <p className="mt-1 text-xs text-[#18253f]/60">
+          Se aplicará a todos los mercados de este productor.
+        </p>
+        <div className="mt-2">
+          <ImageUpload16x9 value={logoUrl} onChange={setLogoUrl} />
+        </div>
       </div>
       <div>
         <Label htmlFor="admin-prod-region">Región</Label>

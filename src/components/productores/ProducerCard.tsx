@@ -34,14 +34,47 @@ export function ProducerCard({ producer }: { producer: Producer }) {
       producer.organizer_contact_url,
   );
 
+  const primary = producer.markets[0];
+  const rest = producer.markets.slice(1, 4);
+  const extra = producer.markets.length - 1 - rest.length;
+  const primaryLocation = primary
+    ? [primary.municipality, primary.region].filter(Boolean).join(" · ")
+    : "";
+
   return (
     <article className="flex h-full flex-col rounded-2xl border border-[#18253f]/10 bg-white p-6 shadow-[0_2px_12px_rgba(24,37,63,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#54b678]/40 hover:shadow-[0_8px_28px_rgba(24,37,63,0.12)]">
-      <header>
-        <h3 className="font-display text-2xl leading-tight text-[#18253f]">
-          {producer.organizer_name}
-        </h3>
-        <div className="mt-3 space-y-1.5">
-          {producer.markets.slice(0, 4).map((m) => (
+      <header className="flex items-start gap-3">
+        {producer.organizer_logo_url ? (
+          <img
+            src={producer.organizer_logo_url}
+            alt={`Logo de ${producer.organizer_name}`}
+            className="h-14 w-14 shrink-0 rounded-full border border-[#18253f]/10 object-cover"
+            loading="lazy"
+          />
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-2xl leading-tight text-[#18253f]">
+            {primary?.name ?? producer.organizer_name}
+          </h3>
+          <p className="mt-1 text-sm text-[#18253f]/60">
+            Contacto:{" "}
+            <span className="text-[#18253f]/80">{producer.organizer_name}</span>
+          </p>
+          {primaryLocation ? (
+            <div className="mt-2 flex items-center gap-1.5 text-sm text-[#18253f]/70">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#54b678]" />
+              <span>{primaryLocation}</span>
+            </div>
+          ) : null}
+        </div>
+      </header>
+
+      {rest.length > 0 ? (
+        <div className="mt-4 space-y-1.5 border-t border-[#18253f]/5 pt-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#18253f]/50">
+            Otros mercados
+          </p>
+          {rest.map((m) => (
             <div key={m.id} className="flex items-start gap-2 text-sm text-[#18253f]/75">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#54b678]" />
               <span>
@@ -49,19 +82,14 @@ export function ProducerCard({ producer }: { producer: Producer }) {
                 {m.municipality ? (
                   <span className="text-[#18253f]/60"> · {m.municipality}</span>
                 ) : null}
-                {m.region ? (
-                  <span className="text-[#18253f]/50"> · {m.region}</span>
-                ) : null}
               </span>
             </div>
           ))}
-          {producer.markets.length > 4 ? (
-            <div className="pl-5 text-xs text-[#18253f]/50">
-              +{producer.markets.length - 4} mercado(s) más
-            </div>
+          {extra > 0 ? (
+            <div className="pl-5 text-xs text-[#18253f]/50">+{extra} mercado(s) más</div>
           ) : null}
         </div>
-      </header>
+      ) : null}
 
       <div className="mt-5 flex-1 space-y-2">
         {hasContact ? (
@@ -77,22 +105,22 @@ export function ProducerCard({ producer }: { producer: Producer }) {
                 <span className="truncate">{displayUrl(producer.organizer_contact_url)}</span>
               </a>
             ) : null}
-            {producer.organizer_instagram ? (
-              (() => {
-                const ig = instagramHandle(producer.organizer_instagram!);
-                return (
-                  <a
-                    href={ig.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
-                  >
-                    <Instagram className="h-4 w-4 text-[#54b678]" />
-                    <span className="truncate">{ig.handle}</span>
-                  </a>
-                );
-              })()
-            ) : null}
+            {producer.organizer_instagram
+              ? (() => {
+                  const ig = instagramHandle(producer.organizer_instagram!);
+                  return (
+                    <a
+                      href={ig.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#18253f] hover:bg-[#54b678]/10"
+                    >
+                      <Instagram className="h-4 w-4 text-[#54b678]" />
+                      <span className="truncate">{ig.handle}</span>
+                    </a>
+                  );
+                })()
+              : null}
             {producer.organizer_email ? (
               <a
                 href={`mailto:${producer.organizer_email}`}

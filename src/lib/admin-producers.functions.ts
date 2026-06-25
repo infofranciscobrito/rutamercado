@@ -11,6 +11,7 @@ export type AdminProducer = {
   organizer_email: string | null;
   organizer_instagram: string | null;
   organizer_contact_url: string | null;
+  organizer_logo_url: string | null;
   market_ids: string[];
   market_names: string[];
 };
@@ -45,6 +46,14 @@ const EditSchema = z.object({
     .nullable()
     .optional()
     .or(z.literal("").transform(() => null)),
+  organizer_logo_url: z
+    .string()
+    .trim()
+    .url()
+    .max(1000)
+    .nullable()
+    .optional()
+    .or(z.literal("").transform(() => null)),
 });
 
 export const listAdminProducers = createServerFn({ method: "GET" })
@@ -53,7 +62,7 @@ export const listAdminProducers = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("markets")
       .select(
-        "id, name, region, organizer_name, organizer_phone, organizer_email, organizer_instagram, organizer_contact_url",
+        "id, name, region, organizer_name, organizer_phone, organizer_email, organizer_instagram, organizer_contact_url, organizer_logo_url",
       );
     if (error) throw new Error(error.message);
 
@@ -63,6 +72,7 @@ export const listAdminProducers = createServerFn({ method: "GET" })
       if (!name) continue;
       const key = name.toLowerCase();
       const existing = map.get(key);
+      const logo = (m as { organizer_logo_url?: string | null }).organizer_logo_url ?? null;
       if (existing) {
         existing.market_ids.push(m.id);
         existing.market_names.push(m.name);
@@ -74,6 +84,7 @@ export const listAdminProducers = createServerFn({ method: "GET" })
           existing.organizer_instagram = m.organizer_instagram;
         if (!existing.organizer_contact_url && m.organizer_contact_url)
           existing.organizer_contact_url = m.organizer_contact_url;
+        if (!existing.organizer_logo_url && logo) existing.organizer_logo_url = logo;
         if (!existing.region && m.region) existing.region = m.region as MarketRegion;
       } else {
         map.set(key, {
@@ -84,6 +95,7 @@ export const listAdminProducers = createServerFn({ method: "GET" })
           organizer_email: m.organizer_email ?? null,
           organizer_instagram: m.organizer_instagram ?? null,
           organizer_contact_url: m.organizer_contact_url ?? null,
+          organizer_logo_url: logo,
           market_ids: [m.id],
           market_names: [m.name],
         });
@@ -105,6 +117,7 @@ export const updateAdminProducer = createServerFn({ method: "POST" })
       organizer_email: data.organizer_email,
       organizer_instagram: data.organizer_instagram,
       organizer_contact_url: data.organizer_contact_url,
+      organizer_logo_url: data.organizer_logo_url ?? null,
       ...(data.region ? { region: data.region as MarketRegion } : {}),
     };
 
