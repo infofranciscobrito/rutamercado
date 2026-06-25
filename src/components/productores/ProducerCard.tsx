@@ -1,20 +1,9 @@
 import { useState } from "react";
-import { Mail, Phone, Instagram, Globe, MapPin } from "lucide-react";
+import { Mail, Phone, Instagram, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Producer } from "@/lib/producers.functions";
 import { UpdateProducerDialog } from "./UpdateProducerDialog";
-
-function instagramHandle(raw: string): { handle: string; href: string } {
-  const trimmed = raw.trim().replace(/^@/, "");
-  const handle = trimmed.startsWith("http")
-    ? trimmed.replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "")
-    : trimmed;
-  return {
-    handle: `@${handle}`,
-    href: `https://instagram.com/${handle.replace(/^@/, "")}`,
-  };
-}
 
 function safeUrl(raw: string): string {
   const t = raw.trim();
@@ -36,7 +25,7 @@ function initials(name: string): string {
 export function ProducerCard({ producer }: { producer: Producer }) {
   const [open, setOpen] = useState(false);
   const hasContact = Boolean(
-    producer.email || producer.telefono || producer.instagram || producer.website,
+    producer.email || producer.telefono || producer.website,
   );
 
   return (
@@ -105,26 +94,10 @@ export function ProducerCard({ producer }: { producer: Producer }) {
                 rel="noopener noreferrer"
                 className="group flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#54b678] hover:bg-[#54b678]/10 hover:text-white [&_span]:hover:underline"
               >
-                <Globe className="h-4 w-4 text-[#54b678] group-hover:text-white" />
+                <Instagram className="h-4 w-4 text-[#54b678] group-hover:text-white" />
                 <span className="truncate">{displayUrl(producer.website)}</span>
               </a>
             ) : null}
-            {producer.instagram
-              ? (() => {
-                  const ig = instagramHandle(producer.instagram!);
-                  return (
-                    <a
-                      href={ig.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-[#54b678] hover:bg-[#54b678]/10 hover:text-white [&_span]:hover:underline"
-                    >
-                      <Instagram className="h-4 w-4 text-[#54b678] group-hover:text-white" />
-                      <span className="truncate">{ig.handle}</span>
-                    </a>
-                  );
-                })()
-              : null}
             {producer.email ? (
               <a
                 href={`mailto:${producer.email}`}
