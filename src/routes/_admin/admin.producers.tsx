@@ -75,7 +75,6 @@ const emptyProducer = (): AdminProducer => ({
   region: null,
   email: null,
   telefono: null,
-  instagram: null,
   website: null,
   logo_url: null,
   mercados: [],
@@ -287,7 +286,6 @@ type UpsertVars = {
   region: string | null;
   email: string | null;
   telefono: string | null;
-  instagram: string | null;
   website: string | null;
   logo_url: string | null;
   logo?: {
@@ -319,7 +317,6 @@ function EditForm({
   const [region, setRegion] = useState<string>(initial.region ?? "");
   const [telefono, setTelefono] = useState(initial.telefono ?? "");
   const [email, setEmail] = useState(initial.email ?? "");
-  const [instagram, setInstagram] = useState(initial.instagram ?? "");
   const [website, setWebsite] = useState(initial.website ?? "");
   const [logoUrl, setLogoUrl] = useState<string | null>(initial.logo_url);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -400,7 +397,6 @@ function EditForm({
       region: region || null,
       email: email.trim() || null,
       telefono: telefono.trim() || null,
-      instagram: instagram.trim() || null,
       website: website.trim() || null,
       logo_url: logoUrl,
       logo: logoPayload,
@@ -514,22 +510,12 @@ function EditForm({
         />
       </div>
       <div>
-        <Label htmlFor="admin-prod-ig">Instagram</Label>
-        <Input
-          id="admin-prod-ig"
-          value={instagram}
-          onChange={(e) => setInstagram(e.target.value)}
-          placeholder="@usuario"
-          className="mt-1"
-        />
-      </div>
-      <div>
-        <Label htmlFor="admin-prod-url">Website / enlace de contacto</Label>
+        <Label htmlFor="admin-prod-url">Instagram o página web</Label>
         <Input
           id="admin-prod-url"
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
-          placeholder="https://..."
+          placeholder="https://www.instagram.com/usuario"
           className="mt-1"
         />
       </div>
