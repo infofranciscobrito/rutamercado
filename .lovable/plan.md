@@ -1,57 +1,50 @@
+## Problema
 
-## 1. Cambios visuales en la tarjeta (`ProducerCard.tsx`)
+En `src/lib/admin-producers.functions.ts`, el `EditSchema` valida los campos de contacto con un helper (`optStr`) que **no acepta `null`**. El formulario en `src/routes/_admin/admin.producers.tsx` envía `null` cuando un campo está vacío (línea 294: `phone.trim() || null`), por eso Zod lanza:
 
-- Mantener una tarjeta por productor (agrupado por `organizer_name`).
-- Nuevo encabezado:
-  - **Título grande** (DM Serif / `font-display text-2xl`) = nombre del **primer mercado** del productor (`producer.markets[0].name`).
-  - Debajo, en texto pequeño y secundario (`text-sm text-[#18253f]/60`): `Contacto: {organizer_name}`.
-- Si hay logo del productor, mostrar thumbnail circular 56–64 px a la izquierda del título.
-- Eliminar el duplicado en la línea de ubicación: la primera fila de mercado ya no repite el nombre (porque ya es el título). Mostrar solo municipio · región para el mercado principal, y para los demás mercados sí mostrar `nombre · municipio · región`. Se agrega un check para nunca renderizar dos veces el mismo `m.name`.
+- `Expected string, received null` (para `organizer_phone`, `organizer_instagram`)
+- `Invalid literal value, expected ''` (la rama `.or(z.literal(""))` tampoco coincide con `null`)
 
-## 2. Base de datos (una migración)
+Los campos `organizer_email`, `organizer_contact_url` y `organizer_logo_url` sí tienen `.nullable()`, pero la combinación con `.or(z.literal("").transform(...))` es frágil y conviene normalizarla.
 
-- `ALTER TABLE public.markets ADD COLUMN organizer_logo_url text;` — compartido entre todos los mercados del mismo `organizer_name`.
-- `ALTER TABLE public.producer_update_requests ADD COLUMN logo_url text;` para registrar el archivo adjunto enviado desde el popup.
-- Sin cambios de RLS (las políticas existentes cubren los nuevos campos).
-- Reutilizar el bucket existente `market-images` con la subcarpeta `producers/`. Ya es público y tiene los límites de tamaño/MIME correctos.
+## Cambio
 
-## 3. Server functions
+Reescribir los helpers de validación en `src/lib/admin-producers.functions.ts` para que **todos los campos de contacto opcionales** acepten `string`, `""` o `null` y siempre normalicen a `string | null`:
 
-- `producers.functions.ts`:
-  - Añadir `organizer_logo_url` al `select` y al objeto `Producer`. Tomar el primer valor no vacío al agrupar.
-  - Ampliar `submitProducerUpdateRequest` para aceptar opcionalmente `logo_base64` + `logo_filename` + `logo_mime`. Si llega:
-    1. Validar tamaño ≤ 5 MB y MIME (`image/jpeg` / `image/png`).
-    2. Subir a `market-images/producers/updates/{uuid}-{filename}` con el cliente service-role (cargado dentro del handler).
-    3. Guardar la URL pública en `producer_update_requests.logo_url`.
-    4. Adjuntarla en el correo de Resend (`attachments: [{ filename, content: base64 }]`).
-- `admin-producers.functions.ts`:
-  - Aceptar `organizer_logo_url` en `updateAdminProducer` y propagarlo a todos los mercados del productor.
-  - Devolver `organizer_logo_url` en `listAdminProducers`.
+```ts
+// Texto opcional: acepta string, "", null, undefined -> string | null
+const optText = (max: number) =>
+  z.preprocess(
+    (v) => (v == null ? null : typeof v === "string" ? v.trim() : v),
+    z.union([z.string().max(max), z.null()]).transform((v) => (v && v.length > 0 ? v : null)),
+  );
 
-## 4. Popup `UpdateProducerDialog.tsx`
+// Email opcional: acepta email válido, "", null -> string | null
+const optEmail = z.preprocess(
+  (v) => (v == null || v === "" ? null : typeof v === "string" ? v.trim() : v),
+  z.union([z.string().email().max(255), z.null()]),
+);
 
-Nueva sección "Logo o imagen del mercado":
-- Subtexto: "Sube el logo o imagen de tu mercado. Formatos aceptados: JPG, PNG. Tamaño máximo: 5MB."
-- Botón estilizado (verde con icono `ImagePlus` de lucide) "Seleccionar imagen" que dispara un `<input type="file" hidden>` con `accept="image/jpeg,image/png"`.
-- Al elegir archivo: validar tamaño/MIME en cliente y mostrar mensajes exactos pedidos.
-- Preview: thumbnail 96×96 con botón "X" para remover.
-- Al enviar: leer como base64 y enviarlo en el payload al server fn. Campo opcional — no bloquea el envío.
+// URL opcional: acepta URL válida, "", null -> string | null
+const optUrl = (max: number) =>
+  z.preprocess(
+    (v) => (v == null || v === "" ? null : typeof v === "string" ? v.trim() : v),
+    z.union([z.string().url().max(max), z.null()]),
+  );
+```
 
-## 5. Admin (`/admin/producers`)
+Aplicar al `EditSchema`:
 
-En `EditForm`, añadir una nueva sección "Logo del productor":
-- Reutilizar `ImageUpload16x9` (ya existe en el proyecto) o un componente local más sencillo que suba al bucket `market-images` bajo `producers/{producer_key}-{uuid}.{ext}` usando el cliente browser de Supabase, mostrando thumbnail si ya existe.
-- Guardar `organizer_logo_url` y pasarlo a `updateAdminProducer` — se replica a todos los mercados del productor.
+- `organizer_phone: optText(500)`
+- `organizer_instagram: optText(500)`
+- `organizer_email: optEmail`
+- `organizer_contact_url: optUrl(500)`
+- `organizer_logo_url: optUrl(1000)`
 
-## 6. Restricciones respetadas
+No se cambia nada del componente cliente ni la lógica de subida a Storage; el upload del logo ya ocurre antes de invocar la server function y solo se envía la URL pública, así que al desbloquear la validación el guardado y la subida funcionan correctamente.
 
-- El logo en el popup es opcional; el envío funciona sin imagen.
-- Sin cambios al resto de la funcionalidad existente de `/productores`.
-- Estilo visual consistente con la paleta actual (`#18253f`, `#54b678`, `font-display`).
+## Verificación
 
-## Detalles técnicos
-
-- Bucket: `market-images` (público, ya existe, límite 5 MB, MIME jpg/png/webp ya configurado).
-- Email Resend: misma ruta actual; añadir `attachments` cuando exista logo (`content` = base64 sin prefijo data URL).
-- Para evitar saturar el payload RPC, el límite de 5 MB se valida tanto en cliente como en servidor antes de subir.
-- `producer_update_requests.logo_url` permite que admin vea la imagen aun si el correo falla.
+1. Editar un productor dejando `organizer_phone` vacío → guarda sin error.
+2. Editar con `organizer_email` vacío y con un email válido → ambos casos guardan.
+3. Subir un logo nuevo (≤5MB, JPG/PNG) → se sube a `market-images` y la URL persiste en todos los mercados del productor.
