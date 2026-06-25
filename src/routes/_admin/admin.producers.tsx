@@ -86,6 +86,7 @@ function ProducersAdminPage() {
       organizer_email: string | null;
       organizer_instagram: string | null;
       organizer_contact_url: string | null;
+      organizer_logo_url: string | null;
     }) => updateFn({ data: vars }),
     onSuccess: (res) => {
       toast.success(`Productor actualizado (${res.updated} mercado(s)).`);
