@@ -10,7 +10,6 @@ export type Producer = {
   region: string | null;
   email: string | null;
   telefono: string | null;
-  instagram: string | null;
   website: string | null;
   logo_url: string | null;
   mercados: string[];
