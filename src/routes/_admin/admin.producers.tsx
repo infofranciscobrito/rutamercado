@@ -283,6 +283,7 @@ function ProducersAdminPage() {
 type UpsertVars = {
   id?: string | null;
   nombre: string;
+  contacto: string | null;
   region: string | null;
   email: string | null;
   telefono: string | null;
@@ -295,6 +296,7 @@ type UpsertVars = {
     logo_mime: "image/jpeg" | "image/png";
   };
 };
+
 
 function EditForm({
   initial,
