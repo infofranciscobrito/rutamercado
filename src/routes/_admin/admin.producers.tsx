@@ -510,22 +510,12 @@ function EditForm({
         />
       </div>
       <div>
-        <Label htmlFor="admin-prod-ig">Instagram</Label>
-        <Input
-          id="admin-prod-ig"
-          value={instagram}
-          onChange={(e) => setInstagram(e.target.value)}
-          placeholder="@usuario"
-          className="mt-1"
-        />
-      </div>
-      <div>
-        <Label htmlFor="admin-prod-url">Website / enlace de contacto</Label>
+        <Label htmlFor="admin-prod-url">Instagram o página web</Label>
         <Input
           id="admin-prod-url"
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
-          placeholder="https://..."
+          placeholder="https://www.instagram.com/usuario"
           className="mt-1"
         />
       </div>
