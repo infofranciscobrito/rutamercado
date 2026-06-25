@@ -49,6 +49,11 @@ export function ProducerCard({ producer }: { producer: Producer }) {
         <h3 className="font-display text-2xl leading-tight text-[#18253f]">
           {producer.nombre}
         </h3>
+        {producer.contacto ? (
+          <p className="mt-1 text-sm text-[#18253f]/70">
+            Contacto: <span className="text-[#18253f]">{producer.contacto}</span>
+          </p>
+        ) : null}
         {producer.region ? (
           <div className="mt-2 flex items-center gap-1.5 text-sm text-[#18253f]/70">
             <MapPin className="h-3.5 w-3.5 shrink-0 text-[#54b678]" />
@@ -59,8 +64,8 @@ export function ProducerCard({ producer }: { producer: Producer }) {
 
       {producer.mercados.length > 0 ? (
         <div className="mt-4 border-t border-[#18253f]/5 pt-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#18253f]/50">
-            Mercados que organiza:
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#18253f]/50">
+            Mercados
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {producer.mercados.map((nombre) => (
@@ -75,6 +80,7 @@ export function ProducerCard({ producer }: { producer: Producer }) {
           </div>
         </div>
       ) : null}
+
 
       <div className="mt-5 flex-1 space-y-2">
         {hasContact ? (
