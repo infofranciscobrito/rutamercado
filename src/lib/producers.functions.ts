@@ -37,7 +37,7 @@ export const listProducers = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("productores")
       .select(
-        "id, nombre, email, telefono, instagram, website, region, logo_url, productor_mercados(mercado_nombre)",
+        "id, nombre, contacto, email, telefono, instagram, website, region, logo_url, productor_mercados(mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -45,6 +45,7 @@ export const listProducers = createServerFn({ method: "GET" }).handler(
     return (data ?? []).map((p) => ({
       id: p.id,
       nombre: p.nombre,
+      contacto: p.contacto ?? null,
       region: p.region ?? null,
       email: p.email ?? null,
       telefono: p.telefono ?? null,
@@ -55,6 +56,7 @@ export const listProducers = createServerFn({ method: "GET" }).handler(
         .map((m) => m.mercado_nombre)
         .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" })),
     }));
+
   },
 );
 
