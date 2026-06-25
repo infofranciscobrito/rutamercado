@@ -117,6 +117,7 @@ export const updateAdminProducer = createServerFn({ method: "POST" })
       organizer_email: data.organizer_email,
       organizer_instagram: data.organizer_instagram,
       organizer_contact_url: data.organizer_contact_url,
+      organizer_logo_url: data.organizer_logo_url ?? null,
       ...(data.region ? { region: data.region as MarketRegion } : {}),
     };
 
