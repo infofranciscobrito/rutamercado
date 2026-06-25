@@ -317,7 +317,6 @@ function EditForm({
   const [region, setRegion] = useState<string>(initial.region ?? "");
   const [telefono, setTelefono] = useState(initial.telefono ?? "");
   const [email, setEmail] = useState(initial.email ?? "");
-  const [instagram, setInstagram] = useState(initial.instagram ?? "");
   const [website, setWebsite] = useState(initial.website ?? "");
   const [logoUrl, setLogoUrl] = useState<string | null>(initial.logo_url);
   const [logoFile, setLogoFile] = useState<File | null>(null);
