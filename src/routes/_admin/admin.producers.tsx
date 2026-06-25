@@ -395,6 +395,8 @@ function EditForm({
     onSubmit({
       id: initial.id || undefined,
       nombre: nombre.trim(),
+      contacto: contacto.trim() || null,
+
       region: region || null,
       email: email.trim() || null,
       telefono: telefono.trim() || null,
