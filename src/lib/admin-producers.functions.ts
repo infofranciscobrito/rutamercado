@@ -59,6 +59,7 @@ const LogoSchema = z
 const UpsertSchema = z.object({
   id: z.string().uuid().optional().nullable(),
   nombre: z.string().trim().min(1).max(200),
+  contacto: optText(200),
   region: optText(100),
   email: optEmail,
   telefono: optText(500),
@@ -67,6 +68,7 @@ const UpsertSchema = z.object({
   logo_url: optUrl(1000),
   logo: LogoSchema,
 });
+
 
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 
