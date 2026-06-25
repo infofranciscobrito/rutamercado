@@ -1,42 +1,48 @@
-## Cambio de esquema de colores en /productores
+## Objetivo
+Cambiar el esquema de colores de las tarjetas en `/productores` de verde sólido a fondo navy con acentos verdes, siguiendo la especificación exacta del usuario.
 
-Aplicar el rediseño únicamente en `src/routes/productores.tsx` y `src/components/productores/ProducerCard.tsx`. Usar los tokens existentes: `#18253f` (navy del sitio) y `#54b678` (verde primario). No tocar `src/styles.css`, datos, ni el popup.
+## Archivo a modificar
+- `src/components/productores/ProducerCard.tsx`
 
-### 1. `src/routes/productores.tsx` — fondo navy
+## Cambios detallados
 
-- Contenedor raíz: `bg-[#18253f]` en lugar de `bg-[#FAFAF8]`.
-- Sección hero: quitar `bg-white`; usar el mismo navy. Borde inferior `border-white/15`.
-- H1, párrafo y contador: texto blanco / `text-white/80`.
-- Input de búsqueda: fondo `bg-white/10`, borde `border-white/20`, texto blanco, placeholder `placeholder:text-white/50`; icono `text-white/60`.
-- Estado vacío: caja con `border-white/20 bg-white/5` y texto `text-white/70`.
-- Encabezados de región (`h2`): `text-white`; contador `text-white/60`.
-- Añadir `<div className="mt-4 h-px bg-white/20" />` dentro del bloque de cada región para el separador sutil.
+### Tarjeta contenedor
+- **Fondo**: `bg-[#18253f]` (navy del sitio, variable `--color-navy`)
+- **Borde**: `border-2 border-[#54b678]` (verde primario)
+- **Border-radius**: mantener `rounded-2xl`
+- **Sombra base**: `shadow-[0_2px_12px_rgba(0,0,0,0.3)]`
+- **Sombra hover**: `shadow-[0_8px_30px_rgba(0,0,0,0.5)]` con `hover:-translate-y-1`
 
-### 2. `src/components/productores/ProducerCard.tsx` — tarjeta verde sobre navy
+### Texto
+- **Principal** (nombre del productor, label "MERCADOS"): blanco puro (`text-white`)
+- **Secundario** (región, nombres de mercados, datos de contacto): verde primario (`text-[#54b678]`)
 
-Reemplazar todos los tonos navy/blanco internos manteniendo la estructura JSX actual:
+### Contacto links e íconos
+- **Estado base**: íconos y texto en verde primario (`text-[#54b678]`)
+- **Hover**: texto e íconos en blanco (`hover:text-white`); fondo de hover usar verde con baja opacidad (`hover:bg-[#54b678]/10`)
 
-- `<article>`: fondo `bg-[#54b678]`, borde `border-white/15`, sombra base `shadow-[0_2px_12px_rgba(0,0,0,0.2)]`, hover `hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.35)]`, transición 200ms.
-- Header oscurecido: envolver el avatar circular en un bloque superior con `bg-black/15` y márgenes negativos (`-mx-6 -mt-6 px-6 pt-6 pb-4`) para crear profundidad sin nuevos colores.
-- Avatar:
-  - Con logo: `border-2 border-white` (rounded-full), fondo blanco si la imagen es transparente.
-  - Sin logo: placeholder circular `bg-white` con iniciales del productor en `text-[#54b678] font-display`.
-- Tipografía dentro de la tarjeta:
-  - Nombre: `text-white` (DM Serif Display).
-  - "Contacto:", región, etiqueta "MERCADOS": `text-white/85`.
-  - Icono MapPin: `text-white`.
-- Sección mercados:
-  - Separador superior: `border-t border-white/20`.
-  - Pills `Badge`: `bg-white/15 text-white hover:bg-white/25` (sin colores nuevos).
-- Links de contacto:
-  - Texto `text-white`, iconos `text-white`, hover `hover:bg-white/10` y subrayado del texto (`hover:[&_span]:underline`).
-- Separador antes del botón: `border-t border-white/20`.
-- Botón "Actualizar información": variant `outline` con `border-white text-white bg-transparent hover:bg-white hover:text-[#54b678] transition-colors duration-200 ease-out`.
-- Mensaje "Contacto no disponible": `text-white/70 italic`.
+### Avatar / placeholder circular
+- **Fondo del placeholder**: verde primario (`bg-[#54b678]`)
+- **Iniciales**: blanco (`text-white`)
+- **Borde del círculo**: `border-2 border-[#54b678]`
+- **Imagen con logo**: mismo borde verde
 
-### Restricciones cubiertas
+### Separadores horizontales
+- Reemplazar `border-white/20` por `border-[#54b678]/30`
 
-- Solo se editan los dos archivos de la página /productores; el resto del sitio queda intacto.
-- Se reutilizan los tokens existentes (`#18253f`, `#54b678`); los valores `rgba(0,0,0,…)` y `white/xx` son sombras/opacidades, no colores de marca nuevos.
-- No se modifica la estructura de datos ni el `UpdateProducerDialog` (sólo el botón que lo dispara cambia de estilo).
+### Tags de mercados (Badge)
+- **Fondo**: verde primario al 15% (`bg-[#54b678]/15`)
+- **Texto**: verde primario (`text-[#54b678]`)
+- **Borde**: `border border-[#54b678]/40`
+
+### Botón "Actualizar información"
+- **Borde**: verde primario (`border-[#54b678]`)
+- **Texto**: verde primario (`text-[#54b678]`)
+- **Fondo**: transparente
+- **Hover**: fondo verde primario (`hover:bg-[#54b678]`), texto blanco (`hover:text-white`)
+
+## Restricciones respetadas
+- No se modifica `src/routes/productores.tsx` ni el fondo de la página.
+- Sin cambios a Supabase ni estructura de datos.
+- Sin afectar otras páginas del sitio.
 - No se usa la palabra "mercaditos".
