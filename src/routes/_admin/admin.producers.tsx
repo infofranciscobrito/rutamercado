@@ -421,6 +421,18 @@ function EditForm({
       </div>
 
       <div>
+        <Label htmlFor="admin-prod-contacto">Nombre de contacto</Label>
+        <Input
+          id="admin-prod-contacto"
+          value={contacto}
+          onChange={(e) => setContacto(e.target.value)}
+          placeholder="Persona de contacto (opcional)"
+          className="mt-1"
+        />
+      </div>
+
+
+      <div>
         <Label>Logo del productor</Label>
         <input
           ref={fileInputRef}
