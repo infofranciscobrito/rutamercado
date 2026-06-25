@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
-import { Pencil, Trash2, Search } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Pencil, Trash2, Search, Plus, X, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import {
-  listAdminProducers,
-  updateAdminProducer,
-  deleteAdminProducer,
+  adminListProducers,
+  adminUpsertProducer,
+  adminDeleteProducer,
+  adminAddProducerMarket,
+  adminRemoveProducerMarket,
   type AdminProducer,
 } from "@/lib/admin-producers.functions";
 import { MARKET_REGIONS } from "@/types/market";
-import { ImageUpload16x9 } from "@/components/rutamercado/ImageUpload16x9";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -52,61 +54,74 @@ export const Route = createFileRoute("/_admin/admin/producers")({
   component: ProducersAdminPage,
 });
 
-type EditState = AdminProducer & { _isNew?: boolean };
+const MAX_BYTES = 5 * 1024 * 1024;
+const ALLOWED_MIME = ["image/jpeg", "image/png"] as const;
+
+async function fileToBase64(file: File): Promise<string> {
+  const buf = await file.arrayBuffer();
+  let binary = "";
+  const bytes = new Uint8Array(buf);
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+const emptyProducer = (): AdminProducer => ({
+  id: "",
+  nombre: "",
+  region: null,
+  email: null,
+  telefono: null,
+  instagram: null,
+  website: null,
+  logo_url: null,
+  mercados: [],
+});
 
 function ProducersAdminPage() {
   const queryClient = useQueryClient();
-  const listFn = useServerFn(listAdminProducers);
-  const updateFn = useServerFn(updateAdminProducer);
-  const deleteFn = useServerFn(deleteAdminProducer);
+  const listFn = useServerFn(adminListProducers);
+  const upsertFn = useServerFn(adminUpsertProducer);
+  const deleteFn = useServerFn(adminDeleteProducer);
   const { data = [], isLoading } = useQuery({
     queryKey: ["admin", "producers"],
     queryFn: () => listFn(),
   });
   const [q, setQ] = useState("");
-  const [editing, setEditing] = useState<EditState | null>(null);
+  const [editing, setEditing] = useState<AdminProducer | null>(null);
   const [deleting, setDeleting] = useState<AdminProducer | null>(null);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     if (!term) return data;
     return data.filter(
-      (p) =>
-        p.organizer_name.toLowerCase().includes(term) ||
+      (p: AdminProducer) =>
+        p.nombre.toLowerCase().includes(term) ||
         (p.region ?? "").toLowerCase().includes(term) ||
-        (p.organizer_email ?? "").toLowerCase().includes(term),
+        (p.email ?? "").toLowerCase().includes(term),
     );
   }, [data, q]);
 
-  const mutation = useMutation({
-    mutationFn: async (vars: {
-      original_name: string;
-      organizer_name: string;
-      region: string | null;
-      organizer_phone: string | null;
-      organizer_email: string | null;
-      organizer_instagram: string | null;
-      organizer_contact_url: string | null;
-      organizer_logo_url: string | null;
-    }) => updateFn({ data: vars }),
-    onSuccess: (res) => {
-      toast.success(`Productor actualizado (${res.updated} mercado(s)).`);
+  const upsertMutation = useMutation({
+    mutationFn: async (vars: Parameters<typeof upsertFn>[0]["data"]) =>
+      upsertFn({ data: vars }),
+    onSuccess: () => {
+      toast.success("Productor guardado.");
       queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
       queryClient.invalidateQueries({ queryKey: ["producers"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
       setEditing(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (vars: { original_name: string; hardDelete: boolean }) =>
-      deleteFn({ data: vars }),
-    onSuccess: (res) => {
-      toast.success(`Productor eliminado (${res.affected} mercado(s) afectado(s)).`);
+    mutationFn: async (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Productor eliminado.");
       queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
       queryClient.invalidateQueries({ queryKey: ["producers"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
       setDeleting(null);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -118,9 +133,15 @@ function ProducersAdminPage() {
         <div>
           <h1 className="font-display text-3xl text-[#18253f]">Productores</h1>
           <p className="mt-1 text-sm text-[#18253f]/60">
-            Gestiona los productores agrupados por nombre del organizador.
+            Directorio único de productores con los mercados que organizan.
           </p>
         </div>
+        <Button
+          onClick={() => setEditing(emptyProducer())}
+          className="bg-[#54b678] text-[#18253f] hover:bg-[#3f9560]"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Nuevo productor
+        </Button>
       </div>
 
       <div className="flex items-center gap-3">
@@ -161,15 +182,24 @@ function ProducersAdminPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((p) => (
-                <TableRow key={p.key}>
+              filtered.map((p: AdminProducer) => (
+                <TableRow key={p.id}>
                   <TableCell className="font-medium text-[#18253f]">
-                    {p.organizer_name}
+                    <div className="flex items-center gap-2">
+                      {p.logo_url ? (
+                        <img
+                          src={p.logo_url}
+                          alt=""
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : null}
+                      <span>{p.nombre}</span>
+                    </div>
                   </TableCell>
                   <TableCell>{p.region ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{p.organizer_email ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{p.organizer_phone ?? "—"}</TableCell>
-                  <TableCell>{p.market_ids.length}</TableCell>
+                  <TableCell className="text-sm">{p.email ?? "—"}</TableCell>
+                  <TableCell className="text-sm">{p.telefono ?? "—"}</TableCell>
+                  <TableCell>{p.mercados.length}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Button
@@ -198,29 +228,28 @@ function ProducersAdminPage() {
         </Table>
       </div>
 
-      {/* Edit drawer */}
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="font-display text-2xl text-[#18253f]">
-              Editar productor
+              {editing?.id ? "Editar productor" : "Nuevo productor"}
             </SheetTitle>
             <SheetDescription>
-              Los cambios se aplican a todos los mercados con este nombre de organizador.
+              Datos de contacto, logo y mercados que organiza.
             </SheetDescription>
           </SheetHeader>
           {editing ? (
             <EditForm
+              key={editing.id || "new"}
               initial={editing}
               onCancel={() => setEditing(null)}
-              onSubmit={(values) => mutation.mutate(values)}
-              submitting={mutation.isPending}
+              onSubmit={(values) => upsertMutation.mutate(values)}
+              submitting={upsertMutation.isPending}
             />
           ) : null}
         </SheetContent>
       </Sheet>
 
-      {/* Delete dialog */}
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -228,10 +257,9 @@ function ProducersAdminPage() {
             <AlertDialogDescription>
               {deleting ? (
                 <>
-                  Esta acción <strong>desactivará</strong> los{" "}
-                  {deleting.market_ids.length} mercado(s) de{" "}
-                  <strong>{deleting.organizer_name}</strong> y borrará su información de
-                  contacto. Los mercados no se eliminarán de la base de datos.
+                  Se eliminará <strong>{deleting.nombre}</strong> del directorio junto con
+                  sus {deleting.mercados.length} mercado(s) vinculado(s). Esta acción no
+                  afecta la tabla de mercados.
                 </>
               ) : null}
             </AlertDialogDescription>
@@ -240,13 +268,7 @@ function ProducersAdminPage() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() =>
-                deleting &&
-                deleteMutation.mutate({
-                  original_name: deleting.organizer_name,
-                  hardDelete: false,
-                })
-              }
+              onClick={() => deleting && deleteMutation.mutate(deleting.id)}
             >
               Eliminar
             </AlertDialogAction>
@@ -257,6 +279,22 @@ function ProducersAdminPage() {
   );
 }
 
+type UpsertVars = {
+  id?: string | null;
+  nombre: string;
+  region: string | null;
+  email: string | null;
+  telefono: string | null;
+  instagram: string | null;
+  website: string | null;
+  logo_url: string | null;
+  logo?: {
+    logo_base64: string;
+    logo_filename: string;
+    logo_mime: "image/jpeg" | "image/png";
+  };
+};
+
 function EditForm({
   initial,
   onCancel,
@@ -265,61 +303,162 @@ function EditForm({
 }: {
   initial: AdminProducer;
   onCancel: () => void;
-  onSubmit: (v: {
-    original_name: string;
-    organizer_name: string;
-    region: string | null;
-    organizer_phone: string | null;
-    organizer_email: string | null;
-    organizer_instagram: string | null;
-    organizer_contact_url: string | null;
-    organizer_logo_url: string | null;
-  }) => void;
+  onSubmit: (v: UpsertVars) => void;
   submitting: boolean;
 }) {
-  const [name, setName] = useState(initial.organizer_name);
-  const [region, setRegion] = useState<string>(initial.region ?? "");
-  const [phone, setPhone] = useState(initial.organizer_phone ?? "");
-  const [email, setEmail] = useState(initial.organizer_email ?? "");
-  const [instagram, setInstagram] = useState(initial.organizer_instagram ?? "");
-  const [contactUrl, setContactUrl] = useState(initial.organizer_contact_url ?? "");
-  const [logoUrl, setLogoUrl] = useState(initial.organizer_logo_url ?? "");
+  const queryClient = useQueryClient();
+  const addMarketFn = useServerFn(adminAddProducerMarket);
+  const removeMarketFn = useServerFn(adminRemoveProducerMarket);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [nombre, setNombre] = useState(initial.nombre);
+  const [region, setRegion] = useState<string>(initial.region ?? "");
+  const [telefono, setTelefono] = useState(initial.telefono ?? "");
+  const [email, setEmail] = useState(initial.email ?? "");
+  const [instagram, setInstagram] = useState(initial.instagram ?? "");
+  const [website, setWebsite] = useState(initial.website ?? "");
+  const [logoUrl, setLogoUrl] = useState<string | null>(initial.logo_url);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [mercados, setMercados] = useState(initial.mercados);
+  const [newMarket, setNewMarket] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectFile = (file: File) => {
+    if (!ALLOWED_MIME.includes(file.type as (typeof ALLOWED_MIME)[number])) {
+      toast.error("Formato no válido. Solo se aceptan archivos JPG o PNG.");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      toast.error("La imagen es demasiado grande. El tamaño máximo es 5MB.");
+      return;
+    }
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const removeLogo = () => {
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
+    setLogoFile(null);
+    setLogoPreview(null);
+    setLogoUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleAddMarket = async () => {
+    const name = newMarket.trim();
+    if (!name) return;
+    if (!initial.id) {
+      toast.error("Guarda el productor antes de añadir mercados.");
+      return;
+    }
+    try {
+      const res = await addMarketFn({
+        data: { productor_id: initial.id, mercado_nombre: name },
+      });
+      setMercados((prev) => [...prev, { id: res.id, nombre: res.mercado_nombre }]);
+      setNewMarket("");
+      queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
+      queryClient.invalidateQueries({ queryKey: ["producers"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const handleRemoveMarket = async (id: string) => {
+    try {
+      await removeMarketFn({ data: { id } });
+      setMercados((prev) => prev.filter((m) => m.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
+      queryClient.invalidateQueries({ queryKey: ["producers"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let logoPayload: UpsertVars["logo"] | undefined;
+    if (logoFile) {
+      const base64 = await fileToBase64(logoFile);
+      logoPayload = {
+        logo_base64: base64,
+        logo_filename: logoFile.name,
+        logo_mime: logoFile.type as "image/jpeg" | "image/png",
+      };
+    }
     onSubmit({
-      original_name: initial.organizer_name,
-      organizer_name: name.trim(),
+      id: initial.id || undefined,
+      nombre: nombre.trim(),
       region: region || null,
-      organizer_phone: phone.trim() || null,
-      organizer_email: email.trim() || null,
-      organizer_instagram: instagram.trim() || null,
-      organizer_contact_url: contactUrl.trim() || null,
-      organizer_logo_url: logoUrl.trim() || null,
+      email: email.trim() || null,
+      telefono: telefono.trim() || null,
+      instagram: instagram.trim() || null,
+      website: website.trim() || null,
+      logo_url: logoUrl,
+      logo: logoPayload,
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
       <div>
-        <Label htmlFor="admin-prod-name">Nombre</Label>
+        <Label htmlFor="admin-prod-name">Nombre del productor</Label>
         <Input
           id="admin-prod-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
           required
           className="mt-1"
         />
       </div>
+
       <div>
         <Label>Logo del productor</Label>
-        <p className="mt-1 text-xs text-[#18253f]/60">
-          Se aplicará a todos los mercados de este productor.
-        </p>
-        <div className="mt-2">
-          <ImageUpload16x9 value={logoUrl} onChange={setLogoUrl} />
-        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleSelectFile(f);
+          }}
+        />
+        {logoPreview || logoUrl ? (
+          <div className="mt-2 flex items-center gap-3 rounded-lg border border-[#18253f]/10 bg-[#FFF8EC] p-3">
+            <img
+              src={logoPreview ?? logoUrl ?? ""}
+              alt="Logo"
+              className="h-20 w-20 rounded-md object-cover"
+            />
+            <div className="min-w-0 flex-1 text-xs text-[#18253f]/70">
+              {logoFile?.name ?? "Logo actual"}
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={removeLogo}
+              className="text-[#18253f]/60 hover:text-destructive"
+              aria-label="Quitar logo"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-2 w-full border-dashed border-[#54b678]/40 text-[#18253f] hover:border-[#54b678] hover:bg-[#54b678]/5"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <ImagePlus className="mr-2 h-4 w-4 text-[#54b678]" />
+            Seleccionar imagen
+          </Button>
+        )}
       </div>
+
       <div>
         <Label htmlFor="admin-prod-region">Región</Label>
         <Select value={region} onValueChange={setRegion}>
@@ -335,6 +474,7 @@ function EditForm({
           </SelectContent>
         </Select>
       </div>
+
       <div>
         <Label htmlFor="admin-prod-email">Email</Label>
         <Input
@@ -349,8 +489,8 @@ function EditForm({
         <Label htmlFor="admin-prod-phone">Teléfono</Label>
         <Input
           id="admin-prod-phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          value={telefono}
+          onChange={(e) => setTelefono(e.target.value)}
           className="mt-1"
         />
       </div>
@@ -365,19 +505,73 @@ function EditForm({
         />
       </div>
       <div>
-        <Label htmlFor="admin-prod-url">Página web / enlace de contacto</Label>
+        <Label htmlFor="admin-prod-url">Website / enlace de contacto</Label>
         <Input
           id="admin-prod-url"
-          value={contactUrl}
-          onChange={(e) => setContactUrl(e.target.value)}
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
           placeholder="https://..."
           className="mt-1"
         />
       </div>
-      <div className="rounded-lg bg-[#FFF8EC] p-3 text-xs text-[#18253f]/70">
-        Se aplicará a {initial.market_ids.length} mercado(s):{" "}
-        {initial.market_names.join(", ")}
+
+      <div className="rounded-lg border border-[#18253f]/10 bg-white p-3">
+        <Label className="text-sm">Mercados que organiza</Label>
+        {!initial.id ? (
+          <p className="mt-1 text-xs text-[#18253f]/60">
+            Guarda el productor primero para añadir mercados.
+          </p>
+        ) : (
+          <>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {mercados.length === 0 ? (
+                <span className="text-xs italic text-[#18253f]/50">
+                  Aún no hay mercados.
+                </span>
+              ) : (
+                mercados.map((m) => (
+                  <Badge
+                    key={m.id}
+                    variant="secondary"
+                    className="gap-1 bg-[#54b678]/10 text-[#18253f]"
+                  >
+                    {m.nombre}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveMarket(m.id)}
+                      className="ml-1 rounded-full p-0.5 hover:bg-destructive/15 hover:text-destructive"
+                      aria-label={`Quitar ${m.nombre}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))
+              )}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Input
+                value={newMarket}
+                onChange={(e) => setNewMarket(e.target.value)}
+                placeholder="Nombre del mercado"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddMarket();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={handleAddMarket}
+                className="bg-[#54b678] text-[#18253f] hover:bg-[#3f9560]"
+              >
+                Añadir
+              </Button>
+            </div>
+          </>
+        )}
       </div>
+
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
@@ -387,7 +581,7 @@ function EditForm({
           disabled={submitting}
           className="bg-[#54b678] text-[#18253f] hover:bg-[#3f9560]"
         >
-          {submitting ? "Guardando..." : "Guardar cambios"}
+          {submitting ? "Guardando..." : "Guardar"}
         </Button>
       </div>
     </form>
