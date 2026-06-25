@@ -397,7 +397,6 @@ function EditForm({
       region: region || null,
       email: email.trim() || null,
       telefono: telefono.trim() || null,
-      instagram: instagram.trim() || null,
       website: website.trim() || null,
       logo_url: logoUrl,
       logo: logoPayload,
