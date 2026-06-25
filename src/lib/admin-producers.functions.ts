@@ -62,7 +62,6 @@ const UpsertSchema = z.object({
   region: optText(100),
   email: optEmail,
   telefono: optText(500),
-  instagram: optText(500),
   website: optUrl(500),
   logo_url: optUrl(1000),
   logo: LogoSchema,
