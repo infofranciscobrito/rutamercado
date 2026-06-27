@@ -169,6 +169,18 @@ function ProducersAdminPage() {
         </Button>
       </div>
 
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "approved" | "pending")}>
+        <TabsList>
+          <TabsTrigger value="approved">Aprobados</TabsTrigger>
+          <TabsTrigger value="pending">
+            Pendientes
+            {pendingCount > 0 ? (
+              <Badge className="ml-2 bg-[#54b678] text-[#18253f]">{pendingCount}</Badge>
+            ) : null}
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#18253f]/40" />
@@ -190,7 +202,7 @@ function ProducersAdminPage() {
               <TableHead>Email</TableHead>
               <TableHead>Teléfono</TableHead>
               <TableHead># Mercados</TableHead>
-              <TableHead className="w-32 text-right">Acciones</TableHead>
+              <TableHead className="w-44 text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -203,7 +215,9 @@ function ProducersAdminPage() {
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                  No hay productores.
+                  {tab === "pending"
+                    ? "No hay registros pendientes."
+                    : "No hay productores."}
                 </TableCell>
               </TableRow>
             ) : (
@@ -227,6 +241,18 @@ function ProducersAdminPage() {
                   <TableCell>{p.mercados.length}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      {p.status === "pending" ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => approveMutation.mutate(p.id)}
+                          disabled={approveMutation.isPending}
+                          title="Aprobar"
+                          className="text-[#54b678] hover:text-[#3f9560]"
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      ) : null}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -239,7 +265,7 @@ function ProducersAdminPage() {
                         size="sm"
                         variant="ghost"
                         onClick={() => setDeleting(p)}
-                        title="Eliminar"
+                        title={p.status === "pending" ? "Rechazar" : "Eliminar"}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -252,6 +278,7 @@ function ProducersAdminPage() {
           </TableBody>
         </Table>
       </div>
+
 
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
