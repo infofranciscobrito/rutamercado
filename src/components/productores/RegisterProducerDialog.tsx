@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
+import { MARKET_REGIONS } from "@/types/market";
 import { registerProducer } from "@/lib/producer-registration.functions";
 import { listProducerRegions } from "@/lib/producers.functions";
 import { PuebloTagsInput } from "./PuebloTagsInput";
