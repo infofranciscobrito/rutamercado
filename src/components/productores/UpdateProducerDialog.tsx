@@ -188,8 +188,21 @@ export function UpdateProducerDialog({
                 className="mt-1"
               />
             </div>
-
             <div>
+              <Label htmlFor="producer-pueblo">Pueblo(s) donde opera</Label>
+              <p className="mt-1 text-xs text-[#18253f]/60">
+                Puedes añadir uno o más pueblos (presiona coma o Enter).
+              </p>
+              <div className="mt-2">
+                <PuebloTagsInput
+                  id="producer-pueblo"
+                  value={pueblo}
+                  onChange={setPueblo}
+                />
+              </div>
+            </div>
+
+
               <Label>Logo o imagen del mercado</Label>
               <p className="mt-1 text-xs text-[#18253f]/60">
                 Sube el logo o imagen de tu mercado. Formatos aceptados: JPG, PNG. Tamaño
