@@ -255,18 +255,19 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-mercados">
-                ¿Qué mercados organizas? (separa con comas si organizas más de uno)
-              </Label>
-              <Input
-                id="reg-mercados"
-                value={mercados}
-                onChange={(e) => setMercados(e.target.value)}
-                maxLength={1000}
-                placeholder="Mercado A, Mercado B"
-                className="mt-1"
-                {...noFill}
-              />
+              <Label htmlFor="reg-mercados">¿Qué tipo de mercado organizas?</Label>
+              <Select value={mercados} onValueChange={setMercados}>
+                <SelectTrigger id="reg-mercados" className="mt-1">
+                  <SelectValue placeholder="Selecciona una categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MARKET_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
