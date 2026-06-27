@@ -139,6 +139,7 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
       nombre: data.nombre,
       contacto: data.contacto,
       region: data.region,
+      pueblo: data.pueblo,
       email: data.email,
       telefono: data.telefono,
       website: data.website,
