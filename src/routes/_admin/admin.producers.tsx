@@ -581,6 +581,17 @@ function EditForm({
       </div>
 
       <div>
+        <Label htmlFor="admin-prod-tipo">Tipo de mercado</Label>
+        <TipoMercadoMultiSelect
+          id="admin-prod-tipo"
+          value={tipoMercado}
+          onChange={setTipoMercado}
+        />
+      </div>
+
+
+
+      <div>
         <Label htmlFor="admin-prod-email">Email</Label>
         <Input
           id="admin-prod-email"
