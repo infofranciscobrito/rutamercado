@@ -126,6 +126,7 @@ export const registerProducer = createServerFn({ method: "POST" })
               `Productor: ${data.nombre}\n` +
               `Contacto: ${data.contacto ?? "—"}\n` +
               `Región: ${data.region ?? "—"}\n` +
+              `Pueblo(s): ${data.pueblo ?? "—"}\n` +
               `Email: ${data.email ?? "—"}\n` +
               `Teléfono: ${data.telefono ?? "—"}\n` +
               `Web: ${data.website ?? "—"}\n` +
