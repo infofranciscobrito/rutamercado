@@ -77,6 +77,7 @@ const emptyProducer = (): AdminProducer => ({
   telefono: null,
   website: null,
   logo_url: null,
+  status: "approved",
   mercados: [],
 });
 
