@@ -118,7 +118,7 @@ export const registerProducer = createServerFn({ method: "POST" })
               `Email: ${data.email ?? "—"}\n` +
               `Teléfono: ${data.telefono ?? "—"}\n` +
               `Web: ${data.website ?? "—"}\n` +
-              `Mercados: ${mercadosList.join(", ") || "—"}\n` +
+              
               (logoUrl ? `Logo: ${logoUrl}\n` : ""),
           }),
         });
