@@ -24,6 +24,7 @@ import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import { registerProducer } from "@/lib/producer-registration.functions";
 import { listProducerRegions } from "@/lib/producers.functions";
 import { PuebloTagsInput } from "./PuebloTagsInput";
+import { TipoMercadoMultiSelect } from "./TipoMercadoMultiSelect";
 
 type Props = {
   open: boolean;
@@ -61,6 +62,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
   const [telefono, setTelefono] = useState("");
   const [website, setWebsite] = useState("");
   const [mercados, setMercados] = useState("");
+  const [tipoMercado, setTipoMercado] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -88,6 +90,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
     setTelefono("");
     setWebsite("");
     setMercados("");
+    setTipoMercado("");
     setSubmitting(false);
     setDone(false);
     if (logoPreview) URL.revokeObjectURL(logoPreview);
@@ -150,6 +153,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
           telefono: telefono.trim() || null,
           website: website.trim() || null,
           mercados: mercados.trim(),
+          tipo_mercado: tipoMercado.trim() || null,
           ...(logoPayload ?? {}),
         },
       });
