@@ -46,6 +46,7 @@ export function UpdateProducerDialog({
   const submitFn = useServerFn(submitProducerUpdateRequest);
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
+  const [pueblo, setPueblo] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -55,6 +56,7 @@ export function UpdateProducerDialog({
   const reset = () => {
     setMessage("");
     setEmail("");
+    setPueblo("");
     setSubmitting(false);
     setDone(false);
     setLogoFile(null);
