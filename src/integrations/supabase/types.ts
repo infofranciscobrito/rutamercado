@@ -440,6 +440,7 @@ export type Database = {
           instagram: string | null
           logo_url: string | null
           nombre: string
+          pueblo: string | null
           region: string | null
           status: string
           telefono: string | null
@@ -454,6 +455,7 @@ export type Database = {
           instagram?: string | null
           logo_url?: string | null
           nombre: string
+          pueblo?: string | null
           region?: string | null
           status?: string
           telefono?: string | null
@@ -468,6 +470,7 @@ export type Database = {
           instagram?: string | null
           logo_url?: string | null
           nombre?: string
+          pueblo?: string | null
           region?: string | null
           status?: string
           telefono?: string | null

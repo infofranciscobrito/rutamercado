@@ -8,6 +8,7 @@ export type Producer = {
   nombre: string;
   contacto: string | null;
   region: string | null;
+  pueblo: string | null;
   email: string | null;
   telefono: string | null;
   website: string | null;
@@ -36,7 +37,7 @@ export const listProducers = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("productores")
       .select(
-        "id, nombre, contacto, email, telefono, website, region, logo_url, productor_mercados(mercado_nombre)",
+        "id, nombre, contacto, email, telefono, website, region, pueblo, logo_url, productor_mercados(mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -46,6 +47,7 @@ export const listProducers = createServerFn({ method: "GET" }).handler(
       nombre: p.nombre,
       contacto: p.contacto ?? null,
       region: p.region ?? null,
+      pueblo: (p as { pueblo?: string | null }).pueblo ?? null,
       email: p.email ?? null,
       telefono: p.telefono ?? null,
       website: p.website ?? null,
@@ -58,11 +60,31 @@ export const listProducers = createServerFn({ method: "GET" }).handler(
   },
 );
 
+export const listProducerRegions = createServerFn({ method: "GET" }).handler(
+  async (): Promise<string[]> => {
+    const supabase = serverPublic();
+    const { data, error } = await supabase
+      .from("productores")
+      .select("region")
+      .not("region", "is", null);
+    if (error) throw new Error(error.message);
+    const set = new Set<string>();
+    for (const row of data ?? []) {
+      const r = (row.region ?? "").trim();
+      if (r) set.add(r);
+    }
+    return Array.from(set).sort((a, b) =>
+      a.localeCompare(b, "es", { sensitivity: "base" }),
+    );
+  },
+);
+
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 
 const UpdateRequestSchema = z.object({
   producer_name: z.string().trim().min(1).max(200),
   market_names: z.string().trim().max(500).optional().or(z.literal("")),
+  pueblo: z.string().trim().max(500).optional().or(z.literal("")),
   requester_email: z.string().trim().email().max(255),
   message: z.string().trim().min(1).max(4000),
   logo_base64: z.string().max(8_500_000).optional(),
@@ -101,11 +123,16 @@ export const submitProducerUpdateRequest = createServerFn({ method: "POST" })
       }
     }
 
+    const pueblo = (data.pueblo ?? "").trim();
+    const messageWithPueblo = pueblo
+      ? `${data.message}\n\nPueblo(s) donde opera: ${pueblo}`
+      : data.message;
+
     const { error } = await supabase.from("producer_update_requests").insert({
       producer_name: data.producer_name,
       market_names: data.market_names || null,
       requester_email: data.requester_email,
-      message: data.message,
+      message: messageWithPueblo,
       status: "pending",
       ...(logoUrl ? { logo_url: logoUrl } : {}),
     });
@@ -122,6 +149,7 @@ export const submitProducerUpdateRequest = createServerFn({ method: "POST" })
           text:
             `Productor: ${data.producer_name}\n` +
             `Mercado(s): ${data.market_names || "—"}\n` +
+            `Pueblo(s): ${pueblo || "—"}\n` +
             `Email del solicitante: ${data.requester_email}\n` +
             (logoUrl ? `Logo adjunto: ${logoUrl}\n` : "") +
             `\nMensaje:\n${data.message}\n`,

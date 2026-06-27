@@ -43,6 +43,7 @@ const RegisterSchema = z.object({
     },
     z.union([z.string().url().max(500), z.null()]),
   ),
+  pueblo: optText(500),
   mercados: z.string().trim().max(1000).optional().default(""),
   logo_base64: z.string().max(8_500_000).optional(),
   logo_filename: z.string().max(200).optional(),
@@ -80,6 +81,7 @@ export const registerProducer = createServerFn({ method: "POST" })
         nombre: data.nombre,
         contacto: data.contacto,
         region: data.region ?? null,
+        pueblo: data.pueblo ?? null,
         email: data.email,
         telefono: data.telefono,
         website: data.website,
@@ -124,6 +126,7 @@ export const registerProducer = createServerFn({ method: "POST" })
               `Productor: ${data.nombre}\n` +
               `Contacto: ${data.contacto ?? "—"}\n` +
               `Región: ${data.region ?? "—"}\n` +
+              `Pueblo(s): ${data.pueblo ?? "—"}\n` +
               `Email: ${data.email ?? "—"}\n` +
               `Teléfono: ${data.telefono ?? "—"}\n` +
               `Web: ${data.website ?? "—"}\n` +

@@ -7,6 +7,7 @@ export type AdminProducer = {
   nombre: string;
   contacto: string | null;
   region: string | null;
+  pueblo: string | null;
   email: string | null;
   telefono: string | null;
   website: string | null;
@@ -61,6 +62,7 @@ const UpsertSchema = z.object({
   nombre: z.string().trim().min(1).max(200),
   contacto: optText(200),
   region: optText(100),
+  pueblo: optText(500),
   email: optEmail,
   telefono: optText(500),
   website: optUrl(500),
@@ -77,7 +79,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("productores")
       .select(
-        "id, nombre, contacto, email, telefono, website, region, logo_url, status, productor_mercados(id, mercado_nombre)",
+        "id, nombre, contacto, email, telefono, website, region, pueblo, logo_url, status, productor_mercados(id, mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -87,6 +89,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
       nombre: p.nombre,
       contacto: p.contacto ?? null,
       region: p.region ?? null,
+      pueblo: (p as { pueblo?: string | null }).pueblo ?? null,
       email: p.email ?? null,
       telefono: p.telefono ?? null,
       website: p.website ?? null,
@@ -136,6 +139,7 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
       nombre: data.nombre,
       contacto: data.contacto,
       region: data.region,
+      pueblo: data.pueblo,
       email: data.email,
       telefono: data.telefono,
       website: data.website,

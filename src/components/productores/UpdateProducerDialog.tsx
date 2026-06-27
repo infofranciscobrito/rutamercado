@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitProducerUpdateRequest } from "@/lib/producers.functions";
+import { PuebloTagsInput } from "./PuebloTagsInput";
 
 type Props = {
   open: boolean;
@@ -45,6 +46,7 @@ export function UpdateProducerDialog({
   const submitFn = useServerFn(submitProducerUpdateRequest);
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
+  const [pueblo, setPueblo] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -54,6 +56,7 @@ export function UpdateProducerDialog({
   const reset = () => {
     setMessage("");
     setEmail("");
+    setPueblo("");
     setSubmitting(false);
     setDone(false);
     setLogoFile(null);
@@ -112,6 +115,7 @@ export function UpdateProducerDialog({
           market_names: marketNames,
           requester_email: email.trim(),
           message: message.trim(),
+          pueblo: pueblo.trim() || undefined,
           ...(logoPayload ?? {}),
         },
       });
@@ -183,6 +187,19 @@ export function UpdateProducerDialog({
                 placeholder="tu@correo.com"
                 className="mt-1"
               />
+            </div>
+            <div>
+              <Label htmlFor="producer-pueblo">Pueblo(s) donde opera</Label>
+              <p className="mt-1 text-xs text-[#18253f]/60">
+                Puedes añadir uno o más pueblos (presiona coma o Enter).
+              </p>
+              <div className="mt-2">
+                <PuebloTagsInput
+                  id="producer-pueblo"
+                  value={pueblo}
+                  onChange={setPueblo}
+                />
+              </div>
             </div>
 
             <div>

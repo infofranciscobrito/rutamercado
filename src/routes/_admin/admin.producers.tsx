@@ -13,6 +13,8 @@ import {
   adminRemoveProducerMarket,
   type AdminProducer,
 } from "@/lib/admin-producers.functions";
+import { listProducerRegions } from "@/lib/producers.functions";
+import { PuebloTagsInput } from "@/components/productores/PuebloTagsInput";
 import { MARKET_REGIONS } from "@/types/market";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +77,7 @@ const emptyProducer = (): AdminProducer => ({
   nombre: "",
   contacto: null,
   region: null,
+  pueblo: null,
   email: null,
   telefono: null,
   website: null,
@@ -336,6 +339,7 @@ type UpsertVars = {
   nombre: string;
   contacto: string | null;
   region: string | null;
+  pueblo: string | null;
   email: string | null;
   telefono: string | null;
   website: string | null;
@@ -367,6 +371,7 @@ function EditForm({
   const [contacto, setContacto] = useState(initial.contacto ?? "");
 
   const [region, setRegion] = useState<string>(initial.region ?? "");
+  const [pueblo, setPueblo] = useState<string>(initial.pueblo ?? "");
   const [telefono, setTelefono] = useState(initial.telefono ?? "");
   const [email, setEmail] = useState(initial.email ?? "");
   const [website, setWebsite] = useState(initial.website ?? "");
@@ -376,6 +381,19 @@ function EditForm({
   const [mercados, setMercados] = useState(initial.mercados);
   const [newMarket, setNewMarket] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const regionsListFn = useServerFn(listProducerRegions);
+  const { data: existingRegions = [] } = useQuery({
+    queryKey: ["producers", "regions"],
+    queryFn: () => regionsListFn(),
+  });
+  const regionOptions = useMemo(() => {
+    const set = new Set<string>([...MARKET_REGIONS, ...existingRegions]);
+    if (region) set.add(region);
+    return Array.from(set).sort((a, b) =>
+      a.localeCompare(b, "es", { sensitivity: "base" }),
+    );
+  }, [existingRegions, region]);
 
   const handleSelectFile = (file: File) => {
     if (!ALLOWED_MIME.includes(file.type as (typeof ALLOWED_MIME)[number])) {
@@ -447,6 +465,7 @@ function EditForm({
       contacto: contacto.trim() || null,
 
       region: region || null,
+      pueblo: pueblo.trim() || null,
       email: email.trim() || null,
       telefono: telefono.trim() || null,
       website: website.trim() || null,
@@ -533,13 +552,27 @@ function EditForm({
             <SelectValue placeholder="Selecciona una región" />
           </SelectTrigger>
           <SelectContent>
-            {MARKET_REGIONS.map((r) => (
+            {regionOptions.map((r) => (
               <SelectItem key={r} value={r}>
                 {r}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="admin-prod-pueblo">Pueblo</Label>
+        <p className="mt-1 text-xs text-[#18253f]/60">
+          Puedes añadir uno o más pueblos (presiona coma o Enter).
+        </p>
+        <div className="mt-2">
+          <PuebloTagsInput
+            id="admin-prod-pueblo"
+            value={pueblo}
+            onChange={setPueblo}
+          />
+        </div>
       </div>
 
       <div>

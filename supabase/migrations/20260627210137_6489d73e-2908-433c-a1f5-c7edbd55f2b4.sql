@@ -1,0 +1,1 @@
+ALTER TABLE public.productores ADD COLUMN IF NOT EXISTS pueblo text;

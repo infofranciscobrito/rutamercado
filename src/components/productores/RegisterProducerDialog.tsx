@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ImagePlus, X } from "lucide-react";
 import {
@@ -19,8 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_CATEGORIES } from "@/types/market";
+import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import { registerProducer } from "@/lib/producer-registration.functions";
+import { listProducerRegions } from "@/lib/producers.functions";
+import { PuebloTagsInput } from "./PuebloTagsInput";
 
 type Props = {
   open: boolean;
@@ -49,9 +52,11 @@ async function fileToBase64(file: File): Promise<string> {
 
 export function RegisterProducerDialog({ open, onOpenChange }: Props) {
   const submitFn = useServerFn(registerProducer);
+  const regionsListFn = useServerFn(listProducerRegions);
   const [nombre, setNombre] = useState("");
   const [contacto, setContacto] = useState("");
   const [region, setRegion] = useState<string>("");
+  const [pueblo, setPueblo] = useState<string>("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [website, setWebsite] = useState("");
@@ -62,10 +67,23 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
   const [done, setDone] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { data: existingRegions = [] } = useQuery({
+    queryKey: ["producers", "regions"],
+    queryFn: () => regionsListFn(),
+    enabled: open,
+  });
+  const regionOptions = useMemo(() => {
+    const set = new Set<string>([...MARKET_REGIONS, ...existingRegions]);
+    return Array.from(set).sort((a, b) =>
+      a.localeCompare(b, "es", { sensitivity: "base" }),
+    );
+  }, [existingRegions]);
+
   const reset = () => {
     setNombre("");
     setContacto("");
     setRegion("");
+    setPueblo("");
     setEmail("");
     setTelefono("");
     setWebsite("");
@@ -127,6 +145,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
           nombre: nombre.trim(),
           contacto: contacto.trim() || null,
           region: region || null,
+          pueblo: pueblo.trim() || null,
           email: email.trim() || null,
           telefono: telefono.trim() || null,
           website: website.trim() || null,
@@ -150,24 +169,21 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
           <DialogTitle className="font-display text-2xl text-[#18253f]">
             Registro de productores
           </DialogTitle>
-          <DialogDescription>
-            Completa tus datos. Revisaremos la información y publicaremos tu perfil
-            en el directorio.
-          </DialogDescription>
+          {!done ? (
+            <DialogDescription>
+              Completa tus datos. Revisaremos la información y publicaremos tu perfil
+              en el directorio.
+            </DialogDescription>
+          ) : null}
         </DialogHeader>
 
         {done ? (
-          <div className="space-y-4 py-4">
+          <div className="py-4">
             <p className="text-sm text-[#18253f]">
               ¡Gracias por registrarte! Revisaremos tu información y en 24 horas o
-              menos tu perfil estará visible en el directorio.
+              menos tu perfil estará visible en el directorio. Muchas gracias por su
+              registro.
             </p>
-            <Button
-              className="w-full bg-[#54b678] text-[#18253f] hover:bg-[#3f9560]"
-              onClick={() => handleOpenChange(false)}
-            >
-              Cerrar
-            </Button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4" {...noFill}>
@@ -199,17 +215,34 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-region">Pueblo</Label>
-              <p className="mt-1 text-xs text-[#18253f]/60">(pueblo del mercado)</p>
-              <Input
-                id="reg-region"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                placeholder="Ej: Ponce, Mayagüez, Vieques..."
-                maxLength={100}
-                className="mt-1"
-                {...noFill}
-              />
+              <Label htmlFor="reg-region">Región</Label>
+              <Select value={region} onValueChange={setRegion}>
+                <SelectTrigger id="reg-region" className="mt-1">
+                  <SelectValue placeholder="Selecciona una región" />
+                </SelectTrigger>
+                <SelectContent>
+                  {regionOptions.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="reg-pueblo">Pueblo</Label>
+              <p className="mt-1 text-xs text-[#18253f]/60">
+                Puedes añadir uno o más pueblos (presiona coma o Enter).
+              </p>
+              <div className="mt-2">
+                <PuebloTagsInput
+                  id="reg-pueblo"
+                  value={pueblo}
+                  onChange={setPueblo}
+                  placeholder="Ej: Ponce, Mayagüez..."
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
