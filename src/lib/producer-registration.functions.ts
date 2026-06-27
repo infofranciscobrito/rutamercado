@@ -16,12 +16,10 @@ const optText = (max: number) =>
     z.union([z.string().max(max), z.null()]),
   );
 
-const RegionEnum = z.enum(MARKET_REGIONS as unknown as [string, ...string[]]);
-
 const RegisterSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio").max(200),
   contacto: optText(200),
-  region: z.union([RegionEnum, z.null()]).nullable().optional(),
+  region: optText(100),
   email: z.preprocess(
     (v) => {
       if (v == null) return null;
