@@ -300,22 +300,6 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-mercados">¿Qué tipo de mercado organizas?</Label>
-              <Select value={mercados} onValueChange={setMercados}>
-                <SelectTrigger id="reg-mercados" className="mt-1">
-                  <SelectValue placeholder="Selecciona una categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MARKET_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
               <Label>Logo del productor</Label>
               <p className="mt-1 text-xs text-[#18253f]/60">
                 JPG o PNG, máximo 5MB.
