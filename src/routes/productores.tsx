@@ -106,7 +106,7 @@ function ProducersPage() {
             <button
               type="button"
               onClick={() => setRegisterOpen(true)}
-              className="inline-flex h-12 shrink-0 items-center justify-center rounded-md border border-[#54b678] px-5 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#18253f]"
+              className="inline-flex h-12 shrink-0 items-center justify-center rounded-md bg-[#54b678] px-5 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660] hover:text-white"
             >
               Registro de productores
             </button>
