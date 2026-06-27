@@ -65,7 +65,7 @@ const UpsertSchema = z.object({
   pueblo: optText(500),
   email: optEmail,
   telefono: optText(500),
-  website: optUrl(500),
+  website: optText(500),
   logo_url: optUrl(1000),
   logo: LogoSchema,
 });

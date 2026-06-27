@@ -41,7 +41,7 @@ const RegisterSchema = z.object({
       }
       return v;
     },
-    z.union([z.string().url().max(500), z.null()]),
+    z.union([z.string().max(500), z.null()]),
   ),
   pueblo: optText(500),
   mercados: z.string().trim().max(1000).optional().default(""),
