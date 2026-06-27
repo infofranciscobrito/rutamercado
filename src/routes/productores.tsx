@@ -87,29 +87,31 @@ function ProducersPage() {
           <h1 className="font-display text-4xl text-white md:text-5xl">
             Productores de mercados locales en Puerto Rico
           </h1>
-          <p className="mt-4 max-w-2xl text-base text-white/80 md:text-lg">
-            Conoce a las personas y organizaciones detrás de cada mercado, feria y
-            bazar publicado en RutaMercado. {total} productor{total === 1 ? "" : "es"} en el directorio.
-          </p>
+          <div className="mt-4 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-2xl text-base text-white/80 md:text-lg">
+              Conoce a las personas y organizaciones detrás de cada mercado, feria y
+              bazar publicado en RutaMercado. {total} productor{total === 1 ? "" : "es"} en el directorio.
+            </p>
+            <button
+              type="button"
+              onClick={() => setRegisterOpen(true)}
+              className="inline-flex h-12 w-full shrink-0 items-center justify-center rounded-md bg-[#54b678] px-5 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660] hover:text-white sm:w-auto"
+            >
+              Registro de productores
+            </button>
+          </div>
 
-          <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-            <div className="relative flex-1 sm:max-w-xl">
+          <div className="mt-6 w-full">
+            <div className="relative w-full">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Busca por productor, mercado o región..."
-                className="h-12 border-white/20 bg-white/10 pl-10 text-base text-white placeholder:text-white/50"
+                className="h-12 w-full border-white/20 bg-white/10 pl-10 text-base text-white placeholder:text-white/50"
                 aria-label="Buscar productores"
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setRegisterOpen(true)}
-              className="inline-flex h-12 shrink-0 items-center justify-center rounded-md bg-[#54b678] px-5 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660] hover:text-white"
-            >
-              Registro de productores
-            </button>
           </div>
         </div>
       </section>
