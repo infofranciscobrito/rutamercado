@@ -175,6 +175,20 @@ export const adminDeleteProducer = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export const adminApproveProducer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("productores")
+      .update({ status: "approved" })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
 export const adminAddProducerMarket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { productor_id: string; mercado_nombre: string }) =>
