@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { MARKET_REGIONS } from "@/types/market";
 
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 
