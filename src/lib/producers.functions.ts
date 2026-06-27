@@ -13,6 +13,7 @@ export type Producer = {
   telefono: string | null;
   website: string | null;
   logo_url: string | null;
+  tipo_mercado: string | null;
   mercados: string[];
 };
 
