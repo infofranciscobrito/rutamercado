@@ -2,12 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState } from "react";
-import { Pencil, Trash2, Search, Plus, X, ImagePlus } from "lucide-react";
+import { Pencil, Trash2, Search, Plus, X, ImagePlus, Check } from "lucide-react";
 import { toast } from "sonner";
 import {
   adminListProducers,
   adminUpsertProducer,
   adminDeleteProducer,
+  adminApproveProducer,
   adminAddProducerMarket,
   adminRemoveProducerMarket,
   type AdminProducer,
@@ -49,6 +50,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_admin/admin/producers")({
   component: ProducersAdminPage,
@@ -77,6 +79,7 @@ const emptyProducer = (): AdminProducer => ({
   telefono: null,
   website: null,
   logo_url: null,
+  status: "approved",
   mercados: [],
 });
 
@@ -86,24 +89,32 @@ function ProducersAdminPage() {
   const listFn = useServerFn(adminListProducers);
   const upsertFn = useServerFn(adminUpsertProducer);
   const deleteFn = useServerFn(adminDeleteProducer);
+  const approveFn = useServerFn(adminApproveProducer);
   const { data = [], isLoading } = useQuery({
     queryKey: ["admin", "producers"],
     queryFn: () => listFn(),
   });
   const [q, setQ] = useState("");
+  const [tab, setTab] = useState<"approved" | "pending">("approved");
   const [editing, setEditing] = useState<AdminProducer | null>(null);
   const [deleting, setDeleting] = useState<AdminProducer | null>(null);
 
+  const pendingCount = useMemo(
+    () => data.filter((p: AdminProducer) => p.status === "pending").length,
+    [data],
+  );
+
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return data;
-    return data.filter(
+    const byTab = data.filter((p: AdminProducer) => p.status === tab);
+    if (!term) return byTab;
+    return byTab.filter(
       (p: AdminProducer) =>
         p.nombre.toLowerCase().includes(term) ||
         (p.region ?? "").toLowerCase().includes(term) ||
         (p.email ?? "").toLowerCase().includes(term),
     );
-  }, [data, q]);
+  }, [data, q, tab]);
 
   const upsertMutation = useMutation({
     mutationFn: async (vars: UpsertVars) => upsertFn({ data: vars }),
@@ -119,10 +130,24 @@ function ProducersAdminPage() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Productor eliminado.");
+      toast.success(
+        deleting?.status === "pending"
+          ? "Registro rechazado."
+          : "Productor eliminado.",
+      );
       queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
       queryClient.invalidateQueries({ queryKey: ["producers"] });
       setDeleting(null);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: async (id: string) => approveFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Productor aprobado y publicado.");
+      queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
+      queryClient.invalidateQueries({ queryKey: ["producers"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -143,6 +168,18 @@ function ProducersAdminPage() {
           <Plus className="mr-2 h-4 w-4" /> Nuevo productor
         </Button>
       </div>
+
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "approved" | "pending")}>
+        <TabsList>
+          <TabsTrigger value="approved">Aprobados</TabsTrigger>
+          <TabsTrigger value="pending">
+            Pendientes
+            {pendingCount > 0 ? (
+              <Badge className="ml-2 bg-[#54b678] text-[#18253f]">{pendingCount}</Badge>
+            ) : null}
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
@@ -165,7 +202,7 @@ function ProducersAdminPage() {
               <TableHead>Email</TableHead>
               <TableHead>Teléfono</TableHead>
               <TableHead># Mercados</TableHead>
-              <TableHead className="w-32 text-right">Acciones</TableHead>
+              <TableHead className="w-44 text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -178,7 +215,9 @@ function ProducersAdminPage() {
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                  No hay productores.
+                  {tab === "pending"
+                    ? "No hay registros pendientes."
+                    : "No hay productores."}
                 </TableCell>
               </TableRow>
             ) : (
@@ -202,6 +241,18 @@ function ProducersAdminPage() {
                   <TableCell>{p.mercados.length}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      {p.status === "pending" ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => approveMutation.mutate(p.id)}
+                          disabled={approveMutation.isPending}
+                          title="Aprobar"
+                          className="text-[#54b678] hover:text-[#3f9560]"
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      ) : null}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -214,7 +265,7 @@ function ProducersAdminPage() {
                         size="sm"
                         variant="ghost"
                         onClick={() => setDeleting(p)}
-                        title="Eliminar"
+                        title={p.status === "pending" ? "Rechazar" : "Eliminar"}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -227,6 +278,7 @@ function ProducersAdminPage() {
           </TableBody>
         </Table>
       </div>
+
 
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">

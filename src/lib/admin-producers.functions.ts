@@ -11,6 +11,7 @@ export type AdminProducer = {
   telefono: string | null;
   website: string | null;
   logo_url: string | null;
+  status: "pending" | "approved";
   mercados: { id: string; nombre: string }[];
 };
 
@@ -76,7 +77,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("productores")
       .select(
-        "id, nombre, contacto, email, telefono, website, region, logo_url, productor_mercados(id, mercado_nombre)",
+        "id, nombre, contacto, email, telefono, website, region, logo_url, status, productor_mercados(id, mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -90,6 +91,9 @@ export const adminListProducers = createServerFn({ method: "GET" })
       telefono: p.telefono ?? null,
       website: p.website ?? null,
       logo_url: p.logo_url ?? null,
+      status: (p.status === "pending" ? "pending" : "approved") as
+        | "pending"
+        | "approved",
       mercados: (p.productor_mercados ?? [])
         .map((m) => ({ id: m.id, nombre: m.mercado_nombre }))
         .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })),
@@ -166,6 +170,20 @@ export const adminDeleteProducer = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("productores")
       .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const adminApproveProducer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("productores")
+      .update({ status: "approved" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
