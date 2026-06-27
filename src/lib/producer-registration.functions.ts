@@ -81,6 +81,7 @@ export const registerProducer = createServerFn({ method: "POST" })
         nombre: data.nombre,
         contacto: data.contacto,
         region: data.region ?? null,
+        pueblo: data.pueblo ?? null,
         email: data.email,
         telefono: data.telefono,
         website: data.website,
