@@ -87,7 +87,6 @@ export const listMarketTypes = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("markets")
       .select("category")
-      .eq("status", "approved")
       .not("category", "is", null);
     if (error) throw new Error(error.message);
     const set = new Set<string>();

@@ -62,9 +62,11 @@ export function TipoMercadoMultiSelect({
           id={id}
           type="button"
           variant="outline"
-          autoComplete="off"
-          data-lpignore="true"
-          data-form-type="other"
+          {...({
+            autoComplete: "off",
+            "data-lpignore": "true",
+            "data-form-type": "other",
+          } as Record<string, string>)}
           className={cn(
             "mt-1 w-full justify-between font-normal",
             selected.length === 0 && "text-muted-foreground",
