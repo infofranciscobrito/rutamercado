@@ -115,6 +115,7 @@ export function UpdateProducerDialog({
           market_names: marketNames,
           requester_email: email.trim(),
           message: message.trim(),
+          pueblo: pueblo.trim() || undefined,
           ...(logoPayload ?? {}),
         },
       });
