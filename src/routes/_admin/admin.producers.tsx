@@ -89,24 +89,32 @@ function ProducersAdminPage() {
   const listFn = useServerFn(adminListProducers);
   const upsertFn = useServerFn(adminUpsertProducer);
   const deleteFn = useServerFn(adminDeleteProducer);
+  const approveFn = useServerFn(adminApproveProducer);
   const { data = [], isLoading } = useQuery({
     queryKey: ["admin", "producers"],
     queryFn: () => listFn(),
   });
   const [q, setQ] = useState("");
+  const [tab, setTab] = useState<"approved" | "pending">("approved");
   const [editing, setEditing] = useState<AdminProducer | null>(null);
   const [deleting, setDeleting] = useState<AdminProducer | null>(null);
 
+  const pendingCount = useMemo(
+    () => data.filter((p: AdminProducer) => p.status === "pending").length,
+    [data],
+  );
+
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return data;
-    return data.filter(
+    const byTab = data.filter((p: AdminProducer) => p.status === tab);
+    if (!term) return byTab;
+    return byTab.filter(
       (p: AdminProducer) =>
         p.nombre.toLowerCase().includes(term) ||
         (p.region ?? "").toLowerCase().includes(term) ||
         (p.email ?? "").toLowerCase().includes(term),
     );
-  }, [data, q]);
+  }, [data, q, tab]);
 
   const upsertMutation = useMutation({
     mutationFn: async (vars: UpsertVars) => upsertFn({ data: vars }),
@@ -122,10 +130,24 @@ function ProducersAdminPage() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Productor eliminado.");
+      toast.success(
+        deleting?.status === "pending"
+          ? "Registro rechazado."
+          : "Productor eliminado.",
+      );
       queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
       queryClient.invalidateQueries({ queryKey: ["producers"] });
       setDeleting(null);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: async (id: string) => approveFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Productor aprobado y publicado.");
+      queryClient.invalidateQueries({ queryKey: ["admin", "producers"] });
+      queryClient.invalidateQueries({ queryKey: ["producers"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
