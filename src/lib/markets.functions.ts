@@ -54,6 +54,7 @@ export const listMarkets = createServerFn({ method: "GET" }).handler(
 
     const enriched: EnrichedMarket[] = [];
     for (const m of markets as Market[]) {
+      const scheduleDays = m.category === "Feria Artesanal" ? 730 : 90;
       const { upcoming, cancelled } = computeSchedule(
         {
           recurrence_type: m.recurrence_type,
@@ -66,7 +67,7 @@ export const listMarkets = createServerFn({ method: "GET" }).handler(
         },
         exByMarket.get(m.id) ?? [],
         ovByMarket.get(m.id) ?? [],
-        { days: 90 },
+        { days: scheduleDays },
       );
       if (upcoming.length === 0) continue;
       const next = upcoming[0];
