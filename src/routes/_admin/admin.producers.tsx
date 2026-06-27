@@ -15,6 +15,7 @@ import {
 } from "@/lib/admin-producers.functions";
 import { listProducerRegions } from "@/lib/producers.functions";
 import { PuebloTagsInput } from "@/components/productores/PuebloTagsInput";
+import { TipoMercadoMultiSelect } from "@/components/productores/TipoMercadoMultiSelect";
 import { MARKET_REGIONS } from "@/types/market";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,6 +83,7 @@ const emptyProducer = (): AdminProducer => ({
   telefono: null,
   website: null,
   logo_url: null,
+  tipo_mercado: null,
   status: "approved",
   mercados: [],
 });
@@ -340,6 +342,7 @@ type UpsertVars = {
   contacto: string | null;
   region: string | null;
   pueblo: string | null;
+  tipo_mercado: string | null;
   email: string | null;
   telefono: string | null;
   website: string | null;
@@ -372,6 +375,7 @@ function EditForm({
 
   const [region, setRegion] = useState<string>(initial.region ?? "");
   const [pueblo, setPueblo] = useState<string>(initial.pueblo ?? "");
+  const [tipoMercado, setTipoMercado] = useState<string>(initial.tipo_mercado ?? "");
   const [telefono, setTelefono] = useState(initial.telefono ?? "");
   const [email, setEmail] = useState(initial.email ?? "");
   const [website, setWebsite] = useState(initial.website ?? "");
@@ -466,6 +470,7 @@ function EditForm({
 
       region: region || null,
       pueblo: pueblo.trim() || null,
+      tipo_mercado: tipoMercado.trim() || null,
       email: email.trim() || null,
       telefono: telefono.trim() || null,
       website: website.trim() || null,
@@ -574,6 +579,17 @@ function EditForm({
           />
         </div>
       </div>
+
+      <div>
+        <Label htmlFor="admin-prod-tipo">Tipo de mercado</Label>
+        <TipoMercadoMultiSelect
+          id="admin-prod-tipo"
+          value={tipoMercado}
+          onChange={setTipoMercado}
+        />
+      </div>
+
+
 
       <div>
         <Label htmlFor="admin-prod-email">Email</Label>

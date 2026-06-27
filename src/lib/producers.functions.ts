@@ -81,6 +81,26 @@ export const listProducerRegions = createServerFn({ method: "GET" }).handler(
   },
 );
 
+export const listMarketTypes = createServerFn({ method: "GET" }).handler(
+  async (): Promise<string[]> => {
+    const supabase = serverPublic();
+    const { data, error } = await supabase
+      .from("markets")
+      .select("category")
+      .not("category", "is", null);
+    if (error) throw new Error(error.message);
+    const set = new Set<string>();
+    for (const row of data ?? []) {
+      const c = (row.category ?? "").trim();
+      if (c) set.add(c);
+    }
+    return Array.from(set).sort((a, b) =>
+      a.localeCompare(b, "es", { sensitivity: "base" }),
+    );
+  },
+);
+
+
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 
 const UpdateRequestSchema = z.object({
