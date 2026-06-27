@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_REGIONS, MARKET_CATEGORIES } from "@/types/market";
+import { MARKET_CATEGORIES } from "@/types/market";
 import { registerProducer } from "@/lib/producer-registration.functions";
 
 type Props = {
