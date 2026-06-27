@@ -7,6 +7,7 @@ import { Header } from "@/components/rutamercado/Header";
 import { Footer } from "@/components/rutamercado/Footer";
 import { Input } from "@/components/ui/input";
 import { ProducerCard } from "@/components/productores/ProducerCard";
+import { RegisterProducerDialog } from "@/components/productores/RegisterProducerDialog";
 import { MARKET_REGIONS } from "@/types/market";
 
 const producersQueryOptions = queryOptions({
