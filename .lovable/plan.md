@@ -1,21 +1,25 @@
-Cambios solo de UI en `src/components/productores/RegisterProducerDialog.tsx` (modal "Registro de productores" en `/productores`). No se modifica el esquema ni la lógica del servidor.
+## Plan: Reemplazar dropdown de Pueblo por campo de texto libre
 
-## Cambios
+### Problema
+Actualmente el campo "Pueblo" en el formulario de registro de productores (`/productores`) usa un `<Select>` con las 6 regiones predefinidas (Metro, Norte, Sur, Este, Oeste, Centro). El usuario quiere que las personas escriban el nombre del pueblo libremente (ej: "Ponce", "Mayagüez", "Vieques").
 
-1. **Campo "Página web"** → renombrar el label a **"Página de redes sociales"**. Se mantiene el input tipo `url`, el placeholder `https://...` y el envío al campo `website` del servidor sin cambios.
+### Cambios necesarios
 
-2. **Campo "Región"** → renombrar el label a **"Pueblo"** y añadir debajo del label una nota pequeña en gris: *"(pueblo del mercado)"*. Se conserva el `<Select>` con las mismas opciones actuales (MARKET_REGIONS: Metro, Norte, Sur, Este, Oeste, Centro) y se sigue guardando en `region`. Si más adelante quieres reemplazar las regiones por pueblos reales de PR, será otra tarea (requiere migración).
+1. **Frontend — `RegisterProducerDialog.tsx`**
+   - Reemplazar el componente `<Select>` de "Pueblo" por un `<Input>` de texto libre.
+   - Conservar el label "Pueblo" y la nota "(pueblo del mercado)".
+   - Eliminar la importación de `MARKET_REGIONS` si queda sin uso.
 
-3. **Campo "Nombre del productor o entidad"** → renombrar el label a **"Nombre del Mercado"**. Sigue siendo obligatorio y se envía como `nombre`.
+2. **Backend — `producer-registration.functions.ts`**
+   - La validación Zod actual usa `z.enum(MARKET_REGIONS)`, lo que rechazaría cualquier pueblo real.
+   - Cambiar el schema de `region` para aceptar cualquier string (hasta 100 caracteres) o `null`, igual que el admin (`optText(100)`).
+   - Esto alinea la validación del registro público con la del panel de administración.
 
-4. **Campo "¿Qué mercados organizas?"** →
-   - Reemplazar el `<Input>` por un `<Select>` (dropdown).
-   - Opciones = `MARKET_CATEGORIES` de `src/types/market.ts`: Mercado Agrícola, Bazaar/Pop Up, Feria Artesanal, Food Market, Mercado Mixto, Flea Market.
-   - Eliminar el texto de ayuda "(separa con comas si organizas más de uno)".
-   - El valor seleccionado se sigue enviando en el campo `mercados` del payload (string simple), por lo que la lógica de servidor que hace `split(",")` continúa funcionando sin cambios.
+### Impacto
+- Los registros públicos ahora aceptarán nombres de pueblo reales de Puerto Rico en lugar de las 6 regiones genéricas.
+- Sin cambios en base de datos ni en otros flujos (admin, `/productores` pública) — el campo `region` ya es `text` en la tabla.
+- No se modifica el campo "Región/Pueblo" en el panel de administración (ya usa texto libre).
 
-## Notas
-
-- Cambios localizados a un solo archivo de presentación.
-- No se tocan rutas, funciones de servidor, validaciones Zod ni base de datos.
-- El admin (`/admin/producers`) no cambia en esta tarea.
+### Notas
+- No se modifica la página `/productores` ni el panel de admin salvo por la validación del registro público.
+- El `Select` de "¿Qué tipo de mercado organizas?" se mantiene como categoría (no se toca).

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_REGIONS, MARKET_CATEGORIES } from "@/types/market";
+import { MARKET_CATEGORIES } from "@/types/market";
 import { registerProducer } from "@/lib/producer-registration.functions";
 
 type Props = {
@@ -201,18 +201,15 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             <div>
               <Label htmlFor="reg-region">Pueblo</Label>
               <p className="mt-1 text-xs text-[#18253f]/60">(pueblo del mercado)</p>
-              <Select value={region} onValueChange={setRegion}>
-                <SelectTrigger id="reg-region" className="mt-1">
-                  <SelectValue placeholder="Selecciona un pueblo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MARKET_REGIONS.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                id="reg-region"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                placeholder="Ej: Ponce, Mayagüez, Vieques..."
+                maxLength={100}
+                className="mt-1"
+                {...noFill}
+              />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
