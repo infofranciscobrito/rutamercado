@@ -465,6 +465,7 @@ function EditForm({
       contacto: contacto.trim() || null,
 
       region: region || null,
+      pueblo: pueblo.trim() || null,
       email: email.trim() || null,
       telefono: telefono.trim() || null,
       website: website.trim() || null,
