@@ -151,7 +151,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
           email: email.trim() || null,
           telefono: telefono.trim() || null,
           website: website.trim() || null,
-          mercados: mercados.trim(),
+          
           tipo_mercado: tipoMercado.trim() || null,
           ...(logoPayload ?? {}),
         },
