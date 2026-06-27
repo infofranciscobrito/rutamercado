@@ -45,7 +45,7 @@ const RegisterSchema = z.object({
   ),
   pueblo: optText(500),
   tipo_mercado: optText(500),
-  mercados: z.string().trim().max(1000).optional().default(""),
+  
   logo_base64: z.string().max(8_500_000).optional(),
   logo_filename: z.string().max(200).optional(),
   logo_mime: z.enum(["image/jpeg", "image/png"]).optional(),
@@ -94,22 +94,7 @@ export const registerProducer = createServerFn({ method: "POST" })
       .single();
     if (insErr) throw new Error(insErr.message);
 
-    const mercadosList = (data.mercados ?? "")
-      .split(",")
-      .map((m) => m.trim())
-      .filter((m) => m.length > 0)
-      .slice(0, 50);
 
-    if (mercadosList.length > 0) {
-      const rows = mercadosList.map((mercado_nombre) => ({
-        productor_id: inserted.id,
-        mercado_nombre,
-      }));
-      const { error: mErr } = await supabaseAdmin
-        .from("productor_mercados")
-        .insert(rows);
-      if (mErr) console.error("producer markets insert failed", mErr);
-    }
 
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey) {
@@ -133,7 +118,7 @@ export const registerProducer = createServerFn({ method: "POST" })
               `Email: ${data.email ?? "—"}\n` +
               `Teléfono: ${data.telefono ?? "—"}\n` +
               `Web: ${data.website ?? "—"}\n` +
-              `Mercados: ${mercadosList.join(", ") || "—"}\n` +
+              
               (logoUrl ? `Logo: ${logoUrl}\n` : ""),
           }),
         });

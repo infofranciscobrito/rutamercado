@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
+import { MARKET_REGIONS } from "@/types/market";
 import { registerProducer } from "@/lib/producer-registration.functions";
 import { listProducerRegions } from "@/lib/producers.functions";
 import { PuebloTagsInput } from "./PuebloTagsInput";
@@ -61,7 +61,6 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [website, setWebsite] = useState("");
-  const [mercados, setMercados] = useState("");
   const [tipoMercado, setTipoMercado] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -89,7 +88,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
     setEmail("");
     setTelefono("");
     setWebsite("");
-    setMercados("");
+    
     setTipoMercado("");
     setSubmitting(false);
     setDone(false);
@@ -152,7 +151,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
           email: email.trim() || null,
           telefono: telefono.trim() || null,
           website: website.trim() || null,
-          mercados: mercados.trim(),
+          
           tipo_mercado: tipoMercado.trim() || null,
           ...(logoPayload ?? {}),
         },
@@ -297,22 +296,6 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
                 className="mt-1"
                 {...noFill}
               />
-            </div>
-
-            <div>
-              <Label htmlFor="reg-mercados">¿Qué tipo de mercado organizas?</Label>
-              <Select value={mercados} onValueChange={setMercados}>
-                <SelectTrigger id="reg-mercados" className="mt-1">
-                  <SelectValue placeholder="Selecciona una categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MARKET_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div>
