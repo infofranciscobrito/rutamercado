@@ -2,12 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState } from "react";
-import { Pencil, Trash2, Search, Plus, X, ImagePlus } from "lucide-react";
+import { Pencil, Trash2, Search, Plus, X, ImagePlus, Check } from "lucide-react";
 import { toast } from "sonner";
 import {
   adminListProducers,
   adminUpsertProducer,
   adminDeleteProducer,
+  adminApproveProducer,
   adminAddProducerMarket,
   adminRemoveProducerMarket,
   type AdminProducer,
