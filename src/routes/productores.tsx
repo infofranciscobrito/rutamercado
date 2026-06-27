@@ -53,6 +53,7 @@ export const Route = createFileRoute("/productores")({
 function ProducersPage() {
   const { data } = useSuspenseQuery(producersQueryOptions);
   const [query, setQuery] = useState("");
+  const [registerOpen, setRegisterOpen] = useState(false);
 
   const grouped = useMemo(() => {
     const q = query.trim().toLowerCase();
