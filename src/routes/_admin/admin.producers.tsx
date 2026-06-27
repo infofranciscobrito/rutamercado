@@ -552,13 +552,27 @@ function EditForm({
             <SelectValue placeholder="Selecciona una región" />
           </SelectTrigger>
           <SelectContent>
-            {MARKET_REGIONS.map((r) => (
+            {regionOptions.map((r) => (
               <SelectItem key={r} value={r}>
                 {r}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="admin-prod-pueblo">Pueblo</Label>
+        <p className="mt-1 text-xs text-[#18253f]/60">
+          Puedes añadir uno o más pueblos (presiona coma o Enter).
+        </p>
+        <div className="mt-2">
+          <PuebloTagsInput
+            id="admin-prod-pueblo"
+            value={pueblo}
+            onChange={setPueblo}
+          />
+        </div>
       </div>
 
       <div>
