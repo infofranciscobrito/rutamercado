@@ -235,6 +235,17 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
+              <Label htmlFor="reg-tipo-mercado">Tipo de mercado</Label>
+              <TipoMercadoMultiSelect
+                id="reg-tipo-mercado"
+                value={tipoMercado}
+                onChange={setTipoMercado}
+              />
+            </div>
+
+
+
+            <div>
               <Label htmlFor="reg-pueblo">Pueblo</Label>
               <p className="mt-1 text-xs text-[#18253f]/60">
                 Puedes añadir uno o más pueblos (presiona coma o Enter).
