@@ -62,6 +62,7 @@ const UpsertSchema = z.object({
   nombre: z.string().trim().min(1).max(200),
   contacto: optText(200),
   region: optText(100),
+  pueblo: optText(500),
   email: optEmail,
   telefono: optText(500),
   website: optUrl(500),
