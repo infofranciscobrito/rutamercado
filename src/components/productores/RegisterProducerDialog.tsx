@@ -88,7 +88,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
     setEmail("");
     setTelefono("");
     setWebsite("");
-    setMercados("");
+    
     setTipoMercado("");
     setSubmitting(false);
     setDone(false);
