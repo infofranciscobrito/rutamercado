@@ -94,22 +94,7 @@ export const registerProducer = createServerFn({ method: "POST" })
       .single();
     if (insErr) throw new Error(insErr.message);
 
-    const mercadosList = (data.mercados ?? "")
-      .split(",")
-      .map((m) => m.trim())
-      .filter((m) => m.length > 0)
-      .slice(0, 50);
 
-    if (mercadosList.length > 0) {
-      const rows = mercadosList.map((mercado_nombre) => ({
-        productor_id: inserted.id,
-        mercado_nombre,
-      }));
-      const { error: mErr } = await supabaseAdmin
-        .from("productor_mercados")
-        .insert(rows);
-      if (mErr) console.error("producer markets insert failed", mErr);
-    }
 
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey) {
