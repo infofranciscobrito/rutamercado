@@ -57,6 +57,23 @@ export function ProducerCard({ producer }: { producer: Producer }) {
             Contacto: <span className="text-[#54b678]">{producer.contacto}</span>
           </p>
         ) : null}
+        {producer.tipo_mercado ? (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {producer.tipo_mercado
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean)
+              .map((tipo) => (
+                <Badge
+                  key={tipo}
+                  variant="secondary"
+                  className="border border-[#54b678]/40 bg-[#54b678]/15 text-[#54b678] hover:bg-[#54b678]/25"
+                >
+                  {tipo}
+                </Badge>
+              ))}
+          </div>
+        ) : null}
         {producer.region || producer.pueblo ? (
           <div className="mt-2 flex items-start gap-1.5 text-sm text-[#54b678]">
             <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#54b678]" />
