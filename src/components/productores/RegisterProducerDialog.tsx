@@ -241,7 +241,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-website">Página web</Label>
+              <Label htmlFor="reg-website">Página de redes sociales</Label>
               <Input
                 id="reg-website"
                 type="url"
