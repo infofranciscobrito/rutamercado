@@ -57,10 +57,14 @@ export function ProducerCard({ producer }: { producer: Producer }) {
             Contacto: <span className="text-[#54b678]">{producer.contacto}</span>
           </p>
         ) : null}
-        {producer.region ? (
-          <div className="mt-2 flex items-center gap-1.5 text-sm text-[#54b678]">
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#54b678]" />
-            <span>{producer.region}</span>
+        {producer.region || producer.pueblo ? (
+          <div className="mt-2 flex items-start gap-1.5 text-sm text-[#54b678]">
+            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#54b678]" />
+            <span>
+              {producer.region ?? ""}
+              {producer.region && producer.pueblo ? " · " : ""}
+              {producer.pueblo ?? ""}
+            </span>
           </div>
         ) : null}
       </header>
