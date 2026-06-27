@@ -92,8 +92,8 @@ function ProducersPage() {
             bazar publicado en RutaMercado. {total} productor{total === 1 ? "" : "es"} en el directorio.
           </p>
 
-          <div className="mt-6 max-w-xl">
-            <div className="relative">
+          <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1 sm:max-w-xl">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
               <Input
                 value={query}
@@ -103,6 +103,13 @@ function ProducersPage() {
                 aria-label="Buscar productores"
               />
             </div>
+            <button
+              type="button"
+              onClick={() => setRegisterOpen(true)}
+              className="inline-flex h-12 shrink-0 items-center justify-center rounded-md border border-[#54b678] px-5 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#18253f]"
+            >
+              Registro de productores
+            </button>
           </div>
         </div>
       </section>
