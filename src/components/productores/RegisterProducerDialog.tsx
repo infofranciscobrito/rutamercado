@@ -199,10 +199,11 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-region">Región</Label>
+              <Label htmlFor="reg-region">Pueblo</Label>
+              <p className="mt-1 text-xs text-[#18253f]/60">(pueblo del mercado)</p>
               <Select value={region} onValueChange={setRegion}>
                 <SelectTrigger id="reg-region" className="mt-1">
-                  <SelectValue placeholder="Selecciona una región" />
+                  <SelectValue placeholder="Selecciona un pueblo" />
                 </SelectTrigger>
                 <SelectContent>
                   {MARKET_REGIONS.map((r) => (
