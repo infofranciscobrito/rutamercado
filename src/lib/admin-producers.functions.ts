@@ -12,6 +12,7 @@ export type AdminProducer = {
   telefono: string | null;
   website: string | null;
   logo_url: string | null;
+  tipo_mercado: string | null;
   status: "pending" | "approved";
   mercados: { id: string; nombre: string }[];
 };
@@ -63,6 +64,7 @@ const UpsertSchema = z.object({
   contacto: optText(200),
   region: optText(100),
   pueblo: optText(500),
+  tipo_mercado: optText(500),
   email: optEmail,
   telefono: optText(500),
   website: optText(500),
@@ -79,7 +81,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("productores")
       .select(
-        "id, nombre, contacto, email, telefono, website, region, pueblo, logo_url, status, productor_mercados(id, mercado_nombre)",
+        "id, nombre, contacto, email, telefono, website, region, pueblo, tipo_mercado, logo_url, status, productor_mercados(id, mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -94,6 +96,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
       telefono: p.telefono ?? null,
       website: p.website ?? null,
       logo_url: p.logo_url ?? null,
+      tipo_mercado: (p as { tipo_mercado?: string | null }).tipo_mercado ?? null,
       status: (p.status === "pending" ? "pending" : "approved") as
         | "pending"
         | "approved",
@@ -140,6 +143,7 @@ export const adminUpsertProducer = createServerFn({ method: "POST" })
       contacto: data.contacto,
       region: data.region,
       pueblo: data.pueblo,
+      tipo_mercado: data.tipo_mercado,
       email: data.email,
       telefono: data.telefono,
       website: data.website,
