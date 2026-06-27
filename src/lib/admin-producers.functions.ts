@@ -77,7 +77,7 @@ export const adminListProducers = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("productores")
       .select(
-        "id, nombre, contacto, email, telefono, website, region, logo_url, productor_mercados(id, mercado_nombre)",
+        "id, nombre, contacto, email, telefono, website, region, logo_url, status, productor_mercados(id, mercado_nombre)",
       )
       .order("nombre", { ascending: true });
     if (error) throw new Error(error.message);
@@ -91,6 +91,9 @@ export const adminListProducers = createServerFn({ method: "GET" })
       telefono: p.telefono ?? null,
       website: p.website ?? null,
       logo_url: p.logo_url ?? null,
+      status: (p.status === "pending" ? "pending" : "approved") as
+        | "pending"
+        | "approved",
       mercados: (p.productor_mercados ?? [])
         .map((m) => ({ id: m.id, nombre: m.mercado_nombre }))
         .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })),
