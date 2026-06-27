@@ -1,17 +1,26 @@
-# Relajar validación del campo "Página web"
+## Contexto
+El usuario quiere mostrar el campo `tipo_mercado` en las tarjetas de productores de la página `/productores`. Sin embargo, el campo **no existe actualmente** en la tabla `productores` según `information_schema.columns`.
 
-## Problema
-El campo `website` está validado con `z.string().url()` en dos servidores, lo que rechaza valores como emails u otros textos (ej. `info.franciscobrito@gmail.com`).
+## Plan
 
-## Cambios
+### Paso 1 — Migración de base de datos
+- Añadir columna `tipo_mercado` (tipo `text`, nullable) a la tabla `productores`.
+- No requiere cambios de RLS ni de formularios; solo es un campo de visualización.
 
-### 1. `src/lib/admin-producers.functions.ts`
-Reemplazar el helper estricto `optUrl(500)` (que usa `z.string().url()`) por el helper de texto libre ya existente `optText(500)` para el campo `website` dentro de `UpsertSchema`. Esto permite que el admin guarde cualquier texto (URL, handle, email, vacío) sin error y sigue limitando longitud a 500 caracteres. No se elimina `optUrl` para no tocar otros usos.
+### Paso 2 — Actualizar tipos y consulta
+- Actualizar el tipo `Producer` en `src/lib/producers.functions.ts` para incluir `tipo_mercado: string | null`.
+- Incluir `tipo_mercado` en el `select` de la función `listProducers`.
+- Parsear el valor en el mapeo: si contiene comas, dividir en array; si está vacío, dejar como array vacío.
 
-### 2. `src/lib/producer-registration.functions.ts`
-En `RegisterSchema`, cambiar el `website` de `z.union([z.string().url().max(500), z.null()])` a `z.union([z.string().max(500), z.null()])`. Mantiene el preprocess que normaliza vacío → null. El formulario público sigue funcionando, solo deja de exigir formato URL.
+### Paso 3 — Renderizar tags en ProducerCard
+- En `src/components/productores/ProducerCard.tsx`, añadir una sección de tags justo debajo del nombre del productor y encima de la región.
+- Usar el mismo estilo visual de los mercados: `Badge` con borde verde (`border-[#54b678]/40`), texto verde (`text-[#54b678]`), fondo con opacidad baja (`bg-[#54b678]/15`).
+- Si `tipo_mercado` está vacío o es `null`, no renderizar nada.
 
-## Lo que NO se toca
-- Otros campos y validaciones (email sigue validado como email).
-- UI del formulario público y del dashboard.
-- Dato existente en la base — el admin podrá editarlo manualmente; al cargar el productor el valor se mostrará tal cual y se podrá guardar sin error.
+### Paso 4 — Verificación
+- Confirmar en el preview que las tarjetas muestran los tags correctamente y que no hay errores de build.
+
+## Alcance limitado (según instrucciones del usuario)
+- **No** se modifica el formulario de registro (`RegisterProducerDialog`).
+- **No** se modifica el panel de administración (`admin.producers.tsx`).
+- Solo se toca la visualización pública de las tarjetas en `/productores`.
