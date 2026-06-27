@@ -444,6 +444,7 @@ export type Database = {
           region: string | null
           status: string
           telefono: string | null
+          tipo_mercado: string | null
           updated_at: string
           website: string | null
         }
@@ -459,6 +460,7 @@ export type Database = {
           region?: string | null
           status?: string
           telefono?: string | null
+          tipo_mercado?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -474,6 +476,7 @@ export type Database = {
           region?: string | null
           status?: string
           telefono?: string | null
+          tipo_mercado?: string | null
           updated_at?: string
           website?: string | null
         }
