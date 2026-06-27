@@ -7,6 +7,7 @@ export type AdminProducer = {
   nombre: string;
   contacto: string | null;
   region: string | null;
+  pueblo: string | null;
   email: string | null;
   telefono: string | null;
   website: string | null;
