@@ -11,6 +11,7 @@ export type AdminProducer = {
   telefono: string | null;
   website: string | null;
   logo_url: string | null;
+  status: "pending" | "approved";
   mercados: { id: string; nombre: string }[];
 };
 
