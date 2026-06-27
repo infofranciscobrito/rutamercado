@@ -482,7 +482,7 @@ function EditForm({
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
       <div>
-        <Label htmlFor="admin-prod-name">Nombre del productor</Label>
+        <Label htmlFor="admin-prod-name">Nombre del Mercado</Label>
         <Input
           id="admin-prod-name"
           value={nombre}
