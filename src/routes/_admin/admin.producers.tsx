@@ -75,6 +75,7 @@ const emptyProducer = (): AdminProducer => ({
   nombre: "",
   contacto: null,
   region: null,
+  pueblo: null,
   email: null,
   telefono: null,
   website: null,
