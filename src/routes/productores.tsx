@@ -145,6 +145,7 @@ function ProducersPage() {
         )}
       </main>
 
+      <RegisterProducerDialog open={registerOpen} onOpenChange={setRegisterOpen} />
       <Footer />
     </div>
   );
