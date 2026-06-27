@@ -13,6 +13,8 @@ import {
   adminRemoveProducerMarket,
   type AdminProducer,
 } from "@/lib/admin-producers.functions";
+import { listProducerRegions } from "@/lib/producers.functions";
+import { PuebloTagsInput } from "@/components/productores/PuebloTagsInput";
 import { MARKET_REGIONS } from "@/types/market";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
