@@ -45,7 +45,7 @@ const RegisterSchema = z.object({
   ),
   pueblo: optText(500),
   tipo_mercado: optText(500),
-  mercados: z.string().trim().max(1000).optional().default(""),
+  
   logo_base64: z.string().max(8_500_000).optional(),
   logo_filename: z.string().max(200).optional(),
   logo_mime: z.enum(["image/jpeg", "image/png"]).optional(),
