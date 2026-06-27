@@ -173,7 +173,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
           <form onSubmit={handleSubmit} className="space-y-4" {...noFill}>
             <div>
               <Label htmlFor="reg-nombre">
-                Nombre del productor o entidad <span className="text-destructive">*</span>
+                Nombre del Mercado <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="reg-nombre"
