@@ -371,6 +371,7 @@ function EditForm({
   const [contacto, setContacto] = useState(initial.contacto ?? "");
 
   const [region, setRegion] = useState<string>(initial.region ?? "");
+  const [pueblo, setPueblo] = useState<string>(initial.pueblo ?? "");
   const [telefono, setTelefono] = useState(initial.telefono ?? "");
   const [email, setEmail] = useState(initial.email ?? "");
   const [website, setWebsite] = useState(initial.website ?? "");
@@ -380,6 +381,19 @@ function EditForm({
   const [mercados, setMercados] = useState(initial.mercados);
   const [newMarket, setNewMarket] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const regionsListFn = useServerFn(listProducerRegions);
+  const { data: existingRegions = [] } = useQuery({
+    queryKey: ["producers", "regions"],
+    queryFn: () => regionsListFn(),
+  });
+  const regionOptions = useMemo(() => {
+    const set = new Set<string>([...MARKET_REGIONS, ...existingRegions]);
+    if (region) set.add(region);
+    return Array.from(set).sort((a, b) =>
+      a.localeCompare(b, "es", { sensitivity: "base" }),
+    );
+  }, [existingRegions, region]);
 
   const handleSelectFile = (file: File) => {
     if (!ALLOWED_MIME.includes(file.type as (typeof ALLOWED_MIME)[number])) {
