@@ -61,7 +61,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [website, setWebsite] = useState("");
-  const [mercados, setMercados] = useState("");
+  const [tipoMercado, setTipoMercado] = useState("");
   const [tipoMercado, setTipoMercado] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
