@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_REGIONS } from "@/types/market";
+import { MARKET_REGIONS, MARKET_CATEGORIES } from "@/types/market";
 import { registerProducer } from "@/lib/producer-registration.functions";
 
 type Props = {
@@ -173,7 +173,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
           <form onSubmit={handleSubmit} className="space-y-4" {...noFill}>
             <div>
               <Label htmlFor="reg-nombre">
-                Nombre del productor o entidad <span className="text-destructive">*</span>
+                Nombre del Mercado <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="reg-nombre"
@@ -199,10 +199,11 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-region">Región</Label>
+              <Label htmlFor="reg-region">Pueblo</Label>
+              <p className="mt-1 text-xs text-[#18253f]/60">(pueblo del mercado)</p>
               <Select value={region} onValueChange={setRegion}>
                 <SelectTrigger id="reg-region" className="mt-1">
-                  <SelectValue placeholder="Selecciona una región" />
+                  <SelectValue placeholder="Selecciona un pueblo" />
                 </SelectTrigger>
                 <SelectContent>
                   {MARKET_REGIONS.map((r) => (
@@ -240,7 +241,7 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-website">Página web</Label>
+              <Label htmlFor="reg-website">Página de redes sociales</Label>
               <Input
                 id="reg-website"
                 type="url"
@@ -254,18 +255,19 @@ export function RegisterProducerDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
-              <Label htmlFor="reg-mercados">
-                ¿Qué mercados organizas? (separa con comas si organizas más de uno)
-              </Label>
-              <Input
-                id="reg-mercados"
-                value={mercados}
-                onChange={(e) => setMercados(e.target.value)}
-                maxLength={1000}
-                placeholder="Mercado A, Mercado B"
-                className="mt-1"
-                {...noFill}
-              />
+              <Label htmlFor="reg-mercados">¿Qué tipo de mercado organizas?</Label>
+              <Select value={mercados} onValueChange={setMercados}>
+                <SelectTrigger id="reg-mercados" className="mt-1">
+                  <SelectValue placeholder="Selecciona una categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MARKET_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
