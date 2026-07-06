@@ -30,9 +30,6 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
           alt={market.name}
           objectPosition={`${market.focal_x ?? 50}% ${market.focal_y ?? 50}%`}
         />
-        <span className="absolute left-3 top-3 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
-          {market.category}
-        </span>
         {today && (
           <span className="absolute right-3 top-3 rounded-md bg-[#22C55E] px-2 py-1 text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] rm-animate-pulse-soft">
             HOY
