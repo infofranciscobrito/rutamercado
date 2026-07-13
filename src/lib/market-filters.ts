@@ -48,6 +48,7 @@ export function applyFilters(
       if (!hay.includes(q)) return false;
     }
     if (filters.region !== "all" && m.region !== filters.region) return false;
+    if (filters.municipality !== "all" && m.municipality !== filters.municipality) return false;
     if (filters.category !== "all" && m.category !== filters.category) return false;
 
     if (filters.day) {
