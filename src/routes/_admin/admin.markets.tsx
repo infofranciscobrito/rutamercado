@@ -316,6 +316,7 @@ function MarketsPage() {
             )}
           </TableBody>
         </Table>
+        </TooltipProvider>
       </div>
 
 
