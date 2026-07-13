@@ -268,6 +268,132 @@ export function SubmitMarketForm() {
         />
       </Section>
 
+      <Section title="Servicios e instalaciones">
+        <p className="-mt-2 text-sm text-[#18253f]/60">
+          Opcional. Ayuda a los visitantes a saber qué esperar.
+        </p>
+
+        <Field label="🐕 ¿Aceptan mascotas?">
+          <Controller
+            control={control}
+            name="pets"
+            render={({ field }) => (
+              <RadioOptions
+                name="pets"
+                options={PETS_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="🅿️ ¿Hay estacionamiento?">
+          <Controller
+            control={control}
+            name="parking"
+            render={({ field }) => (
+              <RadioOptions
+                name="parking"
+                options={PARKING_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="♿ ¿Es accesible?">
+          <Controller
+            control={control}
+            name="accessibility"
+            render={({ field }) => (
+              <RadioOptions
+                name="accessibility"
+                options={ACCESSIBILITY_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="💳 Métodos de pago">
+          <Controller
+            control={control}
+            name="payment_methods"
+            render={({ field }) => (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {PAYMENT_METHODS_OPTIONS.map((opt) => {
+                  const checked = field.value.includes(opt);
+                  const id = `payment-${opt}`;
+                  return (
+                    <label
+                      key={opt}
+                      htmlFor={id}
+                      className="flex cursor-pointer items-center gap-2 rounded-md border border-[#18253f]/10 bg-white px-3 py-2 text-sm text-[#18253f] hover:bg-[#FFF8EC]"
+                    >
+                      <Checkbox
+                        id={id}
+                        checked={checked}
+                        disabled={mutation.isPending}
+                        onCheckedChange={(v) => {
+                          if (v) {
+                            field.onChange([...field.value, opt]);
+                          } else {
+                            field.onChange(
+                              field.value.filter((x: PaymentMethod) => x !== opt),
+                            );
+                          }
+                        }}
+                      />
+                      <span>{opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          />
+        </Field>
+
+        <Field label="👶 ¿Es familiar?">
+          <Controller
+            control={control}
+            name="family_friendly"
+            render={({ field }) => (
+              <RadioOptions
+                name="family_friendly"
+                options={FAMILY_FRIENDLY_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="🍴 ¿Tiene área de comida?">
+          <Controller
+            control={control}
+            name="food_area"
+            render={({ field }) => (
+              <RadioOptions
+                name="food_area"
+                options={FOOD_AREA_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+      </Section>
+
+
+
       <Section title="Contacto del organizador">
         <Field label="Nombre del organizador *" error={errors.organizer_name?.message}>
           <Input
