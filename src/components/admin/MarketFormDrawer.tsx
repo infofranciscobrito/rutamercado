@@ -188,9 +188,17 @@ export function MarketFormDrawer({
           is_active: v.is_active,
           focal_x: v.focal_x,
           focal_y: v.focal_y,
+          pets: v.pets || null,
+          parking: v.parking || null,
+          accessibility: v.accessibility || null,
+          payment_methods:
+            v.payment_methods.length > 0 ? v.payment_methods : null,
+          family_friendly: v.family_friendly || null,
+          food_area: v.food_area || null,
         },
       });
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
       queryClient.invalidateQueries({ queryKey: ["markets"] });
