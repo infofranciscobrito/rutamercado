@@ -59,6 +59,7 @@ const searchSchema = z.object({
     z.enum(["all", ...MARKET_REGIONS] as [string, ...string[]]),
     "all",
   ).default("all"),
+  municipality: fallback(z.string(), "all").default("all"),
   category: fallback(
     z.enum(["all", ...MARKET_CATEGORIES] as [string, ...string[]]),
     "all",
