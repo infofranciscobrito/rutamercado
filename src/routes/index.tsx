@@ -275,6 +275,11 @@ function MarketsContent({
     return set;
   }, [markets]);
 
+  const municipalities = useMemo(
+    () => Array.from(new Set(markets.map((m) => m.municipality))).sort((a, b) => a.localeCompare(b, "es")),
+    [markets],
+  );
+
   const filtered = useMemo(
     () => applyFilters(markets, filters),
     [markets, filters],
