@@ -319,12 +319,13 @@ export function FilterBar({ filters, municipalities = [], onChange, onClear, hid
         </div>
 
         {/* Row 2: municipality chips */}
-        <div className="mt-3">
+        <div id="municipios" className="mt-3 scroll-mt-24">
           <MunicipalityChips
             value={filters.municipality}
             onChange={(municipality) => onChange({ municipality })}
           />
         </div>
+
       </div>
     </div>
   );
