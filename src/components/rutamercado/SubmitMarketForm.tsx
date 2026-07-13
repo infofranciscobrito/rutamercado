@@ -5,7 +5,15 @@ import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { createMarketSubmission } from "@/lib/submissions.functions";
+import {
+  createMarketSubmission,
+  PETS_OPTIONS,
+  PARKING_OPTIONS,
+  ACCESSIBILITY_OPTIONS,
+  PAYMENT_METHODS_OPTIONS,
+  FAMILY_FRIENDLY_OPTIONS,
+  FOOD_AREA_OPTIONS,
+} from "@/lib/submissions.functions";
 import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,11 +25,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload16x9 } from "./ImageUpload16x9";
 import {
   RecurrenceFields,
   type RecurrenceFormShape,
 } from "./RecurrenceFields";
+
+type PaymentMethod = (typeof PAYMENT_METHODS_OPTIONS)[number];
+
 
 type FormValues = RecurrenceFormShape & {
   name: string;
