@@ -586,3 +586,46 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+
+function AdminRadioField({
+  control,
+  name,
+  label,
+  options,
+}: {
+  control: Control<FormValues>;
+  name: "pets" | "parking" | "accessibility" | "family_friendly" | "food_area";
+  label: string;
+  options: readonly string[];
+}) {
+  return (
+    <Field label={label}>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <RadioGroup
+            value={field.value || ""}
+            onValueChange={field.onChange}
+            className="grid gap-1.5"
+          >
+            {options.map((opt) => {
+              const id = `admin-${name}-${opt}`;
+              return (
+                <label
+                  key={opt}
+                  htmlFor={id}
+                  className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm"
+                >
+                  <RadioGroupItem id={id} value={opt} />
+                  <span>{opt}</span>
+                </label>
+              );
+            })}
+          </RadioGroup>
+        )}
+      />
+    </Field>
+  );
+}
+
