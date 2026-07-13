@@ -1,59 +1,64 @@
-## Favoritos sin cuenta (localStorage)
+# Servicios e instalaciones en `/enviar`
 
-Agregar sistema de favoritos que persiste en `localStorage`, con corazón en cada tarjeta, contador en el header y drawer lateral con los mercados guardados.
+Nueva sección opcional "Servicios e instalaciones" en el formulario de envío de mercados, con 6 campos que se guardan en la base de datos, se muestran al admin al revisar el envío, y se copian al mercado publicado cuando se aprueba.
 
-### 1. Hook `useFavorites` (nuevo `src/hooks/use-favorites.tsx`)
+## Alcance
 
-- Store singleton en memoria + suscripción tipo pub/sub para que todos los componentes se re-rendericen al cambiar.
-- API: `{ favorites: string[], isFavorite(id), toggle(id), remove(id), count }`.
-- Persistencia:
-  - Key: `rutamercado_favorites`, valor `string[]`.
-  - Lectura en `useEffect` (post-mount) para evitar mismatch SSR.
-  - `try/catch` en cada acceso; si falla (incógnito/lleno), sigue funcionando en memoria durante la sesión.
-  - Ignorar JSON corrupto → array vacío.
-- Escucha `storage` event para sincronizar entre pestañas.
+- Formulario público `/enviar` (`SubmitMarketForm.tsx`): nueva sección entre "Foto del mercado" y "Contacto del organizador".
+- Base de datos: nuevas columnas en `market_submissions` y `markets`.
+- Server function `createMarketSubmission`: aceptar y guardar los nuevos campos.
+- Aprobación (`approveSubmission`): copiar los campos al mercado publicado.
+- Drawer de revisión en admin (`SubmissionReviewDrawer.tsx`): mostrar los valores capturados.
 
-### 2. Botón corazón en `MarketCard.tsx`
+Fuera de alcance (no lo pediste): mostrarlos en el detalle público del mercado, en tarjetas, ni añadir filtros. Tampoco se editan desde el formulario de admin de mercados en esta iteración.
 
-- Nuevo `<FavoriteButton marketId={market.id} />` posicionado `absolute top-3 right-3` sobre la imagen.
-- 36×36px, `bg-white/70 backdrop-blur-sm`, `rounded-full`, sombra suave.
-- Ícono `Heart` de lucide-react: `fill="#EF4444" stroke="#EF4444"` cuando favorito, outline cuando no.
-- Al click: `e.stopPropagation()` + `e.preventDefault()` para no abrir el detalle, `toggle(id)`, animación `scale` (~300ms) con estado local.
-- `aria-pressed`, `aria-label="Guardar en favoritos" / "Quitar de favoritos"`.
-- Se coloca junto a los badges HOY/MAÑANA existentes (mismo bloque `absolute`, alineado a la derecha, sin solaparse — badge queda a la izquierda del corazón).
+## Nueva sección en el formulario
 
-### 3. Contador y trigger en `Header.tsx`
+Orden y tipo de control:
 
-- Nuevo botón `<FavoritesTrigger />` con ícono `Heart` + número si `count > 0`.
-- Visible tanto en desktop (junto a "Enviar mi Mercado") como en mobile (a la izquierda del botón menú hamburguesa, fuera del `Sheet`).
-- Abre el drawer de favoritos (estado controlado, izado a `Header` o vía contexto simple).
-- `aria-label="Favoritos ({count})"`.
+1. **¿Aceptan mascotas?** — radio · `Sí, son bienvenidas` / `Solo en áreas designadas` / `No se permiten mascotas`
+2. **¿Hay estacionamiento?** — radio · `Sí, gratuito` / `Sí, de pago` / `Limitado (llega temprano)` / `No hay estacionamiento`
+3. **¿Es accesible?** — radio · `Totalmente accesible` / `Parcialmente accesible` / `No es accesible`
+4. **Métodos de pago** — checkboxes múltiples · `Efectivo` / `Tarjeta de débito/crédito` / `ATH Móvil` / `PayPal / transferencia`
+5. **¿Es familiar?** — radio · `Sí, ideal para familias` / `Parcialmente` / `No es familiar` (tercera opción añadida por paridad — confírmame si prefieres otra)
+6. **¿Tiene área de comida?** — radio · `Sí, múltiples opciones` / `Sí, opciones limitadas` / `No tiene`
 
-### 4. Drawer `FavoritesDrawer.tsx` (nuevo)
+Todos opcionales: el usuario puede enviar el formulario sin tocar ninguno. Cada campo lleva su emoji junto al label como se especificó.
 
-- Usa `Sheet` de shadcn (`side="right"`, `w-full sm:w-[400px]`), mismo patrón que el menú mobile — ya trae foco atrapado, cerrar con X/Esc/click-fuera, animación slide+fade.
-- Header: "Tus mercados guardados" + `{count}` mercados.
-- Lee `listMarkets` desde React Query cache (`useQuery(marketsQueryOptions)`), filtra por IDs favoritos preservando el orden en que se guardaron.
-- IDs que ya no existen en el fetch → se ignoran silenciosamente (no crash, no auto-limpiar por ahora).
-- Estado vacío: emoji ❤️ + texto + botón "Explorar mercados" que cierra el drawer.
-- Cada fila:
-  - `MarketImage` 48×48 `rounded-lg`.
-  - Nombre, `formatDateEs(nextDate)`, municipio.
-  - Botón X (`aria-label="Quitar"`) → `remove(id)`.
-  - Click en la fila → cierra drawer + navega a `/?market={id}` (abre el `MarketDetailDialog` existente vía search param) y hace `scrollIntoView` si la card está visible.
+## Detalles técnicos
 
-### 5. Integración
+**Migración** (agrega columnas a las dos tablas, todas nullable):
 
-- Compartir estado open/close del drawer entre `Header` y su trigger vía prop drilling local (el `Header` gestiona ambos).
-- `queryOptions` de mercados ya está en `src/routes/index.tsx`; extraer a `src/lib/markets-query.ts` para que el drawer lo importe sin ciclos.
+```text
+market_submissions + markets:
+  pets              text
+  parking           text
+  accessibility     text
+  payment_methods   text[]
+  family_friendly   text
+  food_area         text
+```
 
-### Fuera de alcance
+Sin CHECK constraints (los valores válidos se validan en Zod en el server function, para poder ajustarlos sin migraciones).
 
-- No se sincroniza con backend ni cuentas.
-- No se limpian automáticamente IDs de mercados eliminados (simplemente no se muestran).
-- No se agrega el botón corazón en el `MarketDetailDialog` (solo en tarjetas); se puede añadir después si lo pides.
+**`src/lib/submissions.functions.ts`**
+- Ampliar `SubmissionInputSchema` con los 6 campos opcionales (`z.string().max(...).optional()` y `z.array(z.enum([...])).optional()` para `payment_methods`, restringiendo a los valores permitidos).
+- Insertar los nuevos campos en `market_submissions`.
+- En `approveSubmission`, copiar los 6 campos del `sub` al `insert` en `markets`.
 
-### Archivos
+**`src/components/rutamercado/SubmitMarketForm.tsx`**
+- Añadir los 6 campos al tipo `FormValues` y a `defaults` (strings vacías; array vacío para `payment_methods`).
+- Nueva `<Section title="Servicios e instalaciones">` entre "Foto del mercado" y "Contacto del organizador", con nota "Opcional" arriba.
+- Controles: `RadioGroup`/`RadioGroupItem` de shadcn para los 5 radios, `Checkbox` para métodos de pago (controlado vía `Controller` que mantiene un array).
+- Mapear valores al payload de `mutation.mutationFn` (enviar `undefined` cuando estén vacíos, array vacío como `undefined`).
 
-- Nuevos: `src/hooks/use-favorites.tsx`, `src/components/rutamercado/FavoriteButton.tsx`, `src/components/rutamercado/FavoritesDrawer.tsx`, `src/components/rutamercado/FavoritesTrigger.tsx`, `src/lib/markets-query.ts`.
-- Editados: `src/components/rutamercado/MarketCard.tsx`, `src/components/rutamercado/Header.tsx`, `src/routes/index.tsx` (importar el `queryOptions` desde el nuevo módulo).
+**`src/components/admin/SubmissionReviewDrawer.tsx`**
+- Añadir un bloque "Servicios e instalaciones" que renderiza los 6 campos cuando tienen valor (omite los vacíos para no ensuciar la vista).
+
+## Archivos afectados
+
+- `supabase/migrations/<timestamp>_market_services.sql` (nuevo)
+- `src/lib/submissions.functions.ts` (editar)
+- `src/components/rutamercado/SubmitMarketForm.tsx` (editar)
+- `src/components/admin/SubmissionReviewDrawer.tsx` (editar)
+- `src/integrations/supabase/types.ts` se regenera automáticamente tras aprobar la migración.
