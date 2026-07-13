@@ -32,6 +32,7 @@ import {
   getTrafficSources,
   getPageActivity,
   getSubmissionsStats,
+  getAmenitiesDistribution,
 } from "@/lib/admin-analytics.functions";
 import { downloadCSV } from "@/lib/csv";
 import { Badge } from "@/components/ui/badge";
@@ -194,6 +195,7 @@ function AnalyticsPage() {
   const trafficSourcesFn = useServerFn(getTrafficSources);
   const pageActivityFn = useServerFn(getPageActivity);
   const submissionsFn = useServerFn(getSubmissionsStats);
+  const amenitiesFn = useServerFn(getAmenitiesDistribution);
 
   const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
     try {
@@ -263,6 +265,10 @@ function AnalyticsPage() {
   const submissions = useQuery({
     queryKey: ["admin", "analytics", "submissions", ...rangeKey],
     queryFn: () => logFetch("submissions", () => submissionsFn({ data: rangeArg })),
+  });
+  const amenities = useQuery({
+    queryKey: ["admin", "analytics", "amenities"],
+    queryFn: () => logFetch("amenities", () => amenitiesFn()),
   });
 
   const isLoading =
