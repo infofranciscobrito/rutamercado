@@ -32,15 +32,18 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
           objectPosition={`${market.focal_x ?? 50}% ${market.focal_y ?? 50}%`}
         />
         {today && (
-          <span className="absolute right-3 top-3 rounded-md bg-[#22C55E] px-2 py-1 text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] rm-animate-pulse-soft">
+          <span className="absolute left-3 top-3 rounded-md bg-[#22C55E] px-2 py-1 text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] rm-animate-pulse-soft">
             HOY
           </span>
         )}
         {tomorrow && (
-          <span className="absolute right-3 top-3 rounded-md bg-[#3B82F6] px-2 py-1 text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+          <span className="absolute left-3 top-3 rounded-md bg-[#3B82F6] px-2 py-1 text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
             MAÑANA
           </span>
         )}
+        <div className="absolute right-3 top-3">
+          <FavoriteButton marketId={market.id} />
+        </div>
       </div>
       <div className="flex flex-1 flex-col gap-2 px-5 pb-5 pt-4">
         <h3 className="font-display rm-text-card-title text-[#18253f] line-clamp-2">
