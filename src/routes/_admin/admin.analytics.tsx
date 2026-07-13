@@ -699,6 +699,74 @@ function AnalyticsPage() {
         </Table>
       </div>
 
+      {/* Servicios e instalaciones */}
+      <div className="rounded-xl border bg-card p-5">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div>
+            <h2 className="font-display text-lg text-[#18253f]">Servicios e instalaciones</h2>
+            <p className="text-sm text-muted-foreground">
+              Distribución en {amenities.data?.totalActive ?? 0} mercados activos
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const rows: Record<string, string | number>[] = [];
+              for (const g of amenities.data?.groups ?? []) {
+                for (const o of g.options) {
+                  rows.push({
+                    servicio: g.label,
+                    opcion: o.value,
+                    mercados: o.count,
+                    porcentaje: `${o.percent.toFixed(1)}%`,
+                  });
+                }
+              }
+              downloadCSV("servicios-mercados.csv", rows);
+            }}
+            disabled={!amenities.data?.groups?.length}
+          >
+            <Download className="h-4 w-4 mr-1" /> CSV
+          </Button>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {(amenities.data?.groups ?? []).map((g) => (
+            <div key={g.key} className="rounded-lg border bg-[#FAFAF8] p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium text-[#18253f]">{g.label}</h3>
+                <span className="text-xs text-muted-foreground">
+                  {g.withData}/{g.total}
+                </span>
+              </div>
+              {g.options.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Sin datos</p>
+              ) : (
+                <ul className="space-y-2">
+                  {g.options.map((o) => (
+                    <li key={o.value} className="text-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[#18253f] truncate">{o.value}</span>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {o.count} · {o.percent.toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 mt-1 rounded-full bg-[#E5E7EB] overflow-hidden">
+                        <div
+                          className="h-full bg-[#54b678]"
+                          style={{ width: `${Math.min(100, o.percent)}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+
       {/* Attendance Intention */}
       <div className="space-y-6 pt-2">
         <div>
