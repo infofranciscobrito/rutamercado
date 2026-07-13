@@ -1,64 +1,113 @@
 ## Objetivo
 
-Rediseñar el footer actual de RutaMercado a **4 columnas en desktop** (apiladas en mobile), manteniendo el fondo navy `#18253f`, texto blanco y links en verde `#54b678`.
+1. Simplificar la columna "Para Organizadores" del footer (quitar Guía y FAQ).
+2. Añadir un formulario de contacto funcional que envíe mensajes al dashboard admin, con confirmación al usuario.
 
-## Estructura del nuevo footer
+---
 
-```text
-[RutaMercado]          [Explorar]              [Para Organizadores]    [Legal]
-Logo pequeño           Mercados Agrícolas      Registrar mi mercado    Sobre Nosotros
-"Descubre los          Bazares                 Guía para organizadores Políticas de Privacidad
- mercados locales      Ferias Artesanales      Preguntas frecuentes    Términos de Uso
- de Puerto Rico"       Mercados Mixtos         Contacto
-[IG] [FB]              Todos los municipios
-
-─────────────────────────────────────────────────────────────────────────────
-© 2025 RutaMercado — Hecho con ❤️ en Puerto Rico
-```
-
-## Cambios técnicos
-
-### 1. Rediseño de `Footer.tsx`
+## 1. Footer — limpiar columna "Para Organizadores"
 
 **Archivo:** `src/components/rutamercado/Footer.tsx`
 
-- Layout: `grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4` dentro de `max-w-7xl`.
-- **Columna 1 — RutaMercado:**
-  - Logo pequeño (`h-14`).
-  - Eslogan "Descubre los mercados locales de Puerto Rico".
-  - Iconos Instagram y Facebook (links externos).
-- **Columna 2 — Explorar:**
-  - Links a `/mercado-agricola`, `/bazar-pop-up`, `/feria-artesanal`, `/mercado-mixto`, `#municipios`.
-- **Columna 3 — Para Organizadores:**
-  - Links a `/enviar` (Registrar mi mercado), `#guia-para-organizadores`, `#preguntas-frecuentes`, `#contacto`.
-- **Columna 4 — Legal / Sobre:**
-  - `#sobre-nosotros`, `/politica-de-privacidad` (Políticas de Privacidad y Términos de Uso).
-- **Línea final:** separador + copyright centrado con "© 2025 RutaMercado — Hecho con ❤️ en Puerto Rico".
-- Colores: fondo `#18253f`, texto blanco `/70` para body, links `#54b678` con hover en blanco. Títulos de columna en blanco `font-display`.
-- Mantiene el divisor verde superior existente.
+Eliminar los links:
+- "Guía para organizadores" (`#guia-para-organizadores`)
+- "Preguntas frecuentes" (`#preguntas-frecuentes`)
 
-### 2. Anclaje para `#municipios`
+Dejar solo:
+- Registrar mi mercado (`/enviar`)
+- Contacto (ahora apunta a `#contacto` en la home, donde estará el nuevo formulario)
 
-**Archivo:** `src/routes/index.tsx` (o el componente de filtros que se renderiza allí)
+---
 
-- Añadir `id="municipios"` al contenedor de los chips/dropdown de municipio para que el link del footer haga scroll suave.
+## 2. Base de datos — tabla `contact_messages`
 
-### 3. Ajustes de estilo
+Migración con:
 
-- Usar tokens existentes: `bg-navy`, `text-gold`, `text-white`.
-- Tipografía `font-sans` para el cuerpo, `font-display` para títulos de columna.
+**Tabla `public.contact_messages`**
+- `name` (texto)
+- `role` (enum: `productor` | `vendor` | `publico_general`)
+- `email`
+- `phone`
+- `message`
+- `status` (enum: `new` | `read` | `archived`, default `new`)
+- `created_at`, `updated_at`
 
-## Notas sobre anchors sin sección destino
+**Políticas RLS:**
+- INSERT abierto (público puede enviar mensajes, sin auth)
+- SELECT/UPDATE solo para admins (usando `has_role(auth.uid(), 'admin')`)
+- GRANTs: `INSERT` a `anon` y `authenticated`; `SELECT, UPDATE` a `authenticated`; `ALL` a `service_role`
 
-Los links `#guia-para-organizadores`, `#preguntas-frecuentes` y `#contacto` se implementarán como hash links tal como decidiste; cuando existan esas secciones, funcionarán sin cambios adicionales.
+Trigger `updated_at` reutilizando `public.set_updated_at()`.
 
-## Archivos a modificar
+---
 
-- **Editar:** `src/components/rutamercado/Footer.tsx`
-- **Editar:** `src/routes/index.tsx` (añadir `id="municipios"` a la sección de filtros)
+## 3. Server functions
+
+**Nuevo archivo:** `src/lib/contact.functions.ts`
+
+- `submitContactMessage` — pública (sin auth middleware). Zod valida todos los campos (nombre 1–100, email válido, teléfono 7–20, mensaje 5–2000, role enum). Inserta vía cliente publishable (server) y devuelve `{ success: true }`.
+- `listContactMessages` — protegida con `requireSupabaseAuth` + check `has_role admin`. Devuelve mensajes ordenados por `created_at desc`.
+- `markContactMessageRead` — protegida, cambia `status` a `read`.
+- `countNewContactMessages` — protegida, devuelve `{ count }` de mensajes con `status = 'new'` (para badge en sidebar).
+
+---
+
+## 4. Formulario de contacto público
+
+**Nuevo componente:** `src/components/rutamercado/ContactForm.tsx`
+
+Campos:
+1. Nombre (input)
+2. Soy (Select shadcn con opciones Productor / Vendor / Público en general)
+3. Correo electrónico (input email)
+4. Número de teléfono (input tel)
+5. ¿Cómo le ayudamos? (textarea)
+6. Botón "Enviar"
+
+- Validación con `zod` + `react-hook-form`.
+- Al enviar: llama `submitContactMessage`, muestra loading en el botón.
+- En éxito: abre un `AlertDialog` (shadcn) con mensaje: *"¡Tu mensaje fue enviado exitosamente! Nos estaremos comunicando contigo pronto para atender tu consulta."*, y limpia el formulario.
+- En error: `toast.error` con mensaje genérico.
+
+**Nueva sección en la home:** `src/components/rutamercado/ContactSection.tsx`
+
+- Contenedor con `id="contacto"` y `scroll-mt-24`.
+- Título "Contáctanos" + subtítulo corto + `<ContactForm />`.
+- Se monta en `src/routes/index.tsx` entre `<AboutSection />` y `<Footer />`.
+
+---
+
+## 5. Dashboard admin — nueva sección "Mensajes"
+
+**Nueva ruta:** `src/routes/_admin/admin.messages.tsx`
+
+- Lista de mensajes en `Table` (Fecha, Nombre, Soy, Email, Teléfono, Estado, Acciones).
+- Click en fila abre un `Drawer`/`Dialog` con el mensaje completo y botón "Marcar como leído".
+- Filtro simple por estado (todos / nuevos / leídos).
+- Refetch cada 60s.
+
+**Sidebar (`src/components/admin/AdminSidebar.tsx`):**
+
+- Añadir item `{ to: "/admin/messages", label: "Mensajes", icon: Mail }`.
+- Badge con `countNewContactMessages` (mismo patrón que Solicitudes de Mercados).
+
+---
+
+## Archivos
+
+**Nuevos:**
+- `src/lib/contact.functions.ts`
+- `src/components/rutamercado/ContactForm.tsx`
+- `src/components/rutamercado/ContactSection.tsx`
+- `src/routes/_admin/admin.messages.tsx`
+- Migración SQL (tabla + RLS + GRANTs + trigger)
+
+**Editar:**
+- `src/components/rutamercado/Footer.tsx` (quitar 2 links)
+- `src/components/admin/AdminSidebar.tsx` (item Mensajes + badge)
+- `src/routes/index.tsx` (montar `<ContactSection />`)
 
 ## Fuera de alcance
 
-- No se crea newsletter ni backend asociado.
-- No se crean páginas nuevas para Guía, FAQ ni Contacto (se usan anchors).
-- No se modifica el header ni el resto del layout.
+- No se envían emails/SMS de notificación externos; la "notificación al dashboard" es la aparición del mensaje en la nueva sección con badge de conteo.
+- No se implementa respuesta desde el dashboard (solo lectura + marcar como leído).

@@ -95,17 +95,7 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <a href="#guia-para-organizadores" className={linkClass}>
-                    Guía para organizadores
-                  </a>
-                </li>
-                <li>
-                  <a href="#preguntas-frecuentes" className={linkClass}>
-                    Preguntas frecuentes
-                  </a>
-                </li>
-                <li>
-                  <a href="#contacto" className={linkClass}>
+                  <a href="/#contacto" className={linkClass}>
                     Contacto
                   </a>
                 </li>
