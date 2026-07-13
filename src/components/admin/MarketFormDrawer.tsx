@@ -39,6 +39,8 @@ import {
 } from "@/components/rutamercado/RecurrenceFields";
 import { FocalPointSelector } from "./FocalPointSelector";
 
+type PaymentMethod = (typeof PAYMENT_METHODS_OPTIONS)[number];
+
 type FormValues = RecurrenceFormShape & {
   name: string;
   description: string;
@@ -55,6 +57,12 @@ type FormValues = RecurrenceFormShape & {
   is_active: boolean;
   focal_x: number;
   focal_y: number;
+  pets: string;
+  parking: string;
+  accessibility: string;
+  payment_methods: PaymentMethod[];
+  family_friendly: string;
+  food_area: string;
 };
 
 const empty: FormValues = {
@@ -71,6 +79,7 @@ const empty: FormValues = {
   recurrence_end_date: "",
   start_time: "09:00",
   end_time: "14:00",
+
   image_url: "",
   organizer_name: "",
   organizer_phone: "",
