@@ -1,53 +1,64 @@
 ## Objetivo
-Añadir un filtro por **Municipio** en la barra pública, con chips horizontales en la barra principal + dropdown secundario con todos los municipios. Mantener Región/Categoría/Fecha tal como están.
 
-## Chips
-Municipios visibles como chips (mismo estilo visual que los pills de fecha, redondeados, `min-h-11`):
-`Todos · San Juan · Aguadilla · Caguas · Canóvanas · Hatillo`
+Rediseñar el footer actual de RutaMercado a **4 columnas en desktop** (apiladas en mobile), manteniendo el fondo navy `#18253f`, texto blanco y links en verde `#54b678`.
 
-- Activo: `bg-[#54b678] text-[#18253f] font-semibold`
-- Inactivo: `border border-[#E5E7EB] bg-white text-[#6B7280]`
-- Mobile: contenedor `overflow-x-auto` con `flex-nowrap`, scroll horizontal suave, sin scrollbar visible
-- Desktop: fila normal debajo de los pills de fecha
+## Estructura del nuevo footer
 
-## Dropdown secundario
-Un `Select` con opción "Todos los Municipios" + lista completa de municipios derivada de los mercados existentes (ordenada alfabéticamente). Se coloca en la fila derecha de dropdowns (desktop) junto a Región/Categoría, y en el `Sheet` de filtros (mobile) debajo de Región.
+```text
+[RutaMercado]          [Explorar]              [Para Organizadores]    [Legal]
+Logo pequeño           Mercados Agrícolas      Registrar mi mercado    Sobre Nosotros
+"Descubre los          Bazares                 Guía para organizadores Políticas de Privacidad
+ mercados locales      Ferias Artesanales      Preguntas frecuentes    Términos de Uso
+ de Puerto Rico"       Mercados Mixtos         Contacto
+[IG] [FB]              Todos los municipios
 
-Si el usuario elige un municipio desde el dropdown que también existe como chip, ese chip se refleja como activo (estado compartido).
+─────────────────────────────────────────────────────────────────────────────
+© 2025 RutaMercado — Hecho con ❤️ en Puerto Rico
+```
 
 ## Cambios técnicos
 
-**`src/lib/market-filters.ts`**
-- Añadir `municipality: string` (default `"all"`) a `MarketFilters` y `defaultFilters`.
-- En `applyFilters`: `if (filters.municipality !== "all" && m.municipality !== filters.municipality) return false;`
-- Incluir en `hasActiveFilters`.
+### 1. Rediseño de `Footer.tsx`
 
-**`src/routes/index.tsx`**
-- Añadir `municipality` a `validateSearch` (fallback `"all"`).
-- Pasarlo al estado de filtros y al reset (`clear`, chip individual).
-- Incluir en `describeFilters` (línea ~49): `if (f.municipality !== "all") parts.push(\`municipio: ${f.municipality}\`);`
-- El filtrado del mapa ya usa el mismo `filteredMarkets`, así que se aplica automáticamente.
+**Archivo:** `src/components/rutamercado/Footer.tsx`
 
-**`src/components/rutamercado/FilterBar.tsx`**
-- Nuevo componente `MunicipalityChips` (chips + scroll horizontal mobile).
-- Nuevo `MunicipalitySelect` alimentado por `props.municipalities: string[]` (lista completa).
-- Añadir prop `municipalities` a `Props`.
-- Renderizar chips en una segunda fila debajo de los `DatePills` (dentro del mismo contenedor sticky).
-- Añadir `MunicipalitySelect` en la fila de dropdowns (desktop) y en el `Sheet` (mobile).
+- Layout: `grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4` dentro de `max-w-7xl`.
+- **Columna 1 — RutaMercado:**
+  - Logo pequeño (`h-14`).
+  - Eslogan "Descubre los mercados locales de Puerto Rico".
+  - Iconos Instagram y Facebook (links externos).
+- **Columna 2 — Explorar:**
+  - Links a `/mercado-agricola`, `/bazar-pop-up`, `/feria-artesanal`, `/mercado-mixto`, `#municipios`.
+- **Columna 3 — Para Organizadores:**
+  - Links a `/enviar` (Registrar mi mercado), `#guia-para-organizadores`, `#preguntas-frecuentes`, `#contacto`.
+- **Columna 4 — Legal / Sobre:**
+  - `#sobre-nosotros`, `/politica-de-privacidad` (Políticas de Privacidad y Términos de Uso).
+- **Línea final:** separador + copyright centrado con "© 2025 RutaMercado — Hecho con ❤️ en Puerto Rico".
+- Colores: fondo `#18253f`, texto blanco `/70` para body, links `#54b678` con hover en blanco. Títulos de columna en blanco `font-display`.
+- Mantiene el divisor verde superior existente.
 
-**`src/routes/index.tsx`** (donde se renderiza `FilterBar`)
-- Calcular `municipalities` únicos ordenados desde `markets` (memo) y pasar como prop.
+### 2. Anclaje para `#municipios`
 
-**`src/components/rutamercado/ActiveFilterChips.tsx`**
-- Mostrar chip removible cuando `filters.municipality !== "all"`.
+**Archivo:** `src/routes/index.tsx` (o el componente de filtros que se renderiza allí)
+
+- Añadir `id="municipios"` al contenedor de los chips/dropdown de municipio para que el link del footer haga scroll suave.
+
+### 3. Ajustes de estilo
+
+- Usar tokens existentes: `bg-navy`, `text-gold`, `text-white`.
+- Tipografía `font-sans` para el cuerpo, `font-display` para títulos de columna.
+
+## Notas sobre anchors sin sección destino
+
+Los links `#guia-para-organizadores`, `#preguntas-frecuentes` y `#contacto` se implementarán como hash links tal como decidiste; cuando existan esas secciones, funcionarán sin cambios adicionales.
+
+## Archivos a modificar
+
+- **Editar:** `src/components/rutamercado/Footer.tsx`
+- **Editar:** `src/routes/index.tsx` (añadir `id="municipios"` a la sección de filtros)
 
 ## Fuera de alcance
-- No se toca el estilo del badge, MarketCard, mapa, tipografía ni el schema de la BD.
-- No se persiste orden manual de municipios: los 5 mostrados como chips son fijos según spec (`San Juan, Aguadilla, Caguas, Canóvanas, Hatillo`), no calculados dinámicamente por conteo.
 
-## Diagrama
-```text
-[Hoy][Semana][Mes][Todos]
-[Todos][San Juan][Aguadilla][Caguas][Canóvanas][Hatillo]  ← scroll-x en mobile
-                                    [Región ▾][Municipio ▾][Categoría ▾][Limpiar]
-```
+- No se crea newsletter ni backend asociado.
+- No se crean páginas nuevas para Guía, FAQ ni Contacto (se usan anchors).
+- No se modifica el header ni el resto del layout.
