@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Loader2, Pencil, Plus, Trash2, Hand, Eye } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2, Hand, Eye, AlertCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import {
   listAllMarkets,
@@ -77,19 +78,37 @@ function MarketsPage() {
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("all");
+  const [completeness, setCompleteness] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Market | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Market | null>(null);
+
+  const getMissing = (m: Market): string[] => {
+    const missing: string[] = [];
+    if (!m.pets) missing.push("Mascotas");
+    if (!m.parking) missing.push("Estacionamiento");
+    if (!m.accessibility) missing.push("Accesibilidad");
+    if (!m.family_friendly) missing.push("Familiar");
+    if (!m.food_area) missing.push("Área de comida");
+    if (!m.payment_methods || m.payment_methods.length === 0) missing.push("Métodos de pago");
+    return missing;
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return markets.filter((m) => {
       if (category !== "all" && m.category !== category) return false;
       if (q && !m.name.toLowerCase().includes(q)) return false;
+      if (completeness !== "all") {
+        const missingCount = getMissing(m).length;
+        if (completeness === "incomplete" && missingCount === 0) return false;
+        if (completeness === "empty" && missingCount !== 6) return false;
+        if (completeness === "complete" && missingCount !== 0) return false;
+      }
       return true;
     });
-  }, [markets, search, category]);
+  }, [markets, search, category, completeness]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -176,13 +195,25 @@ function MarketsPage() {
             ))}
           </SelectContent>
         </Select>
+
+        <Select value={completeness} onValueChange={(v) => { setCompleteness(v); setPage(1); }}>
+          <SelectTrigger className="w-60"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos (servicios)</SelectItem>
+            <SelectItem value="incomplete">Con servicios incompletos</SelectItem>
+            <SelectItem value="empty">Sin ningún servicio</SelectItem>
+            <SelectItem value="complete">Servicios completos</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-xl border bg-card overflow-hidden">
+        <TooltipProvider delayDuration={150}>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nombre</TableHead>
+              <TableHead>Servicios</TableHead>
               <TableHead>Categoría</TableHead>
               <TableHead>Municipio</TableHead>
               <TableHead>Fecha</TableHead>
@@ -195,7 +226,7 @@ function MarketsPage() {
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-6">
                   Sin resultados
                 </TableCell>
               </TableRow>
@@ -203,9 +234,37 @@ function MarketsPage() {
               pageRows.map((m) => {
                 const int = (intentions as Record<string, { willAttend: number; interested: number }>)[m.id] ?? { willAttend: 0, interested: 0 };
                 const total = int.willAttend + int.interested;
+                const missing = getMissing(m);
+                const filled = 6 - missing.length;
+                const badgeClass =
+                  missing.length === 0
+                    ? "bg-[#54b678]/15 text-[#166534] border-0"
+                    : missing.length === 6
+                      ? "bg-[#DC2626]/15 text-[#DC2626] border-0"
+                      : "bg-[#F59E0B]/15 text-[#B45309] border-0";
                 return (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
+                  <TableCell>
+                    {missing.length === 0 ? (
+                      <Badge variant="secondary" className={badgeClass}>6/6</Badge>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="secondary" className={`${badgeClass} cursor-help gap-1`}>
+                            <AlertCircle className="h-3 w-3" />
+                            {filled}/6
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <div className="text-xs font-medium mb-1">Falta completar:</div>
+                          <ul className="text-xs list-disc pl-4 space-y-0.5">
+                            {missing.map((f) => <li key={f}>{f}</li>)}
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="bg-[#54b678]/15 text-[#18253f] border-0">
                       {m.category}
@@ -257,6 +316,7 @@ function MarketsPage() {
             )}
           </TableBody>
         </Table>
+        </TooltipProvider>
       </div>
 
 
