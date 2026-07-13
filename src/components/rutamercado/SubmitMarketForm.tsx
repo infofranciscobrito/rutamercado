@@ -128,6 +128,22 @@ export function SubmitMarketForm() {
           organizer_email: v.organizer_email || undefined,
           organizer_instagram: v.organizer_instagram || undefined,
           organizer_contact_url: normalizeUrl(v.organizer_contact_url),
+          pets: (v.pets || undefined) as (typeof PETS_OPTIONS)[number] | undefined,
+          parking: (v.parking || undefined) as
+            | (typeof PARKING_OPTIONS)[number]
+            | undefined,
+          accessibility: (v.accessibility || undefined) as
+            | (typeof ACCESSIBILITY_OPTIONS)[number]
+            | undefined,
+          payment_methods:
+            v.payment_methods.length > 0 ? v.payment_methods : undefined,
+          family_friendly: (v.family_friendly || undefined) as
+            | (typeof FAMILY_FRIENDLY_OPTIONS)[number]
+            | undefined,
+          food_area: (v.food_area || undefined) as
+            | (typeof FOOD_AREA_OPTIONS)[number]
+            | undefined,
+
         },
       }),
     onSuccess: () => {
