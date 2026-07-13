@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { listMarkets } from "@/lib/markets.functions";
+import { marketsQueryOptions } from "@/lib/markets-query";
 import { trackPageView } from "@/lib/analytics.functions";
 import {
   applyFilters,
