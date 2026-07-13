@@ -492,3 +492,41 @@ function Field({
     </div>
   );
 }
+
+function RadioOptions({
+  name,
+  options,
+  value,
+  onChange,
+  disabled,
+}: {
+  name: string;
+  options: readonly string[];
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      disabled={disabled}
+      className="grid gap-2"
+    >
+      {options.map((opt) => {
+        const id = `${name}-${opt}`;
+        return (
+          <label
+            key={opt}
+            htmlFor={id}
+            className="flex cursor-pointer items-center gap-2 rounded-md border border-[#18253f]/10 bg-white px-3 py-2 text-sm text-[#18253f] hover:bg-[#FFF8EC]"
+          >
+            <RadioGroupItem id={id} value={opt} />
+            <span>{opt}</span>
+          </label>
+        );
+      })}
+    </RadioGroup>
+  );
+}
+
