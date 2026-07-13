@@ -208,10 +208,12 @@ function MarketsPage() {
       </div>
 
       <div className="rounded-xl border bg-card overflow-hidden">
+        <TooltipProvider delayDuration={150}>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nombre</TableHead>
+              <TableHead>Servicios</TableHead>
               <TableHead>Categoría</TableHead>
               <TableHead>Municipio</TableHead>
               <TableHead>Fecha</TableHead>
@@ -224,7 +226,7 @@ function MarketsPage() {
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-6">
                   Sin resultados
                 </TableCell>
               </TableRow>
@@ -232,9 +234,37 @@ function MarketsPage() {
               pageRows.map((m) => {
                 const int = (intentions as Record<string, { willAttend: number; interested: number }>)[m.id] ?? { willAttend: 0, interested: 0 };
                 const total = int.willAttend + int.interested;
+                const missing = getMissing(m);
+                const filled = 6 - missing.length;
+                const badgeClass =
+                  missing.length === 0
+                    ? "bg-[#54b678]/15 text-[#166534] border-0"
+                    : missing.length === 6
+                      ? "bg-[#DC2626]/15 text-[#DC2626] border-0"
+                      : "bg-[#F59E0B]/15 text-[#B45309] border-0";
                 return (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
+                  <TableCell>
+                    {missing.length === 0 ? (
+                      <Badge variant="secondary" className={badgeClass}>6/6</Badge>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="secondary" className={`${badgeClass} cursor-help gap-1`}>
+                            <AlertCircle className="h-3 w-3" />
+                            {filled}/6
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <div className="text-xs font-medium mb-1">Falta completar:</div>
+                          <ul className="text-xs list-disc pl-4 space-y-0.5">
+                            {missing.map((f) => <li key={f}>{f}</li>)}
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="bg-[#54b678]/15 text-[#18253f] border-0">
                       {m.category}
