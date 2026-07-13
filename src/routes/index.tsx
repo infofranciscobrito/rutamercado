@@ -126,6 +126,7 @@ function IndexPage() {
     q: search.q,
     date: search.date,
     region: search.region as MarketFilters["region"],
+    municipality: search.municipality,
     category: search.category as MarketFilters["category"],
     day: search.day,
   };
