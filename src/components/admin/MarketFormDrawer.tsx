@@ -477,7 +477,82 @@ export function MarketFormDrawer({
           </Field>
           <Controller
             control={control}
+          <div className="space-y-3 rounded-md border border-dashed p-3">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Servicios e instalaciones (opcional)
+            </p>
+            <AdminRadioField
+              control={control}
+              name="pets"
+              label="🐕 ¿Aceptan mascotas?"
+              options={PETS_OPTIONS}
+            />
+            <AdminRadioField
+              control={control}
+              name="parking"
+              label="🅿️ ¿Hay estacionamiento?"
+              options={PARKING_OPTIONS}
+            />
+            <AdminRadioField
+              control={control}
+              name="accessibility"
+              label="♿ ¿Es accesible?"
+              options={ACCESSIBILITY_OPTIONS}
+            />
+            <Field label="💳 Métodos de pago">
+              <Controller
+                control={control}
+                name="payment_methods"
+                render={({ field }) => (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {PAYMENT_METHODS_OPTIONS.map((opt) => {
+                      const checked = field.value.includes(opt);
+                      const id = `admin-payment-${opt}`;
+                      return (
+                        <label
+                          key={opt}
+                          htmlFor={id}
+                          className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm"
+                        >
+                          <Checkbox
+                            id={id}
+                            checked={checked}
+                            onCheckedChange={(v) => {
+                              if (v) field.onChange([...field.value, opt]);
+                              else
+                                field.onChange(
+                                  field.value.filter(
+                                    (x: PaymentMethod) => x !== opt,
+                                  ),
+                                );
+                            }}
+                          />
+                          <span>{opt}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              />
+            </Field>
+            <AdminRadioField
+              control={control}
+              name="family_friendly"
+              label="👶 ¿Es familiar?"
+              options={FAMILY_FRIENDLY_OPTIONS}
+            />
+            <AdminRadioField
+              control={control}
+              name="food_area"
+              label="🍴 ¿Tiene área de comida?"
+              options={FOOD_AREA_OPTIONS}
+            />
+          </div>
+
+          <Controller
+            control={control}
             name="is_active"
+
             render={({ field }) => (
               <label className="flex items-center justify-between rounded-md border p-3">
                 <span className="text-sm font-medium">Activo</span>
