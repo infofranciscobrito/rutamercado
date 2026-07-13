@@ -475,9 +475,8 @@ export function MarketFormDrawer({
               )}
             />
           </Field>
-          <Controller
-            control={control}
           <div className="space-y-3 rounded-md border border-dashed p-3">
+
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
               Servicios e instalaciones (opcional)
             </p>
