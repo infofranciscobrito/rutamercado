@@ -76,6 +76,7 @@ export function hasActiveFilters(f: MarketFilters): boolean {
     f.q.trim() !== "" ||
     f.date !== "all" ||
     f.region !== "all" ||
+    f.municipality !== "all" ||
     f.category !== "all" ||
     !!f.day
   );
