@@ -5,7 +5,15 @@ import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { createMarketSubmission } from "@/lib/submissions.functions";
+import {
+  createMarketSubmission,
+  PETS_OPTIONS,
+  PARKING_OPTIONS,
+  ACCESSIBILITY_OPTIONS,
+  PAYMENT_METHODS_OPTIONS,
+  FAMILY_FRIENDLY_OPTIONS,
+  FOOD_AREA_OPTIONS,
+} from "@/lib/submissions.functions";
 import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,11 +25,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload16x9 } from "./ImageUpload16x9";
 import {
   RecurrenceFields,
   type RecurrenceFormShape,
 } from "./RecurrenceFields";
+
+type PaymentMethod = (typeof PAYMENT_METHODS_OPTIONS)[number];
+
 
 type FormValues = RecurrenceFormShape & {
   name: string;
@@ -36,6 +49,12 @@ type FormValues = RecurrenceFormShape & {
   organizer_email: string;
   organizer_instagram: string;
   organizer_contact_url: string;
+  pets: string;
+  parking: string;
+  accessibility: string;
+  payment_methods: PaymentMethod[];
+  family_friendly: string;
+  food_area: string;
 };
 
 const defaults: FormValues = {
@@ -58,7 +77,14 @@ const defaults: FormValues = {
   organizer_email: "",
   organizer_instagram: "",
   organizer_contact_url: "",
+  pets: "",
+  parking: "",
+  accessibility: "",
+  payment_methods: [],
+  family_friendly: "",
+  food_area: "",
 };
+
 
 function normalizeUrl(input: string): string | undefined {
   const v = (input ?? "").trim();
@@ -102,6 +128,22 @@ export function SubmitMarketForm() {
           organizer_email: v.organizer_email || undefined,
           organizer_instagram: v.organizer_instagram || undefined,
           organizer_contact_url: normalizeUrl(v.organizer_contact_url),
+          pets: (v.pets || undefined) as (typeof PETS_OPTIONS)[number] | undefined,
+          parking: (v.parking || undefined) as
+            | (typeof PARKING_OPTIONS)[number]
+            | undefined,
+          accessibility: (v.accessibility || undefined) as
+            | (typeof ACCESSIBILITY_OPTIONS)[number]
+            | undefined,
+          payment_methods:
+            v.payment_methods.length > 0 ? v.payment_methods : undefined,
+          family_friendly: (v.family_friendly || undefined) as
+            | (typeof FAMILY_FRIENDLY_OPTIONS)[number]
+            | undefined,
+          food_area: (v.food_area || undefined) as
+            | (typeof FOOD_AREA_OPTIONS)[number]
+            | undefined,
+
         },
       }),
     onSuccess: () => {
@@ -226,6 +268,132 @@ export function SubmitMarketForm() {
         />
       </Section>
 
+      <Section title="Servicios e instalaciones">
+        <p className="-mt-2 text-sm text-[#18253f]/60">
+          Opcional. Ayuda a los visitantes a saber qué esperar.
+        </p>
+
+        <Field label="🐕 ¿Aceptan mascotas?">
+          <Controller
+            control={control}
+            name="pets"
+            render={({ field }) => (
+              <RadioOptions
+                name="pets"
+                options={PETS_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="🅿️ ¿Hay estacionamiento?">
+          <Controller
+            control={control}
+            name="parking"
+            render={({ field }) => (
+              <RadioOptions
+                name="parking"
+                options={PARKING_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="♿ ¿Es accesible?">
+          <Controller
+            control={control}
+            name="accessibility"
+            render={({ field }) => (
+              <RadioOptions
+                name="accessibility"
+                options={ACCESSIBILITY_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="💳 Métodos de pago">
+          <Controller
+            control={control}
+            name="payment_methods"
+            render={({ field }) => (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {PAYMENT_METHODS_OPTIONS.map((opt) => {
+                  const checked = field.value.includes(opt);
+                  const id = `payment-${opt}`;
+                  return (
+                    <label
+                      key={opt}
+                      htmlFor={id}
+                      className="flex cursor-pointer items-center gap-2 rounded-md border border-[#18253f]/10 bg-white px-3 py-2 text-sm text-[#18253f] hover:bg-[#FFF8EC]"
+                    >
+                      <Checkbox
+                        id={id}
+                        checked={checked}
+                        disabled={mutation.isPending}
+                        onCheckedChange={(v) => {
+                          if (v) {
+                            field.onChange([...field.value, opt]);
+                          } else {
+                            field.onChange(
+                              field.value.filter((x: PaymentMethod) => x !== opt),
+                            );
+                          }
+                        }}
+                      />
+                      <span>{opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          />
+        </Field>
+
+        <Field label="👶 ¿Es familiar?">
+          <Controller
+            control={control}
+            name="family_friendly"
+            render={({ field }) => (
+              <RadioOptions
+                name="family_friendly"
+                options={FAMILY_FRIENDLY_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="🍴 ¿Tiene área de comida?">
+          <Controller
+            control={control}
+            name="food_area"
+            render={({ field }) => (
+              <RadioOptions
+                name="food_area"
+                options={FOOD_AREA_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={mutation.isPending}
+              />
+            )}
+          />
+        </Field>
+      </Section>
+
+
+
       <Section title="Contacto del organizador">
         <Field label="Nombre del organizador *" error={errors.organizer_name?.message}>
           <Input
@@ -324,3 +492,41 @@ function Field({
     </div>
   );
 }
+
+function RadioOptions({
+  name,
+  options,
+  value,
+  onChange,
+  disabled,
+}: {
+  name: string;
+  options: readonly string[];
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      disabled={disabled}
+      className="grid gap-2"
+    >
+      {options.map((opt) => {
+        const id = `${name}-${opt}`;
+        return (
+          <label
+            key={opt}
+            htmlFor={id}
+            className="flex cursor-pointer items-center gap-2 rounded-md border border-[#18253f]/10 bg-white px-3 py-2 text-sm text-[#18253f] hover:bg-[#FFF8EC]"
+          >
+            <RadioGroupItem id={id} value={opt} />
+            <span>{opt}</span>
+          </label>
+        );
+      })}
+    </RadioGroup>
+  );
+}
+

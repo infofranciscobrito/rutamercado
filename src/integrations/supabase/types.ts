@@ -186,12 +186,15 @@ export type Database = {
       }
       market_submissions: {
         Row: {
+          accessibility: string | null
           address: string
           admin_notes: string | null
           category: Database["public"]["Enums"]["market_category"]
           created_at: string
           description: string | null
           end_time: string
+          family_friendly: string | null
+          food_area: string | null
           id: string
           image_url: string | null
           municipality: string
@@ -201,6 +204,9 @@ export type Database = {
           organizer_instagram: string | null
           organizer_name: string
           organizer_phone: string | null
+          parking: string | null
+          payment_methods: string[] | null
+          pets: string | null
           published_market_id: string | null
           recurrence_day_of_week: string | null
           recurrence_end_date: string | null
@@ -216,12 +222,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          accessibility?: string | null
           address: string
           admin_notes?: string | null
           category: Database["public"]["Enums"]["market_category"]
           created_at?: string
           description?: string | null
           end_time: string
+          family_friendly?: string | null
+          food_area?: string | null
           id?: string
           image_url?: string | null
           municipality: string
@@ -231,6 +240,9 @@ export type Database = {
           organizer_instagram?: string | null
           organizer_name: string
           organizer_phone?: string | null
+          parking?: string | null
+          payment_methods?: string[] | null
+          pets?: string | null
           published_market_id?: string | null
           recurrence_day_of_week?: string | null
           recurrence_end_date?: string | null
@@ -246,12 +258,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          accessibility?: string | null
           address?: string
           admin_notes?: string | null
           category?: Database["public"]["Enums"]["market_category"]
           created_at?: string
           description?: string | null
           end_time?: string
+          family_friendly?: string | null
+          food_area?: string | null
           id?: string
           image_url?: string | null
           municipality?: string
@@ -261,6 +276,9 @@ export type Database = {
           organizer_instagram?: string | null
           organizer_name?: string
           organizer_phone?: string | null
+          parking?: string | null
+          payment_methods?: string[] | null
+          pets?: string | null
           published_market_id?: string | null
           recurrence_day_of_week?: string | null
           recurrence_end_date?: string | null
@@ -287,13 +305,16 @@ export type Database = {
       }
       markets: {
         Row: {
+          accessibility: string | null
           address: string
           category: Database["public"]["Enums"]["market_category"]
           created_at: string
           description: string | null
           end_time: string
+          family_friendly: string | null
           focal_x: number
           focal_y: number
+          food_area: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -305,6 +326,9 @@ export type Database = {
           organizer_logo_url: string | null
           organizer_name: string
           organizer_phone: string | null
+          parking: string | null
+          payment_methods: string[] | null
+          pets: string | null
           recurrence_day_of_week: string | null
           recurrence_end_date: string | null
           recurrence_label: string | null
@@ -317,13 +341,16 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          accessibility?: string | null
           address: string
           category: Database["public"]["Enums"]["market_category"]
           created_at?: string
           description?: string | null
           end_time: string
+          family_friendly?: string | null
           focal_x?: number
           focal_y?: number
+          food_area?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -335,6 +362,9 @@ export type Database = {
           organizer_logo_url?: string | null
           organizer_name: string
           organizer_phone?: string | null
+          parking?: string | null
+          payment_methods?: string[] | null
+          pets?: string | null
           recurrence_day_of_week?: string | null
           recurrence_end_date?: string | null
           recurrence_label?: string | null
@@ -347,13 +377,16 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          accessibility?: string | null
           address?: string
           category?: Database["public"]["Enums"]["market_category"]
           created_at?: string
           description?: string | null
           end_time?: string
+          family_friendly?: string | null
           focal_x?: number
           focal_y?: number
+          food_area?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -365,6 +398,9 @@ export type Database = {
           organizer_logo_url?: string | null
           organizer_name?: string
           organizer_phone?: string | null
+          parking?: string | null
+          payment_methods?: string[] | null
+          pets?: string | null
           recurrence_day_of_week?: string | null
           recurrence_end_date?: string | null
           recurrence_label?: string | null
