@@ -224,6 +224,8 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
                 </div>
               </div>
 
+              <ServicesSection market={market} />
+
               <AttendanceSection marketId={market.id} />
 
 
