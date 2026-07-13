@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string
+          role: Database["public"]["Enums"]["contact_role"]
+          status: Database["public"]["Enums"]["contact_message_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone: string
+          role: Database["public"]["Enums"]["contact_role"]
+          status?: Database["public"]["Enums"]["contact_message_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string
+          role?: Database["public"]["Enums"]["contact_role"]
+          status?: Database["public"]["Enums"]["contact_message_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_attendance_intentions: {
         Row: {
           created_at: string
@@ -520,6 +556,8 @@ export type Database = {
         | "click_directions"
         | "click_attendance"
         | "click_contact"
+      contact_message_status: "new" | "read" | "archived"
+      contact_role: "productor" | "vendor" | "publico_general"
       market_category:
         | "Mercado Agrícola"
         | "Bazaar/Pop Up"
@@ -666,6 +704,8 @@ export const Constants = {
         "click_attendance",
         "click_contact",
       ],
+      contact_message_status: ["new", "read", "archived"],
+      contact_role: ["productor", "vendor", "publico_general"],
       market_category: [
         "Mercado Agrícola",
         "Bazaar/Pop Up",
