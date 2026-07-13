@@ -248,7 +248,47 @@ export function MarketDetailDialog({ market, open, onClose }: Props) {
   );
 }
 
+function ServicesSection({ market }: { market: EnrichedMarket }) {
+  const items: { emoji: string; label: string; value: string | null }[] = [
+    { emoji: "🐕", label: "Mascotas", value: market.pets ?? null },
+    { emoji: "🅿️", label: "Estacionamiento", value: market.parking ?? null },
+    { emoji: "♿", label: "Accesibilidad", value: market.accessibility ?? null },
+    { emoji: "👶", label: "Familiar", value: market.family_friendly ?? null },
+  ].filter((i) => i.value && i.value.trim().length > 0) as {
+    emoji: string;
+    label: string;
+    value: string;
+  }[];
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      <SectionTitle>Servicios e instalaciones</SectionTitle>
+      <ul className="divide-y divide-[#E5E7EB] rounded-xl bg-[#FAFAF8]">
+        {items.map((it) => (
+          <li
+            key={it.label}
+            className="flex items-start gap-3 px-4 py-3"
+          >
+            <span className="text-lg leading-none" aria-hidden="true">
+              {it.emoji}
+            </span>
+            <div className="flex-1">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">
+                {it.label}
+              </div>
+              <div className="mt-0.5 text-sm text-[#18253f]">{it.value}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function AttendanceSection({ marketId }: { marketId: string }) {
+
   const [voted, setVoted] = useState(false);
   const [counts, setCounts] = useState<{
     total: number;
