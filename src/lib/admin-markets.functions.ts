@@ -72,6 +72,13 @@ const MarketInputSchema = z
     is_active: z.boolean(),
     focal_x: z.number().min(0).max(100).default(50),
     focal_y: z.number().min(0).max(100).default(50),
+    pets: z.string().trim().max(100).nullable().optional(),
+    parking: z.string().trim().max(100).nullable().optional(),
+    accessibility: z.string().trim().max(100).nullable().optional(),
+    payment_methods: z.array(z.string().trim().max(100)).nullable().optional(),
+    family_friendly: z.string().trim().max(100).nullable().optional(),
+    food_area: z.string().trim().max(100).nullable().optional(),
+
   })
   .superRefine((v, ctx) => {
     if (v.recurrence_type === "unico") {
