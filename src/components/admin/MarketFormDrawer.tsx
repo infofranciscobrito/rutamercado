@@ -7,6 +7,15 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertMarket } from "@/lib/admin-markets.functions";
 import {
+  PETS_OPTIONS,
+  PARKING_OPTIONS,
+  ACCESSIBILITY_OPTIONS,
+  PAYMENT_METHODS_OPTIONS,
+  FAMILY_FRIENDLY_OPTIONS,
+  FOOD_AREA_OPTIONS,
+} from "@/lib/submissions.functions";
+
+import {
   MARKET_CATEGORIES,
   MARKET_REGIONS,
   type Market,
