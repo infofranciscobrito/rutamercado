@@ -47,6 +47,7 @@ function describeFilters(f: MarketFilters): string | undefined {
   if (f.q.trim()) parts.push(`"${f.q.trim()}"`);
   if (f.category !== "all") parts.push(`categoría: ${f.category}`);
   if (f.region !== "all") parts.push(`región: ${f.region}`);
+  if (f.municipality !== "all") parts.push(`municipio: ${f.municipality}`);
   if (f.day) parts.push(`día: ${f.day}`);
   else if (f.date !== "all") parts.push(DATE_LABELS[f.date]);
   return parts.length ? parts.join(", ") : undefined;
