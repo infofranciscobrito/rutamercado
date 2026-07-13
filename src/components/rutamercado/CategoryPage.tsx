@@ -33,6 +33,7 @@ export interface CategoryPageSearch {
   q: string;
   date: MarketFilters["date"];
   region: MarketFilters["region"];
+  municipality: string;
   day?: string;
   market?: string;
 }
@@ -69,6 +70,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
     q: search.q,
     date: search.date,
     region: search.region,
+    municipality: search.municipality,
     category: "all",
     day: search.day,
   };
@@ -92,6 +94,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
           q: defaultFilters.q,
           date: defaultFilters.date,
           region: defaultFilters.region,
+          municipality: defaultFilters.municipality,
           day: undefined,
           market: prev.market,
         }) as S,
@@ -104,6 +107,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
     if (key === "q") reset.q = "";
     else if (key === "date") reset.date = "all";
     else if (key === "region") reset.region = "all";
+    else if (key === "municipality") reset.municipality = "all";
     else if (key === "day") reset.day = undefined;
     updateFilters(reset);
   };
@@ -183,6 +187,11 @@ function Content({
     return set;
   }, [inCategory]);
 
+  const municipalities = useMemo(
+    () => Array.from(new Set(inCategory.map((m) => m.municipality))).sort((a, b) => a.localeCompare(b, "es")),
+    [inCategory],
+  );
+
   const filtered = useMemo(() => {
     const list = applyFilters(inCategory, { ...filters, category: "all" });
     return [...list].sort((a, b) =>
@@ -249,6 +258,7 @@ function Content({
       <FilterBar
         filters={filters}
         availableDays={availableDays}
+        municipalities={municipalities}
         onChange={onChangeFilters}
         onClear={onClear}
         hideCategory

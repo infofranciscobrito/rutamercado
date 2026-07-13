@@ -47,6 +47,7 @@ function describeFilters(f: MarketFilters): string | undefined {
   if (f.q.trim()) parts.push(`"${f.q.trim()}"`);
   if (f.category !== "all") parts.push(`categoría: ${f.category}`);
   if (f.region !== "all") parts.push(`región: ${f.region}`);
+  if (f.municipality !== "all") parts.push(`municipio: ${f.municipality}`);
   if (f.day) parts.push(`día: ${f.day}`);
   else if (f.date !== "all") parts.push(DATE_LABELS[f.date]);
   return parts.length ? parts.join(", ") : undefined;
@@ -59,6 +60,7 @@ const searchSchema = z.object({
     z.enum(["all", ...MARKET_REGIONS] as [string, ...string[]]),
     "all",
   ).default("all"),
+  municipality: fallback(z.string(), "all").default("all"),
   category: fallback(
     z.enum(["all", ...MARKET_CATEGORIES] as [string, ...string[]]),
     "all",
@@ -125,6 +127,7 @@ function IndexPage() {
     q: search.q,
     date: search.date,
     region: search.region as MarketFilters["region"],
+    municipality: search.municipality,
     category: search.category as MarketFilters["category"],
     day: search.day,
   };
@@ -149,6 +152,7 @@ function IndexPage() {
     if (key === "q") reset.q = "";
     else if (key === "date") reset.date = "all";
     else if (key === "region") reset.region = "all";
+    else if (key === "municipality") reset.municipality = "all";
     else if (key === "category") reset.category = "all";
     else if (key === "day") reset.day = undefined;
     updateFilters(reset);
@@ -271,6 +275,11 @@ function MarketsContent({
     return set;
   }, [markets]);
 
+  const municipalities = useMemo(
+    () => Array.from(new Set(markets.map((m) => m.municipality))).sort((a, b) => a.localeCompare(b, "es")),
+    [markets],
+  );
+
   const filtered = useMemo(
     () => applyFilters(markets, filters),
     [markets, filters],
@@ -310,6 +319,7 @@ function MarketsContent({
       <FilterBar
         filters={filters}
         availableDays={availableDays}
+        municipalities={municipalities}
         onChange={onChangeFilters}
         onClear={onClear}
       />

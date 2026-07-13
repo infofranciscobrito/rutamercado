@@ -1,28 +1,53 @@
-## Plan: Sección "Sobre Nosotros" rediseñada
+## Objetivo
+Añadir un filtro por **Municipio** en la barra pública, con chips horizontales en la barra principal + dropdown secundario con todos los municipios. Mantener Región/Categoría/Fecha tal como están.
 
-### Objetivo
-Reemplazar el contenido actual de `src/components/rutamercado/AboutSection.tsx` por 3 bloques claros, manteniendo el fondo `#18253f`, texto blanco, ancho `max-w-7xl` y asegurando que el link `#sobre-nosotros` del nav haga scroll suave.
+## Chips
+Municipios visibles como chips (mismo estilo visual que los pills de fecha, redondeados, `min-h-11`):
+`Todos · San Juan · Aguadilla · Caguas · Canóvanas · Hatillo`
 
-### Cambios propuestos
+- Activo: `bg-[#54b678] text-[#18253f] font-semibold`
+- Inactivo: `border border-[#E5E7EB] bg-white text-[#6B7280]`
+- Mobile: contenedor `overflow-x-auto` con `flex-nowrap`, scroll horizontal suave, sin scrollbar visible
+- Desktop: fila normal debajo de los pills de fecha
 
-1. **Actualizar `src/components/rutamercado/AboutSection.tsx`**
-   - Conservar `id="sobre-nosotros"`, fondo `#18253f`, texto blanco y `max-w-7xl`.
-   - Reemplazar el contenido actual por 3 bloques en una cuadrícula responsive:
-     - **Bloque 1 — Misión:** título "Misión" + párrafo exacto sugerido.
-     - **Bloque 2 — ¿Qué encontrarás?:** 4 ítems con íconos reutilizados de `CategoryIcons.tsx` (`Leaf`, `Tent`, `Hand`, `ShoppingBag`) y sus nombres de categoría.
-     - **Bloque 3 — Para organizadores:** texto sugerido + botón CTA "Registrar mi Mercado" que navegue a `/enviar` usando `Link` de `@tanstack/react-router`.
+## Dropdown secundario
+Un `Select` con opción "Todos los Municipios" + lista completa de municipios derivada de los mercados existentes (ordenada alfabéticamente). Se coloca en la fila derecha de dropdowns (desktop) junto a Región/Categoría, y en el `Sheet` de filtros (mobile) debajo de Región.
 
-2. **Activar scroll suave global**
-   - Agregar `scroll-behavior: smooth` al elemento `html` en `src/styles.css` (o en el selector `:root`) para que cualquier link con hash como `#sobre-nosotros` deslice suavemente.
+Si el usuario elige un municipio desde el dropdown que también existe como chip, ese chip se refleja como activo (estado compartido).
 
-3. **Verificar el link del nav**
-   - Confirmar que `Header.tsx` siga usando `<a href="#sobre-nosotros">`. Con `scroll-behavior: smooth` funcionará correctamente.
+## Cambios técnicos
 
-### Archivos a modificar
-- `src/components/rutamercado/AboutSection.tsx`
-- `src/styles.css`
+**`src/lib/market-filters.ts`**
+- Añadir `municipality: string` (default `"all"`) a `MarketFilters` y `defaultFilters`.
+- En `applyFilters`: `if (filters.municipality !== "all" && m.municipality !== filters.municipality) return false;`
+- Incluir en `hasActiveFilters`.
 
-### No se modificarán
-- Tipografía, colores ni estructura del Header.
-- Rutas ni lógica de backend.
-- Otros componentes fuera de los listados.
+**`src/routes/index.tsx`**
+- Añadir `municipality` a `validateSearch` (fallback `"all"`).
+- Pasarlo al estado de filtros y al reset (`clear`, chip individual).
+- Incluir en `describeFilters` (línea ~49): `if (f.municipality !== "all") parts.push(\`municipio: ${f.municipality}\`);`
+- El filtrado del mapa ya usa el mismo `filteredMarkets`, así que se aplica automáticamente.
+
+**`src/components/rutamercado/FilterBar.tsx`**
+- Nuevo componente `MunicipalityChips` (chips + scroll horizontal mobile).
+- Nuevo `MunicipalitySelect` alimentado por `props.municipalities: string[]` (lista completa).
+- Añadir prop `municipalities` a `Props`.
+- Renderizar chips en una segunda fila debajo de los `DatePills` (dentro del mismo contenedor sticky).
+- Añadir `MunicipalitySelect` en la fila de dropdowns (desktop) y en el `Sheet` (mobile).
+
+**`src/routes/index.tsx`** (donde se renderiza `FilterBar`)
+- Calcular `municipalities` únicos ordenados desde `markets` (memo) y pasar como prop.
+
+**`src/components/rutamercado/ActiveFilterChips.tsx`**
+- Mostrar chip removible cuando `filters.municipality !== "all"`.
+
+## Fuera de alcance
+- No se toca el estilo del badge, MarketCard, mapa, tipografía ni el schema de la BD.
+- No se persiste orden manual de municipios: los 5 mostrados como chips son fijos según spec (`San Juan, Aguadilla, Caguas, Canóvanas, Hatillo`), no calculados dinámicamente por conteo.
+
+## Diagrama
+```text
+[Hoy][Semana][Mes][Todos]
+[Todos][San Juan][Aguadilla][Caguas][Canóvanas][Hatillo]  ← scroll-x en mobile
+                                    [Región ▾][Municipio ▾][Categoría ▾][Limpiar]
+```

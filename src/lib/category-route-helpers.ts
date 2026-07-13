@@ -13,6 +13,7 @@ export const categorySearchSchema = z.object({
     z.enum(["all", ...MARKET_REGIONS] as [string, ...string[]]),
     "all",
   ).default("all"),
+  municipality: fallback(z.string(), "all").default("all"),
   day: fallback(z.string().regex(ISO_DAY).optional(), undefined),
   market: fallback(z.string().uuid().optional(), undefined),
 });

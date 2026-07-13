@@ -18,12 +18,13 @@ import {
 import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import type { DateFilter, MarketFilters } from "@/lib/market-filters";
 import { hasActiveFilters } from "@/lib/market-filters";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 
 interface Props {
   filters: MarketFilters;
   availableDays?: Set<string>;
+  municipalities?: string[];
   onChange: (next: Partial<MarketFilters>) => void;
   onClear: () => void;
   hideCategory?: boolean;
@@ -34,6 +35,14 @@ const DATE_OPTIONS: { value: DateFilter; label: string }[] = [
   { value: "week", label: "Esta Semana" },
   { value: "month", label: "Este Mes" },
   { value: "all", label: "Todos" },
+];
+
+const FEATURED_MUNICIPALITIES = [
+  "San Juan",
+  "Aguadilla",
+  "Caguas",
+  "Canóvanas",
+  "Hatillo",
 ];
 
 function DatePills({
@@ -68,6 +77,42 @@ function DatePills({
   );
 }
 
+function MunicipalityChips({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const options = useMemo(
+    () => [{ value: "all", label: "Todos" }, ...FEATURED_MUNICIPALITIES.map((m) => ({ value: m, label: m }))],
+    [],
+  );
+  return (
+    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap">
+        {options.map((opt) => {
+          const active = value === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={`min-h-11 shrink-0 rounded-full px-4 text-sm transition-all duration-150 ${
+                active
+                  ? "bg-[#54b678] font-semibold text-[#18253f] scale-[1.02]"
+                  : "border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#54b678] hover:text-[#18253f]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function RegionSelect({
   value,
   onChange,
@@ -85,6 +130,32 @@ function RegionSelect({
         {MARKET_REGIONS.map((r) => (
           <SelectItem key={r} value={r}>
             {r}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function MunicipalitySelect({
+  value,
+  municipalities,
+  onChange,
+}: {
+  value: string;
+  municipalities: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="h-10 min-w-[200px] rounded-lg border-[#E5E7EB]">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">Todos los Municipios</SelectItem>
+        {municipalities.map((m) => (
+          <SelectItem key={m} value={m}>
+            {m}
           </SelectItem>
         ))}
       </SelectContent>
@@ -119,7 +190,7 @@ function CategorySelect({
   );
 }
 
-export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
+export function FilterBar({ filters, municipalities = [], onChange, onClear, hideCategory }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -141,7 +212,7 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
       }`}
     >
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-        {/* Row: pills + dropdowns */}
+        {/* Row 1: date pills + dropdowns */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <DatePills
             value={filters.date}
@@ -153,6 +224,11 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
             <RegionSelect
               value={filters.region}
               onChange={(region) => onChange({ region })}
+            />
+            <MunicipalitySelect
+              value={filters.municipality}
+              municipalities={municipalities}
+              onChange={(municipality) => onChange({ municipality })}
             />
             {!hideCategory && (
               <CategorySelect
@@ -199,6 +275,16 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
                       onChange={(region) => onChange({ region })}
                     />
                   </div>
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                      Municipio
+                    </p>
+                    <MunicipalitySelect
+                      value={filters.municipality}
+                      municipalities={municipalities}
+                      onChange={(municipality) => onChange({ municipality })}
+                    />
+                  </div>
                   {!hideCategory && (
                     <div>
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
@@ -230,6 +316,14 @@ export function FilterBar({ filters, onChange, onClear, hideCategory }: Props) {
               </SheetContent>
             </Sheet>
           </div>
+        </div>
+
+        {/* Row 2: municipality chips */}
+        <div className="mt-3">
+          <MunicipalityChips
+            value={filters.municipality}
+            onChange={(municipality) => onChange({ municipality })}
+          />
         </div>
       </div>
     </div>

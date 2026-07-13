@@ -37,6 +37,8 @@ export function ActiveFilterChips({ filters, onRemove }: Props) {
   if (filters.date !== "all" && !filters.day)
     chips.push({ key: "date", label: DATE_LABELS[filters.date] });
   if (filters.region !== "all") chips.push({ key: "region", label: filters.region });
+  if (filters.municipality !== "all")
+    chips.push({ key: "municipality", label: filters.municipality });
   if (filters.category !== "all")
     chips.push({ key: "category", label: filters.category });
 
