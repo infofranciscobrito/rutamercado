@@ -30,7 +30,7 @@ export function FavoritesDrawer({ open, onOpenChange }: Props) {
     onOpenChange(false);
     void navigate({
       to: "/",
-      search: (prev) => ({ ...prev, market: id }),
+      search: (prev: Record<string, unknown>) => ({ ...prev, market: id }),
     });
   };
 
