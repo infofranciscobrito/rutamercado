@@ -70,6 +70,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
     q: search.q,
     date: search.date,
     region: search.region,
+    municipality: search.municipality,
     category: "all",
     day: search.day,
   };
