@@ -187,6 +187,11 @@ function Content({
     return set;
   }, [inCategory]);
 
+  const municipalities = useMemo(
+    () => Array.from(new Set(inCategory.map((m) => m.municipality))).sort((a, b) => a.localeCompare(b, "es")),
+    [inCategory],
+  );
+
   const filtered = useMemo(() => {
     const list = applyFilters(inCategory, { ...filters, category: "all" });
     return [...list].sort((a, b) =>
