@@ -8,10 +8,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { FavoritesTrigger } from "./FavoritesTrigger";
+import { FavoritesDrawer } from "./FavoritesDrawer";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [favOpen, setFavOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -56,9 +59,11 @@ export function Header() {
           >
             Enviar mi Mercado
           </Link>
+          <FavoritesTrigger onOpen={() => setFavOpen(true)} />
         </nav>
 
-        <div className="md:hidden">
+        <div className="flex items-center gap-1 md:hidden">
+          <FavoritesTrigger onOpen={() => setFavOpen(true)} />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button
@@ -102,6 +107,7 @@ export function Header() {
           </Sheet>
         </div>
       </div>
+      <FavoritesDrawer open={favOpen} onOpenChange={setFavOpen} />
     </header>
   );
 }

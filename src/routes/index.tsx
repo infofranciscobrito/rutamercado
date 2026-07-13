@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { listMarkets } from "@/lib/markets.functions";
+import { marketsQueryOptions } from "@/lib/markets-query";
 import { trackPageView } from "@/lib/analytics.functions";
 import {
   applyFilters,
@@ -29,10 +29,6 @@ import { ContactSection } from "@/components/rutamercado/ContactSection";
 import { Footer } from "@/components/rutamercado/Footer";
 import { SkeletonGrid } from "@/components/rutamercado/SkeletonCard";
 
-const marketsQueryOptions = queryOptions({
-  queryKey: ["markets"],
-  queryFn: () => listMarkets(),
-});
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 

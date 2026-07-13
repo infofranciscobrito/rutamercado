@@ -1,113 +1,59 @@
-## Objetivo
+## Favoritos sin cuenta (localStorage)
 
-1. Simplificar la columna "Para Organizadores" del footer (quitar Guía y FAQ).
-2. Añadir un formulario de contacto funcional que envíe mensajes al dashboard admin, con confirmación al usuario.
+Agregar sistema de favoritos que persiste en `localStorage`, con corazón en cada tarjeta, contador en el header y drawer lateral con los mercados guardados.
 
----
+### 1. Hook `useFavorites` (nuevo `src/hooks/use-favorites.tsx`)
 
-## 1. Footer — limpiar columna "Para Organizadores"
+- Store singleton en memoria + suscripción tipo pub/sub para que todos los componentes se re-rendericen al cambiar.
+- API: `{ favorites: string[], isFavorite(id), toggle(id), remove(id), count }`.
+- Persistencia:
+  - Key: `rutamercado_favorites`, valor `string[]`.
+  - Lectura en `useEffect` (post-mount) para evitar mismatch SSR.
+  - `try/catch` en cada acceso; si falla (incógnito/lleno), sigue funcionando en memoria durante la sesión.
+  - Ignorar JSON corrupto → array vacío.
+- Escucha `storage` event para sincronizar entre pestañas.
 
-**Archivo:** `src/components/rutamercado/Footer.tsx`
+### 2. Botón corazón en `MarketCard.tsx`
 
-Eliminar los links:
-- "Guía para organizadores" (`#guia-para-organizadores`)
-- "Preguntas frecuentes" (`#preguntas-frecuentes`)
+- Nuevo `<FavoriteButton marketId={market.id} />` posicionado `absolute top-3 right-3` sobre la imagen.
+- 36×36px, `bg-white/70 backdrop-blur-sm`, `rounded-full`, sombra suave.
+- Ícono `Heart` de lucide-react: `fill="#EF4444" stroke="#EF4444"` cuando favorito, outline cuando no.
+- Al click: `e.stopPropagation()` + `e.preventDefault()` para no abrir el detalle, `toggle(id)`, animación `scale` (~300ms) con estado local.
+- `aria-pressed`, `aria-label="Guardar en favoritos" / "Quitar de favoritos"`.
+- Se coloca junto a los badges HOY/MAÑANA existentes (mismo bloque `absolute`, alineado a la derecha, sin solaparse — badge queda a la izquierda del corazón).
 
-Dejar solo:
-- Registrar mi mercado (`/enviar`)
-- Contacto (ahora apunta a `#contacto` en la home, donde estará el nuevo formulario)
+### 3. Contador y trigger en `Header.tsx`
 
----
+- Nuevo botón `<FavoritesTrigger />` con ícono `Heart` + número si `count > 0`.
+- Visible tanto en desktop (junto a "Enviar mi Mercado") como en mobile (a la izquierda del botón menú hamburguesa, fuera del `Sheet`).
+- Abre el drawer de favoritos (estado controlado, izado a `Header` o vía contexto simple).
+- `aria-label="Favoritos ({count})"`.
 
-## 2. Base de datos — tabla `contact_messages`
+### 4. Drawer `FavoritesDrawer.tsx` (nuevo)
 
-Migración con:
+- Usa `Sheet` de shadcn (`side="right"`, `w-full sm:w-[400px]`), mismo patrón que el menú mobile — ya trae foco atrapado, cerrar con X/Esc/click-fuera, animación slide+fade.
+- Header: "Tus mercados guardados" + `{count}` mercados.
+- Lee `listMarkets` desde React Query cache (`useQuery(marketsQueryOptions)`), filtra por IDs favoritos preservando el orden en que se guardaron.
+- IDs que ya no existen en el fetch → se ignoran silenciosamente (no crash, no auto-limpiar por ahora).
+- Estado vacío: emoji ❤️ + texto + botón "Explorar mercados" que cierra el drawer.
+- Cada fila:
+  - `MarketImage` 48×48 `rounded-lg`.
+  - Nombre, `formatDateEs(nextDate)`, municipio.
+  - Botón X (`aria-label="Quitar"`) → `remove(id)`.
+  - Click en la fila → cierra drawer + navega a `/?market={id}` (abre el `MarketDetailDialog` existente vía search param) y hace `scrollIntoView` si la card está visible.
 
-**Tabla `public.contact_messages`**
-- `name` (texto)
-- `role` (enum: `productor` | `vendor` | `publico_general`)
-- `email`
-- `phone`
-- `message`
-- `status` (enum: `new` | `read` | `archived`, default `new`)
-- `created_at`, `updated_at`
+### 5. Integración
 
-**Políticas RLS:**
-- INSERT abierto (público puede enviar mensajes, sin auth)
-- SELECT/UPDATE solo para admins (usando `has_role(auth.uid(), 'admin')`)
-- GRANTs: `INSERT` a `anon` y `authenticated`; `SELECT, UPDATE` a `authenticated`; `ALL` a `service_role`
+- Compartir estado open/close del drawer entre `Header` y su trigger vía prop drilling local (el `Header` gestiona ambos).
+- `queryOptions` de mercados ya está en `src/routes/index.tsx`; extraer a `src/lib/markets-query.ts` para que el drawer lo importe sin ciclos.
 
-Trigger `updated_at` reutilizando `public.set_updated_at()`.
+### Fuera de alcance
 
----
+- No se sincroniza con backend ni cuentas.
+- No se limpian automáticamente IDs de mercados eliminados (simplemente no se muestran).
+- No se agrega el botón corazón en el `MarketDetailDialog` (solo en tarjetas); se puede añadir después si lo pides.
 
-## 3. Server functions
+### Archivos
 
-**Nuevo archivo:** `src/lib/contact.functions.ts`
-
-- `submitContactMessage` — pública (sin auth middleware). Zod valida todos los campos (nombre 1–100, email válido, teléfono 7–20, mensaje 5–2000, role enum). Inserta vía cliente publishable (server) y devuelve `{ success: true }`.
-- `listContactMessages` — protegida con `requireSupabaseAuth` + check `has_role admin`. Devuelve mensajes ordenados por `created_at desc`.
-- `markContactMessageRead` — protegida, cambia `status` a `read`.
-- `countNewContactMessages` — protegida, devuelve `{ count }` de mensajes con `status = 'new'` (para badge en sidebar).
-
----
-
-## 4. Formulario de contacto público
-
-**Nuevo componente:** `src/components/rutamercado/ContactForm.tsx`
-
-Campos:
-1. Nombre (input)
-2. Soy (Select shadcn con opciones Productor / Vendor / Público en general)
-3. Correo electrónico (input email)
-4. Número de teléfono (input tel)
-5. ¿Cómo le ayudamos? (textarea)
-6. Botón "Enviar"
-
-- Validación con `zod` + `react-hook-form`.
-- Al enviar: llama `submitContactMessage`, muestra loading en el botón.
-- En éxito: abre un `AlertDialog` (shadcn) con mensaje: *"¡Tu mensaje fue enviado exitosamente! Nos estaremos comunicando contigo pronto para atender tu consulta."*, y limpia el formulario.
-- En error: `toast.error` con mensaje genérico.
-
-**Nueva sección en la home:** `src/components/rutamercado/ContactSection.tsx`
-
-- Contenedor con `id="contacto"` y `scroll-mt-24`.
-- Título "Contáctanos" + subtítulo corto + `<ContactForm />`.
-- Se monta en `src/routes/index.tsx` entre `<AboutSection />` y `<Footer />`.
-
----
-
-## 5. Dashboard admin — nueva sección "Mensajes"
-
-**Nueva ruta:** `src/routes/_admin/admin.messages.tsx`
-
-- Lista de mensajes en `Table` (Fecha, Nombre, Soy, Email, Teléfono, Estado, Acciones).
-- Click en fila abre un `Drawer`/`Dialog` con el mensaje completo y botón "Marcar como leído".
-- Filtro simple por estado (todos / nuevos / leídos).
-- Refetch cada 60s.
-
-**Sidebar (`src/components/admin/AdminSidebar.tsx`):**
-
-- Añadir item `{ to: "/admin/messages", label: "Mensajes", icon: Mail }`.
-- Badge con `countNewContactMessages` (mismo patrón que Solicitudes de Mercados).
-
----
-
-## Archivos
-
-**Nuevos:**
-- `src/lib/contact.functions.ts`
-- `src/components/rutamercado/ContactForm.tsx`
-- `src/components/rutamercado/ContactSection.tsx`
-- `src/routes/_admin/admin.messages.tsx`
-- Migración SQL (tabla + RLS + GRANTs + trigger)
-
-**Editar:**
-- `src/components/rutamercado/Footer.tsx` (quitar 2 links)
-- `src/components/admin/AdminSidebar.tsx` (item Mensajes + badge)
-- `src/routes/index.tsx` (montar `<ContactSection />`)
-
-## Fuera de alcance
-
-- No se envían emails/SMS de notificación externos; la "notificación al dashboard" es la aparición del mensaje en la nueva sección con badge de conteo.
-- No se implementa respuesta desde el dashboard (solo lectura + marcar como leído).
+- Nuevos: `src/hooks/use-favorites.tsx`, `src/components/rutamercado/FavoriteButton.tsx`, `src/components/rutamercado/FavoritesDrawer.tsx`, `src/components/rutamercado/FavoritesTrigger.tsx`, `src/lib/markets-query.ts`.
+- Editados: `src/components/rutamercado/MarketCard.tsx`, `src/components/rutamercado/Header.tsx`, `src/routes/index.tsx` (importar el `queryOptions` desde el nuevo módulo).
