@@ -89,7 +89,14 @@ const empty: FormValues = {
   is_active: true,
   focal_x: 50,
   focal_y: 50,
+  pets: "",
+  parking: "",
+  accessibility: "",
+  payment_methods: [],
+  family_friendly: "",
+  food_area: "",
 };
+
 
 function marketToForm(m: Market): FormValues {
   return {
