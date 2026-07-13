@@ -107,6 +107,7 @@ export function Header() {
           </Sheet>
         </div>
       </div>
+      <FavoritesDrawer open={favOpen} onOpenChange={setFavOpen} />
     </header>
   );
 }
