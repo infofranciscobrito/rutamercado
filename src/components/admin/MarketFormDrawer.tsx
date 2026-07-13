@@ -122,8 +122,15 @@ function marketToForm(m: Market): FormValues {
     is_active: m.is_active,
     focal_x: m.focal_x ?? 50,
     focal_y: m.focal_y ?? 50,
+    pets: m.pets ?? "",
+    parking: m.parking ?? "",
+    accessibility: m.accessibility ?? "",
+    payment_methods: (m.payment_methods ?? []) as PaymentMethod[],
+    family_friendly: m.family_friendly ?? "",
+    food_area: m.food_area ?? "",
   };
 }
+
 
 function normalizeUrl(input: string): string | null {
   const v = (input ?? "").trim();
