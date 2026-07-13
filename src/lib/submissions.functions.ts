@@ -138,7 +138,17 @@ export const createMarketSubmission = createServerFn({ method: "POST" })
       organizer_email: data.organizer_email || null,
       organizer_instagram: data.organizer_instagram || null,
       organizer_contact_url: data.organizer_contact_url || null,
+      pets: data.pets ?? null,
+      parking: data.parking ?? null,
+      accessibility: data.accessibility ?? null,
+      payment_methods:
+        data.payment_methods && data.payment_methods.length > 0
+          ? data.payment_methods
+          : null,
+      family_friendly: data.family_friendly ?? null,
+      food_area: data.food_area ?? null,
     });
+
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
