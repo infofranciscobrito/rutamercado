@@ -258,6 +258,7 @@ function Content({
       <FilterBar
         filters={filters}
         availableDays={availableDays}
+        municipalities={municipalities}
         onChange={onChangeFilters}
         onClear={onClear}
         hideCategory
