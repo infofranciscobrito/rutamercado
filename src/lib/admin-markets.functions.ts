@@ -157,7 +157,17 @@ export const upsertMarket = createServerFn({ method: "POST" })
       is_active: data.is_active,
       focal_x: data.focal_x,
       focal_y: data.focal_y,
+      pets: data.pets ?? null,
+      parking: data.parking ?? null,
+      accessibility: data.accessibility ?? null,
+      payment_methods:
+        data.payment_methods && data.payment_methods.length > 0
+          ? data.payment_methods
+          : null,
+      family_friendly: data.family_friendly ?? null,
+      food_area: data.food_area ?? null,
     };
+
     if (data.id) {
       const { error } = await supabase.from("markets").update(payload).eq("id", data.id);
       if (error) throw new Error(error.message);
