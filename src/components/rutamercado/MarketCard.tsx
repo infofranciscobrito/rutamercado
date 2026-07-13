@@ -1,6 +1,7 @@
 import { CalendarDays, Clock, MapPin, RefreshCcw, AlertTriangle } from "lucide-react";
 import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
+import { FavoriteButton } from "./FavoriteButton";
 import { formatDateEs, formatTimeRange, isToday, isTomorrow } from "@/lib/format";
 
 interface Props {
