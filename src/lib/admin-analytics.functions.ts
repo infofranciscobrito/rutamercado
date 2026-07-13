@@ -794,3 +794,82 @@ export const getSubmissionsStats = createServerFn({ method: "GET" })
       recent: recentRes.data ?? [],
     };
   });
+
+// ============================================================
+// Amenities distribution (pets, parking, accessibility, family,
+// food area, payment methods) across active markets
+// ============================================================
+
+type AmenityGroup = {
+  key: string;
+  label: string;
+  total: number;
+  withData: number;
+  options: { value: string; count: number; percent: number }[];
+};
+
+export const getAmenitiesDistribution = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ groups: AmenityGroup[]; totalActive: number }> => {
+    const { data, error } = await context.supabase
+      .from("markets")
+      .select("pets, parking, accessibility, family_friendly, food_area, payment_methods")
+      .eq("is_active", true);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    const totalActive = rows.length;
+
+    const singleFields: { key: keyof (typeof rows)[number]; label: string }[] = [
+      { key: "pets", label: "Mascotas" },
+      { key: "parking", label: "Estacionamiento" },
+      { key: "accessibility", label: "Accesibilidad" },
+      { key: "family_friendly", label: "Familiar" },
+      { key: "food_area", label: "Área de comida" },
+    ];
+
+    const groups: AmenityGroup[] = singleFields.map(({ key, label }) => {
+      const counts = new Map<string, number>();
+      let withData = 0;
+      for (const r of rows) {
+        const v = r[key] as string | null | undefined;
+        if (v && v.trim() !== "") {
+          counts.set(v, (counts.get(v) ?? 0) + 1);
+          withData++;
+        }
+      }
+      const options = Array.from(counts.entries())
+        .map(([value, count]) => ({
+          value,
+          count,
+          percent: totalActive > 0 ? (count / totalActive) * 100 : 0,
+        }))
+        .sort((a, b) => b.count - a.count);
+      return { key: String(key), label, total: totalActive, withData, options };
+    });
+
+    // payment_methods is a text[]
+    const payCounts = new Map<string, number>();
+    let payWithData = 0;
+    for (const r of rows) {
+      const arr = (r.payment_methods ?? []) as string[] | null;
+      if (arr && arr.length > 0) {
+        payWithData++;
+        for (const v of arr) payCounts.set(v, (payCounts.get(v) ?? 0) + 1);
+      }
+    }
+    groups.push({
+      key: "payment_methods",
+      label: "Métodos de pago",
+      total: totalActive,
+      withData: payWithData,
+      options: Array.from(payCounts.entries())
+        .map(([value, count]) => ({
+          value,
+          count,
+          percent: totalActive > 0 ? (count / totalActive) * 100 : 0,
+        }))
+        .sort((a, b) => b.count - a.count),
+    });
+
+    return { groups, totalActive };
+  });
