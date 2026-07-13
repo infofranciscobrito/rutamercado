@@ -195,6 +195,16 @@ function MarketsPage() {
             ))}
           </SelectContent>
         </Select>
+
+        <Select value={completeness} onValueChange={(v) => { setCompleteness(v); setPage(1); }}>
+          <SelectTrigger className="w-60"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos (servicios)</SelectItem>
+            <SelectItem value="incomplete">Con servicios incompletos</SelectItem>
+            <SelectItem value="empty">Sin ningún servicio</SelectItem>
+            <SelectItem value="complete">Servicios completos</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-xl border bg-card overflow-hidden">
