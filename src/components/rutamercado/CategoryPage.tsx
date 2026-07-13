@@ -33,6 +33,7 @@ export interface CategoryPageSearch {
   q: string;
   date: MarketFilters["date"];
   region: MarketFilters["region"];
+  municipality: string;
   day?: string;
   market?: string;
 }
