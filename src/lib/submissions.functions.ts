@@ -17,6 +17,39 @@ export type Submission =
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}(:\d{2})?$/;
 
+export const PETS_OPTIONS = [
+  "Sí, son bienvenidas",
+  "Solo en áreas designadas",
+  "No se permiten mascotas",
+] as const;
+export const PARKING_OPTIONS = [
+  "Sí, gratuito",
+  "Sí, de pago",
+  "Limitado (llega temprano)",
+  "No hay estacionamiento",
+] as const;
+export const ACCESSIBILITY_OPTIONS = [
+  "Totalmente accesible",
+  "Parcialmente accesible",
+  "No es accesible",
+] as const;
+export const PAYMENT_METHODS_OPTIONS = [
+  "Efectivo",
+  "Tarjeta de débito/crédito",
+  "ATH Móvil",
+  "PayPal / transferencia",
+] as const;
+export const FAMILY_FRIENDLY_OPTIONS = [
+  "Sí, ideal para familias",
+  "Parcialmente",
+  "No es familiar",
+] as const;
+export const FOOD_AREA_OPTIONS = [
+  "Sí, múltiples opciones",
+  "Sí, opciones limitadas",
+  "No tiene",
+] as const;
+
 const SubmissionInputSchema = z.object({
   name: z.string().trim().min(1).max(200),
   description: z.string().trim().max(2000).optional().or(z.literal("")),
@@ -53,6 +86,13 @@ const SubmissionInputSchema = z.object({
     .url()
     .optional()
     .or(z.literal("")),
+  pets: z.enum(PETS_OPTIONS).optional(),
+  parking: z.enum(PARKING_OPTIONS).optional(),
+  accessibility: z.enum(ACCESSIBILITY_OPTIONS).optional(),
+  payment_methods: z.array(z.enum(PAYMENT_METHODS_OPTIONS)).optional(),
+  family_friendly: z.enum(FAMILY_FRIENDLY_OPTIONS).optional(),
+  food_area: z.enum(FOOD_AREA_OPTIONS).optional(),
+
 });
 
 export const createMarketSubmission = createServerFn({ method: "POST" })
