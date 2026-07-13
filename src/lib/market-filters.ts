@@ -6,6 +6,7 @@ export interface MarketFilters {
   q: string;
   date: DateFilter;
   region: MarketRegion | "all";
+  municipality: string;
   category: MarketCategory | "all";
   day?: string;
 }
@@ -14,6 +15,7 @@ export const defaultFilters: MarketFilters = {
   q: "",
   date: "all",
   region: "all",
+  municipality: "all",
   category: "all",
   day: undefined,
 };
