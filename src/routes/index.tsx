@@ -152,6 +152,7 @@ function IndexPage() {
     if (key === "q") reset.q = "";
     else if (key === "date") reset.date = "all";
     else if (key === "region") reset.region = "all";
+    else if (key === "municipality") reset.municipality = "all";
     else if (key === "category") reset.category = "all";
     else if (key === "day") reset.day = undefined;
     updateFilters(reset);
