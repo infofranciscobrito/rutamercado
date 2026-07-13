@@ -1,24 +1,32 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Store, TrendingUp, LogOut, Inbox, Users } from "lucide-react";
+import { BarChart3, Store, TrendingUp, LogOut, Inbox, Users, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { countPendingSubmissions } from "@/lib/submissions.functions";
+import { countNewContactMessages } from "@/lib/contact.functions";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/markets", label: "Mercados", icon: Store },
   { to: "/admin/producers", label: "Productores", icon: Users },
   { to: "/admin/submissions", label: "Solicitudes de Mercados", icon: Inbox },
+  { to: "/admin/messages", label: "Mensajes", icon: Mail },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
 ] as const;
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const countPendingSubmissionsFn = useServerFn(countPendingSubmissions);
+  const countNewMessagesFn = useServerFn(countNewContactMessages);
   const { data: pending } = useQuery({
     queryKey: ["admin", "submissions", "pending-count"],
     queryFn: () => countPendingSubmissionsFn(),
+    refetchInterval: 60_000,
+  });
+  const { data: newMessages } = useQuery({
+    queryKey: ["admin", "contact-messages", "new-count"],
+    queryFn: () => countNewMessagesFn(),
     refetchInterval: 60_000,
   });
 
@@ -56,6 +64,11 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
               {item.to === "/admin/submissions" && (pending?.count ?? 0) > 0 && (
                 <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#18253f]">
                   {pending!.count}
+                </span>
+              )}
+              {item.to === "/admin/messages" && (newMessages?.count ?? 0) > 0 && (
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#18253f]">
+                  {newMessages!.count}
                 </span>
               )}
             </Link>

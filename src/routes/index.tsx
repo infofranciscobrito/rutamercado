@@ -25,6 +25,7 @@ import { MarketGrid } from "@/components/rutamercado/MarketGrid";
 import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
 import { AboutSection } from "@/components/rutamercado/AboutSection";
+import { ContactSection } from "@/components/rutamercado/ContactSection";
 import { Footer } from "@/components/rutamercado/Footer";
 import { SkeletonGrid } from "@/components/rutamercado/SkeletonCard";
 
@@ -225,6 +226,7 @@ function IndexPage() {
         />
       </Suspense>
       <AboutSection />
+      <ContactSection />
       <Footer />
     </div>
   );
