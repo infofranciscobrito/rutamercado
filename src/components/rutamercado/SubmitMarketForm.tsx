@@ -49,6 +49,12 @@ type FormValues = RecurrenceFormShape & {
   organizer_email: string;
   organizer_instagram: string;
   organizer_contact_url: string;
+  pets: string;
+  parking: string;
+  accessibility: string;
+  payment_methods: PaymentMethod[];
+  family_friendly: string;
+  food_area: string;
 };
 
 const defaults: FormValues = {
@@ -71,7 +77,14 @@ const defaults: FormValues = {
   organizer_email: "",
   organizer_instagram: "",
   organizer_contact_url: "",
+  pets: "",
+  parking: "",
+  accessibility: "",
+  payment_methods: [],
+  family_friendly: "",
+  food_area: "",
 };
+
 
 function normalizeUrl(input: string): string | undefined {
   const v = (input ?? "").trim();
