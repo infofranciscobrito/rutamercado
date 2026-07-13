@@ -78,19 +78,37 @@ function MarketsPage() {
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("all");
+  const [completeness, setCompleteness] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Market | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Market | null>(null);
+
+  const getMissing = (m: Market): string[] => {
+    const missing: string[] = [];
+    if (!m.pets) missing.push("Mascotas");
+    if (!m.parking) missing.push("Estacionamiento");
+    if (!m.accessibility) missing.push("Accesibilidad");
+    if (!m.family_friendly) missing.push("Familiar");
+    if (!m.food_area) missing.push("Área de comida");
+    if (!m.payment_methods || m.payment_methods.length === 0) missing.push("Métodos de pago");
+    return missing;
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return markets.filter((m) => {
       if (category !== "all" && m.category !== category) return false;
       if (q && !m.name.toLowerCase().includes(q)) return false;
+      if (completeness !== "all") {
+        const missingCount = getMissing(m).length;
+        if (completeness === "incomplete" && missingCount === 0) return false;
+        if (completeness === "empty" && missingCount !== 6) return false;
+        if (completeness === "complete" && missingCount !== 0) return false;
+      }
       return true;
     });
-  }, [markets, search, category]);
+  }, [markets, search, category, completeness]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
