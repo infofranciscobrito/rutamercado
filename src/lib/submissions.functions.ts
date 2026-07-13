@@ -214,7 +214,14 @@ export const approveSubmission = createServerFn({ method: "POST" })
         organizer_email: sub.organizer_email,
         organizer_instagram: sub.organizer_instagram,
         organizer_contact_url: sub.organizer_contact_url,
+        pets: sub.pets,
+        parking: sub.parking,
+        accessibility: sub.accessibility,
+        payment_methods: sub.payment_methods,
+        family_friendly: sub.family_friendly,
+        food_area: sub.food_area,
         is_active: true,
+
       })
       .select("id")
       .single();
