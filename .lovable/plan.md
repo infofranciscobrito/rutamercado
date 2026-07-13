@@ -1,6 +1,28 @@
-Cambio visual puntual en `src/components/rutamercado/MarketCard.tsx`:
+## Plan: Sección "Sobre Nosotros" rediseñada
 
-1. Eliminar el `<span>` de categoría (líneas 33-35) que está posicionado de forma absoluta sobre la imagen (`absolute left-3 top-3`).
-2. Insertar ese mismo `<span>` (mismas clases y estilos) dentro de la sección de información, justo debajo del bloque de ubicación (después de la línea con `<MapPin>` y `{market.municipality}, {market.region}`).
+### Objetivo
+Reemplazar el contenido actual de `src/components/rutamercado/AboutSection.tsx` por 3 bloques claros, manteniendo el fondo `#18253f`, texto blanco, ancho `max-w-7xl` y asegurando que el link `#sobre-nosotros` del nav haga scroll suave.
 
-No se modifica ningún otro elemento, clase, tipografía o diseño del badge.
+### Cambios propuestos
+
+1. **Actualizar `src/components/rutamercado/AboutSection.tsx`**
+   - Conservar `id="sobre-nosotros"`, fondo `#18253f`, texto blanco y `max-w-7xl`.
+   - Reemplazar el contenido actual por 3 bloques en una cuadrícula responsive:
+     - **Bloque 1 — Misión:** título "Misión" + párrafo exacto sugerido.
+     - **Bloque 2 — ¿Qué encontrarás?:** 4 ítems con íconos reutilizados de `CategoryIcons.tsx` (`Leaf`, `Tent`, `Hand`, `ShoppingBag`) y sus nombres de categoría.
+     - **Bloque 3 — Para organizadores:** texto sugerido + botón CTA "Registrar mi Mercado" que navegue a `/enviar` usando `Link` de `@tanstack/react-router`.
+
+2. **Activar scroll suave global**
+   - Agregar `scroll-behavior: smooth` al elemento `html` en `src/styles.css` (o en el selector `:root`) para que cualquier link con hash como `#sobre-nosotros` deslice suavemente.
+
+3. **Verificar el link del nav**
+   - Confirmar que `Header.tsx` siga usando `<a href="#sobre-nosotros">`. Con `scroll-behavior: smooth` funcionará correctamente.
+
+### Archivos a modificar
+- `src/components/rutamercado/AboutSection.tsx`
+- `src/styles.css`
+
+### No se modificarán
+- Tipografía, colores ni estructura del Header.
+- Rutas ni lógica de backend.
+- Otros componentes fuera de los listados.
