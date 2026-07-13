@@ -35,6 +35,7 @@ function Page() {
         q: search.q,
         date: search.date,
         region: search.region as MarketFilters["region"],
+        municipality: search.municipality,
         day: search.day,
         market: search.market,
       }}
