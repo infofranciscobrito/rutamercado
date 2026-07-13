@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type Control } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertMarket } from "@/lib/admin-markets.functions";
+import {
+  PETS_OPTIONS,
+  PARKING_OPTIONS,
+  ACCESSIBILITY_OPTIONS,
+  PAYMENT_METHODS_OPTIONS,
+  FAMILY_FRIENDLY_OPTIONS,
+  FOOD_AREA_OPTIONS,
+} from "@/lib/submissions.functions";
+
 import {
   MARKET_CATEGORIES,
   MARKET_REGIONS,
@@ -24,11 +33,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   RecurrenceFields,
   type RecurrenceFormShape,
 } from "@/components/rutamercado/RecurrenceFields";
 import { FocalPointSelector } from "./FocalPointSelector";
+
+type PaymentMethod = (typeof PAYMENT_METHODS_OPTIONS)[number];
 
 type FormValues = RecurrenceFormShape & {
   name: string;
@@ -46,6 +60,12 @@ type FormValues = RecurrenceFormShape & {
   is_active: boolean;
   focal_x: number;
   focal_y: number;
+  pets: string;
+  parking: string;
+  accessibility: string;
+  payment_methods: PaymentMethod[];
+  family_friendly: string;
+  food_area: string;
 };
 
 const empty: FormValues = {
@@ -62,6 +82,7 @@ const empty: FormValues = {
   recurrence_end_date: "",
   start_time: "09:00",
   end_time: "14:00",
+
   image_url: "",
   organizer_name: "",
   organizer_phone: "",
@@ -71,7 +92,14 @@ const empty: FormValues = {
   is_active: true,
   focal_x: 50,
   focal_y: 50,
+  pets: "",
+  parking: "",
+  accessibility: "",
+  payment_methods: [],
+  family_friendly: "",
+  food_area: "",
 };
+
 
 function marketToForm(m: Market): FormValues {
   return {
@@ -97,8 +125,15 @@ function marketToForm(m: Market): FormValues {
     is_active: m.is_active,
     focal_x: m.focal_x ?? 50,
     focal_y: m.focal_y ?? 50,
+    pets: m.pets ?? "",
+    parking: m.parking ?? "",
+    accessibility: m.accessibility ?? "",
+    payment_methods: (m.payment_methods ?? []) as PaymentMethod[],
+    family_friendly: m.family_friendly ?? "",
+    food_area: m.food_area ?? "",
   };
 }
+
 
 function normalizeUrl(input: string): string | null {
   const v = (input ?? "").trim();
@@ -156,9 +191,17 @@ export function MarketFormDrawer({
           is_active: v.is_active,
           focal_x: v.focal_x,
           focal_y: v.focal_y,
+          pets: v.pets || null,
+          parking: v.parking || null,
+          accessibility: v.accessibility || null,
+          payment_methods:
+            v.payment_methods.length > 0 ? v.payment_methods : null,
+          family_friendly: v.family_friendly || null,
+          food_area: v.food_area || null,
         },
       });
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
       queryClient.invalidateQueries({ queryKey: ["markets"] });
@@ -432,9 +475,83 @@ export function MarketFormDrawer({
               )}
             />
           </Field>
+          <div className="space-y-3 rounded-md border border-dashed p-3">
+
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Servicios e instalaciones (opcional)
+            </p>
+            <AdminRadioField
+              control={control}
+              name="pets"
+              label="🐕 ¿Aceptan mascotas?"
+              options={PETS_OPTIONS}
+            />
+            <AdminRadioField
+              control={control}
+              name="parking"
+              label="🅿️ ¿Hay estacionamiento?"
+              options={PARKING_OPTIONS}
+            />
+            <AdminRadioField
+              control={control}
+              name="accessibility"
+              label="♿ ¿Es accesible?"
+              options={ACCESSIBILITY_OPTIONS}
+            />
+            <Field label="💳 Métodos de pago">
+              <Controller
+                control={control}
+                name="payment_methods"
+                render={({ field }) => (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {PAYMENT_METHODS_OPTIONS.map((opt) => {
+                      const checked = field.value.includes(opt);
+                      const id = `admin-payment-${opt}`;
+                      return (
+                        <label
+                          key={opt}
+                          htmlFor={id}
+                          className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm"
+                        >
+                          <Checkbox
+                            id={id}
+                            checked={checked}
+                            onCheckedChange={(v) => {
+                              if (v) field.onChange([...field.value, opt]);
+                              else
+                                field.onChange(
+                                  field.value.filter(
+                                    (x: PaymentMethod) => x !== opt,
+                                  ),
+                                );
+                            }}
+                          />
+                          <span>{opt}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              />
+            </Field>
+            <AdminRadioField
+              control={control}
+              name="family_friendly"
+              label="👶 ¿Es familiar?"
+              options={FAMILY_FRIENDLY_OPTIONS}
+            />
+            <AdminRadioField
+              control={control}
+              name="food_area"
+              label="🍴 ¿Tiene área de comida?"
+              options={FOOD_AREA_OPTIONS}
+            />
+          </div>
+
           <Controller
             control={control}
             name="is_active"
+
             render={({ field }) => (
               <label className="flex items-center justify-between rounded-md border p-3">
                 <span className="text-sm font-medium">Activo</span>
@@ -469,3 +586,46 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+
+function AdminRadioField({
+  control,
+  name,
+  label,
+  options,
+}: {
+  control: Control<FormValues>;
+  name: "pets" | "parking" | "accessibility" | "family_friendly" | "food_area";
+  label: string;
+  options: readonly string[];
+}) {
+  return (
+    <Field label={label}>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <RadioGroup
+            value={field.value || ""}
+            onValueChange={field.onChange}
+            className="grid gap-1.5"
+          >
+            {options.map((opt) => {
+              const id = `admin-${name}-${opt}`;
+              return (
+                <label
+                  key={opt}
+                  htmlFor={id}
+                  className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm"
+                >
+                  <RadioGroupItem id={id} value={opt} />
+                  <span>{opt}</span>
+                </label>
+              );
+            })}
+          </RadioGroup>
+        )}
+      />
+    </Field>
+  );
+}
+

@@ -72,6 +72,13 @@ const MarketInputSchema = z
     is_active: z.boolean(),
     focal_x: z.number().min(0).max(100).default(50),
     focal_y: z.number().min(0).max(100).default(50),
+    pets: z.string().trim().max(100).nullable().optional(),
+    parking: z.string().trim().max(100).nullable().optional(),
+    accessibility: z.string().trim().max(100).nullable().optional(),
+    payment_methods: z.array(z.string().trim().max(100)).nullable().optional(),
+    family_friendly: z.string().trim().max(100).nullable().optional(),
+    food_area: z.string().trim().max(100).nullable().optional(),
+
   })
   .superRefine((v, ctx) => {
     if (v.recurrence_type === "unico") {
@@ -150,7 +157,17 @@ export const upsertMarket = createServerFn({ method: "POST" })
       is_active: data.is_active,
       focal_x: data.focal_x,
       focal_y: data.focal_y,
+      pets: data.pets ?? null,
+      parking: data.parking ?? null,
+      accessibility: data.accessibility ?? null,
+      payment_methods:
+        data.payment_methods && data.payment_methods.length > 0
+          ? data.payment_methods
+          : null,
+      family_friendly: data.family_friendly ?? null,
+      food_area: data.food_area ?? null,
     };
+
     if (data.id) {
       const { error } = await supabase.from("markets").update(payload).eq("id", data.id);
       if (error) throw new Error(error.message);
