@@ -29,10 +29,6 @@ import { ContactSection } from "@/components/rutamercado/ContactSection";
 import { Footer } from "@/components/rutamercado/Footer";
 import { SkeletonGrid } from "@/components/rutamercado/SkeletonCard";
 
-const marketsQueryOptions = queryOptions({
-  queryKey: ["markets"],
-  queryFn: () => listMarkets(),
-});
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
