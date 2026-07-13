@@ -94,6 +94,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
           q: defaultFilters.q,
           date: defaultFilters.date,
           region: defaultFilters.region,
+          municipality: defaultFilters.municipality,
           day: undefined,
           market: prev.market,
         }) as S,
@@ -106,6 +107,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
     if (key === "q") reset.q = "";
     else if (key === "date") reset.date = "all";
     else if (key === "region") reset.region = "all";
+    else if (key === "municipality") reset.municipality = "all";
     else if (key === "day") reset.day = undefined;
     updateFilters(reset);
   };
