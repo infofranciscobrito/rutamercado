@@ -149,6 +149,42 @@ export function SubmissionReviewDrawer({
             </div>
           )}
 
+          {(submission.pets ||
+            submission.parking ||
+            submission.accessibility ||
+            (submission.payment_methods && submission.payment_methods.length > 0) ||
+            submission.family_friendly ||
+            submission.food_area) && (
+            <div className="space-y-2 border-t pt-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Servicios e instalaciones
+              </p>
+              <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+                {submission.pets && <Mini label="🐕 Mascotas" value={submission.pets} />}
+                {submission.parking && (
+                  <Mini label="🅿️ Estacionamiento" value={submission.parking} />
+                )}
+                {submission.accessibility && (
+                  <Mini label="♿ Accesibilidad" value={submission.accessibility} />
+                )}
+                {submission.payment_methods &&
+                  submission.payment_methods.length > 0 && (
+                    <Mini
+                      label="💳 Métodos de pago"
+                      value={submission.payment_methods.join(", ")}
+                    />
+                  )}
+                {submission.family_friendly && (
+                  <Mini label="👶 Familiar" value={submission.family_friendly} />
+                )}
+                {submission.food_area && (
+                  <Mini label="🍴 Área de comida" value={submission.food_area} />
+                )}
+              </div>
+            </div>
+          )}
+
+
           {pending ? (
             <div className="space-y-3 border-t pt-4">
               <div>
