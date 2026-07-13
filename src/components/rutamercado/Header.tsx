@@ -59,9 +59,11 @@ export function Header() {
           >
             Enviar mi Mercado
           </Link>
+          <FavoritesTrigger onOpen={() => setFavOpen(true)} />
         </nav>
 
-        <div className="md:hidden">
+        <div className="flex items-center gap-1 md:hidden">
+          <FavoritesTrigger onOpen={() => setFavOpen(true)} />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button
