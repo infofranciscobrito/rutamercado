@@ -1,25 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MapPin, CalendarDays, Gift } from "lucide-react";
-import { SubmitMarketForm } from "@/components/rutamercado/SubmitMarketForm";
+import { Store, Users, Gift } from "lucide-react";
 import { Reveal } from "@/components/rutamercado/Reveal";
+import { RegisterEmprendedorForm } from "@/components/emprendedores/RegisterEmprendedorForm";
 
-export const Route = createFileRoute("/enviar")({
+export const Route = createFileRoute("/emprendedores/registro")({
   head: () => ({
     meta: [
-      { title: "Registra tu mercado — RutaMercado" },
+      { title: "Regístrate como Emprendedor — RutaMercado" },
       {
         name: "description",
         content:
-          "Publica gratis tu mercado, feria o bazar en RutaMercado y llega a miles de puertorriqueños que buscan dónde ir cada fin de semana.",
+          "Publica gratis tu emprendimiento en RutaMercado y deja que los organizadores de mercados, bazares y popups de Puerto Rico te encuentren e inviten a sus próximos eventos.",
       },
-      { property: "og:title", content: "Registra tu mercado — RutaMercado" },
+      { property: "og:title", content: "Regístrate como Emprendedor — RutaMercado" },
       {
         property: "og:description",
         content:
-          "Publica gratis tu mercado en el directorio que la comunidad de Puerto Rico usa cada semana.",
+          "Un solo registro. Cero costo. Aparece en el directorio que los organizadores de mercados de Puerto Rico usan cada semana.",
       },
+      { property: "og:url", content: "https://rutamercadopr.com/emprendedores/registro" },
     ],
     links: [
+      { rel: "canonical", href: "https://rutamercadopr.com/emprendedores/registro" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/enviar")({
       },
     ],
   }),
-  component: SubmitPage,
+  component: RegistroEmprendedorPage,
 });
 
 const DISPLAY = '"Cormorant Garamond", Georgia, serif';
@@ -38,10 +40,10 @@ function scrollToForm() {
   document.getElementById("formulario")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function SubmitPage() {
+function RegistroEmprendedorPage() {
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: BODY, color: "#2d2d2d" }}>
-      {/* 1. HEADER */}
+      {/* HEADER */}
       <header
         className="sticky top-0 z-50 bg-[#18253f] text-white shadow-[0_2px_20px_rgba(24,37,63,0.25)]"
         style={{ height: 64 }}
@@ -51,7 +53,7 @@ function SubmitPage() {
             <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-16 w-auto" />
           </Link>
           <Link
-            to="/"
+            to="/emprendedores"
             className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#18253f]"
           >
             Ver Directorio
@@ -59,7 +61,7 @@ function SubmitPage() {
         </div>
       </header>
 
-      {/* 2. HERO */}
+      {/* HERO */}
       <section
         className="relative overflow-hidden bg-[#18253f] text-white"
         style={{
@@ -71,8 +73,7 @@ function SubmitPage() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{
-            backgroundImage:
-              "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
             backgroundSize: "3px 3px",
           }}
         />
@@ -81,17 +82,17 @@ function SubmitPage() {
             className="text-xs font-semibold uppercase tracking-[0.25em] text-[#54b678]"
             style={{ fontFamily: BODY }}
           >
-            Para organizadores
+            Para emprendedores
           </p>
           <h1
             className="mt-4 text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
             style={{ fontFamily: DISPLAY, fontWeight: 600 }}
           >
-            Registra tu mercado. Llega a miles de puertorriqueños.
+            Muéstrale tu marca a los organizadores de mercados.
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-base text-white/80 sm:text-lg">
-            RutaMercado es el directorio donde la comunidad busca mercados, ferias y bazares
-            en toda la isla. Publica tu evento gratis y aumenta tu audiencia.
+            Regístrate una vez y queda visible para todos los organizadores de mercados,
+            bazares y popups de Puerto Rico que buscan vendedores para sus próximos eventos.
           </p>
           <div className="mt-8 flex justify-center">
             <button
@@ -99,20 +100,20 @@ function SubmitPage() {
               onClick={scrollToForm}
               className="inline-flex h-14 w-full max-w-sm items-center justify-center rounded-xl bg-[#54b678] px-8 text-base font-bold text-[#18253f] shadow-[0_8px_24px_rgba(84,182,120,0.35)] transition-all hover:bg-[#3f9560] hover:scale-[1.02] sm:w-auto"
             >
-              Registrar mi mercado ahora
+              Registrar mi emprendimiento
             </button>
           </div>
         </div>
       </section>
 
-      {/* 3. MÉTRICAS */}
+      {/* MÉTRICAS */}
       <section className="bg-[#f7f7f5]" style={{ paddingTop: "3.5rem", paddingBottom: "3.5rem" }}>
         <Reveal>
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-4 text-center sm:px-6 md:grid-cols-3 md:divide-x md:divide-[#18253f]/10">
             {[
-              { num: "10+ municipios", label: "Mercados en toda la isla" },
-              { num: "Directorio activo", label: "Actualizado cada semana" },
-              { num: "Gratis", label: "Sin costo para publicar" },
+              { num: "10+ categorías", label: "Comida, arte, moda, wellness y más" },
+              { num: "Organizadores activos", label: "Buscan vendedores cada semana" },
+              { num: "Gratis", label: "Sin costo para registrarte" },
             ].map((m) => (
               <div key={m.num} className="px-4">
                 <div
@@ -128,7 +129,7 @@ function SubmitPage() {
         </Reveal>
       </section>
 
-      {/* 4. POR QUÉ */}
+      {/* POR QUÉ */}
       <section className="bg-white" style={{ paddingTop: "4.5rem", paddingBottom: "4.5rem" }}>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
@@ -136,25 +137,25 @@ function SubmitPage() {
               className="text-center text-3xl text-[#18253f] sm:text-4xl"
               style={{ fontFamily: DISPLAY, fontWeight: 600 }}
             >
-              ¿Por qué registrar tu mercado en RutaMercado?
+              ¿Por qué registrarte en RutaMercado?
             </h2>
           </Reveal>
           <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
             {[
               {
-                Icon: MapPin,
-                title: "Visibilidad donde la gente busca",
-                desc: "Los compradores que andan buscando su próximo mercadito van a encontrar el tuyo directamente en el directorio.",
+                Icon: Store,
+                title: "Visibilidad ante quien decide",
+                desc: "Los organizadores de mercados y bazares buscan aquí primero cuando arman su próximo evento.",
               },
               {
-                Icon: CalendarDays,
-                title: "Tu mercado siempre al día",
-                desc: "Aparece en los filtros de fecha para que nadie se pierda cuándo y dónde es tu próximo evento.",
+                Icon: Users,
+                title: "Contacto directo",
+                desc: "Tu Instagram, correo o teléfono queda a la mano para que te inviten sin intermediarios.",
               },
               {
                 Icon: Gift,
                 title: "Completamente gratis",
-                desc: "Registrar tu mercado no tiene ningún costo. Solo llena el formulario y nosotros publicamos tu evento.",
+                desc: "Un solo registro, cero costo. Nosotros revisamos y publicamos tu perfil.",
               },
             ].map(({ Icon, title, desc }) => (
               <Reveal key={title}>
@@ -176,7 +177,7 @@ function SubmitPage() {
         </div>
       </section>
 
-      {/* 5. CÓMO FUNCIONA */}
+      {/* CÓMO FUNCIONA */}
       <section
         className="bg-[#18253f] text-white"
         style={{ paddingTop: "4.5rem", paddingBottom: "4.5rem" }}
@@ -187,12 +188,11 @@ function SubmitPage() {
               className="text-center text-3xl sm:text-4xl"
               style={{ fontFamily: DISPLAY, fontWeight: 600 }}
             >
-              Así de fácil es publicar tu mercado
+              Así de fácil es aparecer en el directorio
             </h2>
           </Reveal>
 
           <div className="relative mt-12">
-            {/* Desktop connector line */}
             <div
               aria-hidden="true"
               className="absolute left-0 right-0 top-6 hidden h-px bg-[#54b678]/30 md:block"
@@ -204,17 +204,17 @@ function SubmitPage() {
                 {
                   n: 1,
                   title: "Llena el formulario",
-                  desc: "Cuéntanos los detalles de tu mercado: nombre, fecha, lugar y cómo contactarte.",
+                  desc: "Cuéntanos sobre tu negocio: qué vendes, cómo contactarte y en qué mercados te gustaría estar.",
                 },
                 {
                   n: 2,
                   title: "Revisamos y publicamos",
-                  desc: "El equipo de RutaMercado revisa la información y la sube al directorio.",
+                  desc: "El equipo de RutaMercado revisa tu información y publica tu perfil en el directorio.",
                 },
                 {
                   n: 3,
-                  title: "Tu mercado aparece en el directorio",
-                  desc: "Miles de personas en Puerto Rico podrán encontrar tu mercado directamente desde rutamercadopr.com",
+                  title: "Los organizadores te encuentran",
+                  desc: "Tu perfil queda visible para todos los organizadores de mercados en Puerto Rico.",
                 },
               ].map((s, i, arr) => (
                 <li key={s.n} className="relative flex flex-col items-center text-center">
@@ -231,8 +231,6 @@ function SubmitPage() {
                     {s.title}
                   </h3>
                   <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/75">{s.desc}</p>
-
-                  {/* Mobile connector below step (except last) */}
                   {i < arr.length - 1 && (
                     <div
                       aria-hidden="true"
@@ -246,7 +244,7 @@ function SubmitPage() {
         </div>
       </section>
 
-      {/* 6. FORMULARIO */}
+      {/* FORMULARIO */}
       <section
         id="formulario"
         className="scroll-mt-20 bg-[#f7f7f5]"
@@ -258,24 +256,31 @@ function SubmitPage() {
               className="text-3xl text-[#18253f] sm:text-4xl"
               style={{ fontFamily: DISPLAY, fontWeight: 600 }}
             >
-              Registra tu mercado
+              Regístrate como Emprendedor
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[#2d2d2d]/75">
-              Completa los campos y tu mercado estará en el directorio en menos de 24 horas.
+              Completa los campos y tu perfil estará en el directorio en menos de 24 horas.
             </p>
           </Reveal>
         </div>
         <div className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
-          <SubmitMarketForm />
+          <RegisterEmprendedorForm variant="inline" />
         </div>
       </section>
 
-      {/* 7. FOOTER */}
-      <footer className="bg-[#18253f] text-white" style={{ paddingTop: "3rem", paddingBottom: "3rem" }}>
+      {/* FOOTER */}
+      <footer
+        className="bg-[#18253f] text-white"
+        style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
+      >
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 text-center sm:px-6">
-          <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-24 w-auto md:h-28" />
+          <img
+            src="/logo-rutamercado-horizontal.png"
+            alt="RutaMercado"
+            className="h-24 w-auto md:h-28"
+          />
           <p className="text-sm text-white/60">© 2025 RutaMercado. Todos los derechos reservados.</p>
-          <Link to="/" className="text-sm font-semibold text-[#54b678] hover:underline">
+          <Link to="/emprendedores" className="text-sm font-semibold text-[#54b678] hover:underline">
             Ver directorio completo
           </Link>
         </div>
