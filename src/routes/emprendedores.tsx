@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Search, Users, Sparkles, ShieldCheck } from "lucide-react";
@@ -123,13 +123,19 @@ function EmprendedoresPage() {
             mercados, bazares y popups te encuentren, conozcan tu negocio y te
             inviten a participar en sus próximos eventos.
           </p>
-          <div className="mt-6">
-            <button
-              type="button"
-              onClick={() => setRegisterOpen(true)}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              to="/emprendedores/registro"
               className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660]"
             >
               Regístrate como Emprendedor
+            </Link>
+            <button
+              type="button"
+              onClick={() => setRegisterOpen(true)}
+              className="inline-flex h-12 items-center justify-center rounded-md border border-[#54b678] px-6 text-sm font-semibold text-[#54b678] transition-colors duration-200 ease-out hover:bg-[#54b678]/10"
+            >
+              Registro rápido
             </button>
           </div>
         </div>
