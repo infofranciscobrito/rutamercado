@@ -345,6 +345,11 @@ function EmprendedorEditor({
   value: AdminEmprendedor;
   onClose: () => void;
   onSaved: () => void;
+  upsertFn: (args: { data: unknown }) => Promise<{ ok: true; id: string }>;
+}) {
+  value: AdminEmprendedor;
+  onClose: () => void;
+  onSaved: () => void;
   upsertFn: ReturnType<typeof useServerFn<typeof adminUpsertEmprendedor>>;
 }) {
   const [form, setForm] = useState(value);
