@@ -309,7 +309,7 @@ function EmprendedoresAdminPage() {
             setEditing(null);
             invalidate();
           }}
-          upsertFn={upsertFn}
+          upsertFn={upsertFn as unknown as (args: { data: unknown }) => Promise<{ ok: true; id: string }>}
         />
       ) : null}
 
