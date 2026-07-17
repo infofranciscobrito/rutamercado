@@ -20,7 +20,9 @@ import {
 } from "@/components/ui/select";
 import { EmprendedorCard } from "@/components/emprendedores/EmprendedorCard";
 import { RegisterEmprendedorDialog } from "@/components/emprendedores/RegisterEmprendedorDialog";
+import { Reveal } from "@/components/rutamercado/Reveal";
 import { MARKET_REGIONS } from "@/types/market";
+import { Store, Users, Sparkles, CheckCircle2 } from "lucide-react";
 
 const emprendedoresQueryOptions = queryOptions({
   queryKey: ["emprendedores"],
