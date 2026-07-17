@@ -22,7 +22,6 @@ import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmprendedoresIndexRouteImport } from './routes/emprendedores.index'
-import { Route as EmprendedoresRegistroRouteImport } from './routes/emprendedores.registro'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
@@ -97,11 +96,6 @@ const EmprendedoresIndexRoute = EmprendedoresIndexRouteImport.update({
   path: '/emprendedores/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EmprendedoresRegistroRoute = EmprendedoresRegistroRouteImport.update({
-  id: '/emprendedores/registro',
-  path: '/emprendedores/registro',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -161,7 +155,6 @@ export interface FileRoutesByFullPath {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
-  '/emprendedores/registro': typeof EmprendedoresRegistroRoute
   '/emprendedores/': typeof EmprendedoresIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -185,7 +178,6 @@ export interface FileRoutesByTo {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
-  '/emprendedores/registro': typeof EmprendedoresRegistroRoute
   '/emprendedores': typeof EmprendedoresIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -211,7 +203,6 @@ export interface FileRoutesById {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
-  '/emprendedores/registro': typeof EmprendedoresRegistroRoute
   '/emprendedores/': typeof EmprendedoresIndexRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -237,7 +228,6 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
-    | '/emprendedores/registro'
     | '/emprendedores/'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -261,7 +251,6 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
-    | '/emprendedores/registro'
     | '/emprendedores'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -286,7 +275,6 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
-    | '/emprendedores/registro'
     | '/emprendedores/'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
@@ -312,7 +300,6 @@ export interface RootRouteChildren {
   ProductoresRoute: typeof ProductoresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
-  EmprendedoresRegistroRoute: typeof EmprendedoresRegistroRoute
   EmprendedoresIndexRoute: typeof EmprendedoresIndexRoute
 }
 
@@ -407,13 +394,6 @@ declare module '@tanstack/react-router' {
       path: '/emprendedores'
       fullPath: '/emprendedores/'
       preLoaderRoute: typeof EmprendedoresIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/emprendedores/registro': {
-      id: '/emprendedores/registro'
-      path: '/emprendedores/registro'
-      fullPath: '/emprendedores/registro'
-      preLoaderRoute: typeof EmprendedoresRegistroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
@@ -520,7 +500,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProductoresRoute: ProductoresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
-  EmprendedoresRegistroRoute: EmprendedoresRegistroRoute,
   EmprendedoresIndexRoute: EmprendedoresIndexRoute,
 }
 export const routeTree = rootRouteImport
