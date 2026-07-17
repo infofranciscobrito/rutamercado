@@ -123,8 +123,170 @@ function EmprendedoresPage() {
     <div className="min-h-screen bg-white" style={{ fontFamily: BODY, color: "#2d2d2d" }}>
       <Header />
 
-      {/* DIRECTORIO */}
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-[#18253f] text-white">
+        <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 sm:py-28">
+          <Reveal>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-[#54b678]">
+              Directorio B2B
+            </p>
+            <h1
+              className="mx-auto max-w-3xl text-4xl leading-tight sm:text-5xl md:text-6xl"
+              style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+            >
+              Tu negocio, visible ante los organizadores de mercados de Puerto Rico
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-base text-white/80 sm:text-lg">
+              Regístrate gratis en el directorio de emprendedores. Los organizadores de mercados, bazares y popups usan esta herramienta para descubrir e invitar negocios como el tuyo.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setRegisterOpen(true)}
+                className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-8 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660]"
+              >
+                Registra tu negocio
+              </button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* METRICS */}
       <section className="border-b border-[#18253f]/10 bg-white">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
+          {[
+            { n: `${total}+`, l: "Emprendedores" },
+            { n: `${EMPRENDEDOR_CATEGORIES.length}+`, l: "Categorías" },
+            { n: "100%", l: "Gratis" },
+            { n: "24/7", l: "Visibilidad" },
+          ].map((m) => (
+            <Reveal key={m.l}>
+              <div className="text-center">
+                <div
+                  className="text-4xl text-[#18253f] sm:text-5xl"
+                  style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+                >
+                  {m.n}
+                </div>
+                <div className="mt-1 text-sm text-[#2d2d2d]/70">{m.l}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* BENEFITS */}
+      <section className="bg-[#f7f7f5]">
+        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+          <Reveal>
+            <div className="mb-12 text-center">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-[#54b678]">
+                Beneficios
+              </p>
+              <h2
+                className="text-3xl text-[#18253f] sm:text-4xl"
+                style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+              >
+                ¿Por qué registrar tu negocio?
+              </h2>
+            </div>
+          </Reveal>
+          <div className="grid gap-8 md:grid-cols-3">
+            {[
+              {
+                icon: Sparkles,
+                title: "Visibilidad",
+                text: "Tu negocio aparece en un directorio público que consultan organizadores de todo Puerto Rico.",
+              },
+              {
+                icon: Users,
+                title: "Contacto directo",
+                text: "Los organizadores te contactan para invitarte a sus próximos mercados y eventos.",
+              },
+              {
+                icon: Store,
+                title: "Gratis y sin compromiso",
+                text: "Sin costo, sin comisiones. Regístrate una sola vez y mantén tu perfil activo.",
+              },
+            ].map((b) => (
+              <Reveal key={b.title}>
+                <div className="h-full rounded-2xl border border-[#18253f]/10 bg-white p-8">
+                  <b.icon className="h-8 w-8 text-[#54b678]" />
+                  <h3
+                    className="mt-5 text-xl text-[#18253f]"
+                    style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+                  >
+                    {b.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[#2d2d2d]/75">
+                    {b.text}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESS */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+          <Reveal>
+            <div className="mb-12 text-center">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-[#54b678]">
+                Proceso
+              </p>
+              <h2
+                className="text-3xl text-[#18253f] sm:text-4xl"
+                style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+              >
+                Cómo funciona
+              </h2>
+            </div>
+          </Reveal>
+          <div className="grid gap-8 md:grid-cols-3">
+            {[
+              { n: "01", t: "Regístrate", d: "Completa el formulario con la información de tu negocio, categoría y productos." },
+              { n: "02", t: "Aprobación", d: "Revisamos tu perfil y lo publicamos en el directorio en menos de 48 horas." },
+              { n: "03", t: "Recibe invitaciones", d: "Los organizadores te contactan directamente para sus próximos mercados." },
+            ].map((s) => (
+              <Reveal key={s.n}>
+                <div className="relative">
+                  <div
+                    className="text-5xl text-[#54b678]"
+                    style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+                  >
+                    {s.n}
+                  </div>
+                  <h3
+                    className="mt-3 text-xl text-[#18253f]"
+                    style={{ fontFamily: DISPLAY, fontWeight: 600 }}
+                  >
+                    {s.t}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[#2d2d2d]/75">
+                    {s.d}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <div className="mt-12 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setRegisterOpen(true)}
+              className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-8 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660]"
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Registra tu negocio
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* DIRECTORIO */}
+      <section className="border-b border-t border-[#18253f]/10 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
