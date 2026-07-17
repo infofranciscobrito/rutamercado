@@ -130,13 +130,6 @@ function EmprendedoresPage() {
             >
               Regístrate como Emprendedor
             </Link>
-            <button
-              type="button"
-              onClick={() => setRegisterOpen(true)}
-              className="inline-flex h-12 items-center justify-center rounded-md border border-[#54b678] px-6 text-sm font-semibold text-[#54b678] transition-colors duration-200 ease-out hover:bg-[#54b678]/10"
-            >
-              Registro rápido
-            </button>
           </div>
         </div>
       </section>
