@@ -1,15 +1,17 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Store, TrendingUp, LogOut, Inbox, Users, Mail } from "lucide-react";
+import { BarChart3, Store, TrendingUp, LogOut, Inbox, Users, Mail, Briefcase } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { countPendingSubmissions } from "@/lib/submissions.functions";
 import { countNewContactMessages } from "@/lib/contact.functions";
+import { adminCountPendingEmprendedores } from "@/lib/admin-emprendedores.functions";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/markets", label: "Mercados", icon: Store },
   { to: "/admin/producers", label: "Productores", icon: Users },
+  { to: "/admin/emprendedores", label: "Emprendedores", icon: Briefcase },
   { to: "/admin/submissions", label: "Solicitudes de Mercados", icon: Inbox },
   { to: "/admin/messages", label: "Mensajes", icon: Mail },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
@@ -19,6 +21,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const countPendingSubmissionsFn = useServerFn(countPendingSubmissions);
   const countNewMessagesFn = useServerFn(countNewContactMessages);
+  const countPendingEmprendedoresFn = useServerFn(adminCountPendingEmprendedores);
   const { data: pending } = useQuery({
     queryKey: ["admin", "submissions", "pending-count"],
     queryFn: () => countPendingSubmissionsFn(),
@@ -27,6 +30,11 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { data: newMessages } = useQuery({
     queryKey: ["admin", "contact-messages", "new-count"],
     queryFn: () => countNewMessagesFn(),
+    refetchInterval: 60_000,
+  });
+  const { data: pendingEmp } = useQuery({
+    queryKey: ["admin", "emprendedores", "pending-count"],
+    queryFn: () => countPendingEmprendedoresFn(),
     refetchInterval: 60_000,
   });
 

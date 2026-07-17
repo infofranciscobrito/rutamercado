@@ -54,6 +54,12 @@ export function Header() {
             Productores
           </Link>
           <Link
+            to="/emprendedores"
+            className="rounded-md px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:text-[#54b678]"
+          >
+            Emprendedores
+          </Link>
+          <Link
             to="/enviar"
             className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#18253f]"
           >
@@ -94,6 +100,13 @@ export function Header() {
                   className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
                 >
                   Productores
+                </Link>
+                <Link
+                  to="/emprendedores"
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
+                >
+                  Emprendedores
                 </Link>
                 <Link
                   to="/enviar"
