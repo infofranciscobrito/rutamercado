@@ -18,10 +18,10 @@ import { Route as FoodMarketRouteImport } from './routes/food-market'
 import { Route as FleaMarketRouteImport } from './routes/flea-market'
 import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
 import { Route as EnviarRouteImport } from './routes/enviar'
-import { Route as EmprendedoresRouteImport } from './routes/emprendedores'
 import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmprendedoresIndexRouteImport } from './routes/emprendedores.index'
 import { Route as EmprendedoresRegistroRouteImport } from './routes/emprendedores.registro'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
@@ -78,11 +78,6 @@ const EnviarRoute = EnviarRouteImport.update({
   path: '/enviar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EmprendedoresRoute = EmprendedoresRouteImport.update({
-  id: '/emprendedores',
-  path: '/emprendedores',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BazarPopUpRoute = BazarPopUpRouteImport.update({
   id: '/bazar-pop-up',
   path: '/bazar-pop-up',
@@ -97,10 +92,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmprendedoresIndexRoute = EmprendedoresIndexRouteImport.update({
+  id: '/emprendedores/',
+  path: '/emprendedores/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmprendedoresRegistroRoute = EmprendedoresRegistroRouteImport.update({
-  id: '/registro',
-  path: '/registro',
-  getParentRoute: () => EmprendedoresRoute,
+  id: '/emprendedores/registro',
+  path: '/emprendedores/registro',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
@@ -151,7 +151,6 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
-  '/emprendedores': typeof EmprendedoresRouteWithChildren
   '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/flea-market': typeof FleaMarketRoute
@@ -163,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/emprendedores/registro': typeof EmprendedoresRegistroRoute
+  '/emprendedores/': typeof EmprendedoresIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
@@ -175,7 +175,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
-  '/emprendedores': typeof EmprendedoresRouteWithChildren
   '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/flea-market': typeof FleaMarketRoute
@@ -187,6 +186,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/emprendedores/registro': typeof EmprendedoresRegistroRoute
+  '/emprendedores': typeof EmprendedoresIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
@@ -201,7 +201,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
   '/bazar-pop-up': typeof BazarPopUpRoute
-  '/emprendedores': typeof EmprendedoresRouteWithChildren
   '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/flea-market': typeof FleaMarketRoute
@@ -213,6 +212,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/emprendedores/registro': typeof EmprendedoresRegistroRoute
+  '/emprendedores/': typeof EmprendedoresIndexRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_admin/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
@@ -227,7 +227,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/bazar-pop-up'
-    | '/emprendedores'
     | '/enviar'
     | '/feria-artesanal'
     | '/flea-market'
@@ -239,6 +238,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/login'
     | '/emprendedores/registro'
+    | '/emprendedores/'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/emprendedores'
@@ -251,7 +251,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bazar-pop-up'
-    | '/emprendedores'
     | '/enviar'
     | '/feria-artesanal'
     | '/flea-market'
@@ -263,6 +262,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/login'
     | '/emprendedores/registro'
+    | '/emprendedores'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/emprendedores'
@@ -276,7 +276,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_admin'
     | '/bazar-pop-up'
-    | '/emprendedores'
     | '/enviar'
     | '/feria-artesanal'
     | '/flea-market'
@@ -288,6 +287,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/login'
     | '/emprendedores/registro'
+    | '/emprendedores/'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
     | '/_admin/admin/emprendedores'
@@ -302,7 +302,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   BazarPopUpRoute: typeof BazarPopUpRoute
-  EmprendedoresRoute: typeof EmprendedoresRouteWithChildren
   EnviarRoute: typeof EnviarRoute
   FeriaArtesanalRoute: typeof FeriaArtesanalRoute
   FleaMarketRoute: typeof FleaMarketRoute
@@ -313,6 +312,8 @@ export interface RootRouteChildren {
   ProductoresRoute: typeof ProductoresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  EmprendedoresRegistroRoute: typeof EmprendedoresRegistroRoute
+  EmprendedoresIndexRoute: typeof EmprendedoresIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -380,13 +381,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnviarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/emprendedores': {
-      id: '/emprendedores'
-      path: '/emprendedores'
-      fullPath: '/emprendedores'
-      preLoaderRoute: typeof EmprendedoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/bazar-pop-up': {
       id: '/bazar-pop-up'
       path: '/bazar-pop-up'
@@ -408,12 +402,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/emprendedores/': {
+      id: '/emprendedores/'
+      path: '/emprendedores'
+      fullPath: '/emprendedores/'
+      preLoaderRoute: typeof EmprendedoresIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/emprendedores/registro': {
       id: '/emprendedores/registro'
-      path: '/registro'
+      path: '/emprendedores/registro'
       fullPath: '/emprendedores/registro'
       preLoaderRoute: typeof EmprendedoresRegistroRouteImport
-      parentRoute: typeof EmprendedoresRoute
+      parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
       id: '/admin/login'
@@ -505,23 +506,10 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface EmprendedoresRouteChildren {
-  EmprendedoresRegistroRoute: typeof EmprendedoresRegistroRoute
-}
-
-const EmprendedoresRouteChildren: EmprendedoresRouteChildren = {
-  EmprendedoresRegistroRoute: EmprendedoresRegistroRoute,
-}
-
-const EmprendedoresRouteWithChildren = EmprendedoresRoute._addFileChildren(
-  EmprendedoresRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   BazarPopUpRoute: BazarPopUpRoute,
-  EmprendedoresRoute: EmprendedoresRouteWithChildren,
   EnviarRoute: EnviarRoute,
   FeriaArtesanalRoute: FeriaArtesanalRoute,
   FleaMarketRoute: FleaMarketRoute,
@@ -532,6 +520,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProductoresRoute: ProductoresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
+  EmprendedoresRegistroRoute: EmprendedoresRegistroRoute,
+  EmprendedoresIndexRoute: EmprendedoresIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

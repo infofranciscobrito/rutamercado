@@ -28,7 +28,7 @@ const emprendedoresQueryOptions = queryOptions({
 
 const REGION_ORDER: string[] = [...MARKET_REGIONS, "Otros"];
 
-export const Route = createFileRoute("/emprendedores")({
+export const Route = createFileRoute("/emprendedores/")({
   head: () => ({
     meta: [
       {
@@ -128,7 +128,7 @@ function EmprendedoresPage() {
               to="/emprendedores/registro"
               className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660]"
             >
-              Regístrate como Emprendedor
+              Registra tu negocio
             </Link>
           </div>
         </div>
