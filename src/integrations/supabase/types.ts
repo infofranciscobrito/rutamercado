@@ -50,6 +50,60 @@ export type Database = {
         }
         Relationships: []
       }
+      emprendedores: {
+        Row: {
+          categoria_producto: string
+          created_at: string
+          descripcion: string
+          email: string | null
+          id: string
+          instagram: string | null
+          logo_url: string | null
+          mercados_interes: string[] | null
+          municipio: string | null
+          nombre_negocio: string
+          persona_contacto: string | null
+          region: string | null
+          status: string
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          categoria_producto: string
+          created_at?: string
+          descripcion: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          mercados_interes?: string[] | null
+          municipio?: string | null
+          nombre_negocio: string
+          persona_contacto?: string | null
+          region?: string | null
+          status?: string
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          categoria_producto?: string
+          created_at?: string
+          descripcion?: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          mercados_interes?: string[] | null
+          municipio?: string | null
+          nombre_negocio?: string
+          persona_contacto?: string | null
+          region?: string | null
+          status?: string
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_attendance_intentions: {
         Row: {
           created_at: string

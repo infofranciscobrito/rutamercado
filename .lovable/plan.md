@@ -1,64 +1,110 @@
-# Servicios e instalaciones en `/enviar`
 
-Nueva sección opcional "Servicios e instalaciones" en el formulario de envío de mercados, con 6 campos que se guardan en la base de datos, se muestran al admin al revisar el envío, y se copian al mercado publicado cuando se aprueba.
+# Directorio de Emprendedores
 
-## Alcance
+Tercera sección del sitio, al mismo nivel que Mercados y Productores. Auto-registro con aprobación admin, luego listado público filtrable.
 
-- Formulario público `/enviar` (`SubmitMarketForm.tsx`): nueva sección entre "Foto del mercado" y "Contacto del organizador".
-- Base de datos: nuevas columnas en `market_submissions` y `markets`.
-- Server function `createMarketSubmission`: aceptar y guardar los nuevos campos.
-- Aprobación (`approveSubmission`): copiar los campos al mercado publicado.
-- Drawer de revisión en admin (`SubmissionReviewDrawer.tsx`): mostrar los valores capturados.
+## Base de datos (migración)
 
-Fuera de alcance (no lo pediste): mostrarlos en el detalle público del mercado, en tarjetas, ni añadir filtros. Tampoco se editan desde el formulario de admin de mercados en esta iteración.
+Nueva tabla `emprendedores`:
 
-## Nueva sección en el formulario
-
-Orden y tipo de control:
-
-1. **¿Aceptan mascotas?** — radio · `Sí, son bienvenidas` / `Solo en áreas designadas` / `No se permiten mascotas`
-2. **¿Hay estacionamiento?** — radio · `Sí, gratuito` / `Sí, de pago` / `Limitado (llega temprano)` / `No hay estacionamiento`
-3. **¿Es accesible?** — radio · `Totalmente accesible` / `Parcialmente accesible` / `No es accesible`
-4. **Métodos de pago** — checkboxes múltiples · `Efectivo` / `Tarjeta de débito/crédito` / `ATH Móvil` / `PayPal / transferencia`
-5. **¿Es familiar?** — radio · `Sí, ideal para familias` / `Parcialmente` / `No es familiar` (tercera opción añadida por paridad — confírmame si prefieres otra)
-6. **¿Tiene área de comida?** — radio · `Sí, múltiples opciones` / `Sí, opciones limitadas` / `No tiene`
-
-Todos opcionales: el usuario puede enviar el formulario sin tocar ninguno. Cada campo lleva su emoji junto al label como se especificó.
-
-## Detalles técnicos
-
-**Migración** (agrega columnas a las dos tablas, todas nullable):
-
-```text
-market_submissions + markets:
-  pets              text
-  parking           text
-  accessibility     text
-  payment_methods   text[]
-  family_friendly   text
-  food_area         text
+```
+- id (uuid, pk)
+- nombre_negocio (text, requerido)
+- logo_url (text, nullable) — foto/logo subida a bucket market-images
+- descripcion (text, requerido, máx ~280 chars)
+- categoria_producto (text) — enum-like: Comida y Repostería, Artesanías,
+  Ropa y Accesorios, Arte, Productos Agrícolas, Cuidado Personal, Otro
+- region (text) — Metro/Norte/Sur/Este/Oeste (misma lista que Productores)
+- municipio (text, nullable)
+- instagram (text, nullable)
+- email (text, nullable)
+- telefono (text, nullable)
+- persona_contacto (text, nullable)
+- mercados_interes (text[], nullable) — lista libre (nombres de mercados
+  donde ha participado o le interesa)
+- status (text, default 'pending') — 'pending' | 'approved' | 'rejected'
+- created_at, updated_at (timestamptz)
 ```
 
-Sin CHECK constraints (los valores válidos se validan en Zod en el server function, para poder ajustarlos sin migraciones).
+Validación mínima: al menos un contacto (instagram, email o teléfono).
 
-**`src/lib/submissions.functions.ts`**
-- Ampliar `SubmissionInputSchema` con los 6 campos opcionales (`z.string().max(...).optional()` y `z.array(z.enum([...])).optional()` para `payment_methods`, restringiendo a los valores permitidos).
-- Insertar los nuevos campos en `market_submissions`.
-- En `approveSubmission`, copiar los 6 campos del `sub` al `insert` en `markets`.
+### RLS + GRANTs
+- `anon` + `authenticated`: SELECT solo filas con `status = 'approved'`.
+- `anon` + `authenticated`: INSERT permitido (auto-registro público) forzando `status = 'pending'` vía policy WITH CHECK.
+- `service_role`: ALL (admin server functions con `supabaseAdmin`).
+- Trigger `update_updated_at`.
 
-**`src/components/rutamercado/SubmitMarketForm.tsx`**
-- Añadir los 6 campos al tipo `FormValues` y a `defaults` (strings vacías; array vacío para `payment_methods`).
-- Nueva `<Section title="Servicios e instalaciones">` entre "Foto del mercado" y "Contacto del organizador", con nota "Opcional" arriba.
-- Controles: `RadioGroup`/`RadioGroupItem` de shadcn para los 5 radios, `Checkbox` para métodos de pago (controlado vía `Controller` que mantiene un array).
-- Mapear valores al payload de `mutation.mutationFn` (enviar `undefined` cuando estén vacíos, array vacío como `undefined`).
+## Server functions
 
-**`src/components/admin/SubmissionReviewDrawer.tsx`**
-- Añadir un bloque "Servicios e instalaciones" que renderiza los 6 campos cuando tienen valor (omite los vacíos para no ensuciar la vista).
+Nuevo `src/lib/emprendedores.functions.ts`:
+- `listEmprendedores()` — público, retorna aprobados con filtros opcionales (categoría, región).
+- `getEmprendedor(id)` — público, aprobado.
+- `submitEmprendedor(input)` — público, valida con Zod, inserta como `pending`.
+
+Nuevo `src/lib/admin-emprendedores.functions.ts` (protegidos con `requireSupabaseAuth` + admin check, patrón idéntico a `admin-producers.functions.ts`):
+- `adminListEmprendedores({ status? })`
+- `approveEmprendedor(id)`
+- `rejectEmprendedor(id)`
+- `updateEmprendedor(id, patch)`
+- `deleteEmprendedor(id)`
+- `pendingEmprendedoresCount()` — para badge en sidebar.
+
+## Rutas y componentes
+
+### Público
+- `src/routes/emprendedores.tsx` — página del directorio. Hero con el copy dado ("Directorio de Emprendedores" / "Tu negocio, visible ante los organizadores…"), sección "¿Por qué registrarte?" con las 3 razones, CTA "Regístrate como Emprendedor" que abre el dialog. Grid de tarjetas (logo, nombre, categoría badge, municipio/región) con filtros de categoría y región (mismo patrón que `/productores`). Click abre dialog con perfil completo.
+- `src/components/emprendedores/EmprendedorCard.tsx` — tarjeta estilo consistente con `ProducerCard` (fondo navy, borde verde 2px).
+- `src/components/emprendedores/EmprendedorDetailDialog.tsx` — perfil completo: descripción, contactos clickeables (IG, mailto, tel), mercados de interés.
+- `src/components/emprendedores/RegisterEmprendedorDialog.tsx` — formulario de auto-registro con todos los campos, subida de logo al bucket `market-images` (patrón de `ImageUpload16x9`), anti-autofill como los otros formularios, submit → toast de éxito indicando "pasa por aprobación".
+
+### Header + Footer
+- `src/components/rutamercado/Header.tsx`: añadir link "Emprendedores" entre "Productores" y "Enviar mi Mercado", en desktop y en el sheet mobile.
+- `src/components/rutamercado/Footer.tsx`: añadir "Emprendedores" en la columna Explorar.
+- `src/routes/index.tsx` sección Contacto: añadir "Emprendedor" al dropdown "Soy" (si aplica).
+
+### Admin
+- `src/routes/_admin/admin.emprendedores.tsx` — lista con tabs Pendientes / Aprobados / Rechazados, tabla con nombre, categoría, región, contacto, acciones (aprobar / rechazar / editar / eliminar). Drawer de revisión estilo `SubmissionReviewDrawer`.
+- `src/components/admin/AdminSidebar.tsx`: nuevo item "Emprendedores" con badge de pendientes.
+
+### Sitemap
+- `src/routes/sitemap[.]xml.ts`: añadir `/emprendedores`.
+
+## Copy exacto (hero de `/emprendedores`)
+
+- H1: "Directorio de Emprendedores"
+- Subtítulo: "Tu negocio, visible ante los organizadores de mercados de Puerto Rico."
+- Descripción: "Regístrate una vez y queda disponible para que los organizadores de mercados, bazares y popups te encuentren, conozcan tu negocio y te inviten a participar en sus próximos eventos."
+- CTA: "Regístrate como Emprendedor"
+- Beneficios (3 tarjetas): Más invitaciones · Cero costo, un solo registro · Presencia seria (textos completos del brief).
+
+## Diseño
+
+Misma identidad visual: fondo `#18253f`, acento `#54b678`, tipografías existentes. Tarjetas idénticas en estructura a `ProducerCard` para consistencia.
+
+## Fuera de alcance (confírmame si lo quieres incluir)
+
+- Notificación por email al admin cuando llega un registro nuevo.
+- Que los organizadores puedan "invitar" directamente desde la plataforma (por ahora solo ven el contacto y escriben por fuera).
+- Analítica de vistas/clics de emprendedores.
+- Edición del perfil por parte del propio emprendedor (por ahora solo el admin edita después de aprobar).
+
+## Suposiciones
+
+- El auto-registro es abierto (sin login), igual que `/productores`.
+- Se reutiliza el bucket `market-images` para logos (subcarpeta `emprendedores/`).
+- Validación: `nombre_negocio`, `descripcion`, `categoria_producto`, `region` son obligatorios; al menos uno de `instagram`, `email`, `telefono`.
 
 ## Archivos afectados
 
-- `supabase/migrations/<timestamp>_market_services.sql` (nuevo)
-- `src/lib/submissions.functions.ts` (editar)
-- `src/components/rutamercado/SubmitMarketForm.tsx` (editar)
-- `src/components/admin/SubmissionReviewDrawer.tsx` (editar)
-- `src/integrations/supabase/types.ts` se regenera automáticamente tras aprobar la migración.
+- `supabase/migrations/<ts>_emprendedores.sql` (nuevo)
+- `src/lib/emprendedores.functions.ts` (nuevo)
+- `src/lib/admin-emprendedores.functions.ts` (nuevo)
+- `src/routes/emprendedores.tsx` (nuevo)
+- `src/routes/_admin/admin.emprendedores.tsx` (nuevo)
+- `src/components/emprendedores/EmprendedorCard.tsx` (nuevo)
+- `src/components/emprendedores/EmprendedorDetailDialog.tsx` (nuevo)
+- `src/components/emprendedores/RegisterEmprendedorDialog.tsx` (nuevo)
+- `src/components/rutamercado/Header.tsx` (editar)
+- `src/components/rutamercado/Footer.tsx` (editar)
+- `src/components/admin/AdminSidebar.tsx` (editar)
+- `src/routes/sitemap[.]xml.ts` (editar)

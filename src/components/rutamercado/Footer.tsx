@@ -78,6 +78,16 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/productores" className={linkClass}>
+                    Productores
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/emprendedores" className={linkClass}>
+                    Emprendedores
+                  </Link>
+                </li>
+                <li>
                   <a href="/#municipios" className={linkClass}>
                     Todos los municipios
                   </a>
