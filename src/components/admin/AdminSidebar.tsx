@@ -79,6 +79,11 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
                   {newMessages!.count}
                 </span>
               )}
+              {item.to === "/admin/emprendedores" && (pendingEmp?.count ?? 0) > 0 && (
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#18253f]">
+                  {pendingEmp!.count}
+                </span>
+              )}
             </Link>
           );
         })}
