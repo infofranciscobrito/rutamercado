@@ -146,6 +146,12 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
     if (!nombre.trim()) return toast.error("El nombre del negocio es obligatorio.");
     if (!descripcion.trim()) return toast.error("La descripción es obligatoria.");
     if (!categoria) return toast.error("Selecciona una categoría de producto.");
+    if (categoria === "Otro") {
+      if (!categoriaOtro.trim())
+        return toast.error("Describe tu categoría (máx. 20 palabras).");
+      if (countWords(categoriaOtro) > 20)
+        return toast.error("La categoría personalizada no puede exceder 20 palabras.");
+    }
     if (!instagram.trim() && !email.trim() && !telefono.trim()) {
       return toast.error("Provee al menos un contacto (Instagram, email o teléfono).");
     }
