@@ -39,6 +39,8 @@ export const CANALES_VENTA_OPTIONS = [
 
 export const TAMANO_EQUIPO_OPTIONS = ["Solo yo", "2-5 personas", "6 o más"] as const;
 
+export const ARTESANO_CERTIFICADO_OPTIONS = ["Sí", "No"] as const;
+
 export type Emprendedor = {
   id: string;
   nombre_negocio: string;
