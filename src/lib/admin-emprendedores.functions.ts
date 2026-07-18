@@ -29,6 +29,8 @@ export type AdminEmprendedor = {
   fuente_ingreso: string | null;
   canales_venta: string[];
   tamano_equipo: string | null;
+  categoria_otro: string | null;
+  artesano_certificado: string | null;
   status: "pending" | "approved" | "rejected";
   created_at: string;
 };
