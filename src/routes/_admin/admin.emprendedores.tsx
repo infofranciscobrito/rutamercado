@@ -19,6 +19,7 @@ import {
   FUENTE_INGRESO_OPTIONS,
   CANALES_VENTA_OPTIONS,
   TAMANO_EQUIPO_OPTIONS,
+  ARTESANO_CERTIFICADO_OPTIONS,
   type EmprendedorCategory,
 } from "@/lib/emprendedores.functions";
 import { MARKET_REGIONS } from "@/types/market";
@@ -83,6 +84,8 @@ const emptyItem = (): AdminEmprendedor => ({
   fuente_ingreso: null,
   canales_venta: [],
   tamano_equipo: null,
+  categoria_otro: null,
+  artesano_certificado: null,
   status: "approved",
   created_at: new Date().toISOString(),
 });
@@ -397,6 +400,8 @@ function EmprendedorEditor({
           fuente_ingreso: (form.fuente_ingreso as never) ?? null,
           canales_venta: (form.canales_venta as never) ?? null,
           tamano_equipo: (form.tamano_equipo as never) ?? null,
+          categoria_otro: form.categoria_otro ?? null,
+          artesano_certificado: (form.artesano_certificado as never) ?? null,
           logo_url: form.logo_url,
         },
       });
@@ -624,8 +629,37 @@ function EmprendedorEditor({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
             </div>
+            {form.categoria_producto === "Otro" ? (
+              <div className="mt-4">
+                <Label>Categoría personalizada (máx. 20 palabras)</Label>
+                <Input
+                  value={form.categoria_otro ?? ""}
+                  onChange={(e) => set("categoria_otro", e.target.value || null)}
+                  className="mt-1"
+                  maxLength={200}
+                />
+              </div>
+            ) : null}
+            {form.categoria_producto === "Artesanías" ? (
+              <div className="mt-4">
+                <Label>Artesano/a certificado/a</Label>
+                <Select
+                  value={form.artesano_certificado ?? ""}
+                  onValueChange={(v) => set("artesano_certificado", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ARTESANO_CERTIFICADO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+          </div>
           </div>
           <div>
             <Label>URL del logo</Label>

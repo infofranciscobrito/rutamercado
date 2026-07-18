@@ -52,7 +52,9 @@ export type Database = {
       }
       emprendedores: {
         Row: {
+          artesano_certificado: string | null
           canales_venta: string[] | null
+          categoria_otro: string | null
           categoria_producto: string
           created_at: string
           descripcion: string
@@ -74,7 +76,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          artesano_certificado?: string | null
           canales_venta?: string[] | null
+          categoria_otro?: string | null
           categoria_producto: string
           created_at?: string
           descripcion: string
@@ -96,7 +100,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          artesano_certificado?: string | null
           canales_venta?: string[] | null
+          categoria_otro?: string | null
           categoria_producto?: string
           created_at?: string
           descripcion?: string

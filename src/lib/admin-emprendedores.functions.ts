@@ -8,6 +8,7 @@ import {
   FUENTE_INGRESO_OPTIONS,
   CANALES_VENTA_OPTIONS,
   TAMANO_EQUIPO_OPTIONS,
+  ARTESANO_CERTIFICADO_OPTIONS,
 } from "./emprendedores.functions";
 
 export type AdminEmprendedor = {
@@ -28,6 +29,8 @@ export type AdminEmprendedor = {
   fuente_ingreso: string | null;
   canales_venta: string[];
   tamano_equipo: string | null;
+  categoria_otro: string | null;
+  artesano_certificado: string | null;
   status: "pending" | "approved" | "rejected";
   created_at: string;
 };
@@ -69,6 +72,8 @@ const UpsertSchema = z.object({
   fuente_ingreso: z.enum(FUENTE_INGRESO_OPTIONS).nullable().optional(),
   canales_venta: z.array(z.enum(CANALES_VENTA_OPTIONS)).nullable().optional(),
   tamano_equipo: z.enum(TAMANO_EQUIPO_OPTIONS).nullable().optional(),
+  categoria_otro: optText(200),
+  artesano_certificado: z.enum(ARTESANO_CERTIFICADO_OPTIONS).nullable().optional(),
   logo_url: optText(1000),
 });
 
@@ -78,7 +83,7 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("emprendedores")
       .select(
-        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, status, created_at",
+        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, categoria_otro, artesano_certificado, status, created_at",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -100,6 +105,8 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
       fuente_ingreso: (r as { fuente_ingreso?: string | null }).fuente_ingreso ?? null,
       canales_venta: ((r as { canales_venta?: string[] | null }).canales_venta ?? []) as string[],
       tamano_equipo: (r as { tamano_equipo?: string | null }).tamano_equipo ?? null,
+      categoria_otro: (r as { categoria_otro?: string | null }).categoria_otro ?? null,
+      artesano_certificado: (r as { artesano_certificado?: string | null }).artesano_certificado ?? null,
       status: (r.status === "pending"
         ? "pending"
         : r.status === "rejected"
@@ -148,6 +155,12 @@ export const adminUpsertEmprendedor = createServerFn({ method: "POST" })
           ? data.canales_venta
           : null,
       tamano_equipo: data.tamano_equipo ?? null,
+      categoria_otro:
+        data.categoria_producto === "Otro" ? (data.categoria_otro ?? null) : null,
+      artesano_certificado:
+        data.categoria_producto === "Artesanías"
+          ? (data.artesano_certificado ?? null)
+          : null,
       logo_url: data.logo_url,
     };
 
