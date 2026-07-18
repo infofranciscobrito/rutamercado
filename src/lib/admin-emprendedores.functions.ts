@@ -73,7 +73,7 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("emprendedores")
       .select(
-        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, status, created_at",
+        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, status, created_at",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
