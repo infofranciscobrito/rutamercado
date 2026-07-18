@@ -230,6 +230,12 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
               `Email: ${data.email ?? "—"}\n` +
               `Teléfono: ${data.telefono ?? "—"}\n` +
               `Mercados de interés: ${mercadosArray.join(", ") || "—"}\n` +
+              `\n— Información interna —\n` +
+              `Tiempo operando: ${data.tiempo_operando ?? "—"}\n` +
+              `Registro de Comerciante: ${data.registro_comerciante ?? "—"}\n` +
+              `Fuente de ingreso: ${data.fuente_ingreso ?? "—"}\n` +
+              `Canales de venta: ${(data.canales_venta ?? []).join(", ") || "—"}\n` +
+              `Tamaño del equipo: ${data.tamano_equipo ?? "—"}\n` +
               `\nDescripción:\n${data.descripcion}\n` +
               (logoUrl ? `\nLogo: ${logoUrl}\n` : ""),
           }),
