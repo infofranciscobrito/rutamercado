@@ -187,8 +187,8 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
           tamano_equipo: (tamanoEquipo || null) as never,
           categoria_otro:
             categoria === "Otro" ? (categoriaOtro.trim() || null) : null,
-          artesano_certificado:
-            categoria === "Artesanías" ? (artesanoCert || null) as never : null,
+          artesano_certificado: (artesanoCert || null) as never,
+
           ...(logoPayload ?? {}),
         },
       });
