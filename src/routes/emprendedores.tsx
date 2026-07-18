@@ -391,3 +391,47 @@ function EmprendedoresPage() {
     </div>
   );
 }
+
+function FAQItem({
+  id,
+  question,
+  answer,
+}: {
+  id: string;
+  question: string;
+  answer: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const panelId = `${id}-panel`;
+  return (
+    <div className="rounded-2xl border border-[#54b678]/30 bg-white/5">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
+      >
+        <span className="font-display text-lg text-white">{question}</span>
+        <Plus
+          className={`h-5 w-5 shrink-0 text-[#54b678] transition-transform duration-200 ease-out ${
+            open ? "rotate-45" : ""
+          }`}
+        />
+      </button>
+      <div
+        id={panelId}
+        role="region"
+        className={`grid overflow-hidden px-6 transition-[grid-template-rows,opacity,padding] duration-200 ease-out ${
+          open
+            ? "grid-rows-[1fr] pb-5 opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="min-h-0">
+          <p className="text-sm leading-relaxed text-white/80">{answer}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
