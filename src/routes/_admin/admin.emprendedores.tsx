@@ -399,6 +399,8 @@ function EmprendedorEditor({
           fuente_ingreso: (form.fuente_ingreso as never) ?? null,
           canales_venta: (form.canales_venta as never) ?? null,
           tamano_equipo: (form.tamano_equipo as never) ?? null,
+          categoria_otro: form.categoria_otro ?? null,
+          artesano_certificado: (form.artesano_certificado as never) ?? null,
           logo_url: form.logo_url,
         },
       });
