@@ -526,6 +526,107 @@ function EmprendedorEditor({
               className="mt-1"
             />
           </div>
+          <div className="rounded-md border border-dashed border-[#18253f]/20 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#18253f]/60">
+              Datos internos (no se muestran públicamente)
+            </p>
+            <div className="mt-3 space-y-3">
+              <div>
+                <Label>Tiempo operando</Label>
+                <Select
+                  value={form.tiempo_operando ?? ""}
+                  onValueChange={(v) => set("tiempo_operando", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIEMPO_OPERANDO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Registro de comerciante</Label>
+                <Select
+                  value={form.registro_comerciante ?? ""}
+                  onValueChange={(v) => set("registro_comerciante", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGISTRO_COMERCIANTE_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Fuente de ingreso</Label>
+                <Select
+                  value={form.fuente_ingreso ?? ""}
+                  onValueChange={(v) => set("fuente_ingreso", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FUENTE_INGRESO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Canales de venta</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {CANALES_VENTA_OPTIONS.map((o) => {
+                    const selected = (form.canales_venta ?? []).includes(o);
+                    return (
+                      <button
+                        key={o}
+                        type="button"
+                        onClick={() => {
+                          const cur = form.canales_venta ?? [];
+                          set(
+                            "canales_venta",
+                            (cur.includes(o)
+                              ? cur.filter((v) => v !== o)
+                              : [...cur, o]) as never,
+                          );
+                        }}
+                        className={
+                          selected
+                            ? "rounded-md border border-[#54b678] bg-[#54b678] px-3 py-1 text-xs text-white"
+                            : "rounded-md border border-[#18253f]/20 bg-white px-3 py-1 text-xs text-[#18253f]"
+                        }
+                      >
+                        {o}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <Label>Tamaño del equipo</Label>
+                <Select
+                  value={form.tamano_equipo ?? ""}
+                  onValueChange={(v) => set("tamano_equipo", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TAMANO_EQUIPO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
           <div>
             <Label>URL del logo</Label>
             <Input
