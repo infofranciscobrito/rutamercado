@@ -155,6 +155,12 @@ export const adminUpsertEmprendedor = createServerFn({ method: "POST" })
           ? data.canales_venta
           : null,
       tamano_equipo: data.tamano_equipo ?? null,
+      categoria_otro:
+        data.categoria_producto === "Otro" ? (data.categoria_otro ?? null) : null,
+      artesano_certificado:
+        data.categoria_producto === "Artesanías"
+          ? (data.artesano_certificado ?? null)
+          : null,
       logo_url: data.logo_url,
     };
 
