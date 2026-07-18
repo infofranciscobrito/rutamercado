@@ -52,10 +52,12 @@ export type Database = {
       }
       emprendedores: {
         Row: {
+          canales_venta: string[] | null
           categoria_producto: string
           created_at: string
           descripcion: string
           email: string | null
+          fuente_ingreso: string | null
           id: string
           instagram: string | null
           logo_url: string | null
@@ -64,15 +66,20 @@ export type Database = {
           nombre_negocio: string
           persona_contacto: string | null
           region: string | null
+          registro_comerciante: string | null
           status: string
+          tamano_equipo: string | null
           telefono: string | null
+          tiempo_operando: string | null
           updated_at: string
         }
         Insert: {
+          canales_venta?: string[] | null
           categoria_producto: string
           created_at?: string
           descripcion: string
           email?: string | null
+          fuente_ingreso?: string | null
           id?: string
           instagram?: string | null
           logo_url?: string | null
@@ -81,15 +88,20 @@ export type Database = {
           nombre_negocio: string
           persona_contacto?: string | null
           region?: string | null
+          registro_comerciante?: string | null
           status?: string
+          tamano_equipo?: string | null
           telefono?: string | null
+          tiempo_operando?: string | null
           updated_at?: string
         }
         Update: {
+          canales_venta?: string[] | null
           categoria_producto?: string
           created_at?: string
           descripcion?: string
           email?: string | null
+          fuente_ingreso?: string | null
           id?: string
           instagram?: string | null
           logo_url?: string | null
@@ -98,8 +110,11 @@ export type Database = {
           nombre_negocio?: string
           persona_contacto?: string | null
           region?: string | null
+          registro_comerciante?: string | null
           status?: string
+          tamano_equipo?: string | null
           telefono?: string | null
+          tiempo_operando?: string | null
           updated_at?: string
         }
         Relationships: []
