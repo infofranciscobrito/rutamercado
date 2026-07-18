@@ -1,7 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { EMPRENDEDOR_CATEGORIES } from "./emprendedores.functions";
+import {
+  EMPRENDEDOR_CATEGORIES,
+  TIEMPO_OPERANDO_OPTIONS,
+  REGISTRO_COMERCIANTE_OPTIONS,
+  FUENTE_INGRESO_OPTIONS,
+  CANALES_VENTA_OPTIONS,
+  TAMANO_EQUIPO_OPTIONS,
+} from "./emprendedores.functions";
 
 export type AdminEmprendedor = {
   id: string;
