@@ -14,6 +14,11 @@ import {
 } from "@/lib/admin-emprendedores.functions";
 import {
   EMPRENDEDOR_CATEGORIES,
+  TIEMPO_OPERANDO_OPTIONS,
+  REGISTRO_COMERCIANTE_OPTIONS,
+  FUENTE_INGRESO_OPTIONS,
+  CANALES_VENTA_OPTIONS,
+  TAMANO_EQUIPO_OPTIONS,
   type EmprendedorCategory,
 } from "@/lib/emprendedores.functions";
 import { MARKET_REGIONS } from "@/types/market";
