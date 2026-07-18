@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MapPin, CalendarDays, Gift } from "lucide-react";
 import { SubmitMarketForm } from "@/components/rutamercado/SubmitMarketForm";
+import { Header } from "@/components/rutamercado/Header";
+
 
 export const Route = createFileRoute("/mercados")({
   head: () => ({
