@@ -33,16 +33,16 @@ export const Route = createFileRoute("/emprendedores")({
     meta: [
       {
         title:
-          "Directorio de Emprendedores — Negocios que venden en mercados y bazares de Puerto Rico | RutaMercado",
+          "Directorio de Negocios — Regístrate para vender en mercados y bazares de Puerto Rico | RutaMercado",
       },
       {
         name: "description",
         content:
-          "Encuentra emprendedores y negocios que venden en mercados, bazares y popups de Puerto Rico. Regístrate gratis para que los organizadores te inviten a sus próximos eventos.",
+          "Registra tu negocio y hazte visible ante los organizadores de mercados, bazares y popups de Puerto Rico. Gratis, un solo registro, invitaciones directas.",
       },
       {
         property: "og:title",
-        content: "Directorio de Emprendedores — RutaMercado",
+        content: "Directorio de Negocios — RutaMercado",
       },
       {
         property: "og:description",
