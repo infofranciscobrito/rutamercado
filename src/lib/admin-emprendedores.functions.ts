@@ -90,6 +90,11 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
       telefono: r.telefono ?? null,
       persona_contacto: r.persona_contacto ?? null,
       mercados_interes: (r.mercados_interes ?? []) as string[],
+      tiempo_operando: (r as { tiempo_operando?: string | null }).tiempo_operando ?? null,
+      registro_comerciante: (r as { registro_comerciante?: string | null }).registro_comerciante ?? null,
+      fuente_ingreso: (r as { fuente_ingreso?: string | null }).fuente_ingreso ?? null,
+      canales_venta: ((r as { canales_venta?: string[] | null }).canales_venta ?? []) as string[],
+      tamano_equipo: (r as { tamano_equipo?: string | null }).tamano_equipo ?? null,
       status: (r.status === "pending"
         ? "pending"
         : r.status === "rejected"
