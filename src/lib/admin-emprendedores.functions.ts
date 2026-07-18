@@ -10,6 +10,8 @@ import {
   TAMANO_EQUIPO_OPTIONS,
   ARTESANO_CERTIFICADO_OPTIONS,
 } from "./emprendedores.functions";
+import { MARKET_REGIONS } from "@/types/market";
+
 
 export type AdminEmprendedor = {
   id: string;
