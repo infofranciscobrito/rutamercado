@@ -19,6 +19,7 @@ import {
   FUENTE_INGRESO_OPTIONS,
   CANALES_VENTA_OPTIONS,
   TAMANO_EQUIPO_OPTIONS,
+  ARTESANO_CERTIFICADO_OPTIONS,
   type EmprendedorCategory,
 } from "@/lib/emprendedores.functions";
 import { MARKET_REGIONS } from "@/types/market";
