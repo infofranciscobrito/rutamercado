@@ -120,7 +120,7 @@ function EmprendedoresPage() {
   const total = data.length;
 
   return (
-    <div className="min-h-screen bg-[#18253f]" style={{ fontFamily: BODY, color: "#fafaf8" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: BODY, color: "#2d2d2d" }}>
       <Header />
 
       {/* HERO */}
@@ -153,7 +153,7 @@ function EmprendedoresPage() {
       </section>
 
       {/* METRICS */}
-      <section className="border-b border-white/10 bg-[#18253f]">
+      <section className="border-b border-[#18253f]/10 bg-white">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
           {[
             { n: `${total}+`, l: "Emprendedores" },
@@ -164,12 +164,12 @@ function EmprendedoresPage() {
             <Reveal key={m.l}>
               <div className="text-center">
                 <div
-                  className="text-4xl text-white sm:text-5xl"
+                  className="text-4xl text-[#18253f] sm:text-5xl"
                   style={{ fontFamily: DISPLAY, fontWeight: 600 }}
                 >
                   {m.n}
                 </div>
-                <div className="mt-1 text-sm text-white/70">{m.l}</div>
+                <div className="mt-1 text-sm text-[#2d2d2d]/70">{m.l}</div>
               </div>
             </Reveal>
           ))}
@@ -177,7 +177,7 @@ function EmprendedoresPage() {
       </section>
 
       {/* BENEFITS */}
-      <section className="bg-[#141628]">
+      <section className="bg-[#f7f7f5]">
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
           <Reveal>
             <div className="mb-12 text-center">
@@ -185,7 +185,7 @@ function EmprendedoresPage() {
                 Beneficios
               </p>
               <h2
-                className="text-3xl text-white sm:text-4xl"
+                className="text-3xl text-[#18253f] sm:text-4xl"
                 style={{ fontFamily: DISPLAY, fontWeight: 600 }}
               >
                 ¿Por qué registrar tu negocio?
@@ -211,15 +211,15 @@ function EmprendedoresPage() {
               },
             ].map((b) => (
               <Reveal key={b.title}>
-                <div className="h-full rounded-2xl border border-white/10 bg-[#18253f] p-8">
+                <div className="h-full rounded-2xl border border-[#18253f]/10 bg-white p-8">
                   <b.icon className="h-8 w-8 text-[#54b678]" />
                   <h3
-                    className="mt-5 text-xl text-white"
+                    className="mt-5 text-xl text-[#18253f]"
                     style={{ fontFamily: DISPLAY, fontWeight: 600 }}
                   >
                     {b.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/75">
+                  <p className="mt-3 text-sm leading-relaxed text-[#2d2d2d]/75">
                     {b.text}
                   </p>
                 </div>
@@ -230,7 +230,7 @@ function EmprendedoresPage() {
       </section>
 
       {/* PROCESS */}
-      <section className="bg-[#18253f]">
+      <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
           <Reveal>
             <div className="mb-12 text-center">
@@ -238,7 +238,7 @@ function EmprendedoresPage() {
                 Proceso
               </p>
               <h2
-                className="text-3xl text-white sm:text-4xl"
+                className="text-3xl text-[#18253f] sm:text-4xl"
                 style={{ fontFamily: DISPLAY, fontWeight: 600 }}
               >
                 Cómo funciona
@@ -260,12 +260,12 @@ function EmprendedoresPage() {
                     {s.n}
                   </div>
                   <h3
-                    className="mt-3 text-xl text-white"
+                    className="mt-3 text-xl text-[#18253f]"
                     style={{ fontFamily: DISPLAY, fontWeight: 600 }}
                   >
                     {s.t}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/75">
+                  <p className="mt-2 text-sm leading-relaxed text-[#2d2d2d]/75">
                     {s.d}
                   </p>
                 </div>
@@ -286,17 +286,17 @@ function EmprendedoresPage() {
       </section>
 
       {/* DIRECTORIO */}
-      <section className="border-b border-t border-white/10 bg-[#18253f]">
+      <section className="border-b border-t border-[#18253f]/10 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h1
-                className="text-3xl text-white sm:text-4xl"
+                className="text-3xl text-[#18253f] sm:text-4xl"
                 style={{ fontFamily: DISPLAY, fontWeight: 600 }}
               >
                 Directorio de Emprendedores
               </h1>
-              <p className="mt-2 text-white/70">
+              <p className="mt-2 text-[#2d2d2d]/70">
                 {total} emprendedor{total === 1 ? "" : "es"} en el directorio.
               </p>
             </div>
@@ -311,17 +311,17 @@ function EmprendedoresPage() {
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative w-full sm:flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#2d2d2d]/50" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Busca por negocio, producto, mercado o municipio..."
-                className="h-12 w-full border-white/20 bg-[#141628] pl-10 text-base text-white placeholder:text-white/50"
+                className="h-12 w-full border-[#18253f]/20 bg-white pl-10 text-base text-[#2d2d2d] placeholder:text-[#2d2d2d]/50"
                 aria-label="Buscar emprendedores"
               />
             </div>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-12 w-full border-white/20 bg-[#141628] text-white sm:w-56">
+              <SelectTrigger className="h-12 w-full border-[#18253f]/20 bg-white text-[#2d2d2d] sm:w-56">
                 <SelectValue placeholder="Categoría" />
               </SelectTrigger>
               <SelectContent>
@@ -334,7 +334,7 @@ function EmprendedoresPage() {
               </SelectContent>
             </Select>
             <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="h-12 w-full border-white/20 bg-[#141628] text-white sm:w-44">
+              <SelectTrigger className="h-12 w-full border-[#18253f]/20 bg-white text-[#2d2d2d] sm:w-44">
                 <SelectValue placeholder="Región" />
               </SelectTrigger>
               <SelectContent>
@@ -353,8 +353,8 @@ function EmprendedoresPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         {grouped.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/20 bg-[#141628] py-16 text-center">
-            <p className="text-white/70">
+          <div className="rounded-2xl border border-dashed border-[#18253f]/20 bg-[#f7f7f5] py-16 text-center">
+            <p className="text-[#2d2d2d]/70">
               No encontramos emprendedores con esos criterios.
             </p>
           </div>
@@ -364,16 +364,16 @@ function EmprendedoresPage() {
               <section key={bucket.region}>
                 <div className="mb-2 flex items-baseline gap-3">
                   <h2
-                    className="text-2xl text-white md:text-3xl"
+                    className="text-2xl text-[#18253f] md:text-3xl"
                     style={{ fontFamily: DISPLAY, fontWeight: 600 }}
                   >
                     {bucket.region}
                   </h2>
-                  <span className="text-sm text-white/60">
+                  <span className="text-sm text-[#2d2d2d]/60">
                     {bucket.items.length} emprendedor{bucket.items.length === 1 ? "" : "es"}
                   </span>
                 </div>
-                <div className="mb-6 h-px bg-white/10" />
+                <div className="mb-6 h-px bg-[#18253f]/10" />
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {bucket.items.map((e) => (
                     <EmprendedorCard key={e.id} item={e} />
