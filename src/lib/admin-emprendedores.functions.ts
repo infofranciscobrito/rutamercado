@@ -225,3 +225,241 @@ export const adminDeleteEmprendedor = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
+// ==================== Business registration analytics ====================
+
+const AnalyticsFilterSchema = z.object({
+  from: z.string().datetime().nullable().optional(),
+  to: z.string().datetime().nullable().optional(),
+  region: z.string().nullable().optional(),
+  categoria: z.string().nullable().optional(),
+  status: z.enum(["approved", "pending", "rejected"]).nullable().optional(),
+});
+
+export type AnalyticsFilters = z.infer<typeof AnalyticsFilterSchema>;
+
+type Row = {
+  id: string;
+  nombre_negocio: string;
+  categoria_producto: string;
+  region: string | null;
+  municipio: string | null;
+  mercados_interes: string[] | null;
+  tiempo_operando: string | null;
+  registro_comerciante: string | null;
+  fuente_ingreso: string | null;
+  canales_venta: string[] | null;
+  tamano_equipo: string | null;
+  categoria_otro: string | null;
+  artesano_certificado: string | null;
+  status: string;
+  created_at: string;
+};
+
+export type BusinessAnalytics = {
+  kpis: {
+    total: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+    newThisMonth: number;
+    newPrevMonth: number;
+  };
+  trendMonthly: { month: string; count: number }[];
+  funnel: { approved: number; pending: number; rejected: number };
+  byCategoria: { label: string; count: number }[];
+  byRegion: { label: string; count: number }[];
+  byCanalVenta: { label: string; count: number }[];
+  byFormalidad: { label: string; count: number }[];
+  byDependencia: { label: string; count: number }[];
+  byTiempoOperando: { label: string; count: number }[];
+  byTamanoEquipo: { label: string; count: number }[];
+  empleosEstimados: number;
+  topMercados: { label: string; count: number }[];
+};
+
+function applyFilters<T extends { created_at: string; region: string | null; categoria_producto: string; status: string }>(
+  rows: T[],
+  f: AnalyticsFilters,
+): T[] {
+  return rows.filter((r) => {
+    if (f.from && r.created_at < f.from) return false;
+    if (f.to && r.created_at > f.to) return false;
+    if (f.region && r.region !== f.region) return false;
+    if (f.categoria && r.categoria_producto !== f.categoria) return false;
+    if (f.status && r.status !== f.status) return false;
+    return true;
+  });
+}
+
+function countBy(values: (string | null | undefined)[], order?: readonly string[]): { label: string; count: number }[] {
+  const map = new Map<string, number>();
+  for (const v of values) {
+    if (!v) continue;
+    map.set(v, (map.get(v) ?? 0) + 1);
+  }
+  if (order) {
+    return order.map((o) => ({ label: o, count: map.get(o) ?? 0 }));
+  }
+  return Array.from(map, ([label, count]) => ({ label, count })).sort(
+    (a, b) => b.count - a.count,
+  );
+}
+
+export const getBusinessRegistrationAnalytics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => AnalyticsFilterSchema.parse(input ?? {}))
+  .handler(async ({ data, context }): Promise<BusinessAnalytics> => {
+    const { data: rowsAll, error } = await context.supabase
+      .from("emprendedores")
+      .select(
+        "id, nombre_negocio, categoria_producto, region, municipio, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, categoria_otro, artesano_certificado, status, created_at",
+      );
+    if (error) throw new Error(error.message);
+
+    const all = (rowsAll ?? []) as Row[];
+    const rows = applyFilters(all, data);
+
+    const approved = rows.filter((r) => r.status === "approved").length;
+    const pending = rows.filter((r) => r.status === "pending").length;
+    const rejected = rows.filter((r) => r.status === "rejected").length;
+
+    const now = new Date();
+    const startThis = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const startPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+    const newThisMonth = rows.filter((r) => r.created_at >= startThis).length;
+    const newPrevMonth = rows.filter(
+      (r) => r.created_at >= startPrev && r.created_at < startThis,
+    ).length;
+
+    // Trend: last 12 months (independent of date-range filter, honoring region/categoria/status)
+    const trendRows = all.filter((r) => {
+      if (data.region && r.region !== data.region) return false;
+      if (data.categoria && r.categoria_producto !== data.categoria) return false;
+      if (data.status && r.status !== data.status) return false;
+      return true;
+    });
+    const months: { month: string; count: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      months.push({ month: key, count: 0 });
+    }
+    const idx = new Map(months.map((m, i) => [m.month, i]));
+    for (const r of trendRows) {
+      const d = new Date(r.created_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const i = idx.get(key);
+      if (i != null) months[i].count += 1;
+    }
+
+    // Multi-value canales
+    const canales: string[] = [];
+    for (const r of rows) for (const c of r.canales_venta ?? []) canales.push(c);
+
+    // Top mercados
+    const mercadoMap = new Map<string, { label: string; count: number }>();
+    for (const r of rows) {
+      const raw = r.mercados_interes ?? [];
+      for (const chunk of raw) {
+        for (const piece of String(chunk).split(",")) {
+          const t = piece.trim();
+          if (!t) continue;
+          const key = t.toLowerCase();
+          const cur = mercadoMap.get(key);
+          if (cur) cur.count += 1;
+          else mercadoMap.set(key, { label: t, count: 1 });
+        }
+      }
+    }
+    const topMercados = Array.from(mercadoMap.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    // Empleos estimados: 1 · Solo yo, 4 · 2-5, 6 · 6+
+    const midpoint: Record<string, number> = {
+      "Solo yo": 1,
+      "2-5 personas": 4,
+      "6 o más": 6,
+    };
+    let empleosEstimados = 0;
+    for (const r of rows) {
+      if (r.tamano_equipo && midpoint[r.tamano_equipo] != null) {
+        empleosEstimados += midpoint[r.tamano_equipo];
+      }
+    }
+
+    return {
+      kpis: {
+        total: rows.length,
+        approved,
+        pending,
+        rejected,
+        newThisMonth,
+        newPrevMonth,
+      },
+      trendMonthly: months,
+      funnel: { approved, pending, rejected },
+      byCategoria: countBy(
+        rows.map((r) => r.categoria_producto),
+        EMPRENDEDOR_CATEGORIES,
+      ).filter((x) => x.count > 0).sort((a, b) => b.count - a.count),
+      byRegion: countBy(
+        rows.map((r) => r.region),
+        MARKET_REGIONS as readonly string[],
+      ).filter((x) => x.count > 0).sort((a, b) => b.count - a.count),
+      byCanalVenta: countBy(canales, CANALES_VENTA_OPTIONS).filter((x) => x.count > 0),
+      byFormalidad: countBy(
+        rows.map((r) => r.registro_comerciante),
+        REGISTRO_COMERCIANTE_OPTIONS,
+      ),
+      byDependencia: countBy(
+        rows.map((r) => r.fuente_ingreso),
+        FUENTE_INGRESO_OPTIONS,
+      ),
+      byTiempoOperando: countBy(
+        rows.map((r) => r.tiempo_operando),
+        TIEMPO_OPERANDO_OPTIONS,
+      ),
+      byTamanoEquipo: countBy(
+        rows.map((r) => r.tamano_equipo),
+        TAMANO_EQUIPO_OPTIONS,
+      ),
+      empleosEstimados,
+      topMercados,
+    };
+  });
+
+export type ExportedBusinessRow = Row & {
+  logo_url: string | null;
+  descripcion: string;
+  instagram: string | null;
+  email: string | null;
+  telefono: string | null;
+  persona_contacto: string | null;
+};
+
+export const exportBusinessRegistrationsRows = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => AnalyticsFilterSchema.parse(input ?? {}))
+  .handler(async ({ data, context }): Promise<ExportedBusinessRow[]> => {
+    const { data: rows, error } = await context.supabase
+      .from("emprendedores")
+      .select(
+        "id, nombre_negocio, logo_url, descripcion, categoria_producto, categoria_otro, artesano_certificado, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, status, created_at",
+      );
+    if (error) throw new Error(error.message);
+    const filtered = applyFilters((rows ?? []) as ExportedBusinessRow[], data);
+    return filtered;
+  });
+
+// Convenience re-exports for the dashboard
+export {
+  EMPRENDEDOR_CATEGORIES,
+  TIEMPO_OPERANDO_OPTIONS,
+  REGISTRO_COMERCIANTE_OPTIONS,
+  FUENTE_INGRESO_OPTIONS,
+  CANALES_VENTA_OPTIONS,
+  TAMANO_EQUIPO_OPTIONS,
+};
+
