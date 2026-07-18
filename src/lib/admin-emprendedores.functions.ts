@@ -1,7 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { EMPRENDEDOR_CATEGORIES } from "./emprendedores.functions";
+import {
+  EMPRENDEDOR_CATEGORIES,
+  TIEMPO_OPERANDO_OPTIONS,
+  REGISTRO_COMERCIANTE_OPTIONS,
+  FUENTE_INGRESO_OPTIONS,
+  CANALES_VENTA_OPTIONS,
+  TAMANO_EQUIPO_OPTIONS,
+} from "./emprendedores.functions";
 
 export type AdminEmprendedor = {
   id: string;
@@ -16,6 +23,11 @@ export type AdminEmprendedor = {
   telefono: string | null;
   persona_contacto: string | null;
   mercados_interes: string[];
+  tiempo_operando: string | null;
+  registro_comerciante: string | null;
+  fuente_ingreso: string | null;
+  canales_venta: string[];
+  tamano_equipo: string | null;
   status: "pending" | "approved" | "rejected";
   created_at: string;
 };
@@ -52,6 +64,11 @@ const UpsertSchema = z.object({
   telefono: optText(50),
   persona_contacto: optText(200),
   mercados_interes: optText(1000),
+  tiempo_operando: z.enum(TIEMPO_OPERANDO_OPTIONS).nullable().optional(),
+  registro_comerciante: z.enum(REGISTRO_COMERCIANTE_OPTIONS).nullable().optional(),
+  fuente_ingreso: z.enum(FUENTE_INGRESO_OPTIONS).nullable().optional(),
+  canales_venta: z.array(z.enum(CANALES_VENTA_OPTIONS)).nullable().optional(),
+  tamano_equipo: z.enum(TAMANO_EQUIPO_OPTIONS).nullable().optional(),
   logo_url: optText(1000),
 });
 
@@ -61,7 +78,7 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("emprendedores")
       .select(
-        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, status, created_at",
+        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, status, created_at",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -78,6 +95,11 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
       telefono: r.telefono ?? null,
       persona_contacto: r.persona_contacto ?? null,
       mercados_interes: (r.mercados_interes ?? []) as string[],
+      tiempo_operando: (r as { tiempo_operando?: string | null }).tiempo_operando ?? null,
+      registro_comerciante: (r as { registro_comerciante?: string | null }).registro_comerciante ?? null,
+      fuente_ingreso: (r as { fuente_ingreso?: string | null }).fuente_ingreso ?? null,
+      canales_venta: ((r as { canales_venta?: string[] | null }).canales_venta ?? []) as string[],
+      tamano_equipo: (r as { tamano_equipo?: string | null }).tamano_equipo ?? null,
       status: (r.status === "pending"
         ? "pending"
         : r.status === "rejected"
@@ -118,6 +140,14 @@ export const adminUpsertEmprendedor = createServerFn({ method: "POST" })
       telefono: data.telefono,
       persona_contacto: data.persona_contacto,
       mercados_interes: mercadosArray.length > 0 ? mercadosArray : null,
+      tiempo_operando: data.tiempo_operando ?? null,
+      registro_comerciante: data.registro_comerciante ?? null,
+      fuente_ingreso: data.fuente_ingreso ?? null,
+      canales_venta:
+        data.canales_venta && data.canales_venta.length > 0
+          ? data.canales_venta
+          : null,
+      tamano_equipo: data.tamano_equipo ?? null,
       logo_url: data.logo_url,
     };
 

@@ -15,6 +15,30 @@ export const EMPRENDEDOR_CATEGORIES = [
 
 export type EmprendedorCategory = (typeof EMPRENDEDOR_CATEGORIES)[number];
 
+export const TIEMPO_OPERANDO_OPTIONS = [
+  "Menos de 1 año",
+  "1-3 años",
+  "3-5 años",
+  "Más de 5 años",
+] as const;
+
+export const REGISTRO_COMERCIANTE_OPTIONS = ["Sí", "No", "En proceso"] as const;
+
+export const FUENTE_INGRESO_OPTIONS = [
+  "Principal",
+  "Complementaria",
+  "Ocasional",
+] as const;
+
+export const CANALES_VENTA_OPTIONS = [
+  "Tienda física",
+  "Tienda en línea",
+  "Redes sociales",
+  "Solo vendo en mercados",
+] as const;
+
+export const TAMANO_EQUIPO_OPTIONS = ["Solo yo", "2-5 personas", "6 o más"] as const;
+
 export type Emprendedor = {
   id: string;
   nombre_negocio: string;
@@ -109,6 +133,11 @@ const RegisterSchema = z
     telefono: optText(50),
     persona_contacto: optText(200),
     mercados_interes: optText(1000),
+    tiempo_operando: z.enum(TIEMPO_OPERANDO_OPTIONS).nullable().optional(),
+    registro_comerciante: z.enum(REGISTRO_COMERCIANTE_OPTIONS).nullable().optional(),
+    fuente_ingreso: z.enum(FUENTE_INGRESO_OPTIONS).nullable().optional(),
+    canales_venta: z.array(z.enum(CANALES_VENTA_OPTIONS)).nullable().optional(),
+    tamano_equipo: z.enum(TAMANO_EQUIPO_OPTIONS).nullable().optional(),
     logo_base64: z.string().max(8_500_000).optional(),
     logo_filename: z.string().max(200).optional(),
     logo_mime: z.enum(["image/jpeg", "image/png"]).optional(),
@@ -163,6 +192,14 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
         telefono: data.telefono,
         persona_contacto: data.persona_contacto,
         mercados_interes: mercadosArray.length > 0 ? mercadosArray : null,
+        tiempo_operando: data.tiempo_operando ?? null,
+        registro_comerciante: data.registro_comerciante ?? null,
+        fuente_ingreso: data.fuente_ingreso ?? null,
+        canales_venta:
+          data.canales_venta && data.canales_venta.length > 0
+            ? data.canales_venta
+            : null,
+        tamano_equipo: data.tamano_equipo ?? null,
         logo_url: logoUrl,
         status: "pending",
       })
@@ -193,6 +230,12 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
               `Email: ${data.email ?? "—"}\n` +
               `Teléfono: ${data.telefono ?? "—"}\n` +
               `Mercados de interés: ${mercadosArray.join(", ") || "—"}\n` +
+              `\n— Información interna —\n` +
+              `Tiempo operando: ${data.tiempo_operando ?? "—"}\n` +
+              `Registro de Comerciante: ${data.registro_comerciante ?? "—"}\n` +
+              `Fuente de ingreso: ${data.fuente_ingreso ?? "—"}\n` +
+              `Canales de venta: ${(data.canales_venta ?? []).join(", ") || "—"}\n` +
+              `Tamaño del equipo: ${data.tamano_equipo ?? "—"}\n` +
               `\nDescripción:\n${data.descripcion}\n` +
               (logoUrl ? `\nLogo: ${logoUrl}\n` : ""),
           }),

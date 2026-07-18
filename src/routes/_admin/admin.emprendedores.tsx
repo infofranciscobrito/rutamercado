@@ -14,6 +14,11 @@ import {
 } from "@/lib/admin-emprendedores.functions";
 import {
   EMPRENDEDOR_CATEGORIES,
+  TIEMPO_OPERANDO_OPTIONS,
+  REGISTRO_COMERCIANTE_OPTIONS,
+  FUENTE_INGRESO_OPTIONS,
+  CANALES_VENTA_OPTIONS,
+  TAMANO_EQUIPO_OPTIONS,
   type EmprendedorCategory,
 } from "@/lib/emprendedores.functions";
 import { MARKET_REGIONS } from "@/types/market";
@@ -73,6 +78,11 @@ const emptyItem = (): AdminEmprendedor => ({
   telefono: null,
   persona_contacto: null,
   mercados_interes: [],
+  tiempo_operando: null,
+  registro_comerciante: null,
+  fuente_ingreso: null,
+  canales_venta: [],
+  tamano_equipo: null,
   status: "approved",
   created_at: new Date().toISOString(),
 });
@@ -382,6 +392,11 @@ function EmprendedorEditor({
           telefono: form.telefono,
           persona_contacto: form.persona_contacto,
           mercados_interes: mercadosStr,
+          tiempo_operando: (form.tiempo_operando as never) ?? null,
+          registro_comerciante: (form.registro_comerciante as never) ?? null,
+          fuente_ingreso: (form.fuente_ingreso as never) ?? null,
+          canales_venta: (form.canales_venta as never) ?? null,
+          tamano_equipo: (form.tamano_equipo as never) ?? null,
           logo_url: form.logo_url,
         },
       });
@@ -510,6 +525,107 @@ function EmprendedorEditor({
               onChange={(e) => setMercadosStr(e.target.value)}
               className="mt-1"
             />
+          </div>
+          <div className="rounded-md border border-dashed border-[#18253f]/20 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#18253f]/60">
+              Datos internos (no se muestran públicamente)
+            </p>
+            <div className="mt-3 space-y-3">
+              <div>
+                <Label>Tiempo operando</Label>
+                <Select
+                  value={form.tiempo_operando ?? ""}
+                  onValueChange={(v) => set("tiempo_operando", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIEMPO_OPERANDO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Registro de comerciante</Label>
+                <Select
+                  value={form.registro_comerciante ?? ""}
+                  onValueChange={(v) => set("registro_comerciante", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGISTRO_COMERCIANTE_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Fuente de ingreso</Label>
+                <Select
+                  value={form.fuente_ingreso ?? ""}
+                  onValueChange={(v) => set("fuente_ingreso", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FUENTE_INGRESO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Canales de venta</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {CANALES_VENTA_OPTIONS.map((o) => {
+                    const selected = (form.canales_venta ?? []).includes(o);
+                    return (
+                      <button
+                        key={o}
+                        type="button"
+                        onClick={() => {
+                          const cur = form.canales_venta ?? [];
+                          set(
+                            "canales_venta",
+                            (cur.includes(o)
+                              ? cur.filter((v) => v !== o)
+                              : [...cur, o]) as never,
+                          );
+                        }}
+                        className={
+                          selected
+                            ? "rounded-md border border-[#54b678] bg-[#54b678] px-3 py-1 text-xs text-white"
+                            : "rounded-md border border-[#18253f]/20 bg-white px-3 py-1 text-xs text-[#18253f]"
+                        }
+                      >
+                        {o}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <Label>Tamaño del equipo</Label>
+                <Select
+                  value={form.tamano_equipo ?? ""}
+                  onValueChange={(v) => set("tamano_equipo", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TAMANO_EQUIPO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
           <div>
             <Label>URL del logo</Label>
