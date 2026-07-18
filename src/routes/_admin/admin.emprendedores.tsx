@@ -155,16 +155,16 @@ function EmprendedoresAdminPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-[#18253f]">Emprendedores</h1>
+          <h1 className="font-display text-3xl text-[#18253f]">Registro de negocios</h1>
           <p className="mt-1 text-sm text-[#18253f]/60">
-            Registros del Directorio de Emprendedores. Revisa, aprueba o rechaza.
+            Registros del Directorio de Negocios. Revisa, aprueba o rechaza.
           </p>
         </div>
         <Button
           onClick={() => setEditing(emptyItem())}
           className="bg-[#54b678] text-white hover:bg-[#439660]"
         >
-          Nuevo emprendedor
+          Nuevo negocio
         </Button>
       </div>
 
@@ -214,7 +214,7 @@ function EmprendedoresAdminPage() {
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                  No hay emprendedores en esta pestaña.
+                  No hay negocios en esta pestaña.
                 </TableCell>
               </TableRow>
             ) : (
@@ -316,7 +316,7 @@ function EmprendedoresAdminPage() {
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar emprendedor?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar negocio?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. Se eliminará "{deleting?.nombre_negocio}".
             </AlertDialogDescription>
@@ -385,7 +385,7 @@ function EmprendedorEditor({
           logo_url: form.logo_url,
         },
       });
-      toast.success("Emprendedor guardado.");
+      toast.success("Negocio guardado.");
       onSaved();
     } catch (e) {
       toast.error((e as Error).message);
@@ -398,9 +398,9 @@ function EmprendedorEditor({
     <Sheet open onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{form.id ? "Editar emprendedor" : "Nuevo emprendedor"}</SheetTitle>
+          <SheetTitle>{form.id ? "Editar negocio" : "Nuevo negocio"}</SheetTitle>
           <SheetDescription>
-            {form.id ? "Actualiza los datos del emprendedor." : "Crea un nuevo perfil aprobado."}
+            {form.id ? "Actualiza los datos del negocio." : "Crea un nuevo perfil aprobado."}
           </SheetDescription>
         </SheetHeader>
 
