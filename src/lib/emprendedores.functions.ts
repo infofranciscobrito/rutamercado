@@ -15,6 +15,30 @@ export const EMPRENDEDOR_CATEGORIES = [
 
 export type EmprendedorCategory = (typeof EMPRENDEDOR_CATEGORIES)[number];
 
+export const TIEMPO_OPERANDO_OPTIONS = [
+  "Menos de 1 año",
+  "1-3 años",
+  "3-5 años",
+  "Más de 5 años",
+] as const;
+
+export const REGISTRO_COMERCIANTE_OPTIONS = ["Sí", "No", "En proceso"] as const;
+
+export const FUENTE_INGRESO_OPTIONS = [
+  "Principal",
+  "Complementaria",
+  "Ocasional",
+] as const;
+
+export const CANALES_VENTA_OPTIONS = [
+  "Tienda física",
+  "Tienda en línea",
+  "Redes sociales",
+  "Solo vendo en mercados",
+] as const;
+
+export const TAMANO_EQUIPO_OPTIONS = ["Solo yo", "2-5 personas", "6 o más"] as const;
+
 export type Emprendedor = {
   id: string;
   nombre_negocio: string;
