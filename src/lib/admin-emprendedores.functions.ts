@@ -140,6 +140,14 @@ export const adminUpsertEmprendedor = createServerFn({ method: "POST" })
       telefono: data.telefono,
       persona_contacto: data.persona_contacto,
       mercados_interes: mercadosArray.length > 0 ? mercadosArray : null,
+      tiempo_operando: data.tiempo_operando ?? null,
+      registro_comerciante: data.registro_comerciante ?? null,
+      fuente_ingreso: data.fuente_ingreso ?? null,
+      canales_venta:
+        data.canales_venta && data.canales_venta.length > 0
+          ? data.canales_venta
+          : null,
+      tamano_equipo: data.tamano_equipo ?? null,
       logo_url: data.logo_url,
     };
 
