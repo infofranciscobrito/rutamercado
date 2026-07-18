@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MapPin, CalendarDays, Gift } from "lucide-react";
 import { SubmitMarketForm } from "@/components/rutamercado/SubmitMarketForm";
 
-export const Route = createFileRoute("/enviar")({
+export const Route = createFileRoute("/mercados")({
   head: () => ({
     meta: [
       { title: "Registra tu mercado — RutaMercado" },

@@ -28,7 +28,7 @@ const emprendedoresQueryOptions = queryOptions({
 
 const REGION_ORDER: string[] = [...MARKET_REGIONS, "Otros"];
 
-export const Route = createFileRoute("/emprendedores")({
+export const Route = createFileRoute("/negocios")({
   head: () => ({
     meta: [
       {

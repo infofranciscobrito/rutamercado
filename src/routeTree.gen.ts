@@ -12,13 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProductoresRouteImport } from './routes/productores'
 import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
+import { Route as NegociosRouteImport } from './routes/negocios'
+import { Route as MercadosRouteImport } from './routes/mercados'
 import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as FoodMarketRouteImport } from './routes/food-market'
 import { Route as FleaMarketRouteImport } from './routes/flea-market'
 import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
-import { Route as EnviarRouteImport } from './routes/enviar'
-import { Route as EmprendedoresRouteImport } from './routes/emprendedores'
 import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -47,6 +47,16 @@ const PoliticaDePrivacidadRoute = PoliticaDePrivacidadRouteImport.update({
   path: '/politica-de-privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NegociosRoute = NegociosRouteImport.update({
+  id: '/negocios',
+  path: '/negocios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadosRoute = MercadosRouteImport.update({
+  id: '/mercados',
+  path: '/mercados',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MercadoMixtoRoute = MercadoMixtoRouteImport.update({
   id: '/mercado-mixto',
   path: '/mercado-mixto',
@@ -70,16 +80,6 @@ const FleaMarketRoute = FleaMarketRouteImport.update({
 const FeriaArtesanalRoute = FeriaArtesanalRouteImport.update({
   id: '/feria-artesanal',
   path: '/feria-artesanal',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EnviarRoute = EnviarRouteImport.update({
-  id: '/enviar',
-  path: '/enviar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmprendedoresRoute = EmprendedoresRouteImport.update({
-  id: '/emprendedores',
-  path: '/emprendedores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BazarPopUpRoute = BazarPopUpRouteImport.update({
@@ -145,13 +145,13 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
-  '/emprendedores': typeof EmprendedoresRoute
-  '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
+  '/mercados': typeof MercadosRoute
+  '/negocios': typeof NegociosRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -168,13 +168,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
-  '/emprendedores': typeof EmprendedoresRoute
-  '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
+  '/mercados': typeof MercadosRoute
+  '/negocios': typeof NegociosRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -193,13 +193,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
   '/bazar-pop-up': typeof BazarPopUpRoute
-  '/emprendedores': typeof EmprendedoresRoute
-  '/enviar': typeof EnviarRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
+  '/mercados': typeof MercadosRoute
+  '/negocios': typeof NegociosRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -218,13 +218,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/bazar-pop-up'
-    | '/emprendedores'
-    | '/enviar'
     | '/feria-artesanal'
     | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
+    | '/mercados'
+    | '/negocios'
     | '/politica-de-privacidad'
     | '/productores'
     | '/sitemap.xml'
@@ -241,13 +241,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bazar-pop-up'
-    | '/emprendedores'
-    | '/enviar'
     | '/feria-artesanal'
     | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
+    | '/mercados'
+    | '/negocios'
     | '/politica-de-privacidad'
     | '/productores'
     | '/sitemap.xml'
@@ -265,13 +265,13 @@ export interface FileRouteTypes {
     | '/'
     | '/_admin'
     | '/bazar-pop-up'
-    | '/emprendedores'
-    | '/enviar'
     | '/feria-artesanal'
     | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
+    | '/mercados'
+    | '/negocios'
     | '/politica-de-privacidad'
     | '/productores'
     | '/sitemap.xml'
@@ -290,13 +290,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   BazarPopUpRoute: typeof BazarPopUpRoute
-  EmprendedoresRoute: typeof EmprendedoresRoute
-  EnviarRoute: typeof EnviarRoute
   FeriaArtesanalRoute: typeof FeriaArtesanalRoute
   FleaMarketRoute: typeof FleaMarketRoute
   FoodMarketRoute: typeof FoodMarketRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   MercadoMixtoRoute: typeof MercadoMixtoRoute
+  MercadosRoute: typeof MercadosRoute
+  NegociosRoute: typeof NegociosRoute
   PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
   ProductoresRoute: typeof ProductoresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -324,6 +324,20 @@ declare module '@tanstack/react-router' {
       path: '/politica-de-privacidad'
       fullPath: '/politica-de-privacidad'
       preLoaderRoute: typeof PoliticaDePrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/negocios': {
+      id: '/negocios'
+      path: '/negocios'
+      fullPath: '/negocios'
+      preLoaderRoute: typeof NegociosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercados': {
+      id: '/mercados'
+      path: '/mercados'
+      fullPath: '/mercados'
+      preLoaderRoute: typeof MercadosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mercado-mixto': {
@@ -359,20 +373,6 @@ declare module '@tanstack/react-router' {
       path: '/feria-artesanal'
       fullPath: '/feria-artesanal'
       preLoaderRoute: typeof FeriaArtesanalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/enviar': {
-      id: '/enviar'
-      path: '/enviar'
-      fullPath: '/enviar'
-      preLoaderRoute: typeof EnviarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/emprendedores': {
-      id: '/emprendedores'
-      path: '/emprendedores'
-      fullPath: '/emprendedores'
-      preLoaderRoute: typeof EmprendedoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bazar-pop-up': {
@@ -490,13 +490,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   BazarPopUpRoute: BazarPopUpRoute,
-  EmprendedoresRoute: EmprendedoresRoute,
-  EnviarRoute: EnviarRoute,
   FeriaArtesanalRoute: FeriaArtesanalRoute,
   FleaMarketRoute: FleaMarketRoute,
   FoodMarketRoute: FoodMarketRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   MercadoMixtoRoute: MercadoMixtoRoute,
+  MercadosRoute: MercadosRoute,
+  NegociosRoute: NegociosRoute,
   PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
   ProductoresRoute: ProductoresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
