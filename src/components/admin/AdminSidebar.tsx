@@ -11,7 +11,7 @@ const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/markets", label: "Mercados", icon: Store },
   { to: "/admin/producers", label: "Productores", icon: Users },
-  { to: "/admin/emprendedores", label: "Emprendedores", icon: Briefcase },
+  { to: "/admin/emprendedores", label: "Registro de negocios", icon: Briefcase },
   { to: "/admin/submissions", label: "Solicitudes de Mercados", icon: Inbox },
   { to: "/admin/messages", label: "Mensajes", icon: Mail },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
