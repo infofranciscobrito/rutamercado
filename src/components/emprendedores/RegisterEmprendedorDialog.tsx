@@ -96,6 +96,11 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
     setTelefono("");
     setPersonaContacto("");
     setMercadosInteres("");
+    setTiempoOperando("");
+    setRegistroComerciante("");
+    setFuenteIngreso("");
+    setCanalesVenta([]);
+    setTamanoEquipo("");
     setSubmitting(false);
     setDone(false);
     if (logoPreview) URL.revokeObjectURL(logoPreview);
