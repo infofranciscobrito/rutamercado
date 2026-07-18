@@ -23,6 +23,11 @@ export type AdminEmprendedor = {
   telefono: string | null;
   persona_contacto: string | null;
   mercados_interes: string[];
+  tiempo_operando: string | null;
+  registro_comerciante: string | null;
+  fuente_ingreso: string | null;
+  canales_venta: string[];
+  tamano_equipo: string | null;
   status: "pending" | "approved" | "rejected";
   created_at: string;
 };
