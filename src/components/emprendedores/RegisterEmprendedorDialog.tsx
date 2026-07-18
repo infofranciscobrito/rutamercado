@@ -281,6 +281,49 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
               </Select>
             </div>
 
+            {categoria === "Otro" ? (
+              <div>
+                <Label htmlFor="emp-cat-otro">
+                  Describe tu categoría <span className="text-destructive">*</span>
+                </Label>
+                <p className="mt-1 text-xs text-[#18253f]/60">
+                  Máximo 20 palabras.
+                </p>
+                <Input
+                  id="emp-cat-otro"
+                  value={categoriaOtro}
+                  onChange={(e) => setCategoriaOtro(e.target.value)}
+                  maxLength={200}
+                  className="mt-2"
+                  placeholder="Ej: velas artesanales aromáticas"
+                  {...noFill}
+                />
+                <p className="mt-1 text-xs text-[#18253f]/60">
+                  {countWords(categoriaOtro)}/20 palabras
+                </p>
+              </div>
+            ) : null}
+
+            {categoria === "Artesanías" ? (
+              <div>
+                <Label htmlFor="emp-artesano">
+                  ¿Eres Artesano/a certificado/a?
+                </Label>
+                <Select value={artesanoCert} onValueChange={setArtesanoCert}>
+                  <SelectTrigger id="emp-artesano" className="mt-1">
+                    <SelectValue placeholder="Selecciona una opción" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ARTESANO_CERTIFICADO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="emp-region">Región</Label>
