@@ -185,6 +185,17 @@ function EmprendedoresAdminPage() {
         </Button>
       </div>
 
+      <Tabs value={view} onValueChange={(v) => setView(v as typeof view)}>
+        <TabsList>
+          <TabsTrigger value="table">Tabla</TabsTrigger>
+          <TabsTrigger value="analytics">Analítica</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {view === "analytics" ? (
+        <BusinessAnalyticsDashboard />
+      ) : (
+      <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
           <TabsList>
@@ -209,6 +220,7 @@ function EmprendedoresAdminPage() {
           />
         </div>
       </div>
+
 
       <div className="overflow-hidden rounded-xl border bg-white">
         <Table>
