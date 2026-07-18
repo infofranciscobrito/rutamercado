@@ -105,7 +105,7 @@ function EmprendedoresAdminPage() {
     queryFn: () => listFn(),
   });
   const [q, setQ] = useState("");
-  const [view, setView] = useState<"table" | "analytics">("table");
+  const [view, setView] = useState<"table" | "analytics">("analytics");
   const [tab, setTab] = useState<"approved" | "pending" | "rejected">("pending");
   const [editing, setEditing] = useState<AdminEmprendedor | null>(null);
   const [deleting, setDeleting] = useState<AdminEmprendedor | null>(null);
