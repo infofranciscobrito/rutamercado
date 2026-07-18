@@ -97,21 +97,21 @@ export function Header() {
                 <Link
                   to="/productores"
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
+                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
                 >
                   Productores
                 </Link>
                 <Link
                   to="/emprendedores"
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
+                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
                 >
-                  Emprendedores
+                  Registra tu negocio
                 </Link>
                 <Link
                   to="/enviar"
                   onClick={() => setOpen(false)}
-                  className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-[#18253f]"
+                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
                 >
                   Enviar mi Mercado
                 </Link>
