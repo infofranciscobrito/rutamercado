@@ -72,6 +72,11 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
   const [telefono, setTelefono] = useState("");
   const [personaContacto, setPersonaContacto] = useState("");
   const [mercadosInteres, setMercadosInteres] = useState("");
+  const [tiempoOperando, setTiempoOperando] = useState<string>("");
+  const [registroComerciante, setRegistroComerciante] = useState<string>("");
+  const [fuenteIngreso, setFuenteIngreso] = useState<string>("");
+  const [canalesVenta, setCanalesVenta] = useState<string[]>([]);
+  const [tamanoEquipo, setTamanoEquipo] = useState<string>("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
