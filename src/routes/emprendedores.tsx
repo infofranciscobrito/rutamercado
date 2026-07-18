@@ -113,15 +113,15 @@ function EmprendedoresPage() {
       <section className="border-b border-white/15 bg-[#18253f]">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
           <h1 className="font-display text-4xl text-white md:text-5xl">
-            Directorio de Emprendedores
+            Directorio de Negocios
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-[#54b678] md:text-xl">
             Tu negocio, visible ante los organizadores de mercados de Puerto Rico.
           </p>
           <p className="mt-4 max-w-2xl text-base text-white/80">
-            Regístrate una vez y queda disponible para que los organizadores de
-            mercados, bazares y popups te encuentren, conozcan tu negocio y te
-            inviten a participar en sus próximos eventos.
+            Registra tu negocio una vez y queda disponible para que los
+            organizadores de mercados, bazares y popups te encuentren, conozcan
+            tu negocio y te inviten a participar en sus próximos eventos.
           </p>
           <div className="mt-6">
             <button
@@ -129,7 +129,7 @@ function EmprendedoresPage() {
               onClick={() => setRegisterOpen(true)}
               className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660]"
             >
-              Regístrate como Emprendedor
+              Registra tu Negocio
             </button>
           </div>
         </div>
