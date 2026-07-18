@@ -25,6 +25,11 @@ import { MARKET_REGIONS } from "@/types/market";
 import {
   EMPRENDEDOR_CATEGORIES,
   submitEmprendedor,
+  TIEMPO_OPERANDO_OPTIONS,
+  REGISTRO_COMERCIANTE_OPTIONS,
+  FUENTE_INGRESO_OPTIONS,
+  CANALES_VENTA_OPTIONS,
+  TAMANO_EQUIPO_OPTIONS,
   type EmprendedorCategory,
 } from "@/lib/emprendedores.functions";
 
