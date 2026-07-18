@@ -61,10 +61,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BusinessAnalyticsDashboard } from "@/components/admin/BusinessAnalyticsDashboard";
 
 export const Route = createFileRoute("/_admin/admin/emprendedores")({
   component: EmprendedoresAdminPage,
 });
+
 
 const emptyItem = (): AdminEmprendedor => ({
   id: "",
