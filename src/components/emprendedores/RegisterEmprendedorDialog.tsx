@@ -363,6 +363,112 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
             </div>
 
             <div>
+              <Label htmlFor="emp-tiempo">
+                ¿Cuánto tiempo lleva operando tu negocio?
+              </Label>
+              <Select value={tiempoOperando} onValueChange={setTiempoOperando}>
+                <SelectTrigger id="emp-tiempo" className="mt-1">
+                  <SelectValue placeholder="Selecciona una opción" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIEMPO_OPERANDO_OPTIONS.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="emp-registro">
+                ¿Tu negocio está registrado oficialmente (Registro de Comerciante)?
+              </Label>
+              <Select
+                value={registroComerciante}
+                onValueChange={setRegistroComerciante}
+              >
+                <SelectTrigger id="emp-registro" className="mt-1">
+                  <SelectValue placeholder="Selecciona una opción" />
+                </SelectTrigger>
+                <SelectContent>
+                  {REGISTRO_COMERCIANTE_OPTIONS.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="emp-fuente">
+                ¿Los mercados son tu fuente de ingreso principal o complementaria?
+              </Label>
+              <Select value={fuenteIngreso} onValueChange={setFuenteIngreso}>
+                <SelectTrigger id="emp-fuente" className="mt-1">
+                  <SelectValue placeholder="Selecciona una opción" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FUENTE_INGRESO_OPTIONS.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>¿Vendes también por otros canales además de mercados?</Label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {CANALES_VENTA_OPTIONS.map((o) => {
+                  const selected = canalesVenta.includes(o);
+                  return (
+                    <button
+                      key={o}
+                      type="button"
+                      onClick={() =>
+                        setCanalesVenta((prev) =>
+                          prev.includes(o)
+                            ? prev.filter((v) => v !== o)
+                            : [...prev, o],
+                        )
+                      }
+                      aria-pressed={selected}
+                      className={
+                        selected
+                          ? "rounded-md border border-[#54b678] bg-[#54b678] px-3 py-1.5 text-sm text-white transition-colors"
+                          : "rounded-md border border-[#18253f]/20 bg-white px-3 py-1.5 text-sm text-[#18253f] transition-colors hover:border-[#54b678]"
+                      }
+                    >
+                      {o}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="emp-tamano">
+                ¿Cuántas personas trabajan en el negocio, incluyéndote a ti?
+              </Label>
+              <Select value={tamanoEquipo} onValueChange={setTamanoEquipo}>
+                <SelectTrigger id="emp-tamano" className="mt-1">
+                  <SelectValue placeholder="Selecciona una opción" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TAMANO_EQUIPO_OPTIONS.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+
+            <div>
               <Label>Logo o foto representativa</Label>
               <p className="mt-1 text-xs text-[#18253f]/60">
                 JPG o PNG, máximo 5MB.
