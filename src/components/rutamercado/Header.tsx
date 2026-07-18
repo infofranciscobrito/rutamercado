@@ -49,19 +49,19 @@ export function Header() {
           </a>
           <Link
             to="/productores"
-            className="rounded-md px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:text-[#54b678]"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
           >
             Productores
           </Link>
           <Link
             to="/emprendedores"
-            className="rounded-md px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:text-[#54b678]"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
           >
-            Emprendedores
+            Registra tu negocio
           </Link>
           <Link
             to="/enviar"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#18253f]"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
           >
             Enviar mi Mercado
           </Link>
@@ -97,21 +97,21 @@ export function Header() {
                 <Link
                   to="/productores"
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
+                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
                 >
                   Productores
                 </Link>
                 <Link
                   to="/emprendedores"
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
+                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
                 >
-                  Emprendedores
+                  Registra tu negocio
                 </Link>
                 <Link
                   to="/enviar"
                   onClick={() => setOpen(false)}
-                  className="mt-2 inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-[#18253f]"
+                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
                 >
                   Enviar mi Mercado
                 </Link>
