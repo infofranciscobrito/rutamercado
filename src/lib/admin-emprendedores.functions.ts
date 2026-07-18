@@ -72,6 +72,8 @@ const UpsertSchema = z.object({
   fuente_ingreso: z.enum(FUENTE_INGRESO_OPTIONS).nullable().optional(),
   canales_venta: z.array(z.enum(CANALES_VENTA_OPTIONS)).nullable().optional(),
   tamano_equipo: z.enum(TAMANO_EQUIPO_OPTIONS).nullable().optional(),
+  categoria_otro: optText(200),
+  artesano_certificado: z.enum(ARTESANO_CERTIFICADO_OPTIONS).nullable().optional(),
   logo_url: optText(1000),
 });
 
