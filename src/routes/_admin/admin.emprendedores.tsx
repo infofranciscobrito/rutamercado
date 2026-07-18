@@ -128,7 +128,7 @@ function EmprendedoresAdminPage() {
   const approveMut = useMutation({
     mutationFn: (id: string) => approveFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Emprendedor aprobado.");
+      toast.success("Negocio aprobado.");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -136,7 +136,7 @@ function EmprendedoresAdminPage() {
   const rejectMut = useMutation({
     mutationFn: (id: string) => rejectFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Emprendedor rechazado.");
+      toast.success("Negocio rechazado.");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -144,7 +144,7 @@ function EmprendedoresAdminPage() {
   const deleteMut = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Emprendedor eliminado.");
+      toast.success("Negocio eliminado.");
       setDeleting(null);
       invalidate();
     },
