@@ -241,7 +241,10 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
             subject: `Nuevo emprendedor — ${data.nombre_negocio}`,
             text:
               `Negocio: ${data.nombre_negocio}\n` +
-              `Categoría: ${data.categoria_producto}\n` +
+              `Categoría: ${data.categoria_producto}${data.categoria_producto === "Otro" && data.categoria_otro ? ` (${data.categoria_otro})` : ""}\n` +
+              (data.categoria_producto === "Artesanías"
+                ? `Artesano/a certificado/a: ${data.artesano_certificado ?? "—"}\n`
+                : "") +
               `Región: ${data.region ?? "—"}\n` +
               `Municipio: ${data.municipio ?? "—"}\n` +
               `Contacto: ${data.persona_contacto ?? "—"}\n` +
