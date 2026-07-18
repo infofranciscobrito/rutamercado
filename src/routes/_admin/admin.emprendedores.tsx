@@ -185,12 +185,22 @@ function EmprendedoresAdminPage() {
         </Button>
       </div>
 
-      <Tabs value={view} onValueChange={(v) => setView(v as typeof view)}>
-        <TabsList>
-          <TabsTrigger value="table">Tabla</TabsTrigger>
-          <TabsTrigger value="analytics">Analítica</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="inline-flex rounded-lg border bg-white p-1 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setView("analytics")}
+          className={`rounded-md px-4 py-2 text-sm font-medium transition ${view === "analytics" ? "bg-[#18253f] text-white" : "text-[#18253f] hover:bg-[#18253f]/5"}`}
+        >
+          Analítica
+        </button>
+        <button
+          type="button"
+          onClick={() => setView("table")}
+          className={`rounded-md px-4 py-2 text-sm font-medium transition ${view === "table" ? "bg-[#18253f] text-white" : "text-[#18253f] hover:bg-[#18253f]/5"}`}
+        >
+          Tabla ({data.length})
+        </button>
+      </div>
 
       {view === "analytics" ? (
         <BusinessAnalyticsDashboard />
