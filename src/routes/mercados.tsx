@@ -77,22 +77,8 @@ function SubmitPage() {
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: BODY, color: "#2d2d2d" }}>
       {/* 1. HEADER */}
-      <header
-        className="sticky top-0 z-50 bg-[#18253f] text-white shadow-[0_2px_20px_rgba(24,37,63,0.25)]"
-        style={{ height: 64 }}
-      >
-        <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link to="/" aria-label="RutaMercado — Inicio" className="flex items-center">
-            <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-16 w-auto" />
-          </Link>
-          <Link
-            to="/"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] px-4 text-sm font-semibold text-[#54b678] transition-colors hover:bg-[#54b678] hover:text-[#18253f]"
-          >
-            Ver Directorio
-          </Link>
-        </div>
-      </header>
+      <Header />
+
 
       {/* 2. HERO */}
       <section
