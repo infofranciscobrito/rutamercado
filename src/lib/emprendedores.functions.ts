@@ -140,6 +140,17 @@ const RegisterSchema = z
     fuente_ingreso: z.enum(FUENTE_INGRESO_OPTIONS).nullable().optional(),
     canales_venta: z.array(z.enum(CANALES_VENTA_OPTIONS)).nullable().optional(),
     tamano_equipo: z.enum(TAMANO_EQUIPO_OPTIONS).nullable().optional(),
+    categoria_otro: z
+      .preprocess(
+        (v) => (typeof v === "string" ? v.trim() : v),
+        z.union([z.string().max(200), z.null()]).nullable(),
+      )
+      .optional()
+      .refine(
+        (v) => v == null || v.split(/\s+/).filter(Boolean).length <= 20,
+        { message: "Máximo 20 palabras." },
+      ),
+    artesano_certificado: z.enum(ARTESANO_CERTIFICADO_OPTIONS).nullable().optional(),
     logo_base64: z.string().max(8_500_000).optional(),
     logo_filename: z.string().max(200).optional(),
     logo_mime: z.enum(["image/jpeg", "image/png"]).optional(),
