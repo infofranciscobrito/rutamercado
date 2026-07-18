@@ -8,6 +8,7 @@ import {
   FUENTE_INGRESO_OPTIONS,
   CANALES_VENTA_OPTIONS,
   TAMANO_EQUIPO_OPTIONS,
+  ARTESANO_CERTIFICADO_OPTIONS,
 } from "./emprendedores.functions";
 
 export type AdminEmprendedor = {
