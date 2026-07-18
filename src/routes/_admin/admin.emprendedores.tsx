@@ -83,6 +83,8 @@ const emptyItem = (): AdminEmprendedor => ({
   fuente_ingreso: null,
   canales_venta: [],
   tamano_equipo: null,
+  categoria_otro: null,
+  artesano_certificado: null,
   status: "approved",
   created_at: new Date().toISOString(),
 });
