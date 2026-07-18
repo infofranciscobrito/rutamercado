@@ -361,7 +361,10 @@ function EmprendedoresAdminPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </>
+      )}
     </div>
+
   );
 }
 
