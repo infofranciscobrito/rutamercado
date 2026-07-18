@@ -167,6 +167,11 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
           telefono: telefono.trim() || null,
           persona_contacto: personaContacto.trim() || null,
           mercados_interes: mercadosInteres.trim() || null,
+          tiempo_operando: (tiempoOperando || null) as never,
+          registro_comerciante: (registroComerciante || null) as never,
+          fuente_ingreso: (fuenteIngreso || null) as never,
+          canales_venta: (canalesVenta.length > 0 ? canalesVenta : null) as never,
+          tamano_equipo: (tamanoEquipo || null) as never,
           ...(logoPayload ?? {}),
         },
       });
