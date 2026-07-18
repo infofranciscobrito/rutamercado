@@ -629,8 +629,37 @@ function EmprendedorEditor({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
             </div>
+            {form.categoria_producto === "Otro" ? (
+              <div className="mt-4">
+                <Label>Categoría personalizada (máx. 20 palabras)</Label>
+                <Input
+                  value={form.categoria_otro ?? ""}
+                  onChange={(e) => set("categoria_otro", e.target.value || null)}
+                  className="mt-1"
+                  maxLength={200}
+                />
+              </div>
+            ) : null}
+            {form.categoria_producto === "Artesanías" ? (
+              <div className="mt-4">
+                <Label>Artesano/a certificado/a</Label>
+                <Select
+                  value={form.artesano_certificado ?? ""}
+                  onValueChange={(v) => set("artesano_certificado", v || null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ARTESANO_CERTIFICADO_OPTIONS.map((o) => (
+                      <SelectItem key={o} value={o}>{o}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+          </div>
           </div>
           <div>
             <Label>URL del logo</Label>
