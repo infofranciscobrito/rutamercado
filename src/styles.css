@@ -293,3 +293,29 @@
     }
   }
 }
+
+/* ==================== Business Analytics Dashboard tokens ==================== */
+.business-analytics-dashboard {
+  --ba-surface-1: #ffffff;
+  --ba-surface-2: #f6f8fb;
+  --ba-text-primary: #18253f;
+  --ba-text-secondary: #4b5a75;
+  --ba-muted: #7c8aa3;
+  --ba-gridline: #e6ebf2;
+  --ba-status-good: #2f9e5c;
+  --ba-status-warning: #e1a624;
+  --ba-status-critical: #d84a3f;
+  --ba-sequential-100: #cde2fb;
+  --ba-sequential-200: #8fbef2;
+  --ba-sequential-300: #3987e5;
+  --ba-sequential-400: #0d366b;
+  --ba-series-1-blue: #3987e5;
+  --ba-series-2-green: #2f9e5c;
+  --ba-series-3-magenta: #b23e8f;
+  --ba-series-4-yellow: #e1a624;
+  --ba-series-5-aqua: #2aa5a0;
+  --ba-series-6-orange: #e07a2b;
+  --ba-series-7-violet: #6a4bbf;
+  --ba-series-8-red: #d84a3f;
+  color: var(--ba-text-primary);
+}

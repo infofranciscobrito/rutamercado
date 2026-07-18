@@ -61,10 +61,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BusinessAnalyticsDashboard } from "@/components/admin/BusinessAnalyticsDashboard";
 
 export const Route = createFileRoute("/_admin/admin/emprendedores")({
   component: EmprendedoresAdminPage,
 });
+
 
 const emptyItem = (): AdminEmprendedor => ({
   id: "",
@@ -103,9 +105,11 @@ function EmprendedoresAdminPage() {
     queryFn: () => listFn(),
   });
   const [q, setQ] = useState("");
+  const [view, setView] = useState<"table" | "analytics">("table");
   const [tab, setTab] = useState<"approved" | "pending" | "rejected">("pending");
   const [editing, setEditing] = useState<AdminEmprendedor | null>(null);
   const [deleting, setDeleting] = useState<AdminEmprendedor | null>(null);
+
 
   const counts = useMemo(
     () => ({
@@ -181,6 +185,17 @@ function EmprendedoresAdminPage() {
         </Button>
       </div>
 
+      <Tabs value={view} onValueChange={(v) => setView(v as typeof view)}>
+        <TabsList>
+          <TabsTrigger value="table">Tabla</TabsTrigger>
+          <TabsTrigger value="analytics">Analítica</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {view === "analytics" ? (
+        <BusinessAnalyticsDashboard />
+      ) : (
+      <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
           <TabsList>
@@ -205,6 +220,7 @@ function EmprendedoresAdminPage() {
           />
         </div>
       </div>
+
 
       <div className="overflow-hidden rounded-xl border bg-white">
         <Table>
@@ -345,7 +361,10 @@ function EmprendedoresAdminPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </>
+      )}
     </div>
+
   );
 }
 
