@@ -94,6 +94,8 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
     setNombre("");
     setDescripcion("");
     setCategoria("");
+    setCategoriaOtro("");
+    setArtesanoCert("");
     setRegion("");
     setMunicipio("");
     setInstagram("");
