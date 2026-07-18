@@ -30,8 +30,11 @@ import {
   FUENTE_INGRESO_OPTIONS,
   CANALES_VENTA_OPTIONS,
   TAMANO_EQUIPO_OPTIONS,
+  ARTESANO_CERTIFICADO_OPTIONS,
   type EmprendedorCategory,
 } from "@/lib/emprendedores.functions";
+
+const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 
 type Props = {
   open: boolean;
