@@ -185,6 +185,10 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
           fuente_ingreso: (fuenteIngreso || null) as never,
           canales_venta: (canalesVenta.length > 0 ? canalesVenta : null) as never,
           tamano_equipo: (tamanoEquipo || null) as never,
+          categoria_otro:
+            categoria === "Otro" ? (categoriaOtro.trim() || null) : null,
+          artesano_certificado:
+            categoria === "Artesanías" ? (artesanoCert || null) as never : null,
           ...(logoPayload ?? {}),
         },
       });
