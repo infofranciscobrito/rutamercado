@@ -83,7 +83,7 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/emprendedores" className={linkClass}>
+                  <Link to="/negocios" className={linkClass}>
                     Emprendedores
                   </Link>
                 </li>
@@ -100,7 +100,7 @@ export function Footer() {
               <h3 className={columnTitleClass}>Para Organizadores</h3>
               <ul className="mt-4 space-y-2.5 text-sm">
                 <li>
-                  <Link to="/enviar" className={linkClass}>
+                  <Link to="/mercados" className={linkClass}>
                     Registrar mi mercado
                   </Link>
                 </li>

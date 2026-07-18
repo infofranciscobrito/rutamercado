@@ -74,7 +74,7 @@ export function AboutSection() {
               personas.
             </p>
             <Link
-              to="/enviar"
+              to="/mercados"
               className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-[#54b678] px-7 text-base font-semibold text-[#18253f] transition-all hover:scale-[1.02] hover:bg-[#3f9560] hover:shadow-[0_4px_15px_rgba(84,182,120,0.3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 focus-visible:ring-offset-[#18253f]"
             >
               Registrar mi Mercado
