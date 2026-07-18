@@ -68,6 +68,8 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [categoria, setCategoria] = useState<EmprendedorCategory | "">("");
+  const [categoriaOtro, setCategoriaOtro] = useState("");
+  const [artesanoCert, setArtesanoCert] = useState<string>("");
   const [region, setRegion] = useState("");
   const [municipio, setMunicipio] = useState("");
   const [instagram, setInstagram] = useState("");
