@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, Users, Sparkles, ShieldCheck } from "lucide-react";
+import { Search, Users, Sparkles, ShieldCheck, Plus } from "lucide-react";
 import {
   listEmprendedores,
   EMPRENDEDOR_CATEGORIES,
