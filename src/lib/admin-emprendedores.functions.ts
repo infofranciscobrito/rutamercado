@@ -64,6 +64,11 @@ const UpsertSchema = z.object({
   telefono: optText(50),
   persona_contacto: optText(200),
   mercados_interes: optText(1000),
+  tiempo_operando: z.enum(TIEMPO_OPERANDO_OPTIONS).nullable().optional(),
+  registro_comerciante: z.enum(REGISTRO_COMERCIANTE_OPTIONS).nullable().optional(),
+  fuente_ingreso: z.enum(FUENTE_INGRESO_OPTIONS).nullable().optional(),
+  canales_venta: z.array(z.enum(CANALES_VENTA_OPTIONS)).nullable().optional(),
+  tamano_equipo: z.enum(TAMANO_EQUIPO_OPTIONS).nullable().optional(),
   logo_url: optText(1000),
 });
 
