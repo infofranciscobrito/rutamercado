@@ -73,6 +73,11 @@ const emptyItem = (): AdminEmprendedor => ({
   telefono: null,
   persona_contacto: null,
   mercados_interes: [],
+  tiempo_operando: null,
+  registro_comerciante: null,
+  fuente_ingreso: null,
+  canales_venta: [],
+  tamano_equipo: null,
   status: "approved",
   created_at: new Date().toISOString(),
 });
