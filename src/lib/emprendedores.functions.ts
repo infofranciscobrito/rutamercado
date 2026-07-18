@@ -215,10 +215,8 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
         tamano_equipo: data.tamano_equipo ?? null,
         categoria_otro:
           data.categoria_producto === "Otro" ? (data.categoria_otro ?? null) : null,
-        artesano_certificado:
-          data.categoria_producto === "Artesanías"
-            ? (data.artesano_certificado ?? null)
-            : null,
+        artesano_certificado: data.artesano_certificado ?? null,
+
         logo_url: logoUrl,
         status: "pending",
       })

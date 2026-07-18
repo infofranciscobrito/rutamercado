@@ -187,8 +187,8 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
           tamano_equipo: (tamanoEquipo || null) as never,
           categoria_otro:
             categoria === "Otro" ? (categoriaOtro.trim() || null) : null,
-          artesano_certificado:
-            categoria === "Artesanías" ? (artesanoCert || null) as never : null,
+          artesano_certificado: (artesanoCert || null) as never,
+
           ...(logoPayload ?? {}),
         },
       });
@@ -304,25 +304,24 @@ export function RegisterEmprendedorDialog({ open, onOpenChange }: Props) {
               </div>
             ) : null}
 
-            {categoria === "Artesanías" ? (
-              <div>
-                <Label htmlFor="emp-artesano">
-                  ¿Eres Artesano/a certificado/a?
-                </Label>
-                <Select value={artesanoCert} onValueChange={setArtesanoCert}>
-                  <SelectTrigger id="emp-artesano" className="mt-1">
-                    <SelectValue placeholder="Selecciona una opción" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ARTESANO_CERTIFICADO_OPTIONS.map((o) => (
-                      <SelectItem key={o} value={o}>
-                        {o}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            ) : null}
+            <div>
+              <Label htmlFor="emp-artesano">
+                ¿Eres Artesano/a certificado/a?
+              </Label>
+              <Select value={artesanoCert} onValueChange={setArtesanoCert}>
+                <SelectTrigger id="emp-artesano" className="mt-1">
+                  <SelectValue placeholder="Selecciona una opción" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ARTESANO_CERTIFICADO_OPTIONS.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
