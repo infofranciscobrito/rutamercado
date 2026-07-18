@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, Users, Sparkles, ShieldCheck, Plus } from "lucide-react";
+import { Search, Users, Sparkles, ShieldCheck } from "lucide-react";
 import {
   listEmprendedores,
   EMPRENDEDOR_CATEGORIES,
@@ -176,133 +176,6 @@ function EmprendedoresPage() {
         </div>
       </section>
 
-      {/* Así funciona */}
-      <section
-        aria-labelledby="asi-funciona-title"
-        className="border-b border-white/10 bg-[#18253f]"
-      >
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#54b678]">
-            Cómo funciona
-          </p>
-          <h2
-            id="asi-funciona-title"
-            className="mt-4 font-display text-2xl text-white md:text-3xl"
-          >
-            Así funciona
-          </h2>
-          <div className="relative mt-8">
-            {/* Línea conectora desktop */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute left-[16.6%] right-[16.6%] top-[3.75rem] hidden h-px bg-white/10 md:block"
-            />
-            <ol className="relative grid grid-cols-1 gap-6 md:grid-cols-3">
-              {[
-                {
-                  n: "1",
-                  title: "Regístrate.",
-                  body: "Llena tu perfil con la información de tu negocio — toma menos de 5 minutos.",
-                },
-                {
-                  n: "2",
-                  title: "Lo revisamos.",
-                  body: "Tu perfil pasa por aprobación para mantener la calidad del directorio.",
-                },
-                {
-                  n: "3",
-                  title: "Te encuentran.",
-                  body: "Los organizadores de mercados buscan aquí cuando arman su próximo evento — y te contactan directo.",
-                },
-              ].map((step) => (
-                <li
-                  key={step.n}
-                  className="rounded-2xl border border-[#54b678]/30 bg-white/5 p-6"
-                >
-                  <span className="font-display text-5xl leading-none text-[#54b678] tabular-nums">
-                    {step.n}
-                  </span>
-                  <h3 className="mt-4 font-display text-xl text-white">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/80">
-                    {step.body}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </section>
-
-      {/* Prueba social */}
-      <section
-        aria-label="Prueba social"
-        className="border-b border-white/10 bg-white/5"
-      >
-        <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:py-12">
-          <p className="font-display text-5xl text-[#54b678] tabular-nums md:text-6xl">
-            +25 mercados · +20 organizadores
-          </p>
-          <p className="mt-3 text-base text-white/80 md:text-lg">
-            ya son parte de RutaMercado.
-          </p>
-        </div>
-      </section>
-
-      {/* Preguntas frecuentes */}
-      <section
-        aria-labelledby="faq-title"
-        className="border-b border-white/10 bg-[#18253f]"
-      >
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-          <h2
-            id="faq-title"
-            className="font-display text-2xl text-white md:text-3xl"
-          >
-            Preguntas frecuentes
-          </h2>
-          <div className="mt-6 space-y-3">
-            <FAQItem
-              id="faq-costo"
-              question="¿Cuesta dinero registrarme?"
-              answer="No, el registro es completamente gratis."
-            />
-            <FAQItem
-              id="faq-aprobacion"
-              question="¿Cuánto tarda la aprobación?"
-              answer="Generalmente entre 24 y 48 horas hábiles."
-            />
-            <FAQItem
-              id="faq-despues"
-              question="¿Qué pasa después de que me aprueben?"
-              answer="Tu perfil queda visible en el directorio y cualquier organizador puede contactarte directamente."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA final */}
-      <section
-        aria-label="Registra tu negocio"
-        className="border-b border-white/10 bg-[#18253f]"
-      >
-        <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 sm:py-20">
-          <p className="mx-auto max-w-2xl font-display text-2xl text-white md:text-3xl">
-            Súmate a la lista de negocios que los organizadores de mercados de
-            Puerto Rico ya están viendo.
-          </p>
-          <div className="mt-8">
-            <button
-              type="button"
-              onClick={() => setRegisterOpen(true)}
-              className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660]"
-            >
-              Registra tu Negocio
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* Filtros */}
       <section className="border-b border-white/10 bg-[#18253f]">
@@ -392,46 +265,3 @@ function EmprendedoresPage() {
   );
 }
 
-function FAQItem({
-  id,
-  question,
-  answer,
-}: {
-  id: string;
-  question: string;
-  answer: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const panelId = `${id}-panel`;
-  return (
-    <div className="rounded-2xl border border-[#54b678]/30 bg-white/5">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
-      >
-        <span className="font-display text-lg text-white">{question}</span>
-        <Plus
-          className={`h-5 w-5 shrink-0 text-[#54b678] transition-transform duration-200 ease-out ${
-            open ? "rotate-45" : ""
-          }`}
-        />
-      </button>
-      <div
-        id={panelId}
-        role="region"
-        className={`grid overflow-hidden px-6 transition-[grid-template-rows,opacity,padding] duration-200 ease-out ${
-          open
-            ? "grid-rows-[1fr] pb-5 opacity-100"
-            : "grid-rows-[0fr] opacity-0"
-        }`}
-      >
-        <div className="min-h-0">
-          <p className="text-sm leading-relaxed text-white/80">{answer}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
