@@ -1,82 +1,107 @@
-## Objetivo
+# Directorio de Negocios: tarjeta compacta + modal "Ver perfil"
 
-Añadir un dashboard analítico interno en el panel administrativo, en la misma sección donde el equipo revisa el "Registro de negocios" (tabla `emprendedores`). Solo accesible para admins autenticados. Consume la tabla `emprendedores` existente sin crear columnas nuevas.
+Alcance: solo el grid de tarjetas en `/negocios`. No se tocan hero, secciones, filtros, formulario de registro, footer ni ninguna otra página.
 
-## Ubicación
+## Tokens de diseño existentes (reutilizar tal cual)
 
-Nueva pestaña/sección **"Analítica"** dentro de `src/routes/_admin/admin.emprendedores.tsx`, mediante un toggle en la parte superior (Tabla | Analítica). La tabla actual con revisión/aprobación se mantiene sin cambios y sirve como la "Vista de tabla completa" (sección 8) que ya cumple el requisito de alternativa accesible.
+Extraídos del componente actual `EmprendedorCard.tsx` y del resto del sitio:
 
-## Server function nueva
+- Fondo tarjeta: `#18253f`
+- Borde/acento verde: `#54b678` (variantes `/15`, `/25`, `/30`, `/40`, `/70`)
+- Texto: `text-white`, `text-white/85`, `text-white/60`
+- Tipografía display: clase `font-display` (ya definida)
+- Radios: `rounded-2xl` (tarjeta), `rounded-md` (items internos), badge shadcn (pill)
+- Sombras: `shadow-[0_2px_12px_rgba(0,0,0,0.3)]` reposo, `shadow-[0_8px_30px_rgba(0,0,0,0.5)]` hover
+- Badge categoría: variante `secondary` con clases `border border-[#54b678]/40 bg-[#54b678]/15 text-[#54b678]`
+- Iconos contacto: `lucide-react` (Mail, Phone, Instagram, MapPin, User) en `#54b678`
+- Modal base: shadcn `Dialog` (mismo ya usado en `MarketDetailDialog` y `RegisterEmprendedorDialog`)
 
-`getBusinessRegistrationAnalytics` en `src/lib/admin-emprendedores.functions.ts` (protegida con `requireSupabaseAuth` + verificación admin vía `has_role`). Recibe filtros: `{ from, to, region, categoria, status }` — todos opcionales — y devuelve en una sola respuesta:
+No se introducen colores, fuentes, radios ni sombras nuevos.
 
-- `kpis`: total, aprobados, pendientes, rechazados, nuevos mes actual, nuevos mes anterior
-- `trendMonthly`: `[{ month: 'YYYY-MM', count }]` últimos 12 meses (independiente del rango de fechas, para no perder la tendencia larga)
-- `funnel`: `{ approved, pending, rejected }`
-- `byCategoria`, `byRegion`: `[{ label, count }]` desc
-- `byCanalVenta`: `[{ label, count }]` (multi-valor, expandir `canales_venta[]`)
-- `byFormalidad` (`registro_comerciante`), `byDependencia` (`fuente_ingreso`), `byTiempoOperando`, `byTamanoEquipo`: `[{ label, count }]` con orden natural fijo definido en el server
-- `empleosEstimados`: suma de puntos medios (1 · Solo yo, 4 · 2-5, 6 · 6+)
-- `topMercados`: top 10 nombres extraídos de `mercados_interes[]` (split por coma, trim, lowercase para agrupar, preservar caso original más común)
+## 1. Nueva tarjeta compacta
 
-Todos los conteos se agregan en el server function; los filtros se aplican vía `.gte/.lte(created_at)`, `.eq('region')`, `.eq('categoria_producto')`, `.eq('status')`.
+Archivo: `src/components/emprendedores/EmprendedorCard.tsx` (reescribir contenido, mismo export/prop `item`).
 
-Adicionalmente, un `exportBusinessRegistrationsCSV` que devuelve todas las filas con todos los campos (incluyendo internos) respetando los mismos filtros, para el botón de exportar.
+Estructura, de arriba hacia abajo, dentro de `<article>` con `rounded-2xl border-2 border-[#54b678] bg-[#18253f] p-4` y `flex flex-col h-full min-w-0`:
 
-## Estructura del dashboard (componente `BusinessAnalyticsDashboard.tsx` en `src/components/admin/`)
+1. Fila superior `flex items-start gap-3 min-w-0`:
+   - Avatar 52px circular (`h-13 w-13` = `h-[52px] w-[52px]`), mismo borde verde, `shrink-0`. Si hay `logo_url` → `<img>`; si no → iniciales (helper `initials` actual).
+   - Bloque de texto `min-w-0 flex-1`:
+     - Nombre: `font-display text-lg leading-tight text-white line-clamp-2`.
+     - Ubicación (si `region` o `municipio`): `mt-1 flex items-center gap-1.5 text-xs text-[#54b678]` con `MapPin h-3.5 w-3.5` + `<span className="truncate">Region · Municipio</span>`.
+2. Badge de categoría: `mt-3`, mismo estilo actual (secondary + clases verdes), `max-w-full truncate`.
+3. Descripción: `mt-2 text-sm leading-relaxed text-white/85 line-clamp-2 min-h-[2.6rem]` (reserva altura de 2 líneas).
+4. Pie: `mt-auto pt-3 border-t border-[#54b678]/30 flex items-center justify-between gap-2`
+   - Izquierda: `text-xs text-white/60 truncate hidden min-[480px]:block` con `Mercados: {mercados_interes.join(", ") || "Todos"}`.
+   - Derecha: botón "Ver perfil" pill outline: `inline-flex h-9 items-center justify-center rounded-full border border-[#54b678] px-4 text-xs font-semibold text-[#54b678] hover:bg-[#54b678]/10 transition-colors`.
+   - En `<480px`: la etiqueta izquierda se oculta y el botón toma `w-full` via `max-[479px]:w-full` (contenedor pasa a `flex-col` con `max-[479px]:flex-col max-[479px]:items-stretch`).
 
-**Fila de filtros (sticky arriba):**
-- Rango de fechas (Select con presets + rango personalizado con date pickers)
-- Región · Categoría · Estado (Selects)
-- Botón "Exportar CSV" a la derecha (reutiliza `src/lib/csv.ts::downloadCSV`)
+Interacción:
+- `<article>` recibe `role="button"`, `tabIndex={0}`, `cursor-pointer`, `onClick` y `onKeyDown` (Enter/Space) → abre modal.
+- Hover: `transition-all duration-200 ease-out hover:-translate-y-[3px] hover:border-[#54b678] hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]` (solo transform, border-color, box-shadow).
+- El botón "Ver perfil" también dispara el modal; `stopPropagation` no es necesario (mismo destino), pero se marca `type="button"`.
 
-**1. KPIs (5 tarjetas):** Total, Aprobados (con %), Pendientes (con %), Rechazados (con %), Nuevos este mes (con delta vs mes anterior). Los tres de estado usan un pequeño chip/ícono en `--status-good/warning/critical`; el número queda en `--text-primary`.
+Altura uniforme por fila: `h-full` + `flex flex-col` + `mt-auto` en pie (el grid padre ya alinea con `grid`).
 
-**2. Tendencia mensual:** `LineChart` de recharts, una serie azul (`--sequential-400`), tooltip con crosshair, últimos 12 meses.
+## 2. Grid responsive
 
-**3. Embudo de aprobación:** Barra horizontal apilada 100% con 3 segmentos (good/warning/critical), etiquetas de % directas, 2px de gap entre segmentos.
+Archivo: `src/routes/negocios.tsx` — cambiar clases del grid interno de cada bucket regional.
 
-**4. Distribuciones (grid 2 col desktop, 1 mobile):**
-- Categoría de producto — `BarChart` horizontal, un solo hue azul, orden desc
-- Región — mismo tratamiento
-- Canales de venta — mismo tratamiento + nota "Un negocio puede seleccionar más de un canal…"
+De: `grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3`
+A: `grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-[18px] lg:grid-cols-4` con `[&>*]:min-w-0`.
 
-**5. Perfil del sector:** 3 barras apiladas 100% independientes (`div` con flex, no recharts — más simple y controlable):
-- Formalidad: paleta categórica (`--series-1/2/4`)
-- Dependencia: paleta categórica
-- Tiempo operando: **rampa de un solo hue azul en orden ordinal fijo** (más oscuro = más antiguo), NO reordenado por magnitud
+Sin más cambios en `negocios.tsx` (hero, filtros, agrupación por región, contadores, empty state se mantienen idénticos).
 
-**6. Empleos:**
-- `BarChart` horizontal ordinal (Solo yo → 2-5 → 6+), rampa azul secuencial
-- Stat tile "Empleos estimados generados por el sector" + nota secundaria explicando el cálculo
+## 3. Modal "Ver perfil"
 
-**7. Top 10 mercados mencionados:** tabla simple con nombre + conteo, orden desc.
+Archivo nuevo: `src/components/emprendedores/EmprendedorProfileDialog.tsx`.
 
-**8. Vista de tabla completa:** ya existe en la pestaña "Tabla" de la misma página; el botón "Exportar CSV" también se coloca ahí. Se reutiliza sin cambios funcionales — solo se añade el botón de exportar si aún no está.
+- Basado en shadcn `Dialog` (ya usado en el proyecto). Props: `item: Emprendedor | null`, `open`, `onOpenChange`.
+- `DialogContent` con clases: `bg-[#18253f] border border-[#54b678]/40 text-white rounded-2xl sm:max-w-[480px] p-6`.
+- Comportamiento mobile bottom-sheet: en `max-[639px]` override con `max-[639px]:rounded-t-2xl max-[639px]:rounded-b-none max-[639px]:fixed max-[639px]:bottom-0 max-[639px]:left-0 max-[639px]:right-0 max-[639px]:top-auto max-[639px]:translate-x-0 max-[639px]:translate-y-0 max-[639px]:max-h-[88vh] max-[639px]:w-full max-[639px]:data-[state=open]:slide-in-from-bottom` y contenido con `overflow-y-auto max-h-[calc(88vh-2rem)]`. Desktop centrado por defecto de shadcn.
+- Animación entrada: usar las animaciones por defecto de shadcn (fade + zoom + slide) que ya cumplen 200–240ms ease-out; respetan `prefers-reduced-motion` vía Tailwind.
+- Cierre: botón ✕ (shadcn ya lo incluye en esquina), clic overlay, Escape (shadcn nativo). Bloqueo de scroll del body: nativo de Radix Dialog. Foco atrapado y devuelto: nativo de Radix.
+- Accesibilidad: `DialogTitle` = nombre del negocio (id gestionado por Radix → aria-labelledby automático). `role="dialog"` y `aria-modal` nativos.
 
-## Tokens de color
+Contenido:
+1. Encabezado `flex items-start gap-4`:
+   - Avatar 64px (`h-16 w-16`) con mismo estilo (borde verde, bg blanco o iniciales).
+   - Bloque: `DialogTitle` con `font-display text-2xl text-white` = nombre; debajo `flex flex-wrap items-center gap-2 mt-1`: badge de categoría + `<span className="inline-flex items-center gap-1 text-sm text-[#54b678]"><MapPin h-4 w-4/> Region · Municipio</span>`.
+2. Descripción completa: `mt-4 text-sm leading-relaxed text-white/85 whitespace-pre-wrap`.
+3. Mercados de interés (si hay): `mt-5`
+   - `p-xs uppercase tracking-wider text-white font-semibold`: "MERCADOS DE INTERÉS"
+   - `mt-2 flex flex-wrap gap-1.5` con los mismos badges verdes.
+4. Separador: `mt-5 border-t border-[#54b678]/30 pt-4 space-y-1`.
+5. Lista de contacto (cada fila `min-h-11 flex items-center gap-2 rounded-md px-2 py-2`):
+   - `persona_contacto`: `User` icon + texto plano `text-white/85`.
+   - `instagram` (si hay): enlace `https://instagram.com/{handle limpio}` `target="_blank" rel="noopener noreferrer"`, muestra `@{handle}`; hover `bg-[#54b678]/10`.
+   - `email`: `mailto:`; hover igual.
+   - `telefono`: `tel:` (sin espacios); mostrar formateado `(xxx) xxx-xxxx` cuando sean 10 dígitos, si no dejar el original. Helper local `formatPhone(raw)`.
+   - Sin contacto → `Contacto no disponible` (mismo texto italic actual).
 
-Se añaden como variables CSS **con scope al contenedor del dashboard** (no globales, para no interferir con el resto del admin) en `src/styles.css` bajo un selector `.business-analytics-dashboard { ... }`. Todos los gráficos leen los tokens vía `var(--…)`.
+Todos los helpers `safeUrl`, `displayHandle`, `initials` se mueven/duplican en el nuevo archivo (o se extraen a un utilitario compartido `src/components/emprendedores/utils.ts`). Preferencia: extraer a `utils.ts` para no duplicar.
 
-## Reglas visuales aplicadas
+## 4. Cableado en `negocios.tsx`
 
-- Sin pies/donas en ninguna parte
-- Sin ejes duales
-- Color por categoría fijo (orden estable independiente del filtro)
-- Un solo hue azul para conteos comparativos; paleta categórica solo en las apiladas de "Perfil del sector"
-- Tooltip en todos los charts, leyenda solo cuando hay >1 serie
-- Texto siempre en `--text-primary`/`--text-secondary`, nunca pintado del color de la serie
-- Barras con 2px radius y 2px gap entre segmentos apilados
+- Estado nuevo: `const [selected, setSelected] = useState<Emprendedor | null>(null);`
+- `<EmprendedorCard item={e} onOpen={() => setSelected(e)} />` (nueva prop opcional; si se omite, no hace nada — solo el grid del directorio la pasa).
+- Al final del componente, junto al `RegisterEmprendedorDialog`: `<EmprendedorProfileDialog item={selected} open={!!selected} onOpenChange={(o) => !o && setSelected(null)} />`.
 
-## Fuera de alcance
+## 5. Qué NO se toca
 
-- No se toca el formulario público, ni la ficha pública, ni la tabla `emprendedores` (sin migraciones)
-- No se añade modo oscuro (el admin actual no lo soporta hoy)
-- No se modifican los flujos de aprobar/rechazar existentes
+- Hero, sección "¿Por qué registrarte?", filtros (búsqueda, categoría, región), agrupación por región, contadores, empty state, `RegisterEmprendedorDialog`, header, footer.
+- Ningún otro archivo que use `EmprendedorCard` (revisar; hoy solo `negocios.tsx` lo importa — si aparece otro uso, la prop `onOpen` es opcional para no romperlos).
+- Ningún token global, `styles.css`, ni configuración de fuentes.
 
-## Archivos
+## Detalles técnicos
 
-- Nuevo: `src/components/admin/BusinessAnalyticsDashboard.tsx`
-- Modificado: `src/lib/admin-emprendedores.functions.ts` — añadir `getBusinessRegistrationAnalytics` y `exportBusinessRegistrationsCSV`
-- Modificado: `src/routes/_admin/admin.emprendedores.tsx` — toggle Tabla/Analítica + botón Exportar CSV
-- Modificado: `src/styles.css` — bloque de tokens con scope `.business-analytics-dashboard`
+- Sin librerías nuevas. shadcn `Dialog` + Tailwind + `lucide-react` ya presentes.
+- `line-clamp-2` requiere plugin: Tailwind v4 lo trae de fábrica (verificado por uso previo en `MarketCard`). No se toca `styles.css`.
+- Verificación tras build: `/negocios` en móvil 2 col, tablet 3 col, desktop 4 col; tarjeta ~200px; clic en tarjeta o botón abre modal; Escape/overlay/✕ cierran; scroll del body bloqueado mientras abierto; `prefers-reduced-motion` respetado.
+
+## Archivos afectados
+
+- Modificar: `src/components/emprendedores/EmprendedorCard.tsx`
+- Modificar: `src/routes/negocios.tsx` (grid classes + estado modal + render del dialog)
+- Crear: `src/components/emprendedores/EmprendedorProfileDialog.tsx`
+- Crear (opcional, recomendado): `src/components/emprendedores/utils.ts` con `safeUrl`, `displayHandle`, `initials`, `formatPhone`.
