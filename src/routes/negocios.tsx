@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EmprendedorCard } from "@/components/emprendedores/EmprendedorCard";
+import { EmprendedorProfileDialog } from "@/components/emprendedores/EmprendedorProfileDialog";
 import { RegisterEmprendedorDialog } from "@/components/emprendedores/RegisterEmprendedorDialog";
 import { MARKET_REGIONS } from "@/types/market";
 
