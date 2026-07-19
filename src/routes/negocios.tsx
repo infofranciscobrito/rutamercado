@@ -245,9 +245,13 @@ function EmprendedoresPage() {
                   </span>
                 </div>
                 <div className="mb-6 h-px bg-white/20" />
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-[18px] lg:grid-cols-4 [&>*]:min-w-0">
                   {bucket.items.map((e) => (
-                    <EmprendedorCard key={e.id} item={e} />
+                    <EmprendedorCard
+                      key={e.id}
+                      item={e}
+                      onOpen={() => setSelected(e)}
+                    />
                   ))}
                 </div>
               </section>
