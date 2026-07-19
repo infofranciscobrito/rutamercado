@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EmprendedorCard } from "@/components/emprendedores/EmprendedorCard";
+import { EmprendedorProfileDialog } from "@/components/emprendedores/EmprendedorProfileDialog";
 import { RegisterEmprendedorDialog } from "@/components/emprendedores/RegisterEmprendedorDialog";
 import { MARKET_REGIONS } from "@/types/market";
 
@@ -68,6 +69,7 @@ function EmprendedoresPage() {
   const [category, setCategory] = useState<string>("all");
   const [region, setRegion] = useState<string>("all");
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [selected, setSelected] = useState<Emprendedor | null>(null);
 
   const grouped = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -245,9 +247,13 @@ function EmprendedoresPage() {
                   </span>
                 </div>
                 <div className="mb-6 h-px bg-white/20" />
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-[18px] lg:grid-cols-4 [&>*]:min-w-0">
                   {bucket.items.map((e) => (
-                    <EmprendedorCard key={e.id} item={e} />
+                    <EmprendedorCard
+                      key={e.id}
+                      item={e}
+                      onOpen={() => setSelected(e)}
+                    />
                   ))}
                 </div>
               </section>
@@ -259,6 +265,11 @@ function EmprendedoresPage() {
       <RegisterEmprendedorDialog
         open={registerOpen}
         onOpenChange={setRegisterOpen}
+      />
+      <EmprendedorProfileDialog
+        item={selected}
+        open={!!selected}
+        onOpenChange={(o) => !o && setSelected(null)}
       />
       <Footer />
     </div>
