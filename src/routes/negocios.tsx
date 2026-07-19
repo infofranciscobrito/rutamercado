@@ -266,6 +266,11 @@ function EmprendedoresPage() {
         open={registerOpen}
         onOpenChange={setRegisterOpen}
       />
+      <EmprendedorProfileDialog
+        item={selected}
+        open={!!selected}
+        onOpenChange={(o) => !o && setSelected(null)}
+      />
       <Footer />
     </div>
   );
