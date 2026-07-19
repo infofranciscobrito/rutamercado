@@ -69,6 +69,7 @@ function EmprendedoresPage() {
   const [category, setCategory] = useState<string>("all");
   const [region, setRegion] = useState<string>("all");
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [selected, setSelected] = useState<Emprendedor | null>(null);
 
   const grouped = useMemo(() => {
     const q = query.trim().toLowerCase();
