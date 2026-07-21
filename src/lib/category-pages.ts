@@ -10,6 +10,7 @@ export interface CategoryPageConfig {
   metaDescription: string;
   pageViewKey: string;
   emptyText: string;
+  ogImage?: string;
 }
 
 export const CATEGORY_PAGES: CategoryPageConfig[] = [
