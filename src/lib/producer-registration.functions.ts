@@ -107,7 +107,7 @@ export const registerProducer = createServerFn({ method: "POST" })
           },
           body: JSON.stringify({
             from: "RutaMercado <productores@rutamercadopr.com>",
-            to: ["productores@rutamercadopr.com"],
+            to: ["rutamercadopr@gmail.com"],
             subject: `Nuevo registro de productor — ${data.nombre}`,
             text:
               `Productor: ${data.nombre}\n` +
