@@ -69,6 +69,15 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
+  beforeLoad: ({ search }) => {
+    const cat = search.category;
+    if (cat && cat !== "all") {
+      const slug = CATEGORY_PARAM_TO_SLUG[cat];
+      if (slug) {
+        throw redirect({ to: `/${slug}` as "/", statusCode: 301 });
+      }
+    }
+  },
   head: () => ({
     meta: [
       { title: "RutaMercado — Directorio de Mercados Locales en Puerto Rico" },
@@ -83,8 +92,11 @@ export const Route = createFileRoute("/")({
         content:
           "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico. Encuentra el mercado más cercano a ti.",
       },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://rutamercadopr.com/" },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "RutaMercado" },
       { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "RutaMercado — Mercados Locales en Puerto Rico" },
       {
         name: "twitter:description",
@@ -93,7 +105,7 @@ export const Route = createFileRoute("/")({
       },
       { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://rutamercadopr.com/" }],
   }),
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(marketsQueryOptions),
@@ -102,6 +114,7 @@ export const Route = createFileRoute("/")({
     <div className="p-8 text-center text-muted-foreground">Página no encontrada</div>
   ),
 });
+
 
 function IndexPage() {
   const search = Route.useSearch();
