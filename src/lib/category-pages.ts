@@ -26,6 +26,7 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
       "Encuentra los mercados agrícolas activos en Puerto Rico: frutas, vegetales y productos frescos del campo. Descubre cuál tienes cerca este fin de semana.",
     pageViewKey: "category_mercado_agricola",
     emptyText: "No hay Mercados Agrícolas programados por ahora",
+    ogImage: "/og-mercados-agricolas.png",
   },
   {
     slug: "bazares",
@@ -39,6 +40,7 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
       "Explora los bazares locales de Puerto Rico: artículos únicos, segunda mano y hallazgos. Encuentra el bazar más cercano a ti.",
     pageViewKey: "category_bazar_popup",
     emptyText: "No hay Bazares programados por ahora",
+    ogImage: "/og-bazares.png",
   },
   {
     slug: "ferias-artesanales",
@@ -52,6 +54,7 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
       "Descubre las ferias artesanales de Puerto Rico: arte, hecho a mano y talento local. Encuentra la próxima feria cerca de ti.",
     pageViewKey: "category_feria_artesanal",
     emptyText: "No hay Ferias Artesanales programadas por ahora",
+    ogImage: "/og-ferias-artesanales.png",
   },
   {
     slug: "food-market",
@@ -78,6 +81,7 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
       "Mercados con de todo —agrícola, artesanal y más— en un solo lugar. Encuentra los mercados mixtos activos en Puerto Rico.",
     pageViewKey: "category_mercado_mixto",
     emptyText: "No hay Mercados Mixtos programados por ahora",
+    ogImage: "/og-mercados-mixtos.png",
   },
   {
     slug: "flea-market",
