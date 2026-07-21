@@ -150,6 +150,44 @@ export const createMarketSubmission = createServerFn({ method: "POST" })
     });
 
     if (error) throw new Error(error.message);
+
+    const apiKey = process.env.RESEND_API_KEY;
+    if (apiKey) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: "RutaMercado <productores@rutamercadopr.com>",
+            to: ["rutamercadopr@gmail.com"],
+            subject: `Nuevo mercado sometido — ${data.name}`,
+            text:
+              `Mercado: ${data.name}\n` +
+              `Categoría: ${data.category}\n` +
+              `Región: ${data.region}\n` +
+              `Municipio: ${data.municipality}\n` +
+              `Dirección: ${data.address}\n` +
+              `Horario: ${data.start_time} – ${data.end_time}\n` +
+              `Recurrencia: ${label}\n` +
+              `Inicio: ${data.recurrence_start_date}${data.recurrence_end_date ? ` — Fin: ${data.recurrence_end_date}` : ""}\n` +
+              `\n— Organizador —\n` +
+              `Nombre: ${data.organizer_name}\n` +
+              `Email: ${data.organizer_email ?? "—"}\n` +
+              `Teléfono: ${data.organizer_phone ?? "—"}\n` +
+              `Instagram: ${data.organizer_instagram ?? "—"}\n` +
+              `URL contacto: ${data.organizer_contact_url ?? "—"}\n` +
+              (data.description ? `\nDescripción:\n${data.description}\n` : "") +
+              (data.image_url ? `\nImagen: ${data.image_url}\n` : ""),
+          }),
+        });
+      } catch (e) {
+        console.error("createMarketSubmission Resend send failed", e);
+      }
+    }
+
     return { ok: true as const };
   });
 
