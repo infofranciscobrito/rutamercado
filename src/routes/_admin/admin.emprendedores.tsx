@@ -691,14 +691,19 @@ function EmprendedorEditor({
           </div>
           </div>
           <div>
-            <Label>URL del logo</Label>
+            <Label>Logo</Label>
+            <LogoUploader
+              value={form.logo_url}
+              onChange={(url) => set("logo_url", url)}
+            />
             <Input
               value={form.logo_url ?? ""}
               onChange={(e) => set("logo_url", e.target.value || null)}
-              placeholder="https://..."
-              className="mt-1"
+              placeholder="o pega una URL: https://..."
+              className="mt-2"
             />
           </div>
+
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
