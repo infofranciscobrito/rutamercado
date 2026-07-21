@@ -45,6 +45,34 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       message: data.message,
     });
     if (error) throw new Error(error.message);
+
+    const apiKey = process.env.RESEND_API_KEY;
+    if (apiKey) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: "RutaMercado <productores@rutamercadopr.com>",
+            to: ["rutamercadopr@gmail.com"],
+            reply_to: data.email,
+            subject: `Nuevo mensaje de contacto — ${data.name}`,
+            text:
+              `Nombre: ${data.name}\n` +
+              `Rol: ${CONTACT_ROLE_LABELS[data.role]}\n` +
+              `Email: ${data.email}\n` +
+              `Teléfono: ${data.phone}\n\n` +
+              `Mensaje:\n${data.message}\n`,
+          }),
+        });
+      } catch (e) {
+        console.error("submitContactMessage Resend send failed", e);
+      }
+    }
+
     return { ok: true as const };
   });
 

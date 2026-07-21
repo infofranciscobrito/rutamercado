@@ -1,18 +1,42 @@
 ## Objetivo
-En el editor admin del negocio (`/admin/emprendedores` → "Editar negocio"), añadir la posibilidad de subir el logo desde la computadora, además del campo de URL existente.
+
+Enviar un correo automático a **rutamercadopr@gmail.com** cada vez que ocurra uno de estos eventos:
+
+1. Registro de productor (`/productores` → formulario)
+2. Registro de negocio (`/negocios` → formulario)
+3. Formulario de contacto (footer)
+4. Envío de mercado (`/mercados` → formulario)
+
+## Estado actual
+
+- **Productores** y **Negocios** ya envían correo con Resend a `productores@rutamercadopr.com` (usando `RESEND_API_KEY` ya configurado).
+- **Contacto** y **Envío de mercado** guardan en base de datos pero **no envían notificación**.
 
 ## Cambios
 
-1. **`src/routes/_admin/admin.emprendedores.tsx`** (sección "URL del logo", línea ~693-701)
-   - Mantener el input de URL existente.
-   - Añadir arriba un uploader que suba la imagen al bucket `market-images` (carpeta `emprendedores/`) usando el cliente Supabase del navegador (admin ya está autenticado).
-   - Al completarse la subida, escribir la URL pública en `form.logo_url` (el mismo campo que guarda el editor).
-   - Mostrar vista previa circular del logo actual y un botón "Quitar" que ponga `logo_url = null`.
-   - Validaciones: tipos JPG/PNG/WebP, máximo 5 MB, detección de MIME por bytes (mismo patrón que `ImageUpload16x9.tsx`).
+Añadir/actualizar el envío de correo (Resend, mismo patrón try/catch no bloqueante ya usado) en los 4 handlers de servidor. Todos los correos irán al buzón único **rutamercadopr@gmail.com** (dejo de usar `productores@rutamercadopr.com`).
 
-2. **Sin cambios de backend**: el server fn `updateEmprendedor` ya acepta `logo_url` como string, así que basta con setear la URL resultante en el formulario y guardar.
+### 1. `src/lib/producer-registration.functions.ts`
+Cambiar destinatario `to: ["productores@rutamercadopr.com"]` → `to: ["rutamercadopr@gmail.com"]`. Asunto: `Nuevo registro de productor — {nombre}`.
+
+### 2. `src/lib/emprendedores.functions.ts` (registro de negocio)
+Cambiar destinatario a `rutamercadopr@gmail.com`. Asunto: `Nuevo registro de negocio — {nombre_negocio}`. Cuerpo con los campos públicos + resumen de los internos.
+
+### 3. `src/lib/contact.functions.ts` (`submitContactMessage`)
+Añadir bloque Resend después del insert. Asunto: `Nuevo mensaje de contacto — {name}`. Cuerpo con nombre, rol, email, teléfono y mensaje. Envío no bloqueante (try/catch, log a consola si falla).
+
+### 4. `src/lib/submissions.functions.ts` (`createMarketSubmission`)
+Añadir bloque Resend después del insert. Asunto: `Nuevo mercado sometido — {name}`. Cuerpo con nombre, categoría, región, municipio, dirección, horario, recurrencia, organizador (nombre/teléfono/email/IG), y URL de imagen si existe.
 
 ## Detalles técnicos
-- Reutilizar el patrón de `src/components/rutamercado/ImageUpload16x9.tsx` (detectMimeFromBytes, upload a `market-images`, `getPublicUrl`), adaptado a un layout cuadrado/redondo apropiado para logo.
-- Path de subida: `emprendedores/<uuid>.<ext>` (mismo prefijo que usa `submitEmprendedor`).
-- No modificar paleta, tipografía ni otros campos del editor.
+
+- Remitente: `RutaMercado <productores@rutamercadopr.com>` (dominio ya verificado en Resend).
+- Sin nuevos secretos: reusa `process.env.RESEND_API_KEY`.
+- Envío envuelto en try/catch para que un fallo de Resend nunca rompa la operación principal (insert en DB).
+- Solo texto plano (`text` field), consistente con las notificaciones existentes.
+- Sin migraciones ni cambios de UI.
+
+## Fuera de alcance
+
+- No se cambia el flujo de aprobación admin ni las plantillas visuales.
+- No se implementa la infraestructura de Lovable Emails (queue/reintentos); se mantiene el patrón simple de Resend que ya está en producción.
