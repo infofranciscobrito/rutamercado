@@ -235,8 +235,8 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
           },
           body: JSON.stringify({
             from: "RutaMercado <emprendedores@rutamercadopr.com>",
-            to: ["productores@rutamercadopr.com"],
-            subject: `Nuevo emprendedor — ${data.nombre_negocio}`,
+            to: ["rutamercadopr@gmail.com"],
+            subject: `Nuevo registro de negocio — ${data.nombre_negocio}`,
             text:
               `Negocio: ${data.nombre_negocio}\n` +
               `Categoría: ${data.categoria_producto}${data.categoria_producto === "Otro" && data.categoria_otro ? ` (${data.categoria_otro})` : ""}\n` +
