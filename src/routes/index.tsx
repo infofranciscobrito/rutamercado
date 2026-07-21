@@ -145,11 +145,20 @@ function IndexPage() {
 
   type S = z.infer<typeof searchSchema>;
   const updateFilters = (next: Partial<MarketFilters>) => {
+    // If category is set to a specific value, navigate to its clean route
+    if (next.category && next.category !== "all") {
+      const slug = CATEGORY_PARAM_TO_SLUG[next.category];
+      if (slug) {
+        void navigate({ to: `/${slug}` as "/" });
+        return;
+      }
+    }
     void navigate({
       search: (prev: S) => ({ ...prev, ...next }) as S,
       replace: true,
     });
   };
+
 
   const clearFilters = () => {
     void navigate({
