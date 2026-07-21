@@ -42,11 +42,11 @@ interface Props {
   config: CategoryPageConfig;
   search: CategoryPageSearch;
   routeFrom:
-    | "/mercado-agricola"
-    | "/bazar-pop-up"
-    | "/feria-artesanal"
+    | "/mercados-agricolas"
+    | "/bazares"
+    | "/ferias-artesanales"
     | "/food-market"
-    | "/mercado-mixto"
+    | "/mercados-mixtos"
     | "/flea-market";
 }
 
