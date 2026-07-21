@@ -63,7 +63,9 @@ export function buildCategoryHead(
       { property: "og:description", content: config.metaDescription },
       { property: "og:url", content: url },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "RutaMercado" },
       { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: config.metaTitle },
       { name: "twitter:description", content: config.metaDescription },
       { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
@@ -77,3 +79,4 @@ export function buildCategoryHead(
     ],
   };
 }
+

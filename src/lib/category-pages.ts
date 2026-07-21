@@ -14,7 +14,7 @@ export interface CategoryPageConfig {
 
 export const CATEGORY_PAGES: CategoryPageConfig[] = [
   {
-    slug: "mercado-agricola",
+    slug: "mercados-agricolas",
     category: "Mercado Agrícola",
     pageTitle: "Mercados Agrícolas en Puerto Rico",
     subtitle:
@@ -22,25 +22,25 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
     ctaLabel: "Ver todos los Mercados Agrícolas",
     metaTitle: "Mercados Agrícolas en Puerto Rico | RutaMercado",
     metaDescription:
-      "Encuentra los mejores mercados agrícolas en Puerto Rico. Productos frescos, orgánicos y locales cerca de ti. Directorio actualizado semanalmente.",
+      "Encuentra los mercados agrícolas activos en Puerto Rico: frutas, vegetales y productos frescos del campo. Descubre cuál tienes cerca este fin de semana.",
     pageViewKey: "category_mercado_agricola",
     emptyText: "No hay Mercados Agrícolas programados por ahora",
   },
   {
-    slug: "bazar-pop-up",
+    slug: "bazares",
     category: "Bazaar/Pop Up",
-    pageTitle: "Bazaar / Pop Up en Puerto Rico",
+    pageTitle: "Bazares en Puerto Rico",
     subtitle:
-      "Bazaar / Pop Up con artículos únicos, ropa, accesorios y más",
-    ctaLabel: "Ver todos los Bazaar / Pop Up",
-    metaTitle: "Bazaar / Pop Up en Puerto Rico | RutaMercado",
+      "Bazares y Pop Ups con artículos únicos, ropa, accesorios y más",
+    ctaLabel: "Ver todos los Bazares",
+    metaTitle: "Bazares en Puerto Rico | RutaMercado",
     metaDescription:
-      "Descubre los Bazaar / Pop Up en Puerto Rico. Ropa, accesorios, artículos únicos y más. Encuentra el próximo bazaar cerca de ti.",
+      "Explora los bazares locales de Puerto Rico: artículos únicos, segunda mano y hallazgos. Encuentra el bazar más cercano a ti.",
     pageViewKey: "category_bazar_popup",
-    emptyText: "No hay Bazaar / Pop Up programados por ahora",
+    emptyText: "No hay Bazares programados por ahora",
   },
   {
-    slug: "feria-artesanal",
+    slug: "ferias-artesanales",
     category: "Feria Artesanal",
     pageTitle: "Ferias Artesanales en Puerto Rico",
     subtitle:
@@ -48,7 +48,7 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
     ctaLabel: "Ver todas las Ferias Artesanales",
     metaTitle: "Ferias Artesanales en Puerto Rico | RutaMercado",
     metaDescription:
-      "Ferias artesanales con productos hechos a mano por artesanos locales de Puerto Rico. Artesanías, joyería, arte y más.",
+      "Descubre las ferias artesanales de Puerto Rico: arte, hecho a mano y talento local. Encuentra la próxima feria cerca de ti.",
     pageViewKey: "category_feria_artesanal",
     emptyText: "No hay Ferias Artesanales programadas por ahora",
   },
@@ -66,7 +66,7 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
     emptyText: "No hay Food Markets programados por ahora",
   },
   {
-    slug: "mercado-mixto",
+    slug: "mercados-mixtos",
     category: "Mercado Mixto",
     pageTitle: "Mercados Mixtos en Puerto Rico",
     subtitle:
@@ -74,7 +74,7 @@ export const CATEGORY_PAGES: CategoryPageConfig[] = [
     ctaLabel: "Ver todos los Mercados Mixtos",
     metaTitle: "Mercados Mixtos en Puerto Rico | RutaMercado",
     metaDescription:
-      "Mercados mixtos con variedad de productos, comida, artesanías y más en Puerto Rico. Todo en un solo lugar.",
+      "Mercados con de todo —agrícola, artesanal y más— en un solo lugar. Encuentra los mercados mixtos activos en Puerto Rico.",
     pageViewKey: "category_mercado_mixto",
     emptyText: "No hay Mercados Mixtos programados por ahora",
   },
@@ -100,3 +100,23 @@ export const CATEGORY_BY_SLUG = new Map(
 export const PAGE_BY_CATEGORY = new Map(
   CATEGORY_PAGES.map((c) => [c.category, c]),
 );
+
+/** Map old slugs → new slugs for 301 redirects */
+export const LEGACY_SLUG_REDIRECTS: Record<string, string> = {
+  "mercado-agricola": "mercados-agricolas",
+  "bazar-pop-up": "bazares",
+  "feria-artesanal": "ferias-artesanales",
+  "mercado-mixto": "mercados-mixtos",
+};
+
+/** Map raw `?category=...` values → new slug */
+export const CATEGORY_PARAM_TO_SLUG: Record<string, string> = {
+  "Mercado Agrícola": "mercados-agricolas",
+  "Mercado Agricola": "mercados-agricolas",
+  "Bazaar/Pop Up": "bazares",
+  "Bazar/Pop Up": "bazares",
+  "Feria Artesanal": "ferias-artesanales",
+  "Food Market": "food-market",
+  "Mercado Mixto": "mercados-mixtos",
+  "Flea Market": "flea-market",
+};

@@ -13,12 +13,16 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProductoresRouteImport } from './routes/productores'
 import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
 import { Route as NegociosRouteImport } from './routes/negocios'
+import { Route as MercadosMixtosRouteImport } from './routes/mercados-mixtos'
+import { Route as MercadosAgricolasRouteImport } from './routes/mercados-agricolas'
 import { Route as MercadosRouteImport } from './routes/mercados'
 import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as FoodMarketRouteImport } from './routes/food-market'
 import { Route as FleaMarketRouteImport } from './routes/flea-market'
+import { Route as FeriasArtesanalesRouteImport } from './routes/ferias-artesanales'
 import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
+import { Route as BazaresRouteImport } from './routes/bazares'
 import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -52,6 +56,16 @@ const NegociosRoute = NegociosRouteImport.update({
   path: '/negocios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MercadosMixtosRoute = MercadosMixtosRouteImport.update({
+  id: '/mercados-mixtos',
+  path: '/mercados-mixtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadosAgricolasRoute = MercadosAgricolasRouteImport.update({
+  id: '/mercados-agricolas',
+  path: '/mercados-agricolas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MercadosRoute = MercadosRouteImport.update({
   id: '/mercados',
   path: '/mercados',
@@ -77,9 +91,19 @@ const FleaMarketRoute = FleaMarketRouteImport.update({
   path: '/flea-market',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeriasArtesanalesRoute = FeriasArtesanalesRouteImport.update({
+  id: '/ferias-artesanales',
+  path: '/ferias-artesanales',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeriaArtesanalRoute = FeriaArtesanalRouteImport.update({
   id: '/feria-artesanal',
   path: '/feria-artesanal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BazaresRoute = BazaresRouteImport.update({
+  id: '/bazares',
+  path: '/bazares',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BazarPopUpRoute = BazarPopUpRouteImport.update({
@@ -145,12 +169,16 @@ const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
+  '/bazares': typeof BazaresRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/ferias-artesanales': typeof FeriasArtesanalesRoute
   '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
   '/mercados': typeof MercadosRoute
+  '/mercados-agricolas': typeof MercadosAgricolasRoute
+  '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
@@ -168,12 +196,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
+  '/bazares': typeof BazaresRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/ferias-artesanales': typeof FeriasArtesanalesRoute
   '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
   '/mercados': typeof MercadosRoute
+  '/mercados-agricolas': typeof MercadosAgricolasRoute
+  '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
@@ -193,12 +225,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
   '/bazar-pop-up': typeof BazarPopUpRoute
+  '/bazares': typeof BazaresRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
+  '/ferias-artesanales': typeof FeriasArtesanalesRoute
   '/flea-market': typeof FleaMarketRoute
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
   '/mercados': typeof MercadosRoute
+  '/mercados-agricolas': typeof MercadosAgricolasRoute
+  '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
@@ -218,12 +254,16 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/bazar-pop-up'
+    | '/bazares'
     | '/feria-artesanal'
+    | '/ferias-artesanales'
     | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
     | '/mercados'
+    | '/mercados-agricolas'
+    | '/mercados-mixtos'
     | '/negocios'
     | '/politica-de-privacidad'
     | '/productores'
@@ -241,12 +281,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bazar-pop-up'
+    | '/bazares'
     | '/feria-artesanal'
+    | '/ferias-artesanales'
     | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
     | '/mercados'
+    | '/mercados-agricolas'
+    | '/mercados-mixtos'
     | '/negocios'
     | '/politica-de-privacidad'
     | '/productores'
@@ -265,12 +309,16 @@ export interface FileRouteTypes {
     | '/'
     | '/_admin'
     | '/bazar-pop-up'
+    | '/bazares'
     | '/feria-artesanal'
+    | '/ferias-artesanales'
     | '/flea-market'
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
     | '/mercados'
+    | '/mercados-agricolas'
+    | '/mercados-mixtos'
     | '/negocios'
     | '/politica-de-privacidad'
     | '/productores'
@@ -290,12 +338,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   BazarPopUpRoute: typeof BazarPopUpRoute
+  BazaresRoute: typeof BazaresRoute
   FeriaArtesanalRoute: typeof FeriaArtesanalRoute
+  FeriasArtesanalesRoute: typeof FeriasArtesanalesRoute
   FleaMarketRoute: typeof FleaMarketRoute
   FoodMarketRoute: typeof FoodMarketRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   MercadoMixtoRoute: typeof MercadoMixtoRoute
   MercadosRoute: typeof MercadosRoute
+  MercadosAgricolasRoute: typeof MercadosAgricolasRoute
+  MercadosMixtosRoute: typeof MercadosMixtosRoute
   NegociosRoute: typeof NegociosRoute
   PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
   ProductoresRoute: typeof ProductoresRoute
@@ -333,6 +385,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NegociosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mercados-mixtos': {
+      id: '/mercados-mixtos'
+      path: '/mercados-mixtos'
+      fullPath: '/mercados-mixtos'
+      preLoaderRoute: typeof MercadosMixtosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercados-agricolas': {
+      id: '/mercados-agricolas'
+      path: '/mercados-agricolas'
+      fullPath: '/mercados-agricolas'
+      preLoaderRoute: typeof MercadosAgricolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mercados': {
       id: '/mercados'
       path: '/mercados'
@@ -368,11 +434,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FleaMarketRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ferias-artesanales': {
+      id: '/ferias-artesanales'
+      path: '/ferias-artesanales'
+      fullPath: '/ferias-artesanales'
+      preLoaderRoute: typeof FeriasArtesanalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/feria-artesanal': {
       id: '/feria-artesanal'
       path: '/feria-artesanal'
       fullPath: '/feria-artesanal'
       preLoaderRoute: typeof FeriaArtesanalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bazares': {
+      id: '/bazares'
+      path: '/bazares'
+      fullPath: '/bazares'
+      preLoaderRoute: typeof BazaresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bazar-pop-up': {
@@ -490,12 +570,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   BazarPopUpRoute: BazarPopUpRoute,
+  BazaresRoute: BazaresRoute,
   FeriaArtesanalRoute: FeriaArtesanalRoute,
+  FeriasArtesanalesRoute: FeriasArtesanalesRoute,
   FleaMarketRoute: FleaMarketRoute,
   FoodMarketRoute: FoodMarketRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   MercadoMixtoRoute: MercadoMixtoRoute,
   MercadosRoute: MercadosRoute,
+  MercadosAgricolasRoute: MercadosAgricolasRoute,
+  MercadosMixtosRoute: MercadosMixtosRoute,
   NegociosRoute: NegociosRoute,
   PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
   ProductoresRoute: ProductoresRoute,
@@ -505,13 +589,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

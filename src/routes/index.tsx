@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { marketsQueryOptions } from "@/lib/markets-query";
 import { trackPageView } from "@/lib/analytics.functions";
+import { CATEGORY_PARAM_TO_SLUG } from "@/lib/category-pages";
 import {
   applyFilters,
   defaultFilters,
@@ -68,6 +69,15 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
+  beforeLoad: ({ search }) => {
+    const cat = search.category;
+    if (cat && cat !== "all") {
+      const slug = CATEGORY_PARAM_TO_SLUG[cat];
+      if (slug) {
+        throw redirect({ to: `/${slug}` as "/", statusCode: 301 });
+      }
+    }
+  },
   head: () => ({
     meta: [
       { title: "RutaMercado — Directorio de Mercados Locales en Puerto Rico" },
@@ -82,8 +92,11 @@ export const Route = createFileRoute("/")({
         content:
           "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico. Encuentra el mercado más cercano a ti.",
       },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://rutamercadopr.com/" },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "RutaMercado" },
       { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "RutaMercado — Mercados Locales en Puerto Rico" },
       {
         name: "twitter:description",
@@ -92,7 +105,7 @@ export const Route = createFileRoute("/")({
       },
       { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://rutamercadopr.com/" }],
   }),
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(marketsQueryOptions),
@@ -101,6 +114,7 @@ export const Route = createFileRoute("/")({
     <div className="p-8 text-center text-muted-foreground">Página no encontrada</div>
   ),
 });
+
 
 function IndexPage() {
   const search = Route.useSearch();
@@ -131,11 +145,20 @@ function IndexPage() {
 
   type S = z.infer<typeof searchSchema>;
   const updateFilters = (next: Partial<MarketFilters>) => {
+    // If category is set to a specific value, navigate to its clean route
+    if (next.category && next.category !== "all") {
+      const slug = CATEGORY_PARAM_TO_SLUG[next.category];
+      if (slug) {
+        void navigate({ to: `/${slug}` as "/" });
+        return;
+      }
+    }
     void navigate({
       search: (prev: S) => ({ ...prev, ...next }) as S,
       replace: true,
     });
   };
+
 
   const clearFilters = () => {
     void navigate({
