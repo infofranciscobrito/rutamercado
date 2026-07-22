@@ -37,6 +37,45 @@ export const Route = createFileRoute("/productores")({
         content:
           "Directorio de productores y organizadores de mercados locales, ferias y bazares en Puerto Rico.",
       },
+      {
+        property: "og:image",
+        content: "https://rutamercadopr.com/og-productores.png",
+      },
+      {
+        property: "og:url",
+        content: "https://rutamercadopr.com/productores",
+      },
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        property: "og:site_name",
+        content: "RutaMercado",
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
+      {
+        name: "twitter:title",
+        content: "Productores de Mercados Locales en Puerto Rico — RutaMercado",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Directorio de productores y organizadores de mercados locales, ferias y bazares en Puerto Rico.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://rutamercadopr.com/og-productores.png",
+      },
+    ],
+    links: [
+      {
+        rel: "canonical",
+        href: "https://rutamercadopr.com/productores",
+      },
     ],
   }),
   loader: ({ context }) =>
