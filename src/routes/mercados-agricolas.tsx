@@ -32,10 +32,10 @@ function Page() {
       config={config}
       routeFrom="/mercados-agricolas"
       search={{
-        q: search.q,
-        date: search.date,
-        region: search.region as MarketFilters["region"],
-        municipality: search.municipality,
+        q: search.q ?? "",
+        date: search.date ?? "all",
+        region: (search.region ?? "all") as MarketFilters["region"],
+        municipality: search.municipality ?? "all",
         day: search.day,
         market: search.market,
       }}
