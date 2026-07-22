@@ -8,20 +8,33 @@ import { Header } from "@/components/rutamercado/Header";
 export const Route = createFileRoute("/mercados")({
   head: () => ({
     meta: [
-      { title: "Registra tu mercado — RutaMercado" },
+      { title: "Registra tu Mercado en RutaMercado | Puerto Rico" },
       {
         name: "description",
         content:
-          "Publica gratis tu mercado, feria o bazar en RutaMercado y llega a miles de puertorriqueños que buscan dónde ir cada fin de semana.",
+          "Publica tu mercado, feria o bazar gratis y llega a miles de personas que buscan eventos locales en todo Puerto Rico.",
       },
-      { property: "og:title", content: "Registra tu mercado — RutaMercado" },
+      { property: "og:title", content: "Registra tu Mercado en RutaMercado | Puerto Rico" },
       {
         property: "og:description",
         content:
-          "Publica gratis tu mercado en el directorio que la comunidad de Puerto Rico usa cada semana.",
+          "Publica tu mercado, feria o bazar gratis y llega a miles de personas que buscan eventos locales en todo Puerto Rico.",
       },
+      { property: "og:url", content: "https://rutamercadopr.com/mercados" },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "RutaMercado" },
+      { property: "og:image", content: "https://rutamercadopr.com/og-registra-mercado.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Registra tu Mercado en RutaMercado | Puerto Rico" },
+      {
+        name: "twitter:description",
+        content:
+          "Publica tu mercado, feria o bazar gratis y llega a miles de personas que buscan eventos locales en todo Puerto Rico.",
+      },
+      { name: "twitter:image", content: "https://rutamercadopr.com/og-registra-mercado.png" },
     ],
     links: [
+      { rel: "canonical", href: "https://rutamercadopr.com/mercados" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
