@@ -7,13 +7,16 @@ import type { EnrichedMarket } from "@/types/market";
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 export const categorySearchSchema = z.object({
-  q: fallback(z.string(), "").default(""),
-  date: fallback(z.enum(["today", "week", "month", "all"]), "all").default("all"),
+  q: fallback(z.string().optional(), undefined),
+  date: fallback(
+    z.enum(["today", "week", "month", "all"]).optional(),
+    undefined,
+  ),
   region: fallback(
-    z.enum(["all", ...MARKET_REGIONS] as [string, ...string[]]),
-    "all",
-  ).default("all"),
-  municipality: fallback(z.string(), "all").default("all"),
+    z.enum(["all", ...MARKET_REGIONS] as [string, ...string[]]).optional(),
+    undefined,
+  ),
+  municipality: fallback(z.string().optional(), undefined),
   day: fallback(z.string().regex(ISO_DAY).optional(), undefined),
   market: fallback(z.string().uuid().optional(), undefined),
 });
