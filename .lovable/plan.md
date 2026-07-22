@@ -1,12 +1,5 @@
-Reemplazar la imagen OG de `/mercados` con la nueva versión subida.
+## Cambio de imagen OG para /negocios
 
-## Pasos
-
-1. Copiar `user-uploads://og-registra-mercado-3.png` a `public/og-registra-mercado.png` (sobrescribiendo la actual). Mantener el mismo nombre evita cambios en `src/routes/mercados.tsx` y en cualquier caché ya indexada por URL.
-2. No se requieren cambios de código: `src/routes/mercados.tsx` ya emite `og:image` y `twitter:image` apuntando a `https://rutamercadopr.com/og-registra-mercado.png`.
-
-## Verificación tras publicar
-
-- `view-source:https://rutamercadopr.com/mercados` → confirmar `<meta property="og:image" content="https://rutamercadopr.com/og-registra-mercado.png">`.
-- Facebook Sharing Debugger → **Scrape Again** para refrescar caché (WhatsApp/Instagram heredan).
-- Nota: los crawlers cachean previews; el cambio no aparece de inmediato en links ya compartidos.
+1. Copiar `user-uploads://og-negocios.png` a `public/og-negocios.png` (1200x630).
+2. Actualizar el `head()` en `src/routes/negocios.tsx` para que `og:image` y `twitter:image` apunten a `https://rutamercadopr.com/og-negocios.png` (URL absoluta), manteniendo `og:url`, `og:type`, `og:site_name`, `twitter:card` y `canonical` de la ruta.
+3. Verificación tras publicar: `view-source:https://rutamercadopr.com/negocios` debe mostrar `<meta property="og:image" content="https://rutamercadopr.com/og-negocios.png">` en el HTML crudo; luego forzar re-scrape en Facebook Sharing Debugger.

@@ -41,17 +41,30 @@ export const Route = createFileRoute("/negocios")({
         content:
           "Registra tu negocio y hazte visible ante los organizadores de mercados, bazares y popups de Puerto Rico. Gratis, un solo registro, invitaciones directas.",
       },
-      {
-        property: "og:title",
-        content: "Directorio de Negocios — RutaMercado",
-      },
+      { property: "og:title", content: "Directorio de Negocios — RutaMercado" },
       {
         property: "og:description",
         content:
           "Tu negocio, visible ante los organizadores de mercados de Puerto Rico.",
       },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "RutaMercado" },
+      { property: "og:url", content: "https://rutamercadopr.com/negocios" },
+      { property: "og:image", content: "https://rutamercadopr.com/og-negocios.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Directorio de Negocios — RutaMercado" },
+      {
+        name: "twitter:description",
+        content:
+          "Tu negocio, visible ante los organizadores de mercados de Puerto Rico.",
+      },
+      { name: "twitter:image", content: "https://rutamercadopr.com/og-negocios.png" },
     ],
+    links: [{ rel: "canonical", href: "https://rutamercadopr.com/negocios" }],
   }),
+
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(emprendedoresQueryOptions),
   component: EmprendedoresPage,
