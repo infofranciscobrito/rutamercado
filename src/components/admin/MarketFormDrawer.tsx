@@ -117,7 +117,7 @@ function marketToForm(m: Market): FormValues {
     start_time: m.start_time.slice(0, 5),
     end_time: m.end_time.slice(0, 5),
     image_url: m.image_url ?? "",
-    organizer_name: m.organizer_name,
+    organizer_name: m.organizer_name ?? "",
     organizer_phone: m.organizer_phone ?? "",
     organizer_email: m.organizer_email ?? "",
     organizer_instagram: m.organizer_instagram ?? "",
