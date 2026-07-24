@@ -1,0 +1,1 @@
+ALTER TABLE public.markets ALTER COLUMN organizer_name DROP NOT NULL;

@@ -365,11 +365,12 @@ export const getTopOrganizers = createServerFn({ method: "GET" })
     const marketToOrg = new Map<string, string>();
     const totals = new Map<string, { views: number; clicks: number; count: number }>();
     for (const m of marketsRes.data ?? []) {
-      marketToOrg.set(m.id, m.organizer_name);
-      const cur = totals.get(m.organizer_name) ?? { views: 0, clicks: 0, count: 0 };
+      const orgName = m.organizer_name ?? "Sin organizador";
+      marketToOrg.set(m.id, orgName);
+      const cur = totals.get(orgName) ?? { views: 0, clicks: 0, count: 0 };
       cur.views += m.view_count ?? 0;
       cur.count += 1;
-      totals.set(m.organizer_name, cur);
+      totals.set(orgName, cur);
     }
     for (const c of clicksRes.data ?? []) {
       const org = marketToOrg.get(c.market_id);

@@ -399,7 +399,7 @@ export type Database = {
           organizer_email: string | null
           organizer_instagram: string | null
           organizer_logo_url: string | null
-          organizer_name: string
+          organizer_name: string | null
           organizer_phone: string | null
           parking: string | null
           payment_methods: string[] | null
@@ -435,7 +435,7 @@ export type Database = {
           organizer_email?: string | null
           organizer_instagram?: string | null
           organizer_logo_url?: string | null
-          organizer_name: string
+          organizer_name?: string | null
           organizer_phone?: string | null
           parking?: string | null
           payment_methods?: string[] | null
@@ -471,7 +471,7 @@ export type Database = {
           organizer_email?: string | null
           organizer_instagram?: string | null
           organizer_logo_url?: string | null
-          organizer_name?: string
+          organizer_name?: string | null
           organizer_phone?: string | null
           parking?: string | null
           payment_methods?: string[] | null

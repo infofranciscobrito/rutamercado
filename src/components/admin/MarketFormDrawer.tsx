@@ -117,7 +117,7 @@ function marketToForm(m: Market): FormValues {
     start_time: m.start_time.slice(0, 5),
     end_time: m.end_time.slice(0, 5),
     image_url: m.image_url ?? "",
-    organizer_name: m.organizer_name,
+    organizer_name: m.organizer_name ?? "",
     organizer_phone: m.organizer_phone ?? "",
     organizer_email: m.organizer_email ?? "",
     organizer_instagram: m.organizer_instagram ?? "",
@@ -377,7 +377,7 @@ export function MarketFormDrawer({
             />
           ) : null}
           {/* Fuente: markets.organizer_name del registro editado. Nunca de la sesión del admin. */}
-          <Field label="Nombre del organizador *">
+          <Field label="Nombre del organizador">
             <div data-lpignore="true">
               <Input
                 type="text"
@@ -385,7 +385,7 @@ export function MarketFormDrawer({
                 data-lpignore="true"
                 data-1p-ignore="true"
                 data-form-type="other"
-                {...register("organizer_name", { required: true })}
+                {...register("organizer_name")}
                 name="contact-field-d"
                 id="contact-field-d"
               />
