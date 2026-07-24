@@ -377,7 +377,7 @@ export function MarketFormDrawer({
             />
           ) : null}
           {/* Fuente: markets.organizer_name del registro editado. Nunca de la sesión del admin. */}
-          <Field label="Nombre del organizador *">
+          <Field label="Nombre del organizador">
             <div data-lpignore="true">
               <Input
                 type="text"
@@ -385,7 +385,7 @@ export function MarketFormDrawer({
                 data-lpignore="true"
                 data-1p-ignore="true"
                 data-form-type="other"
-                {...register("organizer_name", { required: true })}
+                {...register("organizer_name")}
                 name="contact-field-d"
                 id="contact-field-d"
               />
