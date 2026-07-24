@@ -1,4 +1,6 @@
 import { Search } from "lucide-react";
+import heroBg from "@/assets/footer-bg.png.asset.json";
+
 
 interface Props {
   query: string;
@@ -28,7 +30,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
       {/* Capa 1: imagen de fondo (más zoom en mobile para mostrar personajes) */}
       <div
         className="absolute inset-0 bg-center bg-no-repeat bg-[length:220%_auto] sm:bg-[length:140%_auto] lg:bg-cover"
-        style={{ backgroundImage: `url('/hero-bg.jpg')` }}
+        style={{ backgroundImage: `url('${heroBg.url}')` }}
         aria-hidden="true"
       />
 
