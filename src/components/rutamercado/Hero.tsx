@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import heroBg from "@/assets/footer-bg.png.asset.json";
+import heroBg from "@/assets/hero-bg.png.asset.json";
 
 
 interface Props {
