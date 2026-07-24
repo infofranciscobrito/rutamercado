@@ -50,7 +50,6 @@ const MarketInputSchema = z
       .or(z.literal("").transform(() => null)),
     recurrence_label: z.string().trim().max(200).nullable().optional(),
     image_url: z.string().url().max(2048).nullable().optional(),
-    organizer_name: z.string().trim().min(1).max(200),
     organizer_name: z
       .string()
       .trim()
