@@ -1,4 +1,6 @@
 import { Search } from "lucide-react";
+import heroBg from "@/assets/footer-bg.png.asset.json";
+
 
 interface Props {
   query: string;
