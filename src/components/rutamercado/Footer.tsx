@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Facebook } from "lucide-react";
+import footerBg from "@/assets/footer-bg.png.asset.json";
 
 const linkClass =
-  "text-white/70 transition-colors hover:text-[#54b678]";
+  "text-white/80 transition-colors hover:text-[#54b678]";
 const columnTitleClass =
   "font-display text-lg text-white";
 
@@ -13,13 +14,18 @@ export function Footer() {
         <div className="mx-auto h-[2px] w-20 bg-[#54b678]" aria-hidden="true" />
       </div>
       <footer
-        className="bg-[#18253f] text-white"
+        className="relative bg-[#18253f] text-white"
         style={{
           paddingTop: "clamp(2.5rem, 2rem + 2vw, 4rem)",
           paddingBottom: "clamp(2rem, 1.5rem + 1.5vw, 3rem)",
+          backgroundImage: `linear-gradient(rgba(24,37,63,0.82), rgba(24,37,63,0.92)), url(${footerBg.url})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {/* Col 1 — Brand */}
             <div className="flex flex-col items-start">
