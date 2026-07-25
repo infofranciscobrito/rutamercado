@@ -1,72 +1,76 @@
-# Rediseño visual — Business Analytics Dashboard
+# Rediseño visual del Dashboard de Métricas — Directorio de Negocios
 
-Rediseño **puramente visual** de `src/components/admin/BusinessAnalyticsDashboard.tsx`. No se tocan métricas, consultas, filtros, orden de secciones, ni el export a CSV. Se sustituye la capa de presentación por el sistema Cloud Tower adaptado a la marca RutaMercado.
+Rediseño puramente presentacional de `src/components/admin/BusinessAnalyticsDashboard.tsx`. Se preservan intactos: los server functions (`getBusinessRegistrationAnalytics`, `exportBusinessRegistrationsRows`), el shape de `BusinessAnalytics`, los filtros y su lógica, y el export CSV. Cambia estructura, tipos de gráfico, tokens y microcopy.
 
-## Alcance
+## Archivos a modificar
 
-- Archivo principal a reescribir a nivel de UI: `src/components/admin/BusinessAnalyticsDashboard.tsx`.
-- Tokens: reemplazar el bloque `.business-analytics-dashboard { --ba-* }` en `src/styles.css` por el nuevo sistema `--ba-*` (canvas, surface, seq, cat, status) + variante `[data-theme="dark"]` scoped al dashboard.
-- Nuevos subcomponentes (todos dentro de `src/components/admin/analytics/`, sin nueva librería de gráficos — se sigue usando Recharts que ya está):
-  - `Card.tsx` (cabecera con título + `n = X` + subtítulo + divisor + slot + nota).
-  - `KpiTile.tsx` (etiqueta, número 32/700, chip de delta).
-  - `HBarList.tsx` (barras horizontales 8px con carril `--gridline`, valor + %, rampa secuencial descendente, orden desc, ceros visibles, ancho de carril máx 480px).
-  - `StackedBar100.tsx` (barra 14px, gap real 2px, etiqueta interna solo si segmento > 48px, contraste ≥4.5:1, leyenda `● Nombre — 12 · 39%`).
-  - `ApprovalFunnel.tsx` (barra apilada 12px con colores de estado, resumen textual cuando un estado = 100%).
-  - `FiltersBar.tsx` (sticky, chips removibles, "Limpiar todo", contador "Mostrando X de Y negocios").
-  - `ThemeToggle.tsx` (Claro / Oscuro / Sistema, persiste en `localStorage` con la misma clave-pattern que ya usa el proyecto).
-  - `EmptyState.tsx`, `Skeleton.tsx`, `Tooltip.tsx` (Recharts custom content).
+- `src/styles.css` — extender el bloque `.business-analytics-dashboard` con los nuevos tokens (`--accent`, `--bg`, `--surface`, `--surface-2/3`, `--border`, `--border-strong`, `--text`, `--text-2`, `--muted`, rampa `--s1..s5`, categórica `--c1..c6`, estados `--good/warn/crit` con `-bg`, `--glow`). Invertir rampa secuencial en `[data-theme="light"]` vs `[data-theme="dark"]`. Mapear `--accent` a los brand tokens de RutaMercado (`#54b678` acento, `#18253f` para superficies profundas en oscuro). Mantener el bloque `--ba-*` existente sólo si otros componentes lo usan; si no, sustituirlo.
+- `src/components/admin/BusinessAnalyticsDashboard.tsx` — reescritura de la capa visual conservando: hooks, queries, `AnalyticsFilters`, cálculo de rango de fechas, chips de filtros activos, ThemeToggle (3 estados con `localStorage['rm-admin-theme']`), botón Export CSV.
+- Nuevos subcomponentes en `src/components/admin/analytics/`:
+  - `NarrativeHeader.tsx` — frase grande generada de los datos (total, regiones cubiertas, % formalizados, dependientes principales), números en `--accent`.
+  - `KpiTile.tsx` — etiqueta 11.5px, número 38/700 con conteo animado 900ms, chip de estado, sparkline opcional (SVG 30px) para "Total registrados".
+  - `CoverageMap.tsx` — cartograma SVG de 6 rectángulos (viewBox `-2 -2 174 66`) con coords exactas del brief, fill por rampa secuencial según conteo, regiones vacías con borde punteado + textos muted, hover dim de 34% en el resto, leyenda a la derecha + barra de escala.
+  - `ApprovalFunnel.tsx` — titular numérico 44px + barra apilada 100% (14px, radio 7, gap real 2px) con animación `scaleX`, leyenda con ceros en muted, nota interpretativa.
+  - `LollipopList.tsx` — filas 32px grid `132px 1fr 62px`, línea base 1px, tallo 2.5px animado, punto 11px con borde del color de superficie y pop `cubic-bezier(.3,1.5,.5,1)`, escala relativa al máximo, conteo + %.
+  - `MultiChannelList.tsx` — barra 7px sobre carril, colores categóricos, texto explícito "% de los negocios", nota al pie sobre multi-select.
+  - `WaffleChart.tsx` — un cuadro (15px, radio 4, gap 5) por registro, agrupados por categoría en orden desc, pop 350ms con retraso 14ms incremental, tooltip en hover, leyenda inferior. Se usa para Formalidad y Dependencia.
+  - `OrdinalBars.tsx` — 4 barras verticales (contenedor 120px), orden natural fijo, rampa claro→oscuro por antigüedad/tamaño, `scaleY` con origen abajo 750ms escalonado, eje anotado "más nuevo — más establecido" con degradado. Se usa para Tiempo operando y Empleados.
+  - `FindingBand.tsx` — banda 12-col con degradado del acento, ícono cuadrado 26px, titular + párrafo. Generador `computeFindings(analytics)` con las 3 reglas: región vacía, categoría >30%, pendientes >7 días. Si no dispara ninguna, no renderiza.
+  - `SectionDivider.tsx` — etiqueta 11px uppercase letter-spacing .09em + regla horizontal.
+  - `Card.tsx` — shell con `::after` glow, header (título 14/650, badge `n = X`, subtítulo obligatorio 11.5px muted), pie opcional con nota.
+- `src/routes/__root.tsx` — verificar que Nunito Sans (o la sans única del proyecto) esté cargada; si el toggle actual persiste bajo `rm-admin-theme`, mantener la misma clave.
 
-## Sistema de diseño
+## Layout bento (grid 12 col, gap 16, max 1440)
 
-- Escala de espaciado 4px (4/8/12/16/24/32/48/64). Nada arbitrario.
-- Grid 12 col, gutter 24px desktop / 16px tablet.
-- 3 niveles de elevación: canvas, card, floating (tooltip/dropdown/modal).
-- Tipografía única: Nunito Sans. Se retira la serif (`--font-display` DM Serif) de los títulos **dentro del dashboard** (no se toca el resto del sitio). `font-variant-numeric: tabular-nums` en todos los números.
-- Colores estrictamente por token (ver §Tokens abajo). Un solo hue secuencial para gráficos de una serie; paleta categórica fija (orden = categoría, nunca ranking) para series múltiples; estados solo para embudo/deltas. Texto siempre `--text-primary`/`--text-secondary`, nunca del color de la serie.
+```text
+┌──────┬──────┬──────┬──────┐   4 KPIs (3 col c/u)
+├──────┴───────────┬─────────┤
+│  MAPA (7 col)    │ EMBUDO  │   (5 col)
+├──────────────────┴─────────┤
+│ ▸ QUÉ VENDEN Y DÓNDE VENDEN │
+├─────────────┬───────────────┤
+│ CATEGORÍA   │  CANALES      │   (6 + 6)
+├─────────────┴───────────────┤
+│  ⚠ BANDA DE HALLAZGO        │   (12 col, condicional)
+├─────────────────────────────┤
+│ ▸ PERFIL DEL SECTOR         │
+├───────┬───────┬─────────────┤
+│FORMAL │ DEPEND│ TIEMPO      │   (4 + 4 + 4, waffle/waffle/ordinal)
+└───────┴───────┴─────────────┘
+```
 
-## Correcciones por sección
+Debajo: sección de empleados con `OrdinalBars`, y la sección de tendencia mensual existente (Recharts LineChart) reestilizada con los nuevos tokens.
 
-- **KPIs**: fila 5 col desktop / 2 tablet / 1 móvil. Etiqueta 12/500, número 32/700, chip de delta con fondo de estado + flecha + valor + "vs. mes anterior". Sin íconos decorativos.
-- **Categoría de producto / Región / Canales de venta**: `HBarList` con conteo + %, rampa secuencial descendente `--seq-700 → --seq-500` (mínimo `--seq-300`), ceros visibles en muted, ancho carril ≤ 480px.
-- **Embudo de aprobación**: ocupa 6/12 col junto a otra métrica; barra apilada 12px con colores de estado; leyenda inline; mensaje-resumen cuando un estado = 100% ("Los 31 negocios registrados están aprobados. No hay registros pendientes de revisión.").
-- **Perfil del sector** (tiempo operando, empleados, dependencia económica): tres `StackedBar100` alineadas al mismo ancho izquierdo. Variables ordinales conservan orden natural y usan rampa secuencial claro→oscuro por antigüedad/tamaño. Etiqueta % dentro solo si segmento >48px, si no vive únicamente en leyenda.
-- **Barra de filtros**: sticky top, chips removibles con ×, "Limpiar todo", contador "Mostrando X de Y negocios" en 12px muted.
-- **Tabla completa**: densidad 12px, filas alternas `--bg-surface-subtle`, en móvil se convierte en tarjetas apiladas (label/value), sin scroll horizontal.
+Responsive: ≥1100 bento completo; 760–1100 los bloques 3/4/5 → 6 y los de 7/8 → 12; <760 una sola columna, lollipop con nombre a 98px, mapa full-width, waffle intacto (15px cabe 18/fila en 375).
 
-## Interacción / estados
+## Microinteracción y accesibilidad
 
-- Tooltip Recharts custom: fondo `--brand-primary`, texto blanco, radio 6, padding 8/12, 12px, delay 100ms, fade 120ms; contenido = categoría + conteo + %.
-- Hover barra: resto del gráfico a 40% opacidad, 120ms.
-- Transiciones <200ms globalmente.
-- Estado vacío por gráfico: "No hay negocios que cumplan estos filtros" + link "Limpiar filtros".
-- Skeletons con la altura final; sin spinners.
-- Foco: outline 2px `--brand-accent` con offset 2. Navegación por teclado completa.
+- Entrada de tarjetas: `translateY(14px) + opacity`, 550ms, `cubic-bezier(.22,.8,.3,1)`, escalonada 40ms.
+- Todas las transiciones de hover <200ms; hover en lollipop pinta fondo de fila completa 150ms.
+- Barra superior sticky con `backdrop-filter: blur(16px)`; chips de filtros activos removibles a la izquierda; "Mostrando X de Y negocios registrados" alineado a la derecha.
+- `prefers-reduced-motion: reduce` → salta al estado final sin animaciones (counter directo, sin pop, sin scale).
+- `tabular-nums` global en el contenedor del dashboard.
+- Foco 2px `--accent` con offset 2 en todo lo navegable por teclado.
+- Contraste AA verificado en textos de mapa (blanco sobre `--s4/s5`, oscuro sobre `--s1/s2`) en ambos modos.
 
-## Modo oscuro
+## Reglas de datos (calculadas desde `BusinessAnalytics`)
 
-- Toggle en la barra del dashboard con 3 estados (Claro/Oscuro/Sistema), persistido.
-- Aplica `data-theme="dark"` **scoped al contenedor del dashboard** (`.business-analytics-dashboard[data-theme="dark"]`) para no afectar el resto del admin.
-- Rampa secuencial **invertida** (claro = más magnitud). Estados aclarados. Sin `#000`/`#FFF` puros. Contraste AA verificado.
+- Narrativa: `total`, regiones con conteo > 0 sobre 6, `% aprobados`, cuenta con `dependencia === 'Principal'`.
+- KPI "Empleos estimados" = `analytics.empleosEstimados` con nota fija; "Pendientes = 0" → chip verde "Cola al día" + días desde última revisión (usar `updated_at` máximo de pending si está disponible; si no, omitir línea temporal).
+- Mapa: `byRegion` mapeado a las 6 regiones canónicas de `MARKET_REGIONS`; regiones ausentes = 0.
+- Lollipop Categoría: `byCategoria` ordenado desc, escala al máximo.
+- Canales: `byCanalVenta`, cada `count` / `total` = %.
+- Waffle: iterar `byFormalidad` / `byDependencia` expandiendo `count` en cuadros individuales.
+- Ordinales: `byTiempoOperando` y `byTamanoEquipo` en el orden fijo de `TIEMPO_OPERANDO_OPTIONS` (y el orden canónico de tamaños) — nunca ordenar por magnitud.
+- Findings: regla 1 (alguna región con 0), regla 2 (max category share > 30%), regla 3 (pendientes con `created_at` > 7 días — sólo si el dato viene; si no, omitir esa regla).
 
-## Responsive
+## Reglas duras (verificación previa a cierre)
 
-- ≥1280: 12 col, KPIs ×5, distribuciones 6+6, perfil full-width.
-- 768–1279: KPIs ×2, gráficos apilados full-width, filtros colapsan en botón "Filtros" (panel lateral con `Sheet` de shadcn).
-- <768: 1 col, etiquetas de barras horizontales encima del carril, KPIs con etiqueta izq/número der, tabla → tarjetas apiladas. Ningún texto <11px.
+Sin pie/dona. Sin eje dual. Color nunca como único portador. Nunca texto pintado del color de serie. Sin colores fuera de los tokens. Categoría fija por identidad, no por ranking. Ordinales en orden natural. Estado vacío por gráfico con "Limpiar filtros". Rampa secuencial invertida entre modos. No se añade librería nueva de gráficos (SVG a mano + Recharts existente).
 
-## Reglas duras
+## Fuera de alcance
 
-- Sin pie/dona. Sin eje dual. Sin color como único portador. Sin texto pintado del color de serie. Sin colores fuera de los tokens. Se mantiene Recharts (no se añade otra librería).
-
-## Detalles técnicos
-
-- Tokens marca a mapear: `--brand-primary` = `#18253f` (navy RutaMercado), `--brand-accent` = `#54b678` (verde marca). El resto de tokens (`--bg-canvas`, `--bg-surface`, `--text-*`, `--seq-*`, `--cat-*`, `--status-*`) se añaden tal cual al bloque `.business-analytics-dashboard` en `src/styles.css`, reemplazando el bloque `--ba-*` existente. Los componentes solo consumen `var(--...)`.
-- Fuente Nunito Sans: si no está ya cargada, añadir `<link>` en `src/routes/__root.tsx` (nunca `@import` remoto en `styles.css`) y usar `font-family: 'Nunito Sans', var(--font-sans)` dentro del contenedor del dashboard.
-- El toggle usa `localStorage['rm-admin-theme']` con valores `light|dark|system`; `system` escucha `matchMedia('(prefers-color-scheme: dark)')`.
-- Tooltip de Recharts: `content={<CustomTooltip/>}`. Hover-dim en barras: mapear `activeIndex` y setear `fillOpacity` por `<Cell>`.
-- El texto interno de segmentos usa `<LabelList>` con `content` custom que decide render según ancho del segmento medido vía `viewBox`.
-- No se modifica ningún archivo bajo `src/lib/admin-emprendedores.functions.ts`, filtros, ni el CSV.
-
-## Verificación final
-
-Antes de cerrar se recorre la checklist del brief: métricas intactas, cada card con `n=` + subtítulo, filtros sticky con contador, barras con conteo+%, sin etiquetas recortadas, ordinales en orden natural, tabular-nums, toggle persiste, rampa invertida en oscuro, contraste AA en ambos modos, keyboard-nav con foco visible, tooltip + empty state por gráfico, espaciado 4px, sombras solo en flotantes/hover-clickable, render correcto a 375 / 768 / 1440.
+- No se toca `src/lib/admin-emprendedores.functions.ts`.
+- No se altera el CSV ni las columnas exportadas.
+- No se cambian filtros, presets ni su UX de selección (sólo su render como chips activos).
+- No se modifican otros dashboards ni el layout de admin fuera de este componente.
