@@ -294,28 +294,102 @@
   }
 }
 
-/* ==================== Business Analytics Dashboard tokens ==================== */
+/* ==================== Business Analytics Dashboard — Cloud Tower ==================== */
 .business-analytics-dashboard {
-  --ba-surface-1: #ffffff;
-  --ba-surface-2: #f6f8fb;
-  --ba-text-primary: #18253f;
-  --ba-text-secondary: #4b5a75;
-  --ba-muted: #7c8aa3;
-  --ba-gridline: #e6ebf2;
-  --ba-status-good: #2f9e5c;
-  --ba-status-warning: #e1a624;
-  --ba-status-critical: #d84a3f;
-  --ba-sequential-100: #cde2fb;
-  --ba-sequential-200: #8fbef2;
-  --ba-sequential-300: #3987e5;
-  --ba-sequential-400: #0d366b;
-  --ba-series-1-blue: #3987e5;
-  --ba-series-2-green: #2f9e5c;
-  --ba-series-3-magenta: #b23e8f;
-  --ba-series-4-yellow: #e1a624;
-  --ba-series-5-aqua: #2aa5a0;
-  --ba-series-6-orange: #e07a2b;
-  --ba-series-7-violet: #6a4bbf;
-  --ba-series-8-red: #d84a3f;
-  color: var(--ba-text-primary);
+  /* Marca RutaMercado */
+  --brand-primary: #18253f;
+  --brand-accent: #54b678;
+
+  /* Superficies y texto — modo claro */
+  --bg-canvas: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-surface-subtle: #fafbfc;
+  --border-default: #e3e7ed;
+  --border-strong: #c9d0da;
+  --text-primary: #0b1b2b;
+  --text-secondary: #4a5a6e;
+  --text-muted: #7c8b9c;
+  --gridline: #edf0f4;
+
+  /* Rampa secuencial (una serie, comparar magnitud) */
+  --seq-100: #d6e9f7;
+  --seq-300: #8cc4e8;
+  --seq-500: #2e7cb8;
+  --seq-700: #0b4c7c;
+  --seq-900: #032d60;
+
+  /* Paleta categórica (orden fijo, series distintas) */
+  --cat-1: #2e7cb8;
+  --cat-2: #14866a;
+  --cat-3: #b5658c;
+  --cat-4: #c98a1e;
+  --cat-5: #4a6fa8;
+  --cat-6: #8a6bb0;
+
+  /* Estados */
+  --status-good: #04844b;
+  --status-warning: #c77700;
+  --status-critical: #c23934;
+  --status-good-bg: #e8f5ee;
+  --status-warning-bg: #fdf3e3;
+  --status-critical-bg: #fbeae9;
+
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: "Nunito Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
+
+.business-analytics-dashboard[data-theme="dark"] {
+  --bg-canvas: #0d1620;
+  --bg-surface: #16222e;
+  --bg-surface-subtle: #1d2b3a;
+  --border-default: #2a3947;
+  --border-strong: #3a4b5c;
+  --text-primary: #e8edf2;
+  --text-secondary: #a3b1c0;
+  --text-muted: #6f8092;
+  --gridline: #22303e;
+
+  /* Rampa invertida: en oscuro, más claro = más magnitud */
+  --seq-100: #0b4c7c;
+  --seq-300: #2e7cb8;
+  --seq-500: #5ba3d9;
+  --seq-700: #8cc4e8;
+  --seq-900: #b8dcf2;
+
+  --status-good: #3dbe7e;
+  --status-warning: #e0a038;
+  --status-critical: #e8615c;
+  --status-good-bg: #14311f;
+  --status-warning-bg: #33240d;
+  --status-critical-bg: #3a1b1a;
+}
+
+.business-analytics-dashboard h1,
+.business-analytics-dashboard h2,
+.business-analytics-dashboard h3,
+.business-analytics-dashboard h4 {
+  font-family: "Nunito Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+.business-analytics-dashboard :focus-visible {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.ba-card-hover {
+  transition: box-shadow 120ms ease;
+}
+.ba-card-hover:hover {
+  box-shadow: 0 1px 3px rgba(11, 27, 43, 0.08);
+}
+
+.ba-bar-row .ba-bar-fill {
+  transition: fill-opacity 120ms ease, opacity 120ms ease;
+}
+.ba-bar-group:hover .ba-bar-row:not(:hover) .ba-bar-fill {
+  opacity: 0.4;
+}
+
