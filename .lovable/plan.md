@@ -1,42 +1,55 @@
-# Rediseño visual — /admin/analytics
+# Rediseño de /admin/analytics — Estilo "Cloud Tower" (igual a /admin/emprendedores)
 
-Solo cambia la presentación. Cero cambios en queries, filtros, permisos, lógica de fechas o exportaciones CSV.
+Descartamos por completo la propuesta editorial anterior. El objetivo es que `/admin/analytics` se vea, se sienta y se comporte igual que el dashboard de `/admin/emprendedores` (`BusinessAnalyticsDashboard.tsx`).
 
-## Lenguaje visual (fijo)
+## Sistema visual a replicar (tal cual está en emprendedores)
 
-- **Paleta:** fondo `#FAFAF8`, tinta `#18253f`, acento `#54b678`, superficie suave `#FFF8EC`. Verde solo como acento de dato, nunca como fondo grande.
-- **Tipografía:** JetBrains Mono para titulares de sección y todos los números; Work Sans para cuerpo, labels y tablas. Cargar JetBrains Mono en `__root.tsx` (Work Sans ya está).
-- **Estructura:** informe editorial de una columna centrada (`max-w-6xl mx-auto`), capítulos numerados separados por regla horizontal navy fina. Sin tarjetas con sombra, sin glassmorphism, sin gradientes. Bordes hairline `border-[#18253f]/10` y reglas `border-[#18253f]` para separadores fuertes.
-- **Motion:** fade+rise sutil al entrar en viewport, counters que suben en los KPIs. Respetar `prefers-reduced-motion`.
+- **Tokens y paleta** ya definidos en `src/styles.css` bajo el sistema Cloud Tower: superficies `--surface-*`, tinta `--ink-*`, acento navy/verde, secuencias `--seq-100..900` y categóricos `--cat-1..6`. No se crean tokens nuevos.
+- **Tipografía**: sans del sistema para lectura, `font-display` para titulares, `tabular-nums` en todos los números. Sin JetBrains Mono ni cambios en `__root.tsx`.
+- **Layout**: bento grid ancho (`max-w-[1400px]`), bloques con `rounded-2xl border bg-card`, hairlines suaves, sin sombras dramáticas ni gradientes.
+- **Header narrativo**: título grande + subtítulo + barra de filtros (preset de fechas, rango custom, tema claro/oscuro/sistema, botón Exportar CSV) idéntica en estructura a la de emprendedores.
+- **Charts**: Recharts con la misma configuración visual — ejes hairline, `tabular-nums` en ticks, colores desde `SEQ`/`CAT`, tooltip navy sobre blanco. Barras horizontales, áreas translúcidas y pies con leyenda tipográfica al estilo emprendedores.
+- **Modo tema**: reutilizar el mismo toggle `light/dark/system` con `THEME_KEY` propio (`rm-analytics-theme`) para no colisionar con el de emprendedores.
 
-## Estructura de la página (mismas secciones, mismo orden)
+## Alcance funcional (sin tocar datos)
 
-1. **Header editorial** — Título "Analíticas" grande en mono + rango de fechas en subhead + selector "Últimos 30 días" (se conserva tal cual está el control) alineado a la derecha.
-2. **Capítulo 01 · Alcance** — Grid 4 columnas con los 4 KPIs primarios (Vistas Directorio, Vistas Detalle, Cómo llegar, Engagement). Números XL en JetBrains Mono, label uppercase pequeño.
-3. **Capítulo 02 · Interacción** — Grid 4 columnas con los 4 KPIs de clics (Teléfono, Email, Instagram, URL Contacto).
-4. **Capítulo 03 · Intención & Estado** — Grid 4 columnas: ¡Voy a ir!, Me interesa, Mercados activos/inactivos, Submissions pendientes.
-5. **Top 10 Mercados por Vistas** — Tabla editorial con numeración `01–10` a la izquierda, filas altas, hover crema, botón CSV en el header de sección.
-6. **Top Organizadores** — Misma familia de tabla editorial + CSV.
-7. **Análisis de Clicks por Tipo** — Barras horizontales limpias (una sola serie verde, ejes navy hairline).
-8. **Distribución por Categoría / por Región** — Dos pies lado a lado con leyenda tipográfica debajo (mono para números, uppercase para labels).
-9. **Tráfico Diario** — Line chart en verde con área translúcida, ejes hairline, tooltip navy.
-10. **Fuentes de Tráfico** — Pie + tabla auxiliar, misma familia visual.
-11. **Actividad por Página** — Tabla editorial.
-12. **Submissions de Mercados** — Tabla editorial con badges de estado (Pendiente/Aprobado/Rechazado) en pill outline navy/verde/navy-muted.
-13. **Servicios e Instalaciones** — 6 grupos en grid 3 col, cada uno con filas: label · barra progreso hairline · % en mono a la derecha. Sección envuelta en fondo `#FFF8EC` con regla superior.
-14. **Intención de Asistencia** — 4 KPIs + tabla Top 10 con la misma familia editorial.
-15. **Intención por Mercado / por Día** — Dos gráficos lado a lado (barras + línea) con la misma paleta.
+Se preservan al 100% los hooks, server functions, cálculos, filtros de fecha y exportaciones CSV que ya existen en `src/routes/_admin/admin.analytics.tsx`. Solo cambia la presentación.
+
+Bloques a renderizar, en este orden, dentro del bento:
+
+1. Header + filtros globales (rango de fechas, tema, export general si aplica).
+2. KPIs de alcance (Vistas Directorio, Vistas Detalle, Cómo llegar, Engagement).
+3. KPIs de interacción (Teléfono, Email, Instagram, URL Contacto).
+4. KPIs de intención y estado (¡Voy a ir!, Me interesa, Mercados activos/inactivos, Submissions pendientes).
+5. Top 10 Mercados por Vistas (tabla + CSV).
+6. Top Organizadores (tabla + CSV).
+7. Análisis de Clicks por Tipo (barras horizontales).
+8. Distribución por Categoría y por Región (dos pies con leyenda).
+9. Tráfico Diario (area/line chart).
+10. Fuentes de Tráfico (pie + tabla auxiliar + CSV).
+11. Actividad por Página (tabla + CSV).
+12. Submissions de Mercados (tabla con badges pill Pendiente/Aprobado/Rechazado).
+13. Servicios e Instalaciones (6 grupos, filas con label · barra · % · CSV).
+14. Intención de Asistencia — KPIs + Top 10 (tabla + CSV).
+15. Intención por Mercado y por Día (barras + línea lado a lado).
+
+Cada bloque adopta el mismo lenguaje de card/borde/tipografía que los bloques equivalentes de emprendedores.
+
+## Archivos afectados
+
+- `src/routes/_admin/admin.analytics.tsx` — reescritura completa de la UI. Se mantienen todos los `useServerFn` / `useQuery` / cálculos existentes; se reemplaza el JSX y los helpers de presentación.
+- Componentes internos nuevos, colocados en el mismo archivo o bajo `src/components/admin/analytics/` (según convenga): `SectionCard`, `KpiTile`, `DataTable`, `HBarList`, `AmenityRow`, `PieBlock`, `StatusPill`, `ThemeToggle`, `RangePicker`. Todos son "tontos": reciben props.
+- `src/routes/__root.tsx` y `src/styles.css` — sin cambios (los tokens Cloud Tower ya existen).
 
 ## Detalles técnicos
 
-- **Archivo principal a reescribir:** `src/routes/admin.analytics.tsx` (o el componente que renderiza actualmente). Mantener todas las llamadas de datos, hooks, cálculos y `Route.head`.
-- **Nuevos componentes internos** (mismo archivo o `src/components/admin/analytics/`): `SectionHeader`, `KpiTile` (con `useCountUp`), `EditorialTable`, `HBarList`, `ProgressRow`, `Pie` (thin wrapper Recharts con colores locked). Ninguno maneja datos: reciben props.
-- **Charts:** seguir usando Recharts (ya integrado). Sobrescribir colores: `stroke="#18253f"` en ejes/grid con `strokeOpacity={0.1}`, series en `#54b678` y `#18253f`, tooltip fondo `#18253f` texto blanco. Tipografía `Work Sans 11px` en ticks, `tabular-nums`.
-- **Tokens CSS:** añadir a `src/styles.css` bajo `@theme`: `--font-mono: "JetBrains Mono", ui-monospace, monospace;` si falta, y utilities auxiliares `@utility rule-hair`/`rule-strong` si simplifica el markup (opcional — Tailwind arb classes también sirven).
-- **Accesibilidad:** `tabular-nums` en todos los números, contraste AA (navy `#18253f` sobre crema pasa), roles ARIA de tabla preservados, `prefers-reduced-motion` gatea el counter y el fade-in.
-- **Responsive:** grids 4-col → 2-col → 1-col en mobile. Tablas con `overflow-x-auto`.
+- Reutilizar `downloadCSV` de `@/lib/csv` para todas las exportaciones existentes.
+- Charts con `ResponsiveContainer`, ejes navy `strokeOpacity={0.15}`, series desde `SEQ`, tooltips con fondo `--surface-1` y borde hairline.
+- Persistir el preset de rango en state local; sin cambios en la firma de las funciones de datos.
+- `prefers-reduced-motion` respetado (sin counters animados salvo que ya existan en emprendedores).
+- Accesibilidad: roles ARIA en tablas, contraste AA, foco visible.
 
 ## Verificación
 
 - `tsgo` limpio.
-- Playwright en `/admin/analytics` con sesión inyectada: screenshot desktop 1440 y mobile 375 confirma los 15 bloques presentes, números coinciden con la vista actual, y CSV funciona en Top 10 Mercados / Top Organizadores / Análisis de Clicks / Fuentes / Actividad / Servicios / Top 10 Intención.
+- Playwright autenticado en `/admin/analytics`: screenshots desktop 1440 y mobile 375 confirman los 15 bloques con el mismo lenguaje visual que `/admin/emprendedores`, y CSV descarga en Top 10 Mercados, Top Organizadores, Análisis de Clicks, Fuentes, Actividad, Servicios y Top 10 Intención.

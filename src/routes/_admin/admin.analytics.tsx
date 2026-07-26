@@ -1,8 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useRef, useState, Fragment, type ReactNode } from "react";
-import { Download, ChevronDown, ChevronRight, CalendarIcon } from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  Fragment,
+  type ReactNode,
+} from "react";
+import {
+  Download,
+  ChevronDown,
+  ChevronRight,
+  Sun,
+  Moon,
+  Monitor,
+} from "lucide-react";
 import {
   PieChart,
   Pie,
@@ -17,6 +31,8 @@ import {
   Legend,
   ResponsiveContainer,
   CartesianGrid,
+  AreaChart,
+  Area,
 } from "recharts";
 import {
   getAnalyticsOverview,
@@ -36,9 +52,7 @@ import {
 } from "@/lib/admin-analytics.functions";
 import { downloadCSV } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { RECURRENCE_TYPE_HUMAN, type RecurrenceType } from "@/lib/recurrence";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -46,7 +60,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { RECURRENCE_TYPE_HUMAN, type RecurrenceType } from "@/lib/recurrence";
 
 type AnalyticsSearch = { market?: string };
 
@@ -57,42 +71,104 @@ export const Route = createFileRoute("/_admin/admin/analytics")({
   component: AnalyticsPage,
 });
 
-// ---------- Design tokens (locked) ----------
-const INK = "#18253f";
-const ACCENT = "#54b678";
-const CREAM = "#FFF8EC";
-const PAPER = "#FAFAF8";
-const MONO = '"JetBrains Mono", ui-monospace, monospace';
-const BODY = '"Work Sans", ui-sans-serif, system-ui, sans-serif';
-const PIE_COLORS = [ACCENT, INK, "#7BC9A0", "#3A5378", "#B6E0C6", "#0ea5e9", "#a855f7"];
+/* ============================================================== */
+/*  Constants                                                      */
+/* ============================================================== */
 
-// ---------- Helpers ----------
-function truncate(s: string, n: number) {
-  return s.length > n ? s.slice(0, n - 1) + "…" : s;
-}
+type Preset = "today" | "7" | "30" | "90" | "mtd" | "year" | "custom" | "all";
+type ThemeMode = "light" | "dark" | "system";
+const THEME_KEY = "rm-analytics-theme";
 
-type Preset = "7" | "30" | "90" | "year" | "custom";
+const PRESET_LABEL: Record<Preset, string> = {
+  all: "Todo",
+  today: "Hoy",
+  "7": "Últimos 7 días",
+  "30": "Últimos 30 días",
+  "90": "Últimos 90 días",
+  mtd: "Mes a la fecha",
+  year: "Este año",
+  custom: "Personalizado",
+};
 
-function computeRange(preset: Preset, customFrom?: Date, customTo?: Date): { from: Date; to: Date } {
+const SEQ = [
+  "var(--seq-100)",
+  "var(--seq-300)",
+  "var(--seq-500)",
+  "var(--seq-700)",
+  "var(--seq-900)",
+];
+const CAT = [
+  "var(--cat-1)",
+  "var(--cat-2)",
+  "var(--cat-3)",
+  "var(--cat-4)",
+  "var(--cat-5)",
+  "var(--cat-6)",
+];
+const PIE_COLORS = [
+  "var(--accent)",
+  "var(--seq-700)",
+  "var(--cat-2)",
+  "var(--cat-3)",
+  "var(--cat-4)",
+  "var(--cat-5)",
+  "var(--cat-6)",
+];
+
+/* ============================================================== */
+/*  Date range                                                     */
+/* ============================================================== */
+
+function computeRange(
+  preset: Preset,
+  from?: string,
+  to?: string,
+): { from: string | null; to: string | null } {
   const now = new Date();
-  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-  if (preset === "custom" && customFrom && customTo) {
-    const from = new Date(customFrom.getFullYear(), customFrom.getMonth(), customFrom.getDate(), 0, 0, 0, 0);
-    const to = new Date(customTo.getFullYear(), customTo.getMonth(), customTo.getDate(), 23, 59, 59, 999);
-    return { from, to };
+  const end = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    23,
+    59,
+    59,
+    999,
+  );
+  if (preset === "all") return { from: null, to: null };
+  if (preset === "today") {
+    const s = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    ).toISOString();
+    return { from: s, to: end.toISOString() };
+  }
+  if (preset === "mtd") {
+    const s = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    return { from: s, to: end.toISOString() };
   }
   if (preset === "year") {
-    return { from: new Date(now.getFullYear(), 0, 1), to: endOfToday };
+    const s = new Date(now.getFullYear(), 0, 1).toISOString();
+    return { from: s, to: end.toISOString() };
   }
-  const days = preset === "7" ? 7 : preset === "90" ? 90 : 30;
-  const from = new Date(endOfToday);
-  from.setDate(from.getDate() - days + 1);
-  from.setHours(0, 0, 0, 0);
-  return { from, to: endOfToday };
+  if (preset === "custom") {
+    return {
+      from: from ? new Date(from + "T00:00:00").toISOString() : null,
+      to: to ? new Date(to + "T23:59:59").toISOString() : null,
+    };
+  }
+  const days = Number(preset);
+  const s = new Date(end.getTime() - (days - 1) * 86400000);
+  s.setHours(0, 0, 0, 0);
+  return { from: s.toISOString(), to: end.toISOString() };
 }
 
 function fmtDay(d: Date) {
-  return d.toLocaleDateString("es-PR", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString("es-PR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function recurrenceLabel(t: string): string {
@@ -100,377 +176,392 @@ function recurrenceLabel(t: string): string {
   return RECURRENCE_TYPE_HUMAN[t as RecurrenceType] ?? t;
 }
 
-function padRank(n: number) {
-  return String(n).padStart(2, "0");
+function truncate(s: string, n: number) {
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }
 
-// ---------- Motion: count-up hook ----------
-function useCountUp(target: number, duration = 900): number {
-  const [val, setVal] = useState(0);
-  const startRef = useRef<number | null>(null);
-  const rafRef = useRef<number | null>(null);
+/* ============================================================== */
+/*  Theme                                                          */
+/* ============================================================== */
+
+function useDashboardTheme(): [
+  ThemeMode,
+  "light" | "dark",
+  (m: ThemeMode) => void,
+] {
+  const [mode, setMode] = useState<ThemeMode>("light");
+  const [resolved, setResolved] = useState<"light" | "dark">("light");
+
   useEffect(() => {
-    const prefersReduced =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced || !Number.isFinite(target)) {
-      setVal(target);
-      return;
+    const stored =
+      typeof window !== "undefined"
+        ? (localStorage.getItem(THEME_KEY) as ThemeMode | null)
+        : null;
+    if (stored === "light" || stored === "dark" || stored === "system")
+      setMode(stored);
+  }, []);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const resolve = () => {
+      if (mode === "system") setResolved(mql.matches ? "dark" : "light");
+      else setResolved(mode);
+    };
+    resolve();
+    mql.addEventListener("change", resolve);
+    return () => mql.removeEventListener("change", resolve);
+  }, [mode]);
+
+  const setPersist = (m: ThemeMode) => {
+    setMode(m);
+    try {
+      localStorage.setItem(THEME_KEY, m);
+    } catch {
+      /* noop */
     }
-    startRef.current = null;
-    const step = (t: number) => {
-      if (startRef.current === null) startRef.current = t;
-      const p = Math.min(1, (t - startRef.current) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setVal(target * eased);
-      if (p < 1) rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [target, duration]);
-  return val;
+  };
+
+  return [mode, resolved, setPersist];
 }
 
-// ---------- Primitives ----------
-function SectionHeader({
-  chapter,
-  title,
-  subtitle,
-  action,
+function ThemeToggle({
+  mode,
+  onChange,
 }: {
-  chapter?: string;
-  title: string;
-  subtitle?: string;
-  action?: ReactNode;
+  mode: ThemeMode;
+  onChange: (m: ThemeMode) => void;
 }) {
+  const items: { m: ThemeMode; icon: typeof Sun; label: string }[] = [
+    { m: "light", icon: Sun, label: "Claro" },
+    { m: "dark", icon: Moon, label: "Oscuro" },
+    { m: "system", icon: Monitor, label: "Sistema" },
+  ];
   return (
     <div
-      className="flex flex-wrap items-end justify-between gap-3 pb-3 border-b"
-      style={{ borderColor: INK }}
+      role="radiogroup"
+      aria-label="Tema del panel"
+      className="inline-flex items-center rounded-lg border p-0.5"
+      style={{
+        borderColor: "var(--border-default)",
+        background: "var(--bg-surface)",
+      }}
     >
-      <div>
-        {chapter && (
-          <div
-            className="text-[10px] tracking-[0.3em] uppercase mb-2"
-            style={{ fontFamily: MONO, color: INK, opacity: 0.5 }}
+      {items.map(({ m, icon: Icon, label }) => {
+        const active = mode === m;
+        return (
+          <button
+            key={m}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={label}
+            title={label}
+            onClick={() => onChange(m)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors"
+            style={{
+              background: active ? "var(--brand-primary)" : "transparent",
+              color: active ? "#fff" : "var(--text-secondary)",
+            }}
           >
-            {chapter}
-          </div>
-        )}
-        <h2
-          className="text-2xl md:text-3xl leading-none"
-          style={{ fontFamily: MONO, color: INK, fontWeight: 700, letterSpacing: "-0.02em" }}
-        >
-          {title}
-        </h2>
-        {subtitle && (
-          <p className="mt-2 text-xs" style={{ fontFamily: BODY, color: INK, opacity: 0.6 }}>
-            {subtitle}
-          </p>
-        )}
-      </div>
-      {action}
+            <Icon className="h-4 w-4" />
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-function CsvButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
+/* ============================================================== */
+/*  Counter                                                        */
+/* ============================================================== */
+
+function useCountUp(target: number, duration = 900) {
+  const [n, setN] = useState(0);
+  const raf = useRef<number | null>(null);
+  useEffect(() => {
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || target === 0) {
+      setN(target);
+      return;
+    }
+    const start = performance.now();
+    const step = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(target * eased));
+      if (p < 1) raf.current = requestAnimationFrame(step);
+    };
+    raf.current = requestAnimationFrame(step);
+    return () => {
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, [target, duration]);
+  return n;
+}
+
+/* ============================================================== */
+/*  Primitives                                                     */
+/* ============================================================== */
+
+function FilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] border transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:text-white"
-      style={{
-        fontFamily: MONO,
-        borderColor: INK,
-        color: INK,
-        background: "transparent",
-      }}
-      onMouseEnter={(e) => {
-        if (!disabled) e.currentTarget.style.background = INK;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = "transparent";
-      }}
-    >
-      <Download className="h-3 w-3" /> CSV
-    </button>
+    <div className="flex flex-col gap-1">
+      <label
+        className="text-[10.5px] font-semibold uppercase tracking-wider"
+        style={{ color: "var(--text-muted)" }}
+      >
+        {label}
+      </label>
+      {children}
+    </div>
   );
 }
+
+function Card({
+  title,
+  subtitle,
+  n,
+  note,
+  action,
+  children,
+  delay = 0,
+}: {
+  title: string;
+  subtitle?: string;
+  n?: number;
+  note?: string;
+  action?: ReactNode;
+  children: ReactNode;
+  delay?: number;
+}) {
+  return (
+    <section
+      className="ba-card ba-enter h-full"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <header className="mb-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3
+            className="text-[14px] font-bold"
+            style={{
+              color: "var(--text-primary)",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {title}
+          </h3>
+          <div className="flex items-center gap-2">
+            {typeof n === "number" && (
+              <span
+                className="rounded-md border px-1.5 py-0.5 text-[10.5px] font-medium tabular-nums"
+                style={{
+                  background: "var(--surface-3)",
+                  borderColor: "var(--border-default)",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                n = {n}
+              </span>
+            )}
+            {action}
+          </div>
+        </div>
+        {subtitle && (
+          <p
+            className="mt-1 text-[11.5px]"
+            style={{ color: "var(--text-muted)" }}
+          >
+            {subtitle}
+          </p>
+        )}
+      </header>
+      {children}
+      {note && (
+        <p
+          className="mt-3 border-t pt-3 text-[10.5px]"
+          style={{
+            color: "var(--text-muted)",
+            borderColor: "var(--border-default)",
+          }}
+        >
+          {note}
+        </p>
+      )}
+    </section>
+  );
+}
+
+type ChipTone = "good" | "warning" | "critical" | "neutral" | "accent";
 
 function KpiTile({
   label,
   value,
   suffix,
-  accent,
+  chip,
+  delay = 0,
 }: {
   label: string;
   value: number;
   suffix?: string;
-  accent?: boolean;
+  chip?: { text: string; tone: ChipTone };
+  delay?: number;
 }) {
-  const animated = useCountUp(value);
+  const n = useCountUp(value);
   const display = suffix
-    ? `${animated.toFixed(1)}${suffix}`
-    : Math.round(animated).toLocaleString("es-PR");
+    ? `${n.toFixed(1).replace(/\.0$/, "")}${suffix}`
+    : n.toLocaleString("es-PR");
+  const toneMap: Record<ChipTone, { bg: string; fg: string }> = {
+    good: { bg: "var(--status-good-bg)", fg: "var(--status-good)" },
+    warning: { bg: "var(--status-warning-bg)", fg: "var(--status-warning)" },
+    critical: { bg: "var(--status-critical-bg)", fg: "var(--status-critical)" },
+    neutral: { bg: "var(--bg-surface-subtle)", fg: "var(--text-secondary)" },
+    accent: {
+      bg: "color-mix(in oklab, var(--accent) 14%, transparent)",
+      fg: "var(--accent)",
+    },
+  };
   return (
     <div
-      className="flex flex-col justify-between p-5 border-t"
-      style={{ borderColor: INK, minHeight: 118 }}
+      className="ba-card ba-enter"
+      style={{ animationDelay: `${delay}ms` }}
     >
       <div
-        className="text-4xl md:text-5xl leading-none tabular-nums"
-        style={{
-          fontFamily: MONO,
-          fontWeight: 700,
-          color: accent ? ACCENT : INK,
-          letterSpacing: "-0.03em",
-        }}
+        className="text-[11.5px] font-semibold uppercase tracking-wider"
+        style={{ color: "var(--text-secondary)" }}
+      >
+        {label}
+      </div>
+      <div
+        className="mt-2 text-[38px] font-bold leading-none tabular-nums"
+        style={{ color: "var(--text-primary)" }}
       >
         {display}
       </div>
-      <div
-        className="mt-4 text-[10px] uppercase tracking-[0.2em]"
-        style={{ fontFamily: MONO, color: INK, opacity: 0.55 }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function KpiPair({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col justify-between p-5 border-t" style={{ borderColor: INK, minHeight: 118 }}>
-      <div
-        className="text-4xl md:text-5xl leading-none tabular-nums"
-        style={{ fontFamily: MONO, fontWeight: 700, color: INK, letterSpacing: "-0.03em" }}
-      >
-        {value}
-      </div>
-      <div
-        className="mt-4 text-[10px] uppercase tracking-[0.2em]"
-        style={{ fontFamily: MONO, color: INK, opacity: 0.55 }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
-
-// Editorial table wrappers
-function EdTable({ children }: { children: ReactNode }) {
-  return (
-    <div className="overflow-x-auto">
-      <table
-        className="w-full text-left border-collapse"
-        style={{ fontFamily: BODY, color: INK }}
-      >
-        {children}
-      </table>
-    </div>
-  );
-}
-function EdTh({
-  children,
-  className,
-  align = "left",
-}: {
-  children: ReactNode;
-  className?: string;
-  align?: "left" | "right";
-}) {
-  return (
-    <th
-      className={cn(
-        "py-3 font-normal text-[10px] uppercase tracking-[0.22em]",
-        align === "right" && "text-right",
-        className,
+      {chip && (
+        <div className="mt-3">
+          <span
+            className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold"
+            style={{
+              background: toneMap[chip.tone].bg,
+              color: toneMap[chip.tone].fg,
+            }}
+          >
+            {chip.text}
+          </span>
+        </div>
       )}
-      style={{ fontFamily: MONO, color: INK, opacity: 0.55, borderBottom: `1px solid ${INK}` }}
-    >
-      {children}
-    </th>
-  );
-}
-function EdTr({ children, id, highlighted }: { children: ReactNode; id?: string; highlighted?: boolean }) {
-  return (
-    <tr
-      id={id}
-      className="transition-colors"
-      style={{
-        background: highlighted ? CREAM : "transparent",
-        borderBottom: `1px solid ${INK}1A`,
-      }}
-      onMouseEnter={(e) => {
-        if (!highlighted) e.currentTarget.style.background = CREAM;
-      }}
-      onMouseLeave={(e) => {
-        if (!highlighted) e.currentTarget.style.background = "transparent";
-      }}
-    >
-      {children}
-    </tr>
-  );
-}
-function EdTd({
-  children,
-  className,
-  align = "left",
-  mono,
-  bold,
-  muted,
-}: {
-  children: ReactNode;
-  className?: string;
-  align?: "left" | "right";
-  mono?: boolean;
-  bold?: boolean;
-  muted?: boolean;
-}) {
-  return (
-    <td
-      className={cn("py-4 text-sm", align === "right" && "text-right tabular-nums", className)}
-      style={{
-        fontFamily: mono ? MONO : BODY,
-        fontWeight: bold ? 600 : 400,
-        opacity: muted ? 0.5 : 1,
-      }}
-    >
-      {children}
-    </td>
+    </div>
   );
 }
 
-function PillBadge({ tone = "ink", children }: { tone?: "ink" | "accent" | "muted" | "warn" | "danger"; children: ReactNode }) {
-  const map: Record<string, { bg: string; fg: string; bd: string }> = {
-    ink: { bg: "transparent", fg: INK, bd: INK },
-    accent: { bg: `${ACCENT}1F`, fg: INK, bd: ACCENT },
-    muted: { bg: "transparent", fg: INK, bd: `${INK}33` },
-    warn: { bg: "#FFF3D6", fg: "#7A4E00", bd: "#E7B94A" },
-    danger: { bg: "#FBE3E3", fg: "#7A1D1D", bd: "#E29A9A" },
+function CsvButton({
+  onClick,
+  disabled,
+  label = "CSV",
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[11px] font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      style={{
+        borderColor: "var(--border-default)",
+        color: "var(--text-secondary)",
+        background: "var(--bg-surface)",
+      }}
+    >
+      <Download className="h-3.5 w-3.5" />
+      {label}
+    </button>
+  );
+}
+
+function StatusBadge({
+  tone,
+  children,
+}: {
+  tone: "good" | "warning" | "critical" | "neutral";
+  children: ReactNode;
+}) {
+  const map = {
+    good: { bg: "var(--status-good-bg)", fg: "var(--status-good)" },
+    warning: { bg: "var(--status-warning-bg)", fg: "var(--status-warning)" },
+    critical: {
+      bg: "var(--status-critical-bg)",
+      fg: "var(--status-critical)",
+    },
+    neutral: {
+      bg: "var(--bg-surface-subtle)",
+      fg: "var(--text-secondary)",
+    },
   };
-  const c = map[tone];
   return (
     <span
-      className="inline-flex items-center px-2 py-0.5 text-[10px] uppercase tracking-[0.18em]"
-      style={{ fontFamily: MONO, background: c.bg, color: c.fg, border: `1px solid ${c.bd}` }}
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
+      style={{ background: map[tone].bg, color: map[tone].fg }}
     >
       {children}
     </span>
   );
 }
 
-// Custom Recharts tooltip
-function InkTooltip({ active, payload, label }: any) {
+/* Recharts custom tooltip */
+function BaTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div
-      className="text-xs px-3 py-2"
-      style={{ background: INK, color: "white", fontFamily: MONO, letterSpacing: "0.02em" }}
+      className="rounded-md px-3 py-2 text-[12px] shadow-md"
+      style={{ background: "var(--brand-primary)", color: "#fff" }}
     >
-      {label && <div className="opacity-70 mb-1">{label}</div>}
+      {label && <div className="font-medium">{label}</div>}
       {payload.map((p: any, i: number) => (
         <div key={i} className="flex justify-between gap-4 tabular-nums">
-          <span>{p.name}</span>
-          <span>{typeof p.value === "number" ? p.value.toLocaleString("es-PR") : p.value}</span>
+          <span style={{ opacity: 0.8 }}>{p.name}</span>
+          <span className="font-semibold">
+            {typeof p.value === "number"
+              ? p.value.toLocaleString("es-PR")
+              : p.value}
+          </span>
         </div>
       ))}
     </div>
   );
 }
 
-// ---------- Date range control ----------
-function DateRangeControl({
-  preset,
-  setPreset,
-  customFrom,
-  customTo,
-  setCustom,
-}: {
-  preset: Preset;
-  setPreset: (p: Preset) => void;
-  customFrom?: Date;
-  customTo?: Date;
-  setCustom: (from: Date | undefined, to: Date | undefined) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const label =
-    preset === "custom" && customFrom && customTo
-      ? `${fmtDay(customFrom)} – ${fmtDay(customTo)}`
-      : "Seleccionar rango";
-
-  return (
-    <div className="flex flex-wrap items-center gap-2" style={{ fontFamily: MONO }}>
-      <Select value={preset} onValueChange={(v) => setPreset(v as Preset)}>
-        <SelectTrigger
-          className="w-52 rounded-none text-xs uppercase tracking-[0.16em]"
-          style={{ borderColor: INK, color: INK, fontFamily: MONO }}
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="7">Últimos 7 días</SelectItem>
-          <SelectItem value="30">Últimos 30 días</SelectItem>
-          <SelectItem value="90">Últimos 90 días</SelectItem>
-          <SelectItem value="year">Este año</SelectItem>
-          <SelectItem value="custom">Rango personalizado</SelectItem>
-        </SelectContent>
-      </Select>
-      {preset === "custom" && (
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "rounded-none justify-start text-left font-normal text-xs uppercase tracking-[0.16em]",
-                !customFrom && "text-muted-foreground",
-              )}
-              style={{ borderColor: INK, color: INK, fontFamily: MONO }}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {label}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <Calendar
-              mode="range"
-              selected={{ from: customFrom, to: customTo }}
-              onSelect={(range) => {
-                setCustom(range?.from, range?.to);
-                if (range?.from && range?.to) setOpen(false);
-              }}
-              numberOfMonths={2}
-              className={cn("p-3 pointer-events-auto")}
-            />
-          </PopoverContent>
-        </Popover>
-      )}
-    </div>
-  );
-}
-
-// ========================================================================
-// PAGE
-// ========================================================================
+/* ============================================================== */
+/*  Page                                                           */
+/* ============================================================== */
 
 function AnalyticsPage() {
   const { market: marketFromUrl } = Route.useSearch();
   const [preset, setPreset] = useState<Preset>("30");
-  const [customFrom, setCustomFrom] = useState<Date | undefined>(undefined);
-  const [customTo, setCustomTo] = useState<Date | undefined>(undefined);
-  const [expandedId, setExpandedId] = useState<string | null>(marketFromUrl ?? null);
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(
+    marketFromUrl ?? null,
+  );
+  const [themeMode, resolvedTheme, setThemeMode] = useDashboardTheme();
 
   const { from, to } = useMemo(
     () => computeRange(preset, customFrom, customTo),
     [preset, customFrom, customTo],
   );
-  const fromISO = from.toISOString();
-  const toISO = to.toISOString();
-  const rangeArg = { from: fromISO, to: toISO };
+  const rangeArg = { from: from ?? "", to: to ?? "" };
+  const fromDate = from ? new Date(from) : null;
+  const toDate = to ? new Date(to) : null;
 
   useEffect(() => {
     if (marketFromUrl) {
@@ -498,109 +589,97 @@ function AnalyticsPage() {
   const submissionsFn = useServerFn(getSubmissionsStats);
   const amenitiesFn = useServerFn(getAmenitiesDistribution);
 
-  const logFetch = async <T,>(label: string, fetcher: () => Promise<T>) => {
-    try {
-      return await fetcher();
-    } catch (err) {
-      console.error(`[Admin data] ${label}: fetch error`, err);
-      throw err;
-    }
-  };
-
-  const rangeKey = [fromISO, toISO];
+  const rangeKey = [from ?? "", to ?? ""];
 
   const overview = useQuery({
     queryKey: ["admin", "analytics", "overview", ...rangeKey],
-    queryFn: () => logFetch("overview", () => overviewFn({ data: rangeArg })),
+    queryFn: () => overviewFn({ data: rangeArg }),
   });
   const topMarkets = useQuery({
     queryKey: ["admin", "analytics", "topMarkets", ...rangeKey],
-    queryFn: () => logFetch("topMarkets", () => topMarketsFn({ data: rangeArg })),
+    queryFn: () => topMarketsFn({ data: rangeArg }),
   });
   const topOrg = useQuery({
     queryKey: ["admin", "analytics", "topOrg", ...rangeKey],
-    queryFn: () => logFetch("topOrg", () => topOrgFn({ data: rangeArg })),
+    queryFn: () => topOrgFn({ data: rangeArg }),
   });
   const dist = useQuery({
     queryKey: ["admin", "analytics", "dist"],
-    queryFn: () => logFetch("dist", () => distFn()),
+    queryFn: () => distFn(),
   });
   const traffic = useQuery({
     queryKey: ["admin", "analytics", "traffic", ...rangeKey],
-    queryFn: () => logFetch("traffic", () => trafficFn({ data: rangeArg })),
+    queryFn: () => trafficFn({ data: rangeArg }),
   });
   const attMetrics = useQuery({
     queryKey: ["admin", "analytics", "attendance", "metrics", ...rangeKey],
-    queryFn: () => logFetch("att metrics", () => attMetricsFn({ data: rangeArg })),
+    queryFn: () => attMetricsFn({ data: rangeArg }),
   });
   const attTop = useQuery({
     queryKey: ["admin", "analytics", "attendance", "top"],
-    queryFn: () => logFetch("att top", () => attTopFn({ data: { limit: 10 } })),
+    queryFn: () => attTopFn({ data: { limit: 10 } }),
   });
   const attAll = useQuery({
     queryKey: ["admin", "analytics", "attendance", "all"],
-    queryFn: () => logFetch("att all", () => attTopFn({ data: {} })),
+    queryFn: () => attTopFn({ data: {} }),
   });
   const attDaily = useQuery({
     queryKey: ["admin", "analytics", "attendance", "daily", ...rangeKey],
-    queryFn: () => logFetch("att daily", () => attDailyFn({ data: rangeArg })),
+    queryFn: () => attDailyFn({ data: rangeArg }),
   });
   const attDetail = useQuery({
     queryKey: ["admin", "analytics", "attendance", "detail", expandedId],
-    queryFn: () => logFetch("att detail", () => attDetailFn({ data: { marketId: expandedId!, days: 30 } })),
+    queryFn: () =>
+      attDetailFn({ data: { marketId: expandedId!, days: 30 } }),
     enabled: !!expandedId,
   });
   const clicksByType = useQuery({
     queryKey: ["admin", "analytics", "clicksByType", ...rangeKey],
-    queryFn: () => logFetch("clicks by type", () => clicksByTypeFn({ data: rangeArg })),
+    queryFn: () => clicksByTypeFn({ data: rangeArg }),
   });
   const trafficSources = useQuery({
     queryKey: ["admin", "analytics", "trafficSources", ...rangeKey],
-    queryFn: () => logFetch("traffic sources", () => trafficSourcesFn({ data: rangeArg })),
+    queryFn: () => trafficSourcesFn({ data: rangeArg }),
   });
   const pageActivity = useQuery({
     queryKey: ["admin", "analytics", "pageActivity", ...rangeKey],
-    queryFn: () => logFetch("page activity", () => pageActivityFn({ data: rangeArg })),
+    queryFn: () => pageActivityFn({ data: rangeArg }),
   });
   const submissions = useQuery({
     queryKey: ["admin", "analytics", "submissions", ...rangeKey],
-    queryFn: () => logFetch("submissions", () => submissionsFn({ data: rangeArg })),
+    queryFn: () => submissionsFn({ data: rangeArg }),
   });
   const amenities = useQuery({
     queryKey: ["admin", "analytics", "amenities"],
-    queryFn: () => logFetch("amenities", () => amenitiesFn()),
+    queryFn: () => amenitiesFn(),
   });
 
   const isLoading =
-    overview.isLoading || topMarkets.isLoading || topOrg.isLoading || dist.isLoading ||
-    traffic.isLoading || attMetrics.isLoading || attTop.isLoading || attDaily.isLoading ||
-    clicksByType.isLoading || trafficSources.isLoading || pageActivity.isLoading || submissions.isLoading;
+    overview.isLoading ||
+    topMarkets.isLoading ||
+    topOrg.isLoading ||
+    dist.isLoading ||
+    traffic.isLoading ||
+    attMetrics.isLoading ||
+    attTop.isLoading ||
+    attDaily.isLoading ||
+    clicksByType.isLoading ||
+    trafficSources.isLoading ||
+    pageActivity.isLoading ||
+    submissions.isLoading;
   const error =
-    overview.error ?? topMarkets.error ?? topOrg.error ?? dist.error ?? traffic.error ??
-    attMetrics.error ?? attTop.error ?? attDaily.error ?? clicksByType.error ??
-    trafficSources.error ?? pageActivity.error ?? submissions.error;
-
-  if (isLoading) {
-    return (
-      <div
-        className="py-24 text-center text-xs uppercase tracking-[0.25em]"
-        style={{ fontFamily: MONO, color: INK, opacity: 0.5 }}
-      >
-        Cargando analíticas…
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div
-        className="py-24 text-center text-xs uppercase tracking-[0.25em] text-destructive"
-        style={{ fontFamily: MONO }}
-      >
-        No se pudieron cargar las analíticas: {error.message}
-      </div>
-    );
-  }
+    overview.error ??
+    topMarkets.error ??
+    topOrg.error ??
+    dist.error ??
+    traffic.error ??
+    attMetrics.error ??
+    attTop.error ??
+    attDaily.error ??
+    clicksByType.error ??
+    trafficSources.error ??
+    pageActivity.error ??
+    submissions.error;
 
   const ov = overview.data;
   const subm = submissions.data;
@@ -609,702 +688,1211 @@ function AnalyticsPage() {
 
   return (
     <div
-      className="mx-auto w-full max-w-6xl px-2 md:px-4 py-4 space-y-16"
-      style={{ background: PAPER, color: INK, fontFamily: BODY }}
+      className="business-analytics-dashboard -mx-4 -my-6 px-4 py-6 sm:-mx-6 sm:px-6"
+      data-theme={resolvedTheme}
     >
-      {/* ================= HEADER ================= */}
-      <header
-        className="flex flex-wrap items-end justify-between gap-6 pb-8 border-b-2"
-        style={{ borderColor: INK }}
+      {/* Sticky filter bar */}
+      <div
+        className="sticky top-0 z-20 -mx-4 border-b px-4 py-3 sm:-mx-6 sm:px-6"
+        style={{
+          background:
+            "color-mix(in oklab, var(--bg-canvas) 82%, transparent)",
+          borderColor: "var(--border-default)",
+          backdropFilter: "blur(16px)",
+        }}
       >
-        <div>
-          <div
-            className="text-[10px] tracking-[0.4em] uppercase mb-3"
-            style={{ fontFamily: MONO, opacity: 0.5 }}
-          >
-            Reporte · Vol. {new Date().getFullYear()}
+        <div className="flex flex-wrap items-end gap-3">
+          <FilterField label="Rango">
+            <Select
+              value={preset}
+              onValueChange={(v) => setPreset(v as Preset)}
+            >
+              <SelectTrigger className="h-9 w-[190px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(
+                  [
+                    "today",
+                    "7",
+                    "30",
+                    "90",
+                    "mtd",
+                    "year",
+                    "all",
+                    "custom",
+                  ] as Preset[]
+                ).map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {PRESET_LABEL[p]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
+          {preset === "custom" && (
+            <>
+              <FilterField label="Desde">
+                <Input
+                  type="date"
+                  value={customFrom}
+                  onChange={(e) => setCustomFrom(e.target.value)}
+                  className="h-9"
+                />
+              </FilterField>
+              <FilterField label="Hasta">
+                <Input
+                  type="date"
+                  value={customTo}
+                  onChange={(e) => setCustomTo(e.target.value)}
+                  className="h-9"
+                />
+              </FilterField>
+            </>
+          )}
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle mode={themeMode} onChange={setThemeMode} />
           </div>
-          <h1
-            className="text-5xl md:text-7xl leading-[0.9]"
-            style={{ fontFamily: MONO, fontWeight: 700, letterSpacing: "-0.04em" }}
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span
+            className="text-[11.5px]"
+            style={{ color: "var(--text-muted)" }}
           >
-            Analíticas
-          </h1>
-          <p
-            className="mt-3 text-sm uppercase tracking-[0.2em]"
-            style={{ fontFamily: MONO, opacity: 0.55 }}
+            Mostrando datos{" "}
+            <strong style={{ color: "var(--text-primary)" }}>
+              {fromDate && toDate
+                ? `${fmtDay(fromDate)} — ${fmtDay(toDate)}`
+                : "de todo el histórico"}
+            </strong>
+          </span>
+        </div>
+      </div>
+
+      <div className="mx-auto mt-6 max-w-[1440px] space-y-6">
+        {isLoading ? (
+          <SkeletonState />
+        ) : error ? (
+          <div
+            className="py-12 text-center text-sm"
+            style={{ color: "var(--status-critical)" }}
           >
-            {fmtDay(from)} — {fmtDay(to)}
-          </p>
-        </div>
-        <DateRangeControl
-          preset={preset}
-          setPreset={(p) => {
-            setPreset(p);
-            if (p !== "custom") {
-              setCustomFrom(undefined);
-              setCustomTo(undefined);
-            }
-          }}
-          customFrom={customFrom}
-          customTo={customTo}
-          setCustom={(f, t) => {
-            setCustomFrom(f);
-            setCustomTo(t);
-          }}
-        />
-      </header>
+            Error: {(error as Error).message}
+          </div>
+        ) : (
+          <>
+            {/* Narrative header */}
+            <div className="ba-enter">
+              <h2
+                className="font-bold tracking-tight"
+                style={{
+                  fontSize: "clamp(22px, 3vw, 34px)",
+                  lineHeight: 1.15,
+                  letterSpacing: "-0.028em",
+                  color: "var(--text-primary)",
+                }}
+              >
+                <span
+                  style={{ color: "var(--accent)", fontWeight: 700 }}
+                >
+                  {(ov?.detailViews ?? 0).toLocaleString("es-PR")} vistas
+                </span>{" "}
+                a mercados con{" "}
+                <span
+                  style={{ color: "var(--accent)", fontWeight: 700 }}
+                >
+                  {(ov?.engagementRate ?? 0).toFixed(1)}% de engagement
+                </span>{" "}
+                y{" "}
+                <span
+                  style={{ color: "var(--accent)", fontWeight: 700 }}
+                >
+                  {((ov?.willAttend ?? 0) + (ov?.interested ?? 0)).toLocaleString(
+                    "es-PR",
+                  )}{" "}
+                  intenciones
+                </span>{" "}
+                registradas en el período.
+              </h2>
+              <p
+                className="mt-2 text-[13.5px]"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Panel operativo del directorio. Todo se actualiza según el
+                rango de fechas seleccionado.
+              </p>
+            </div>
 
-      {/* ================= 01 · ALCANCE ================= */}
-      <section className="space-y-4">
-        <SectionHeader chapter="Capítulo 01" title="Alcance" subtitle="Volumen de tráfico y engagement general" />
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          <KpiTile label="Vistas Directorio" value={ov?.homeViews ?? 0} />
-          <KpiTile label="Vistas de Detalle" value={ov?.detailViews ?? 0} />
-          <KpiTile label="Cómo llegar" value={ov?.directionsClicks ?? 0} />
-          <KpiTile label="Engagement" value={ov?.engagementRate ?? 0} suffix="%" accent />
-        </div>
-      </section>
+            {/* KPIs — Alcance */}
+            <SectionDivider label="Alcance del directorio" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <KpiTile
+                label="Vistas del directorio"
+                value={ov?.homeViews ?? 0}
+                delay={0}
+              />
+              <KpiTile
+                label="Vistas de detalle"
+                value={ov?.detailViews ?? 0}
+                delay={60}
+              />
+              <KpiTile
+                label="Clics en cómo llegar"
+                value={ov?.directionsClicks ?? 0}
+                delay={120}
+              />
+              <KpiTile
+                label="Engagement"
+                value={ov?.engagementRate ?? 0}
+                suffix="%"
+                chip={{ text: "detalle / directorio", tone: "accent" }}
+                delay={180}
+              />
+            </div>
 
-      {/* ================= 02 · INTERACCIÓN ================= */}
-      <section className="space-y-4">
-        <SectionHeader chapter="Capítulo 02" title="Interacción" subtitle="Clics de contacto con organizadores" />
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          <KpiTile label="Clics Teléfono" value={ov?.clickPhone ?? 0} />
-          <KpiTile label="Clics Email" value={ov?.clickEmail ?? 0} />
-          <KpiTile label="Clics Instagram" value={ov?.clickInstagram ?? 0} />
-          <KpiTile label="Clics URL Contacto" value={ov?.clickContact ?? 0} />
-        </div>
-      </section>
+            {/* KPIs — Interacción */}
+            <SectionDivider label="Interacción con organizadores" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <KpiTile label="Clics Teléfono" value={ov?.clickPhone ?? 0} />
+              <KpiTile label="Clics Email" value={ov?.clickEmail ?? 0} delay={60} />
+              <KpiTile
+                label="Clics Instagram"
+                value={ov?.clickInstagram ?? 0}
+                delay={120}
+              />
+              <KpiTile
+                label="Clics URL Contacto"
+                value={ov?.clickContact ?? 0}
+                delay={180}
+              />
+            </div>
 
-      {/* ================= 03 · INTENCIÓN & ESTADO ================= */}
-      <section className="space-y-4">
-        <SectionHeader chapter="Capítulo 03" title="Intención & Estado" subtitle="Actividad de usuarios y salud del catálogo" />
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          <KpiTile label="¡Voy a ir!" value={ov?.willAttend ?? 0} accent />
-          <KpiTile label="Me interesa" value={ov?.interested ?? 0} />
-          <KpiPair
-            label="Mercados activos / inactivos"
-            value={`${ov?.activeMarkets ?? 0} / ${ov?.inactiveMarkets ?? 0}`}
-          />
-          <KpiTile label="Submissions pendientes" value={ov?.pendingSubmissions ?? 0} />
-        </div>
-      </section>
-
-      {/* ================= 04 · TOP MERCADOS ================= */}
-      <section className="space-y-5">
-        <SectionHeader
-          chapter="Capítulo 04"
-          title="Top 10 Mercados por Vistas"
-          action={
-            <CsvButton
-              disabled={!topMarkets.data?.length}
-              onClick={() =>
-                downloadCSV(
-                  "top-mercados.csv",
-                  (topMarkets.data ?? []).map((m) => ({
-                    rank: m.rank,
-                    mercado: m.name,
-                    vistas: m.views,
-                    telefono: m.clickPhone,
-                    email: m.clickEmail,
-                    direcciones: m.directionsClicks,
-                    contacto: m.clickContact,
-                    ire: m.willAttend,
-                    me_interesa: m.interested,
-                    recurrencia: recurrenceLabel(m.recurrenceType),
-                  })),
-                )
-              }
-            />
-          }
-        />
-        <EdTable>
-          <thead>
-            <tr>
-              <EdTh className="w-12">#</EdTh>
-              <EdTh>Mercado</EdTh>
-              <EdTh align="right">Vistas</EdTh>
-              <EdTh align="right">Tel</EdTh>
-              <EdTh align="right">Email</EdTh>
-              <EdTh align="right">Dir.</EdTh>
-              <EdTh align="right">Contacto</EdTh>
-              <EdTh align="right">Iré</EdTh>
-              <EdTh align="right">Me interesa</EdTh>
-              <EdTh>Recurrencia</EdTh>
-            </tr>
-          </thead>
-          <tbody>
-            {(topMarkets.data ?? []).map((m) => (
-              <EdTr key={m.id}>
-                <EdTd mono muted>{padRank(m.rank)}</EdTd>
-                <EdTd bold>{m.name}</EdTd>
-                <EdTd align="right" mono bold>{m.views}</EdTd>
-                <EdTd align="right" mono>{m.clickPhone}</EdTd>
-                <EdTd align="right" mono>{m.clickEmail}</EdTd>
-                <EdTd align="right" mono>{m.directionsClicks}</EdTd>
-                <EdTd align="right" mono>{m.clickContact}</EdTd>
-                <EdTd align="right" mono>{m.willAttend}</EdTd>
-                <EdTd align="right" mono>{m.interested}</EdTd>
-                <EdTd>
-                  <span className="text-[10px] uppercase tracking-[0.18em]" style={{ fontFamily: MONO, opacity: 0.7 }}>
-                    {recurrenceLabel(m.recurrenceType)}
+            {/* KPIs — Intención & estado */}
+            <SectionDivider label="Intención y estado del catálogo" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <KpiTile
+                label="¡Voy a ir!"
+                value={ov?.willAttend ?? 0}
+                chip={{ text: "alta intención", tone: "good" }}
+              />
+              <KpiTile
+                label="Me interesa"
+                value={ov?.interested ?? 0}
+                delay={60}
+              />
+              <div className="ba-card ba-enter" style={{ animationDelay: "120ms" }}>
+                <div
+                  className="text-[11.5px] font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Mercados activos / inactivos
+                </div>
+                <div
+                  className="mt-2 text-[38px] font-bold leading-none tabular-nums"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  {ov?.activeMarkets ?? 0}{" "}
+                  <span
+                    style={{ color: "var(--text-muted)", fontSize: 28 }}
+                  >
+                    / {ov?.inactiveMarkets ?? 0}
                   </span>
-                </EdTd>
-              </EdTr>
-            ))}
-          </tbody>
-        </EdTable>
-      </section>
+                </div>
+                <div className="mt-3">
+                  <span
+                    className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold"
+                    style={{
+                      background: "var(--status-good-bg)",
+                      color: "var(--status-good)",
+                    }}
+                  >
+                    {ov?.activeMarkets ?? 0} publicados
+                  </span>
+                </div>
+              </div>
+              <KpiTile
+                label="Submissions pendientes"
+                value={ov?.pendingSubmissions ?? 0}
+                chip={
+                  (ov?.pendingSubmissions ?? 0) > 0
+                    ? { text: "requieren revisión", tone: "warning" }
+                    : { text: "cola al día", tone: "good" }
+                }
+                delay={180}
+              />
+            </div>
 
-      {/* ================= 05 · TOP ORGANIZADORES ================= */}
-      <section className="space-y-5">
-        <SectionHeader
-          chapter="Capítulo 05"
-          title="Top Organizadores"
-          action={
-            <CsvButton
-              disabled={!topOrg.data?.length}
-              onClick={() => downloadCSV("top-organizadores.csv", topOrg.data ?? [])}
-            />
-          }
-        />
-        <EdTable>
-          <thead>
-            <tr>
-              <EdTh className="w-12">#</EdTh>
-              <EdTh>Organizador</EdTh>
-              <EdTh align="right">Mercados</EdTh>
-              <EdTh align="right">Vistas</EdTh>
-              <EdTh align="right">Clics</EdTh>
-            </tr>
-          </thead>
-          <tbody>
-            {(topOrg.data ?? []).map((o, i) => (
-              <EdTr key={o.organizer}>
-                <EdTd mono muted>{padRank(i + 1)}</EdTd>
-                <EdTd bold>{o.organizer}</EdTd>
-                <EdTd align="right" mono>{o.markets}</EdTd>
-                <EdTd align="right" mono bold>{o.views}</EdTd>
-                <EdTd align="right" mono>{o.clicks}</EdTd>
-              </EdTr>
-            ))}
-          </tbody>
-        </EdTable>
-      </section>
+            {/* Top Mercados */}
+            <SectionDivider label="Rendimiento por mercado" />
+            <div className="grid gap-6 lg:grid-cols-12">
+              <div className="lg:col-span-8">
+                <Card
+                  title="Top 10 mercados por vistas"
+                  subtitle="Ranking de mercados con mayor tráfico en el período"
+                  n={topMarkets.data?.length ?? 0}
+                  action={
+                    <CsvButton
+                      disabled={!topMarkets.data?.length}
+                      onClick={() =>
+                        downloadCSV(
+                          "top-mercados.csv",
+                          (topMarkets.data ?? []).map((m) => ({
+                            rank: m.rank,
+                            mercado: m.name,
+                            vistas: m.views,
+                            telefono: m.clickPhone,
+                            email: m.clickEmail,
+                            direcciones: m.directionsClicks,
+                            contacto: m.clickContact,
+                            ire: m.willAttend,
+                            me_interesa: m.interested,
+                            recurrencia: recurrenceLabel(m.recurrenceType),
+                          })),
+                        )
+                      }
+                    />
+                  }
+                >
+                  <TopMarketsTable rows={topMarkets.data ?? []} />
+                </Card>
+              </div>
+              <div className="lg:col-span-4">
+                <Card
+                  title="Top organizadores"
+                  subtitle="Quiénes tienen más tracción"
+                  n={topOrg.data?.length ?? 0}
+                  action={
+                    <CsvButton
+                      disabled={!topOrg.data?.length}
+                      onClick={() =>
+                        downloadCSV(
+                          "top-organizadores.csv",
+                          topOrg.data ?? [],
+                        )
+                      }
+                    />
+                  }
+                  delay={80}
+                >
+                  <TopOrganizersList rows={topOrg.data ?? []} />
+                </Card>
+              </div>
+            </div>
 
-      {/* ================= 06 · CLICS POR TIPO ================= */}
-      <section className="space-y-5">
-        <SectionHeader
-          chapter="Capítulo 06"
-          title="Análisis de Clicks por Tipo"
-          action={
-            <CsvButton
-              disabled={!clicks.length}
-              onClick={() =>
-                downloadCSV(
-                  "clicks-por-tipo.csv",
-                  clicks.map((r) => ({ tipo: r.label, total: r.count })),
-                )
-              }
-            />
-          }
-        />
-        <ul className="space-y-4">
-          {clicks.length === 0 ? (
-            <li className="py-6 text-center text-xs uppercase tracking-[0.2em]" style={{ fontFamily: MONO, opacity: 0.5 }}>
-              Sin datos en este período
-            </li>
-          ) : (
-            clicks.map((c) => {
-              const pct = (c.count / clicksMax) * 100;
-              return (
-                <li key={c.label} className="space-y-2">
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-[11px] uppercase tracking-[0.22em]" style={{ fontFamily: MONO }}>
-                      {c.label}
-                    </span>
-                    <span className="tabular-nums" style={{ fontFamily: MONO, fontWeight: 700 }}>
-                      {c.count.toLocaleString("es-PR")}
-                    </span>
-                  </div>
-                  <div className="h-2" style={{ background: `${INK}0F` }}>
-                    <div
-                      className="h-full transition-all duration-700"
-                      style={{ width: `${pct}%`, background: ACCENT }}
+            {/* Clicks + Distribución */}
+            <div className="grid gap-6 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <Card
+                  title="Clicks por tipo"
+                  subtitle="Qué acciones toman los visitantes"
+                  n={clicks.reduce((s, c) => s + c.count, 0)}
+                  action={
+                    <CsvButton
+                      disabled={!clicks.length}
+                      onClick={() =>
+                        downloadCSV(
+                          "clicks-por-tipo.csv",
+                          clicks.map((r) => ({
+                            tipo: r.label,
+                            total: r.count,
+                          })),
+                        )
+                      }
+                    />
+                  }
+                >
+                  {clicks.length === 0 ? (
+                    <EmptyLine />
+                  ) : (
+                    <ul className="space-y-3">
+                      {clicks.map((c, i) => {
+                        const pct = (c.count / clicksMax) * 100;
+                        return (
+                          <li key={c.label} className="space-y-1.5">
+                            <div className="flex items-baseline justify-between text-[12.5px]">
+                              <span style={{ color: "var(--text-secondary)" }}>
+                                {c.label}
+                              </span>
+                              <span
+                                className="font-bold tabular-nums"
+                                style={{ color: "var(--text-primary)" }}
+                              >
+                                {c.count.toLocaleString("es-PR")}
+                              </span>
+                            </div>
+                            <div
+                              className="relative h-[7px] rounded-full"
+                              style={{ background: "var(--gridline)" }}
+                            >
+                              <div
+                                className="ba-funnel-fill absolute inset-y-0 left-0 rounded-full"
+                                style={{
+                                  width: `${pct}%`,
+                                  background: CAT[i % CAT.length],
+                                  animationDelay: `${i * 60}ms`,
+                                }}
+                              />
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </Card>
+              </div>
+              <div className="lg:col-span-7">
+                <Card
+                  title="Distribución del catálogo"
+                  subtitle="Por categoría y por región"
+                >
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <PieBlock
+                      title="Por categoría"
+                      data={dist.data?.byCategory ?? []}
+                    />
+                    <PieBlock
+                      title="Por región"
+                      data={dist.data?.byRegion ?? []}
                     />
                   </div>
-                </li>
-              );
-            })
-          )}
-        </ul>
-      </section>
-
-      {/* ================= 07 · DISTRIBUCIÓN ================= */}
-      <section className="space-y-5">
-        <SectionHeader chapter="Capítulo 07" title="Distribución del Catálogo" subtitle="Todos los mercados activos" />
-        <div className="grid gap-10 lg:grid-cols-2">
-          <PieBlock title="Por Categoría" data={dist.data?.byCategory ?? []} />
-          <PieBlock title="Por Región" data={dist.data?.byRegion ?? []} />
-        </div>
-      </section>
-
-      {/* ================= 08 · TRÁFICO DIARIO ================= */}
-      <section className="space-y-5">
-        <SectionHeader chapter="Capítulo 08" title="Tráfico Diario" />
-        <div className="h-72">
-          <ResponsiveContainer>
-            <LineChart data={traffic.data ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid stroke={INK} strokeOpacity={0.08} vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }}
-                axisLine={{ stroke: INK, strokeOpacity: 0.2 }}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip content={<InkTooltip />} />
-              <Line type="monotone" dataKey="views" name="Visitas" stroke={ACCENT} strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      {/* ================= 09 · FUENTES DE TRÁFICO ================= */}
-      <section className="space-y-5">
-        <SectionHeader
-          chapter="Capítulo 09"
-          title="Fuentes de Tráfico"
-          action={
-            <CsvButton
-              disabled={!trafficSources.data?.topReferrers?.length}
-              onClick={() =>
-                downloadCSV(
-                  "fuentes-trafico.csv",
-                  (trafficSources.data?.topReferrers ?? []).map((r) => ({
-                    referrer: r.host,
-                    categoria: r.category,
-                    visitas: r.count,
-                  })),
-                )
-              }
-            />
-          }
-        />
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div className="h-72">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={trafficSources.data?.byCategory ?? []}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  stroke={PAPER}
-                  strokeWidth={2}
-                  label={{ fontSize: 10, fontFamily: MONO, fill: INK }}
-                >
-                  {(trafficSources.data?.byCategory ?? []).map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<InkTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 10, fontFamily: MONO, textTransform: "uppercase", letterSpacing: "0.15em" }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <EdTable>
-            <thead>
-              <tr>
-                <EdTh>Referrer</EdTh>
-                <EdTh>Categoría</EdTh>
-                <EdTh align="right">Visitas</EdTh>
-              </tr>
-            </thead>
-            <tbody>
-              {(trafficSources.data?.topReferrers ?? []).length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="py-6 text-center text-xs uppercase tracking-[0.2em]" style={{ fontFamily: MONO, opacity: 0.5 }}>
-                    Sin datos en este período
-                  </td>
-                </tr>
-              ) : (
-                (trafficSources.data?.topReferrers ?? []).map((r) => (
-                  <EdTr key={r.host}>
-                    <EdTd bold>{truncate(r.host, 40)}</EdTd>
-                    <EdTd><PillBadge tone="accent">{r.category}</PillBadge></EdTd>
-                    <EdTd align="right" mono bold>{r.count}</EdTd>
-                  </EdTr>
-                ))
-              )}
-            </tbody>
-          </EdTable>
-        </div>
-      </section>
-
-      {/* ================= 10 · ACTIVIDAD POR PÁGINA ================= */}
-      <section className="space-y-5">
-        <SectionHeader
-          chapter="Capítulo 10"
-          title="Actividad por Página"
-          action={
-            <CsvButton
-              disabled={!pageActivity.data?.length}
-              onClick={() => downloadCSV("actividad-paginas.csv", pageActivity.data ?? [])}
-            />
-          }
-        />
-        <div className="max-h-96 overflow-y-auto">
-          <EdTable>
-            <thead>
-              <tr>
-                <EdTh>Página</EdTh>
-                <EdTh align="right">Visitas</EdTh>
-              </tr>
-            </thead>
-            <tbody>
-              {(pageActivity.data ?? []).length === 0 ? (
-                <tr>
-                  <td colSpan={2} className="py-6 text-center text-xs uppercase tracking-[0.2em]" style={{ fontFamily: MONO, opacity: 0.5 }}>
-                    Sin datos en este período
-                  </td>
-                </tr>
-              ) : (
-                (pageActivity.data ?? []).map((r) => (
-                  <EdTr key={r.page}>
-                    <EdTd bold>{r.page}</EdTd>
-                    <EdTd align="right" mono bold>{r.views}</EdTd>
-                  </EdTr>
-                ))
-              )}
-            </tbody>
-          </EdTable>
-        </div>
-      </section>
-
-      {/* ================= 11 · SUBMISSIONS ================= */}
-      <section className="space-y-5">
-        <SectionHeader
-          chapter="Capítulo 11"
-          title="Submissions de Mercados"
-          subtitle={`Total en el período: ${subm?.total ?? 0}`}
-          action={
-            <div className="flex flex-wrap gap-2">
-              <PillBadge tone="warn">Pendientes · {subm?.pending ?? 0}</PillBadge>
-              <PillBadge tone="accent">Aprobadas · {subm?.approved ?? 0}</PillBadge>
-              <PillBadge tone="danger">Rechazadas · {subm?.rejected ?? 0}</PillBadge>
-            </div>
-          }
-        />
-        <EdTable>
-          <thead>
-            <tr>
-              <EdTh>Nombre</EdTh>
-              <EdTh>Municipio</EdTh>
-              <EdTh>Fecha</EdTh>
-              <EdTh>Estado</EdTh>
-            </tr>
-          </thead>
-          <tbody>
-            {(subm?.recent ?? []).length === 0 ? (
-              <tr>
-                <td colSpan={4} className="py-6 text-center text-xs uppercase tracking-[0.2em]" style={{ fontFamily: MONO, opacity: 0.5 }}>
-                  Sin submissions en este período
-                </td>
-              </tr>
-            ) : (
-              (subm?.recent ?? []).map((s: { id: string; name: string; municipality: string; status: string; created_at: string }) => (
-                <EdTr key={s.id}>
-                  <EdTd bold>{s.name}</EdTd>
-                  <EdTd>{s.municipality}</EdTd>
-                  <EdTd mono>{fmtDay(new Date(s.created_at))}</EdTd>
-                  <EdTd>
-                    <PillBadge
-                      tone={s.status === "pending" ? "warn" : s.status === "approved" ? "accent" : "danger"}
-                    >
-                      {s.status === "pending" ? "Pendiente" : s.status === "approved" ? "Aprobado" : "Rechazado"}
-                    </PillBadge>
-                  </EdTd>
-                </EdTr>
-              ))
-            )}
-          </tbody>
-        </EdTable>
-      </section>
-
-      {/* ================= 12 · SERVICIOS E INSTALACIONES ================= */}
-      <section className="space-y-5 p-6 md:p-8" style={{ background: CREAM, borderTop: `1px solid ${INK}` }}>
-        <SectionHeader
-          chapter="Capítulo 12"
-          title="Servicios e Instalaciones"
-          subtitle={`Distribución en ${amenities.data?.totalActive ?? 0} mercados activos`}
-          action={
-            <CsvButton
-              disabled={!amenities.data?.groups?.length}
-              onClick={() => {
-                const rows: Record<string, string | number>[] = [];
-                for (const g of amenities.data?.groups ?? []) {
-                  for (const o of g.options) {
-                    rows.push({
-                      servicio: g.label,
-                      opcion: o.value,
-                      mercados: o.count,
-                      porcentaje: `${o.percent.toFixed(1)}%`,
-                    });
-                  }
-                }
-                downloadCSV("servicios-mercados.csv", rows);
-              }}
-            />
-          }
-        />
-        <div className="grid gap-x-10 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
-          {(amenities.data?.groups ?? []).map((g) => (
-            <div key={g.key} className="space-y-4">
-              <div className="flex items-baseline justify-between border-b pb-2" style={{ borderColor: `${INK}33` }}>
-                <h3 className="text-[11px] uppercase tracking-[0.22em]" style={{ fontFamily: MONO, fontWeight: 700 }}>
-                  {g.label}
-                </h3>
-                <span className="text-[10px] tabular-nums" style={{ fontFamily: MONO, opacity: 0.55 }}>
-                  {g.withData}/{g.total}
-                </span>
+                </Card>
               </div>
-              {g.options.length === 0 ? (
-                <p className="text-xs uppercase tracking-[0.2em]" style={{ fontFamily: MONO, opacity: 0.5 }}>Sin datos</p>
-              ) : (
-                <ul className="space-y-3">
-                  {g.options.map((o) => (
-                    <li key={o.value} className="space-y-1.5">
-                      <div className="flex items-baseline justify-between gap-3 text-xs">
-                        <span className="truncate" style={{ fontFamily: BODY }}>{o.value}</span>
-                        <span className="tabular-nums shrink-0" style={{ fontFamily: MONO, opacity: 0.7 }}>
-                          {o.count} · {o.percent.toFixed(0)}%
-                        </span>
-                      </div>
-                      <div className="h-[3px]" style={{ background: `${INK}14` }}>
-                        <div
-                          className="h-full"
-                          style={{ width: `${Math.min(100, o.percent)}%`, background: ACCENT }}
-                        />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* ================= 13 · INTENCIÓN DE ASISTENCIA ================= */}
-      <section className="space-y-8">
-        <SectionHeader
-          chapter="Capítulo 13"
-          title="Intención de Asistencia"
-          subtitle="Interés expresado por los visitantes"
-        />
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          <KpiTile label="¡Voy a ir!" value={attMetrics.data?.willAttend ?? 0} accent />
-          <KpiTile label="Me interesa" value={attMetrics.data?.interested ?? 0} />
-          <KpiTile label="Tasa de intención" value={attMetrics.data?.intentionRate ?? 0} suffix="%" />
-          <KpiTile label="Visitantes únicos" value={attMetrics.data?.uniqueVisitors ?? 0} />
-        </div>
-
-        <div className="space-y-5">
-          <div className="flex items-end justify-between border-b pb-3" style={{ borderColor: `${INK}33` }}>
-            <h3 className="text-lg uppercase tracking-[0.18em]" style={{ fontFamily: MONO, fontWeight: 700 }}>
-              Top 10 por Intención
-            </h3>
-            <CsvButton
-              disabled={!attAll.data?.length}
-              onClick={() =>
-                downloadCSV(
-                  "intencion-asistencia.csv",
-                  (attAll.data ?? []).map((r) => ({
-                    nombre_mercado: r.name,
-                    categoria: r.category,
-                    municipio: r.municipality,
-                    vistas: r.detailViews,
-                    voy_a_ir: r.willAttend,
-                    me_interesa: r.interested,
-                    total_intenciones: r.total,
-                    tasa_intencion: `${r.intentionRate.toFixed(1)}%`,
-                  })),
-                )
-              }
-            />
-          </div>
-          <EdTable>
-            <thead>
-              <tr>
-                <EdTh className="w-12">#</EdTh>
-                <EdTh>Mercado</EdTh>
-                <EdTh>Categoría</EdTh>
-                <EdTh>Municipio</EdTh>
-                <EdTh align="right">Voy a ir</EdTh>
-                <EdTh align="right">Me interesa</EdTh>
-                <EdTh align="right">Total</EdTh>
-                <EdTh align="right">Vistas</EdTh>
-                <EdTh align="right">Tasa</EdTh>
-              </tr>
-            </thead>
-            <tbody>
-              {(attTop.data ?? []).length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="py-6 text-center text-xs uppercase tracking-[0.2em]" style={{ fontFamily: MONO, opacity: 0.5 }}>
-                    Aún no hay intenciones registradas
-                  </td>
-                </tr>
-              ) : (
-                (attTop.data ?? []).map((r) => {
-                  const isExpanded = expandedId === r.id;
-                  return (
-                    <Fragment key={r.id}>
-                      <EdTr id={`intention-row-${r.id}`} highlighted={isExpanded}>
-                        <EdTd mono muted>{padRank(r.rank)}</EdTd>
-                        <EdTd>
-                          <button
-                            type="button"
-                            onClick={() => setExpandedId(isExpanded ? null : r.id)}
-                            className="inline-flex items-center gap-1.5 hover:underline"
-                            style={{ color: INK, fontWeight: 600 }}
+            {/* Tráfico diario + Fuentes */}
+            <SectionDivider label="Tráfico y adquisición" />
+            <div className="grid gap-6 lg:grid-cols-12">
+              <div className="lg:col-span-7">
+                <Card
+                  title="Tráfico diario"
+                  subtitle="Vistas por día en el período"
+                  n={(traffic.data ?? []).reduce(
+                    (s: number, d: any) => s + (d.views ?? 0),
+                    0,
+                  )}
+                >
+                  <div className="h-64">
+                    <ResponsiveContainer>
+                      <AreaChart
+                        data={traffic.data ?? []}
+                        margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+                      >
+                        <defs>
+                          <linearGradient
+                            id="rm-traffic"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
                           >
-                            {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                            {r.name}
-                          </button>
-                        </EdTd>
-                        <EdTd><PillBadge tone="accent">{r.category}</PillBadge></EdTd>
-                        <EdTd>{r.municipality}</EdTd>
-                        <EdTd align="right" mono>{r.willAttend}</EdTd>
-                        <EdTd align="right" mono>{r.interested}</EdTd>
-                        <EdTd align="right" mono bold>{r.total}</EdTd>
-                        <EdTd align="right" mono>{r.detailViews}</EdTd>
-                        <EdTd align="right" mono>{r.intentionRate.toFixed(1)}%</EdTd>
-                      </EdTr>
-                      {isExpanded && (
-                        <tr style={{ background: CREAM }}>
-                          <td colSpan={9} className="p-0">
-                            <IntentionDetailPanel
-                              loading={attDetail.isLoading || attDetail.isFetching}
-                              data={attDetail.data && attDetail.data.market.id === r.id ? attDetail.data : null}
+                            <stop
+                              offset="0%"
+                              stopColor="var(--accent)"
+                              stopOpacity={0.4}
                             />
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
-                  );
-                })
-              )}
-            </tbody>
-          </EdTable>
-        </div>
-
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div className="space-y-3">
-            <h3 className="text-sm uppercase tracking-[0.22em]" style={{ fontFamily: MONO, fontWeight: 700 }}>
-              Intención por Mercado
-            </h3>
-            <div className="h-72">
-              <ResponsiveContainer>
-                <BarChart data={attTop.data ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid stroke={INK} strokeOpacity={0.08} vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }}
-                    interval={0}
-                    angle={-25}
-                    textAnchor="end"
-                    height={70}
-                    axisLine={{ stroke: INK, strokeOpacity: 0.2 }}
-                    tickLine={false}
-                    tickFormatter={(v: string) => truncate(v, 14)}
-                  />
-                  <YAxis tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<InkTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 10, fontFamily: MONO, textTransform: "uppercase", letterSpacing: "0.15em" }} />
-                  <Bar dataKey="willAttend" name="Voy a ir" stackId="a" fill={ACCENT} />
-                  <Bar dataKey="interested" name="Me interesa" stackId="a" fill={INK} />
-                </BarChart>
-              </ResponsiveContainer>
+                            <stop
+                              offset="100%"
+                              stopColor="var(--accent)"
+                              stopOpacity={0}
+                            />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="var(--gridline)"
+                        />
+                        <XAxis
+                          dataKey="date"
+                          tick={{
+                            fontSize: 11,
+                            fill: "var(--text-secondary)",
+                          }}
+                          axisLine={{ stroke: "var(--border-default)" }}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{
+                            fontSize: 11,
+                            fill: "var(--text-secondary)",
+                          }}
+                          axisLine={false}
+                          tickLine={false}
+                          allowDecimals={false}
+                        />
+                        <Tooltip content={<BaTooltip />} />
+                        <Area
+                          type="monotone"
+                          dataKey="views"
+                          name="Vistas"
+                          stroke="var(--accent)"
+                          strokeWidth={2}
+                          fill="url(#rm-traffic)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </Card>
+              </div>
+              <div className="lg:col-span-5">
+                <Card
+                  title="Fuentes de tráfico"
+                  subtitle="De dónde llegan los visitantes"
+                  action={
+                    <CsvButton
+                      disabled={!trafficSources.data?.topReferrers?.length}
+                      onClick={() =>
+                        downloadCSV(
+                          "fuentes-trafico.csv",
+                          (trafficSources.data?.topReferrers ?? []).map(
+                            (r) => ({
+                              referrer: r.host,
+                              categoria: r.category,
+                              visitas: r.count,
+                            }),
+                          ),
+                        )
+                      }
+                    />
+                  }
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="h-52">
+                      <ResponsiveContainer>
+                        <PieChart>
+                          <Pie
+                            data={trafficSources.data?.byCategory ?? []}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={70}
+                            stroke="var(--bg-surface)"
+                            strokeWidth={2}
+                          >
+                            {(trafficSources.data?.byCategory ?? []).map(
+                              (_, i) => (
+                                <Cell
+                                  key={i}
+                                  fill={PIE_COLORS[i % PIE_COLORS.length]}
+                                />
+                              ),
+                            )}
+                          </Pie>
+                          <Tooltip content={<BaTooltip />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <ul className="space-y-1.5 text-[12px]">
+                      {(trafficSources.data?.topReferrers ?? [])
+                        .slice(0, 8)
+                        .map((r, i) => (
+                          <li
+                            key={r.host}
+                            className="flex items-center gap-2"
+                          >
+                            <span
+                              className="inline-block h-2.5 w-2.5 rounded-[3px]"
+                              style={{
+                                background:
+                                  PIE_COLORS[i % PIE_COLORS.length],
+                              }}
+                              aria-hidden
+                            />
+                            <span
+                              className="flex-1 truncate"
+                              style={{ color: "var(--text-secondary)" }}
+                              title={r.host}
+                            >
+                              {truncate(r.host, 22)}
+                            </span>
+                            <span
+                              className="font-bold tabular-nums"
+                              style={{ color: "var(--text-primary)" }}
+                            >
+                              {r.count}
+                            </span>
+                          </li>
+                        ))}
+                      {(trafficSources.data?.topReferrers ?? []).length ===
+                        0 && <EmptyLine />}
+                    </ul>
+                  </div>
+                </Card>
+              </div>
             </div>
-          </div>
-          <div className="space-y-3">
-            <h3 className="text-sm uppercase tracking-[0.22em]" style={{ fontFamily: MONO, fontWeight: 700 }}>
-              Intenciones por Día
-            </h3>
-            <div className="h-72">
-              <ResponsiveContainer>
-                <LineChart data={attDaily.data ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid stroke={INK} strokeOpacity={0.08} vertical={false} />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }} axisLine={{ stroke: INK, strokeOpacity: 0.2 }} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<InkTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 10, fontFamily: MONO, textTransform: "uppercase", letterSpacing: "0.15em" }} />
-                  <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke={ACCENT} strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="interested" name="Me interesa" stroke={INK} strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+
+            {/* Actividad por página + Submissions */}
+            <div className="grid gap-6 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <Card
+                  title="Actividad por página"
+                  subtitle="Vistas por ruta del sitio"
+                  n={pageActivity.data?.length ?? 0}
+                  action={
+                    <CsvButton
+                      disabled={!pageActivity.data?.length}
+                      onClick={() =>
+                        downloadCSV(
+                          "actividad-paginas.csv",
+                          pageActivity.data ?? [],
+                        )
+                      }
+                    />
+                  }
+                >
+                  <div className="max-h-80 overflow-y-auto">
+                    <TableSimple
+                      head={["Página", "Vistas"]}
+                      rows={(pageActivity.data ?? []).map((r) => [
+                        r.page,
+                        r.views.toLocaleString("es-PR"),
+                      ])}
+                      alignRight={[false, true]}
+                    />
+                  </div>
+                </Card>
+              </div>
+              <div className="lg:col-span-7">
+                <Card
+                  title="Submissions de mercados"
+                  subtitle={`Total en el período: ${subm?.total ?? 0}`}
+                  action={
+                    <div className="flex flex-wrap gap-2">
+                      <StatusBadge tone="warning">
+                        Pendientes · {subm?.pending ?? 0}
+                      </StatusBadge>
+                      <StatusBadge tone="good">
+                        Aprobadas · {subm?.approved ?? 0}
+                      </StatusBadge>
+                      <StatusBadge tone="critical">
+                        Rechazadas · {subm?.rejected ?? 0}
+                      </StatusBadge>
+                    </div>
+                  }
+                >
+                  <SubmissionsTable rows={subm?.recent ?? []} />
+                </Card>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Footer bar */}
-      <footer
-        className="pt-8 pb-4 flex items-center justify-between text-[10px] uppercase tracking-[0.3em] border-t"
-        style={{ fontFamily: MONO, borderColor: INK, opacity: 0.5 }}
-      >
-        <span>RutaMercado · Analytics</span>
-        <span>Generado {fmtDay(new Date())}</span>
-      </footer>
-    </div>
-  );
-}
-
-// ---------- Sub-blocks ----------
-
-function PieBlock({ title, data }: { title: string; data: { name: string; value: number }[] }) {
-  return (
-    <div className="space-y-3">
-      <h3 className="text-sm uppercase tracking-[0.22em]" style={{ fontFamily: MONO, fontWeight: 700 }}>
-        {title}
-      </h3>
-      <div className="h-64">
-        <ResponsiveContainer>
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={90}
-              stroke={PAPER}
-              strokeWidth={2}
-              label={{ fontSize: 10, fontFamily: MONO, fill: INK }}
+            {/* Servicios */}
+            <SectionDivider label="Servicios e instalaciones" />
+            <Card
+              title="Distribución de servicios"
+              subtitle={`Datos declarados en ${amenities.data?.totalActive ?? 0} mercados activos`}
+              action={
+                <CsvButton
+                  disabled={!amenities.data?.groups?.length}
+                  onClick={() => {
+                    const rows: Record<string, string | number>[] = [];
+                    for (const g of amenities.data?.groups ?? []) {
+                      for (const o of g.options) {
+                        rows.push({
+                          servicio: g.label,
+                          opcion: o.value,
+                          mercados: o.count,
+                          porcentaje: `${o.percent.toFixed(1)}%`,
+                        });
+                      }
+                    }
+                    downloadCSV("servicios-mercados.csv", rows);
+                  }}
+                />
+              }
             >
-              {data.map((_, i) => (
-                <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip content={<InkTooltip />} />
-            <Legend wrapperStyle={{ fontSize: 10, fontFamily: MONO, textTransform: "uppercase", letterSpacing: "0.15em" }} />
-          </PieChart>
-        </ResponsiveContainer>
+              <div className="grid gap-x-8 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
+                {(amenities.data?.groups ?? []).map((g) => (
+                  <div key={g.key} className="space-y-3">
+                    <div
+                      className="flex items-baseline justify-between border-b pb-2"
+                      style={{ borderColor: "var(--border-default)" }}
+                    >
+                      <h4
+                        className="text-[12px] font-bold uppercase tracking-wider"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {g.label}
+                      </h4>
+                      <span
+                        className="text-[11px] tabular-nums"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {g.withData}/{g.total}
+                      </span>
+                    </div>
+                    {g.options.length === 0 ? (
+                      <EmptyLine />
+                    ) : (
+                      <ul className="space-y-2.5">
+                        {g.options.map((o, i) => (
+                          <li key={o.value} className="space-y-1">
+                            <div className="flex items-baseline justify-between gap-3 text-[12px]">
+                              <span
+                                className="truncate"
+                                style={{ color: "var(--text-secondary)" }}
+                              >
+                                {o.value}
+                              </span>
+                              <span
+                                className="tabular-nums shrink-0"
+                                style={{ color: "var(--text-primary)" }}
+                              >
+                                <span className="font-bold">{o.count}</span>
+                                <span
+                                  style={{ color: "var(--text-muted)" }}
+                                >
+                                  {" "}
+                                  · {o.percent.toFixed(0)}%
+                                </span>
+                              </span>
+                            </div>
+                            <div
+                              className="relative h-[6px] rounded-full"
+                              style={{ background: "var(--gridline)" }}
+                            >
+                              <div
+                                className="ba-funnel-fill absolute inset-y-0 left-0 rounded-full"
+                                style={{
+                                  width: `${Math.min(100, o.percent)}%`,
+                                  background: SEQ[i % SEQ.length],
+                                  animationDelay: `${i * 50}ms`,
+                                }}
+                              />
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Intención de asistencia */}
+            <SectionDivider label="Intención de asistencia" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <KpiTile
+                label="¡Voy a ir!"
+                value={attMetrics.data?.willAttend ?? 0}
+                chip={{ text: "alta intención", tone: "good" }}
+              />
+              <KpiTile
+                label="Me interesa"
+                value={attMetrics.data?.interested ?? 0}
+                delay={60}
+              />
+              <KpiTile
+                label="Tasa de intención"
+                value={attMetrics.data?.intentionRate ?? 0}
+                suffix="%"
+                chip={{ text: "sobre visitantes", tone: "accent" }}
+                delay={120}
+              />
+              <KpiTile
+                label="Visitantes únicos"
+                value={attMetrics.data?.uniqueVisitors ?? 0}
+                delay={180}
+              />
+            </div>
+
+            <Card
+              title="Top 10 mercados por intención"
+              subtitle="Expande cada fila para ver el detalle diario"
+              n={attTop.data?.length ?? 0}
+              action={
+                <CsvButton
+                  disabled={!attAll.data?.length}
+                  onClick={() =>
+                    downloadCSV(
+                      "intencion-asistencia.csv",
+                      (attAll.data ?? []).map((r) => ({
+                        nombre_mercado: r.name,
+                        categoria: r.category,
+                        municipio: r.municipality,
+                        vistas: r.detailViews,
+                        voy_a_ir: r.willAttend,
+                        me_interesa: r.interested,
+                        total_intenciones: r.total,
+                        tasa_intencion: `${r.intentionRate.toFixed(1)}%`,
+                      })),
+                    )
+                  }
+                />
+              }
+            >
+              <IntentionTable
+                rows={attTop.data ?? []}
+                expandedId={expandedId}
+                onToggle={(id) =>
+                  setExpandedId(expandedId === id ? null : id)
+                }
+                detail={attDetail.data}
+                detailLoading={attDetail.isLoading || attDetail.isFetching}
+              />
+            </Card>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card
+                title="Intención por mercado"
+                subtitle="Voy a ir vs. Me interesa (top 10)"
+              >
+                <div className="h-72">
+                  <ResponsiveContainer>
+                    <BarChart
+                      data={attTop.data ?? []}
+                      margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="var(--gridline)"
+                      />
+                      <XAxis
+                        dataKey="name"
+                        tick={{
+                          fontSize: 10,
+                          fill: "var(--text-secondary)",
+                        }}
+                        interval={0}
+                        angle={-25}
+                        textAnchor="end"
+                        height={70}
+                        axisLine={{ stroke: "var(--border-default)" }}
+                        tickLine={false}
+                        tickFormatter={(v: string) => truncate(v, 12)}
+                      />
+                      <YAxis
+                        tick={{
+                          fontSize: 11,
+                          fill: "var(--text-secondary)",
+                        }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip content={<BaTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Bar
+                        dataKey="willAttend"
+                        name="Voy a ir"
+                        stackId="a"
+                        fill="var(--accent)"
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="interested"
+                        name="Me interesa"
+                        stackId="a"
+                        fill="var(--seq-700)"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+              <Card title="Intenciones por día" subtitle="Evolución diaria">
+                <div className="h-72">
+                  <ResponsiveContainer>
+                    <LineChart
+                      data={attDaily.data ?? []}
+                      margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="var(--gridline)"
+                      />
+                      <XAxis
+                        dataKey="date"
+                        tick={{
+                          fontSize: 11,
+                          fill: "var(--text-secondary)",
+                        }}
+                        axisLine={{ stroke: "var(--border-default)" }}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{
+                          fontSize: 11,
+                          fill: "var(--text-secondary)",
+                        }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip content={<BaTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Line
+                        type="monotone"
+                        dataKey="willAttend"
+                        name="Voy a ir"
+                        stroke="var(--accent)"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="interested"
+                        name="Me interesa"
+                        stroke="var(--seq-700)"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
+/* ============================================================== */
+/*  Section divider                                                */
+/* ============================================================== */
+
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3 pt-2">
+      <span
+        className="text-[11px] font-semibold uppercase"
+        style={{
+          color: "var(--text-muted)",
+          letterSpacing: "0.09em",
+        }}
+      >
+        {label}
+      </span>
+      <div
+        className="h-px flex-1"
+        style={{ background: "var(--border-default)" }}
+      />
+    </div>
+  );
+}
+
+/* ============================================================== */
+/*  Table primitives                                               */
+/* ============================================================== */
+
+function TableSimple({
+  head,
+  rows,
+  alignRight,
+}: {
+  head: string[];
+  rows: (string | ReactNode)[][];
+  alignRight?: boolean[];
+}) {
+  return (
+    <table className="w-full text-[13px]">
+      <thead>
+        <tr
+          style={{
+            borderBottom: "1px solid var(--border-default)",
+          }}
+        >
+          {head.map((h, i) => (
+            <th
+              key={h}
+              className="py-2 text-[10.5px] font-semibold uppercase tracking-wider"
+              style={{
+                color: "var(--text-muted)",
+                textAlign: alignRight?.[i] ? "right" : "left",
+              }}
+            >
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.length === 0 ? (
+          <tr>
+            <td
+              colSpan={head.length}
+              className="py-6 text-center text-[12px]"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Sin datos en este período
+            </td>
+          </tr>
+        ) : (
+          rows.map((r, i) => (
+            <tr
+              key={i}
+              style={{
+                borderBottom: "1px solid var(--border-default)",
+                color: "var(--text-primary)",
+              }}
+            >
+              {r.map((c, j) => (
+                <td
+                  key={j}
+                  className={
+                    alignRight?.[j]
+                      ? "py-2.5 text-right font-semibold tabular-nums"
+                      : "py-2.5"
+                  }
+                >
+                  {c}
+                </td>
+              ))}
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+}
+
+function TopMarketsTable({
+  rows,
+}: {
+  rows: {
+    id: string;
+    rank: number;
+    name: string;
+    views: number;
+    clickPhone: number;
+    clickEmail: number;
+    directionsClicks: number;
+    clickContact: number;
+    willAttend: number;
+    interested: number;
+    recurrenceType: string;
+  }[];
+}) {
+  if (rows.length === 0) return <EmptyLine />;
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-[13px]">
+        <thead>
+          <tr
+            style={{
+              borderBottom: "1px solid var(--border-default)",
+              color: "var(--text-muted)",
+            }}
+          >
+            {[
+              "#",
+              "Mercado",
+              "Vistas",
+              "Tel",
+              "Email",
+              "Dir",
+              "Contacto",
+              "Iré",
+              "Interés",
+              "Recurrencia",
+            ].map((h, i) => (
+              <th
+                key={h}
+                className="py-2 text-[10.5px] font-semibold uppercase tracking-wider"
+                style={{ textAlign: i >= 2 && i <= 8 ? "right" : "left" }}
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((m) => (
+            <tr
+              key={m.id}
+              style={{
+                borderBottom: "1px solid var(--border-default)",
+                color: "var(--text-primary)",
+              }}
+            >
+              <td
+                className="py-2.5 tabular-nums"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {String(m.rank).padStart(2, "0")}
+              </td>
+              <td className="py-2.5 font-semibold">{m.name}</td>
+              <td className="py-2.5 text-right font-bold tabular-nums">
+                {m.views}
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                {m.clickPhone}
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                {m.clickEmail}
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                {m.directionsClicks}
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                {m.clickContact}
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                {m.willAttend}
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                {m.interested}
+              </td>
+              <td
+                className="py-2.5 text-[11px]"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {recurrenceLabel(m.recurrenceType)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function TopOrganizersList({
+  rows,
+}: {
+  rows: {
+    organizer: string;
+    markets: number;
+    views: number;
+    clicks: number;
+  }[];
+}) {
+  if (rows.length === 0) return <EmptyLine />;
+  return (
+    <ol className="space-y-1">
+      {rows.slice(0, 10).map((o, i) => (
+        <li
+          key={o.organizer}
+          className="grid items-baseline gap-3 py-2 text-[13px]"
+          style={{
+            gridTemplateColumns: "24px 1fr auto",
+            borderTop:
+              i === 0 ? "none" : "1px solid var(--border-default)",
+          }}
+        >
+          <span
+            className="tabular-nums"
+            style={{ color: "var(--text-muted)" }}
+          >
+            {i + 1}.
+          </span>
+          <div className="min-w-0">
+            <div
+              className="truncate font-semibold"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {o.organizer}
+            </div>
+            <div
+              className="text-[11px]"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {o.markets} mercado{o.markets === 1 ? "" : "s"} · {o.clicks}{" "}
+              clics
+            </div>
+          </div>
+          <span
+            className="font-bold tabular-nums"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {o.views}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function SubmissionsTable({
+  rows,
+}: {
+  rows: {
+    id: string;
+    name: string;
+    municipality: string;
+    status: string;
+    created_at: string;
+  }[];
+}) {
+  if (rows.length === 0) return <EmptyLine />;
+  return (
+    <div className="max-h-80 overflow-y-auto">
+      <table className="w-full text-[13px]">
+        <thead>
+          <tr
+            style={{
+              borderBottom: "1px solid var(--border-default)",
+              color: "var(--text-muted)",
+            }}
+          >
+            {["Nombre", "Municipio", "Fecha", "Estado"].map((h) => (
+              <th
+                key={h}
+                className="py-2 text-left text-[10.5px] font-semibold uppercase tracking-wider"
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((s) => (
+            <tr
+              key={s.id}
+              style={{
+                borderBottom: "1px solid var(--border-default)",
+                color: "var(--text-primary)",
+              }}
+            >
+              <td className="py-2.5 font-semibold">{s.name}</td>
+              <td
+                className="py-2.5"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {s.municipality}
+              </td>
+              <td
+                className="py-2.5 tabular-nums"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {fmtDay(new Date(s.created_at))}
+              </td>
+              <td className="py-2.5">
+                <StatusBadge
+                  tone={
+                    s.status === "pending"
+                      ? "warning"
+                      : s.status === "approved"
+                        ? "good"
+                        : "critical"
+                  }
+                >
+                  {s.status === "pending"
+                    ? "Pendiente"
+                    : s.status === "approved"
+                      ? "Aprobado"
+                      : "Rechazado"}
+                </StatusBadge>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ============================================================== */
+/*  Intention table                                                */
+/* ============================================================== */
+
 type DetailData = {
-  market: { id: string; name: string; category: string; municipality: string; view_count: number | null };
+  market: {
+    id: string;
+    name: string;
+    category: string;
+    municipality: string;
+    view_count: number | null;
+  };
   willAttend: number;
   interested: number;
   total: number;
@@ -1314,10 +1902,159 @@ type DetailData = {
   daily: { date: string; willAttend: number; interested: number }[];
 };
 
-function IntentionDetailPanel({ loading, data }: { loading: boolean; data: DetailData | null }) {
+function IntentionTable({
+  rows,
+  expandedId,
+  onToggle,
+  detail,
+  detailLoading,
+}: {
+  rows: {
+    id: string;
+    rank: number;
+    name: string;
+    category: string;
+    municipality: string;
+    willAttend: number;
+    interested: number;
+    total: number;
+    detailViews: number;
+    intentionRate: number;
+  }[];
+  expandedId: string | null;
+  onToggle: (id: string) => void;
+  detail: DetailData | undefined;
+  detailLoading: boolean;
+}) {
+  if (rows.length === 0) return <EmptyLine label="Aún no hay intenciones registradas" />;
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-[13px]">
+        <thead>
+          <tr
+            style={{
+              borderBottom: "1px solid var(--border-default)",
+              color: "var(--text-muted)",
+            }}
+          >
+            {[
+              "#",
+              "Mercado",
+              "Categoría",
+              "Municipio",
+              "Voy a ir",
+              "Me interesa",
+              "Total",
+              "Vistas",
+              "Tasa",
+            ].map((h, i) => (
+              <th
+                key={h}
+                className="py-2 text-[10.5px] font-semibold uppercase tracking-wider"
+                style={{ textAlign: i >= 4 ? "right" : "left" }}
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const isExpanded = expandedId === r.id;
+            return (
+              <Fragment key={r.id}>
+                <tr
+                  id={`intention-row-${r.id}`}
+                  style={{
+                    borderBottom: "1px solid var(--border-default)",
+                    color: "var(--text-primary)",
+                    background: isExpanded
+                      ? "var(--bg-surface-subtle)"
+                      : "transparent",
+                  }}
+                >
+                  <td
+                    className="py-2.5 tabular-nums"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {String(r.rank).padStart(2, "0")}
+                  </td>
+                  <td className="py-2.5">
+                    <button
+                      type="button"
+                      onClick={() => onToggle(r.id)}
+                      className="inline-flex items-center gap-1.5 font-semibold hover:underline"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      )}
+                      {r.name}
+                    </button>
+                  </td>
+                  <td className="py-2.5">
+                    <StatusBadge tone="neutral">{r.category}</StatusBadge>
+                  </td>
+                  <td
+                    className="py-2.5"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {r.municipality}
+                  </td>
+                  <td className="py-2.5 text-right tabular-nums">
+                    {r.willAttend}
+                  </td>
+                  <td className="py-2.5 text-right tabular-nums">
+                    {r.interested}
+                  </td>
+                  <td className="py-2.5 text-right font-bold tabular-nums">
+                    {r.total}
+                  </td>
+                  <td className="py-2.5 text-right tabular-nums">
+                    {r.detailViews}
+                  </td>
+                  <td className="py-2.5 text-right tabular-nums">
+                    {r.intentionRate.toFixed(1)}%
+                  </td>
+                </tr>
+                {isExpanded && (
+                  <tr style={{ background: "var(--bg-surface-subtle)" }}>
+                    <td colSpan={9} className="p-0">
+                      <IntentionDetailPanel
+                        loading={detailLoading}
+                        data={
+                          detail && detail.market.id === r.id
+                            ? detail
+                            : null
+                        }
+                      />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function IntentionDetailPanel({
+  loading,
+  data,
+}: {
+  loading: boolean;
+  data: DetailData | null;
+}) {
   if (loading || !data) {
     return (
-      <div className="p-6 text-xs uppercase tracking-[0.22em]" style={{ fontFamily: MONO, opacity: 0.5 }}>
+      <div
+        className="p-6 text-[12px]"
+        style={{ color: "var(--text-muted)" }}
+      >
         Cargando detalle…
       </div>
     );
@@ -1327,61 +2064,229 @@ function IntentionDetailPanel({ loading, data }: { loading: boolean; data: Detai
     { name: "Me interesa", value: data.interested },
   ];
   return (
-    <div className="p-6 space-y-6" style={{ borderTop: `1px solid ${INK}22` }}>
+    <div
+      className="space-y-5 p-5"
+      style={{ borderTop: "1px solid var(--border-default)" }}
+    >
       <div className="flex flex-wrap items-baseline gap-3">
-        <h3 className="text-xl" style={{ fontFamily: MONO, fontWeight: 700, color: INK, letterSpacing: "-0.02em" }}>
+        <h4
+          className="text-lg font-bold"
+          style={{ color: "var(--text-primary)" }}
+        >
           {data.market.name}
-        </h3>
-        <PillBadge tone="accent">{data.market.category}</PillBadge>
-        <PillBadge tone="muted">{data.market.municipality}</PillBadge>
+        </h4>
+        <StatusBadge tone="neutral">{data.market.category}</StatusBadge>
+        <StatusBadge tone="neutral">{data.market.municipality}</StatusBadge>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4">
-        <KpiTile label="Visitantes únicos" value={data.uniqueVisitors} />
-        <KpiTile label="Vistas de detalle" value={data.detailViews} />
-        <KpiTile label="Total intenciones" value={data.total} />
-        <KpiTile label="Tasa de conversión" value={data.intentionRate} suffix="%" accent />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <KpiTile
+          label="Visitantes únicos"
+          value={data.uniqueVisitors}
+        />
+        <KpiTile
+          label="Vistas de detalle"
+          value={data.detailViews}
+          delay={60}
+        />
+        <KpiTile label="Total intenciones" value={data.total} delay={120} />
+        <KpiTile
+          label="Tasa de conversión"
+          value={data.intentionRate}
+          suffix="%"
+          chip={{ text: "conversión", tone: "accent" }}
+          delay={180}
+        />
       </div>
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="space-y-2">
-          <h4 className="text-xs uppercase tracking-[0.22em]" style={{ fontFamily: MONO, fontWeight: 700 }}>Proporción</h4>
-          <div className="h-56">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div>
+          <div
+            className="mb-2 text-[11px] font-semibold uppercase tracking-wider"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Proporción
+          </div>
+          <div className="h-48">
             <ResponsiveContainer>
               <PieChart>
-                <Pie data={donutData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} stroke={CREAM} strokeWidth={2}>
-                  <Cell fill={ACCENT} />
-                  <Cell fill={INK} />
+                <Pie
+                  data={donutData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={70}
+                  stroke="var(--bg-surface)"
+                  strokeWidth={2}
+                >
+                  <Cell fill="var(--accent)" />
+                  <Cell fill="var(--seq-700)" />
                 </Pie>
-                <Tooltip content={<InkTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 10, fontFamily: MONO, textTransform: "uppercase", letterSpacing: "0.15em" }} />
+                <Tooltip content={<BaTooltip />} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="space-y-2">
-          <h4 className="text-xs uppercase tracking-[0.22em]" style={{ fontFamily: MONO, fontWeight: 700 }}>Últimos 30 días</h4>
-          <div className="h-56">
+        <div>
+          <div
+            className="mb-2 text-[11px] font-semibold uppercase tracking-wider"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Últimos 30 días
+          </div>
+          <div className="h-48">
             <ResponsiveContainer>
-              <LineChart data={data.daily} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid stroke={INK} strokeOpacity={0.08} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }} axisLine={{ stroke: INK, strokeOpacity: 0.2 }} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fontFamily: MONO, fill: INK, opacity: 0.6 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<InkTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 10, fontFamily: MONO, textTransform: "uppercase", letterSpacing: "0.15em" }} />
-                <Line type="monotone" dataKey="willAttend" name="Voy a ir" stroke={ACCENT} strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="interested" name="Me interesa" stroke={INK} strokeWidth={2} dot={false} />
+              <LineChart
+                data={data.daily}
+                margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--gridline)"
+                />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10, fill: "var(--text-secondary)" }}
+                  axisLine={{ stroke: "var(--border-default)" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: "var(--text-secondary)" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip content={<BaTooltip />} />
+                <Line
+                  type="monotone"
+                  dataKey="willAttend"
+                  name="Voy a ir"
+                  stroke="var(--accent)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="interested"
+                  name="Me interesa"
+                  stroke="var(--seq-700)"
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
-      <div>
-        <Link
-          to="/admin/markets"
-          className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.25em] hover:underline"
-          style={{ fontFamily: MONO, color: INK }}
-        >
-          Ver en gestión de mercados →
-        </Link>
+      <Link
+        to="/admin/markets"
+        className="inline-flex items-center gap-1 text-[12px] font-semibold hover:underline"
+        style={{ color: "var(--accent)" }}
+      >
+        Ver en gestión de mercados →
+      </Link>
+    </div>
+  );
+}
+
+/* ============================================================== */
+/*  Pie block                                                      */
+/* ============================================================== */
+
+function PieBlock({
+  title,
+  data,
+}: {
+  title: string;
+  data: { name: string; value: number }[];
+}) {
+  return (
+    <div>
+      <div
+        className="mb-2 text-[11px] font-semibold uppercase tracking-wider"
+        style={{ color: "var(--text-muted)" }}
+      >
+        {title}
+      </div>
+      <div className="h-56">
+        <ResponsiveContainer>
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              stroke="var(--bg-surface)"
+              strokeWidth={2}
+            >
+              {data.map((_, i) => (
+                <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip content={<BaTooltip />} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================== */
+/*  Empty + skeleton                                               */
+/* ============================================================== */
+
+function EmptyLine({
+  label = "Sin datos en este período",
+}: {
+  label?: string;
+}) {
+  return (
+    <p
+      className="py-6 text-center text-[12px]"
+      style={{ color: "var(--text-muted)" }}
+    >
+      {label}
+    </p>
+  );
+}
+
+function SkeletonState() {
+  return (
+    <div className="space-y-6">
+      <div
+        className="h-16 rounded-lg animate-pulse"
+        style={{ background: "var(--bg-surface-subtle)" }}
+      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-[136px] rounded-lg border animate-pulse"
+            style={{
+              background: "var(--bg-surface-subtle)",
+              borderColor: "var(--border-default)",
+            }}
+          />
+        ))}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-12">
+        <div
+          className="h-72 rounded-lg border animate-pulse lg:col-span-8"
+          style={{
+            background: "var(--bg-surface-subtle)",
+            borderColor: "var(--border-default)",
+          }}
+        />
+        <div
+          className="h-72 rounded-lg border animate-pulse lg:col-span-4"
+          style={{
+            background: "var(--bg-surface-subtle)",
+            borderColor: "var(--border-default)",
+          }}
+        />
       </div>
     </div>
   );
