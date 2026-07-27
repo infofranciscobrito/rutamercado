@@ -29,13 +29,13 @@ export function Hero({ query, onQueryChange, stats }: Props) {
     >
       {/* Capa 1: imagen de fondo (más zoom en mobile para mostrar personajes) */}
       <div
-        className="absolute inset-0 bg-center bg-no-repeat bg-[length:220%_auto] sm:bg-[length:140%_auto] lg:bg-cover"
+        className="absolute inset-0 bg-[center_70%] bg-no-repeat bg-[length:200%_auto] sm:bg-[center_65%] sm:bg-[length:140%_auto] lg:bg-[right_35%_bottom_40%] lg:bg-cover"
         style={{ backgroundImage: `url('${heroBg.url}')` }}
         aria-hidden="true"
       />
 
       {/* Capa 2: tinte navy (multiply) — convierte la ilustración en monocroma azul */}
-      <div className="absolute inset-0 bg-[#18253f]/65 mix-blend-multiply" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[#18253f]/55 mix-blend-multiply" aria-hidden="true" />
       {/* Capa 3: gradiente vertical para legibilidad del texto */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#18253f]/40 via-transparent to-[#18253f]/85" aria-hidden="true" />
       {/* Capa 4: patrón de puntos dorados sutil */}
