@@ -29,7 +29,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
     >
       {/* Capa 1: imagen de fondo (más zoom en mobile para mostrar personajes) */}
       <div
-        className="absolute inset-0 bg-[right_25%_bottom_55%] bg-no-repeat bg-[length:220%_auto] sm:bg-[right_30%_bottom_50%] sm:bg-[length:160%_auto] lg:bg-[right_35%_bottom_40%] lg:bg-cover"
+        className="absolute inset-0 bg-[85%_65%] bg-no-repeat bg-[length:240%_auto] sm:bg-[80%_60%] sm:bg-[length:180%_auto] lg:bg-[right_35%_bottom_40%] lg:bg-cover"
         style={{ backgroundImage: `url('${heroBg.url}')` }}
         aria-hidden="true"
       />
