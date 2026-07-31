@@ -17,11 +17,18 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
   const label = market.recurrence_label?.trim();
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       aria-label={`Ver detalles de ${market.name}`}
-      className={`group flex shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
+      className={`group flex cursor-pointer shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
         fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
       }`}
     >
