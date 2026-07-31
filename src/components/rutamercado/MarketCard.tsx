@@ -96,6 +96,6 @@ export function MarketCard({ market, onClick, fixedWidth }: Props) {
           </span>
         )}
       </div>
-    </button>
+    </div>
   );
 }
