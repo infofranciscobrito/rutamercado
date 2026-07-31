@@ -221,16 +221,37 @@ function EmprendedoresAdminPage() {
             </TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="relative w-full sm:w-72">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar..."
-            className="pl-9"
-          />
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <div className="relative w-full sm:w-72">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar..."
+              className="pl-9"
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => exportRows(filtered, `negocios-${tab}`)}
+            className="shrink-0 gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Exportar ({filtered.length})
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => exportRows(data, "negocios-todos")}
+            className="shrink-0 gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Todos ({data.length})
+          </Button>
         </div>
       </div>
+
 
 
       <div className="overflow-hidden rounded-xl border bg-white">
