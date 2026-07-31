@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Pencil, Trash2, Search, Check, X } from "lucide-react";
+import { Pencil, Trash2, Search, Check, X, Download } from "lucide-react";
 import { toast } from "sonner";
 import {
   adminListEmprendedores,
@@ -23,6 +23,8 @@ import {
   type EmprendedorCategory,
 } from "@/lib/emprendedores.functions";
 import { MARKET_REGIONS } from "@/types/market";
+import { downloadCSV } from "@/lib/csv";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,7 +71,47 @@ export const Route = createFileRoute("/_admin/admin/emprendedores")({
 });
 
 
+const STATUS_LABEL: Record<string, string> = {
+  approved: "Aprobado",
+  pending: "Pendiente",
+  rejected: "Rechazado",
+};
+
+function exportRows(rows: AdminEmprendedor[], name: string) {
+  if (rows.length === 0) {
+    toast.error("No hay registros para exportar.");
+    return;
+  }
+  downloadCSV(
+    `${name}-${new Date().toISOString().slice(0, 10)}.csv`,
+    rows.map((r) => ({
+      Negocio: r.nombre_negocio,
+      Estado: STATUS_LABEL[r.status] ?? r.status,
+      Categoría: r.categoria_producto,
+      "Categoría (otro)": r.categoria_otro ?? "",
+      "Artesano certificado": r.artesano_certificado ?? "",
+      Descripción: r.descripcion,
+      Región: r.region ?? "",
+      Municipio: r.municipio ?? "",
+      Contacto: r.persona_contacto ?? "",
+      Email: r.email ?? "",
+      Teléfono: r.telefono ?? "",
+      Instagram: r.instagram ?? "",
+      "Mercados de interés": r.mercados_interes.join(" | "),
+      "Tiempo operando": r.tiempo_operando ?? "",
+      "Registro de comerciante": r.registro_comerciante ?? "",
+      "Fuente de ingreso": r.fuente_ingreso ?? "",
+      "Canales de venta": r.canales_venta.join(" | "),
+      "Tamaño de equipo": r.tamano_equipo ?? "",
+      Logo: r.logo_url ?? "",
+      "Fecha de registro": new Date(r.created_at).toISOString(),
+    })),
+  );
+  toast.success(`${rows.length} registros exportados.`);
+}
+
 const emptyItem = (): AdminEmprendedor => ({
+
   id: "",
   nombre_negocio: "",
   logo_url: null,
@@ -221,16 +263,37 @@ function EmprendedoresAdminPage() {
             </TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="relative w-full sm:w-72">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar..."
-            className="pl-9"
-          />
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <div className="relative w-full sm:w-72">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar..."
+              className="pl-9"
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => exportRows(filtered, `negocios-${tab}`)}
+            className="shrink-0 gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Exportar ({filtered.length})
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => exportRows(data, "negocios-todos")}
+            className="shrink-0 gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Todos ({data.length})
+          </Button>
         </div>
       </div>
+
 
 
       <div className="overflow-hidden rounded-xl border bg-white">
