@@ -69,7 +69,47 @@ export const Route = createFileRoute("/_admin/admin/emprendedores")({
 });
 
 
+const STATUS_LABEL: Record<string, string> = {
+  approved: "Aprobado",
+  pending: "Pendiente",
+  rejected: "Rechazado",
+};
+
+function exportRows(rows: AdminEmprendedor[], name: string) {
+  if (rows.length === 0) {
+    toast.error("No hay registros para exportar.");
+    return;
+  }
+  downloadCSV(
+    `${name}-${new Date().toISOString().slice(0, 10)}.csv`,
+    rows.map((r) => ({
+      Negocio: r.nombre_negocio,
+      Estado: STATUS_LABEL[r.status] ?? r.status,
+      Categoría: r.categoria_producto,
+      "Categoría (otro)": r.categoria_otro ?? "",
+      "Artesano certificado": r.artesano_certificado ?? "",
+      Descripción: r.descripcion,
+      Región: r.region ?? "",
+      Municipio: r.municipio ?? "",
+      Contacto: r.persona_contacto ?? "",
+      Email: r.email ?? "",
+      Teléfono: r.telefono ?? "",
+      Instagram: r.instagram ?? "",
+      "Mercados de interés": r.mercados_interes.join(" | "),
+      "Tiempo operando": r.tiempo_operando ?? "",
+      "Registro de comerciante": r.registro_comerciante ?? "",
+      "Fuente de ingreso": r.fuente_ingreso ?? "",
+      "Canales de venta": r.canales_venta.join(" | "),
+      "Tamaño de equipo": r.tamano_equipo ?? "",
+      Logo: r.logo_url ?? "",
+      "Fecha de registro": new Date(r.created_at).toISOString(),
+    })),
+  );
+  toast.success(`${rows.length} registros exportados.`);
+}
+
 const emptyItem = (): AdminEmprendedor => ({
+
   id: "",
   nombre_negocio: "",
   logo_url: null,
