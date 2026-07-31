@@ -11,6 +11,7 @@ export const EMPRENDEDOR_CATEGORIES = [
   "Productos Agrícolas",
   "Cuidado Personal",
   "Mascotas/Productos",
+  "Joyería",
   "Otro",
 ] as const;
 
