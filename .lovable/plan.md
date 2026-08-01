@@ -1,23 +1,41 @@
 ## Objetivo
 
-Añadir una nueva categoría de negocio: **Mascotas/Productos**, disponible en el formulario de registro, en los filtros de `/negocios` y en el panel de administración.
+Permitir marcar mercados como "Destacado" y que aparezcan primero, con una ficha ligeramente más grande y una insignia, solo en las páginas de categoría (`/mercados-agricolas`, `/bazares`, `/ferias-artesanales`, `/food-market`, `/mercados-mixtos`, `/flea-market`).
 
-## Qué cambia
+## 1. Base de datos
 
-- Se agrega la opción a la lista de categorías de negocios, colocada antes de "Otro" (que siempre queda al final).
-- Aparece automáticamente en:
-  - El formulario "Registra tu Negocio" (selector de categoría).
-  - El filtro de categorías de la página pública `/negocios`.
-  - Los filtros, tarjetas y exportación CSV del panel admin de negocios.
-  - Las métricas del dashboard de analítica de negocios.
+Migración sobre la tabla existente `markets`:
+- Nueva columna `destacado boolean not null default false`.
+- Ningún otro campo se toca; todos los registros actuales quedan en `false`.
 
-## Detalle técnico
+## 2. Panel admin
 
-- `src/lib/emprendedores.functions.ts`: añadir `"Mascotas/Productos"` a la constante `EMPRENDEDOR_CATEGORIES`. Esa constante alimenta tanto el enum de validación Zod del registro como todos los selectores/filtros de la UI, así que no hace falta tocar cada componente.
-- No se requiere migración de base de datos: `emprendedores.categoria_producto` es una columna de tipo texto, no un enum de Postgres.
-- La lógica condicional existente (campo libre para "Otro", pregunta de artesano certificado para "Artesanías") no se ve afectada.
+En `/admin/markets` (tabla), nueva columna "Destacado" con el mismo componente `<Switch>` que ya usa "Activo", con el mismo patrón de guardado inmediato:
+- Nueva server function `toggleMarketDestacado` (misma forma que `toggleMarketActive`, con `requireSupabaseAuth`).
+- Al cambiar, invalida `["admin","markets"]` y `["markets"]` igual que el toggle actual.
+- El campo también se incluye en el formulario de edición solo si hace falta; el toggle de la fila es la vía principal. Sin límite de cantidad y sin expiración.
+
+## 3. Orden
+
+En `CategoryPage` (`src/components/rutamercado/CategoryPage.tsx`), el orden actual es por `nextDate` ascendente. Se antepone el grupo destacado:
+- Primero `destacado = true`, ordenados entre sí por `nextDate` (criterio actual, sin cambios).
+- Luego el resto, con el mismo criterio.
+
+No se modifica el orden de la homepage ni de otras vistas.
+
+## 4. Ficha destacada (visual)
+
+Se reutiliza `MarketCard` con un prop opcional `featured`; las fichas normales quedan idénticas byte a byte. Cuando `featured`:
+
+- **Insignia**: badge en la esquina superior del área de imagen, con el mismo patrón visual que el badge de categoría existente (`rounded-md`, `px-2.5 py-1`, `text-[11px] font-bold uppercase tracking-wide`, misma sombra), en el verde de marca `#54b678` con texto `#18253f`. Texto "Destacado" con el ícono `Star` de lucide-react (ya en uso en el sitio). Se coloca a la izquierda; si ya hay badge "HOY"/"MAÑANA", el de Destacado se ubica debajo para no solaparse.
+- **Tamaño**: sin tocar el grid — padding interno un paso mayor (`px-6 pb-6 pt-5`) y el nombre del mercado un paso arriba en la escala tipográfica ya existente. Esto da ~8–12% de crecimiento y en móvil (1 columna) no altera el ancho.
+- **Resalte**: solo un borde de 2px en `#54b678` (no se añade sombra extra), coherente con los bordes verdes que ya usa el sitio.
+- Contenido, orden de campos, hover y clic/modal: sin cambios.
+
+## 5. Fuera de alcance
+
+Modal de detalle, formulario de registro, panel de aprobación, footer, homepage y cualquier otra vista quedan intactos. No se introducen colores, fuentes, radios ni sombras nuevos.
 
 ## Verificación
 
-- Typecheck del proyecto.
-- Revisar que la nueva categoría aparezca en el selector del formulario y en el dropdown de filtros de `/negocios`.
+Revisión en preview a 1338px y 375px: varios destacados en una misma categoría, sin scroll horizontal ni desalineación, y fichas normales sin cambios visuales.
