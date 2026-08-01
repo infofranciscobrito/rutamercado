@@ -194,14 +194,18 @@ function Content({
 
   const filtered = useMemo(() => {
     const list = applyFilters(inCategory, { ...filters, category: "all" });
-    return [...list].sort((a, b) =>
-      (a.nextDate ?? "") < (b.nextDate ?? "")
+    return [...list].sort((a, b) => {
+      const fa = a.destacado ? 0 : 1;
+      const fb = b.destacado ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      return (a.nextDate ?? "") < (b.nextDate ?? "")
         ? -1
         : (a.nextDate ?? "") > (b.nextDate ?? "")
           ? 1
-          : 0,
-    );
+          : 0;
+    });
   }, [inCategory, filters]);
+
 
   const selected = selectedId
     ? allMarkets.find((m) => m.id === selectedId) ?? null
@@ -305,7 +309,7 @@ function Content({
           </div>
         ) : (
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-            <MarketGrid markets={filtered} onSelect={onSelect} />
+            <MarketGrid markets={filtered} onSelect={onSelect} highlightFeatured />
           </div>
         )}
 
