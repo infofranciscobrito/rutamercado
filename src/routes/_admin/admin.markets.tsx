@@ -10,6 +10,8 @@ import {
   listAllMarkets,
   deleteMarket,
   toggleMarketActive,
+  toggleMarketDestacado,
+
 } from "@/lib/admin-markets.functions";
 import { getIntentionsPerMarketAll } from "@/lib/admin-analytics.functions";
 import { MARKET_CATEGORIES, type Market } from "@/types/market";
@@ -55,6 +57,8 @@ function MarketsPage() {
   const queryClient = useQueryClient();
   const listMarketsFn = useServerFn(listAllMarkets);
   const toggleFn = useServerFn(toggleMarketActive);
+  const toggleDestacadoFn = useServerFn(toggleMarketDestacado);
+
   const deleteFn = useServerFn(deleteMarket);
   const intentionsFn = useServerFn(getIntentionsPerMarketAll);
   const { data: markets = [], isLoading, error } = useQuery({
@@ -121,6 +125,16 @@ function MarketsPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const toggleDestacado = useMutation({
+    mutationFn: (v: { id: string; destacado: boolean }) => toggleDestacadoFn({ data: v }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "markets"] });
+      queryClient.invalidateQueries({ queryKey: ["markets"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
@@ -219,7 +233,9 @@ function MarketsPage() {
               <TableHead>Fecha</TableHead>
               <TableHead className="text-right">Vistas</TableHead>
               <TableHead className="text-right">Intención</TableHead>
+              <TableHead>Destacado</TableHead>
               <TableHead>Activo</TableHead>
+
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -296,10 +312,17 @@ function MarketsPage() {
                   </TableCell>
                   <TableCell>
                     <Switch
+                      checked={Boolean(m.destacado)}
+                      onCheckedChange={(v) => toggleDestacado.mutate({ id: m.id, destacado: v })}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Switch
                       checked={m.is_active}
                       onCheckedChange={(v) => toggle.mutate({ id: m.id, isActive: v })}
                     />
                   </TableCell>
+
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
