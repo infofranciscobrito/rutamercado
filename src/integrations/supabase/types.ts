@@ -385,6 +385,7 @@ export type Database = {
           category: Database["public"]["Enums"]["market_category"]
           created_at: string
           description: string | null
+          destacado: boolean
           end_time: string
           family_friendly: string | null
           focal_x: number
@@ -421,6 +422,7 @@ export type Database = {
           category: Database["public"]["Enums"]["market_category"]
           created_at?: string
           description?: string | null
+          destacado?: boolean
           end_time: string
           family_friendly?: string | null
           focal_x?: number
@@ -457,6 +459,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["market_category"]
           created_at?: string
           description?: string | null
+          destacado?: boolean
           end_time?: string
           family_friendly?: string | null
           focal_x?: number
