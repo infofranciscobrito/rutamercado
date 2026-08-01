@@ -76,6 +76,7 @@ const MarketInputSchema = z
       .optional()
       .or(z.literal("").transform(() => null)),
     is_active: z.boolean(),
+    destacado: z.boolean().default(false),
     focal_x: z.number().min(0).max(100).default(50),
     focal_y: z.number().min(0).max(100).default(50),
     pets: z.string().trim().max(100).nullable().optional(),
@@ -161,6 +162,7 @@ export const upsertMarket = createServerFn({ method: "POST" })
       organizer_instagram: data.organizer_instagram ?? null,
       organizer_contact_url: data.organizer_contact_url ?? null,
       is_active: data.is_active,
+      destacado: data.destacado,
       focal_x: data.focal_x,
       focal_y: data.focal_y,
       pets: data.pets ?? null,

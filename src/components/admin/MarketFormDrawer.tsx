@@ -58,6 +58,7 @@ type FormValues = RecurrenceFormShape & {
   organizer_instagram: string;
   organizer_contact_url: string;
   is_active: boolean;
+  destacado: boolean;
   focal_x: number;
   focal_y: number;
   pets: string;
@@ -90,6 +91,7 @@ const empty: FormValues = {
   organizer_instagram: "",
   organizer_contact_url: "",
   is_active: true,
+  destacado: false,
   focal_x: 50,
   focal_y: 50,
   pets: "",
@@ -123,6 +125,7 @@ function marketToForm(m: Market): FormValues {
     organizer_instagram: m.organizer_instagram ?? "",
     organizer_contact_url: (m as { organizer_contact_url?: string | null }).organizer_contact_url ?? "",
     is_active: m.is_active,
+    destacado: Boolean((m as { destacado?: boolean }).destacado),
     focal_x: m.focal_x ?? 50,
     focal_y: m.focal_y ?? 50,
     pets: m.pets ?? "",
@@ -189,6 +192,7 @@ export function MarketFormDrawer({
           organizer_instagram: v.organizer_instagram || null,
           organizer_contact_url: normalizeUrl(v.organizer_contact_url),
           is_active: v.is_active,
+          destacado: v.destacado,
           focal_x: v.focal_x,
           focal_y: v.focal_y,
           pets: v.pets || null,
@@ -555,6 +559,16 @@ export function MarketFormDrawer({
             render={({ field }) => (
               <label className="flex items-center justify-between rounded-md border p-3">
                 <span className="text-sm font-medium">Activo</span>
+                <Switch checked={field.value} onCheckedChange={field.onChange} />
+              </label>
+            )}
+          />
+          <Controller
+            control={control}
+            name="destacado"
+            render={({ field }) => (
+              <label className="flex items-center justify-between rounded-md border p-3">
+                <span className="text-sm font-medium">Mercado destacado</span>
                 <Switch checked={field.value} onCheckedChange={field.onChange} />
               </label>
             )}
