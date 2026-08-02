@@ -36,7 +36,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
       aria-label={`Ver detalles de ${market.name}`}
       className={`group flex cursor-pointer shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
         fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
-      } ${featured ? "border-2 border-[#54b678]" : ""}`}
+      } ${
+        featured
+          ? "border-[3px] border-[#54b678] shadow-[0_8px_40px_rgba(84,182,120,0.35)] hover:shadow-[0_12px_50px_rgba(84,182,120,0.45)]"
+          : ""
+      }`}
     >
       <div
         className={`relative w-full overflow-hidden bg-[#FFF8EC] aspect-video ${
@@ -60,11 +64,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
         )}
         {featured && (
           <span
-            className={`absolute left-3 inline-flex items-center gap-1 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.15)] ${
+            className={`absolute left-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#54b678] to-[#3f9560] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#18253f] shadow-[0_4px_14px_rgba(84,182,120,0.45)] ${
               today || tomorrow ? "top-12" : "top-3"
             }`}
           >
-            <Star className="h-3 w-3" />
+            <Star className="h-3.5 w-3.5 fill-[#18253f]" />
             Destacado
           </span>
         )}
@@ -74,17 +78,22 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
       </div>
       <div
         className={`flex flex-1 flex-col gap-2 ${
-          featured ? "px-6 pb-6 pt-5" : "px-5 pb-5 pt-4"
+          featured ? "px-6 pb-6 pt-5 sm:px-7 sm:pb-7 sm:pt-6" : "px-5 pb-5 pt-4"
         }`}
       >
         <h3
           className={`font-display rm-text-card-title text-[#18253f] line-clamp-2 ${
-            featured ? "text-[1.25em] leading-tight" : ""
+            featured
+              ? "text-[1.35em] font-bold leading-tight sm:text-[1.55em]"
+              : ""
           }`}
         >
           {market.name}
         </h3>
-        <div className="h-[2px] w-10 bg-[#54b678]" aria-hidden="true" />
+        <div
+          className={`h-[2px] bg-[#54b678] ${featured ? "w-16" : "w-10"}`}
+          aria-hidden="true"
+        />
 
         <div className="mt-1 space-y-1.5 text-sm">
           <div className="flex items-center gap-2 text-[#18253f]">
