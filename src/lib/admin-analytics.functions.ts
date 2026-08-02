@@ -874,3 +874,123 @@ export const getAmenitiesDistribution = createServerFn({ method: "GET" })
 
     return { groups, totalActive };
   });
+
+/* ============================================================== */
+/*  Mercados destacados: performance vs. no destacados             */
+/* ============================================================== */
+
+const CONTACT_CLICKS = new Set([
+  "click_phone",
+  "click_email",
+  "click_instagram",
+  "click_contact",
+]);
+
+export const getFeaturedPerformance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: RangeInput) => rangeSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const [marketsRes, clicksRes, intRes] = await Promise.all([
+      supabase
+        .from("markets")
+        .select("id, name, municipality, category, destacado, destacado_desde, is_active"),
+      applyRange(
+        supabase.from("market_clicks").select("market_id, click_type, era_destacado"),
+        data,
+      ),
+      applyRange(
+        supabase
+          .from("market_attendance_intentions")
+          .select("market_id, intention_type, era_destacado"),
+        data,
+      ),
+    ]);
+    if (marketsRes.error) throw new Error(marketsRes.error.message);
+
+    type Seg = { views: number; contact: number; intentions: number };
+    const seg: Record<"featured" | "regular", Seg> = {
+      featured: { views: 0, contact: 0, intentions: 0 },
+      regular: { views: 0, contact: 0, intentions: 0 },
+    };
+    // Per-market tallies restricted to the events captured while featured.
+    const perMarket = new Map<string, Seg>();
+    const bump = (id: string, key: keyof Seg) => {
+      const cur = perMarket.get(id) ?? { views: 0, contact: 0, intentions: 0 };
+      cur[key] += 1;
+      perMarket.set(id, cur);
+    };
+
+    for (const c of clicksRes.data ?? []) {
+      // Legacy rows (era_destacado = null) predate the flag; count as regular.
+      const key = c.era_destacado === true ? "featured" : "regular";
+      if (c.click_type === "view_detail") {
+        seg[key].views += 1;
+        if (key === "featured") bump(c.market_id, "views");
+      } else if (CONTACT_CLICKS.has(c.click_type)) {
+        seg[key].contact += 1;
+        if (key === "featured") bump(c.market_id, "contact");
+      }
+    }
+    for (const r of intRes.data ?? []) {
+      if (r.intention_type !== "will_attend" && r.intention_type !== "interested") continue;
+      const key = r.era_destacado === true ? "featured" : "regular";
+      seg[key].intentions += 1;
+      if (key === "featured") bump(r.market_id, "intentions");
+    }
+
+    const allMarkets = marketsRes.data ?? [];
+    const featuredMarkets = allMarkets.filter((m) => m.destacado);
+    const featuredCount = featuredMarkets.length;
+    const regularCount = Math.max(0, allMarkets.length - featuredCount);
+
+    const rate = (num: number, den: number) => (den > 0 ? (num / den) * 100 : 0);
+    const summarize = (s: Seg, markets: number) => ({
+      views: s.views,
+      contactClicks: s.contact,
+      intentions: s.intentions,
+      markets,
+      avgViewsPerMarket: markets > 0 ? s.views / markets : 0,
+      contactRate: rate(s.contact, s.views),
+      intentionRate: rate(s.intentions, s.views),
+    });
+
+    const now = Date.now();
+    const rows = featuredMarkets
+      .map((m) => {
+        const t = perMarket.get(m.id) ?? { views: 0, contact: 0, intentions: 0 };
+        const since = m.destacado_desde as string | null;
+        return {
+          id: m.id as string,
+          name: m.name as string,
+          municipality: (m.municipality as string) ?? "",
+          category: (m.category as string) ?? "",
+          isActive: Boolean(m.is_active),
+          views: t.views,
+          contactClicks: t.contact,
+          intentions: t.intentions,
+          contactRate: rate(t.contact, t.views),
+          destacadoDesde: since,
+          daysFeatured: since
+            ? Math.max(0, Math.floor((now - new Date(since).getTime()) / 86400000))
+            : null,
+        };
+      })
+      .sort((a, b) => b.views - a.views);
+
+    const withDays = rows.filter((r) => r.daysFeatured !== null);
+    const avgDaysFeatured =
+      withDays.length > 0
+        ? withDays.reduce((s, r) => s + (r.daysFeatured ?? 0), 0) / withDays.length
+        : 0;
+
+    const totalViews = seg.featured.views + seg.regular.views;
+    return {
+      featured: summarize(seg.featured, featuredCount),
+      regular: summarize(seg.regular, regularCount),
+      totalViews,
+      featuredShareOfViews: rate(seg.featured.views, totalViews),
+      rows,
+      avgDaysFeatured,
+    };
+  });
