@@ -34,19 +34,19 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
         }
       }}
       aria-label={`Ver detalles de ${market.name}`}
-      className={`group flex cursor-pointer shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
+      className={`group relative flex cursor-pointer shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
         fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
       } ${
         featured
-          ? "border-[3px] border-[#54b678] shadow-[0_8px_40px_rgba(84,182,120,0.35)] hover:shadow-[0_12px_50px_rgba(84,182,120,0.45)]"
+          ? "shadow-[0_4px_24px_rgba(84,182,120,0.18)] hover:shadow-[0_8px_32px_rgba(84,182,120,0.28)]"
           : ""
       }`}
     >
-      <div
-        className={`relative w-full overflow-hidden bg-[#FFF8EC] aspect-video ${
-          featured ? "sm:!aspect-[21/8]" : ""
-        }`}
-      >
+      {/* Top accent bar for featured cards */}
+      {featured && (
+        <div className="absolute left-0 right-0 top-0 z-20 h-1 bg-gradient-to-r from-[#54b678] via-[#3f9560] to-[#2f7a4c]" />
+      )}
+      <div className="relative w-full overflow-hidden bg-[#FFF8EC] aspect-video">
         <MarketImage
           src={market.image_url}
           alt={market.name}
@@ -64,11 +64,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
         )}
         {featured && (
           <span
-            className={`absolute left-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#54b678] to-[#3f9560] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#18253f] shadow-[0_4px_14px_rgba(84,182,120,0.45)] ${
+            className={`absolute left-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2f7a4c] shadow-sm ring-1 ring-[#54b678]/20 backdrop-blur-sm ${
               today || tomorrow ? "top-12" : "top-3"
             }`}
           >
-            <Star className="h-3.5 w-3.5 fill-[#18253f]" />
+            <Star className="h-3 w-3 fill-[#54b678] text-[#54b678]" />
             Destacado
           </span>
         )}
@@ -76,22 +76,12 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
           <FavoriteButton marketId={market.id} />
         </div>
       </div>
-      <div
-        className={`flex flex-1 flex-col gap-2 ${
-          featured ? "px-6 pb-6 pt-5 sm:px-7 sm:pb-7 sm:pt-6" : "px-5 pb-5 pt-4"
-        }`}
-      >
-        <h3
-          className={`font-display rm-text-card-title text-[#18253f] line-clamp-2 ${
-            featured
-              ? "text-[1.35em] font-bold leading-tight sm:text-[1.55em]"
-              : ""
-          }`}
-        >
+      <div className="flex flex-1 flex-col gap-2 px-5 pb-5 pt-4">
+        <h3 className="font-display rm-text-card-title text-[#18253f] line-clamp-2">
           {market.name}
         </h3>
         <div
-          className={`h-[2px] bg-[#54b678] ${featured ? "w-16" : "w-10"}`}
+          className={`h-[2px] bg-[#54b678] ${featured ? "w-14" : "w-10"}`}
           aria-hidden="true"
         />
 
