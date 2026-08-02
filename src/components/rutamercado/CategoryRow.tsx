@@ -34,13 +34,13 @@ export function CategoryRow({
       return da.localeCompare(db);
     });
 
-    // Build a clean 4-column row: featured cards span 2 columns, normal cards 1.
-    // Stop once the next card would overflow the 4-column grid or we hit 4 cards.
+    // Build two clean 4-column rows (8 slots): featured cards span 2 columns.
+    // Markets that don't fit stay on the category page.
     const result: EnrichedMarket[] = [];
     let slots = 0;
     for (const m of sorted) {
       const need = m.destacado ? 2 : 1;
-      if (slots + need > 4 || result.length >= 4) break;
+      if (slots + need > 8) break;
       result.push(m);
       slots += need;
     }

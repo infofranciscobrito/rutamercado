@@ -327,10 +327,13 @@ function MarketsContent({
       list.push(m);
       map.set(m.category, list);
     }
-    return MARKET_CATEGORIES.filter((c) => map.has(c)).map((c) => ({
-      category: c,
-      markets: map.get(c)!,
-    }));
+    return MARKET_CATEGORIES.filter((c) => map.has(c))
+      .map((c) => ({
+        category: c,
+        markets: map.get(c)!,
+      }))
+      // Categorías con más mercados primero; las de menos quedan al final.
+      .sort((a, b) => b.markets.length - a.markets.length);
   }, [filtered]);
 
   return (
