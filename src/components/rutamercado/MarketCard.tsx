@@ -36,7 +36,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
       aria-label={`Ver detalles de ${market.name}`}
       className={`group flex cursor-pointer shrink-0 flex-col overflow-hidden rounded-2xl bg-white text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
         fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
-      } ${featured ? "border-2 border-[#54b678]" : ""}`}
+      } ${
+        featured
+          ? "border-[3px] border-[#54b678] shadow-[0_8px_40px_rgba(84,182,120,0.35)] hover:shadow-[0_12px_50px_rgba(84,182,120,0.45)]"
+          : ""
+      }`}
     >
       <div
         className={`relative w-full overflow-hidden bg-[#FFF8EC] aspect-video ${
