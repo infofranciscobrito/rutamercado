@@ -66,7 +66,11 @@ export function CategoryRow({
               className="rm-animate-fade-up"
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
-              <MarketCard market={m} onClick={() => onSelect(m.id)} />
+              <MarketCard
+                market={m}
+                onClick={() => onSelect(m.id)}
+                featured={Boolean(m.destacado)}
+              />
             </div>
           ))}
         </div>
