@@ -1559,6 +1559,275 @@ function AnalyticsPage() {
 }
 
 /* ============================================================== */
+/*  Mercados destacados                                            */
+/* ============================================================== */
+
+type FeaturedSeg = {
+  views: number;
+  contactClicks: number;
+  intentions: number;
+  markets: number;
+  avgViewsPerMarket: number;
+  contactRate: number;
+  intentionRate: number;
+};
+type FeaturedData = {
+  featured: FeaturedSeg;
+  regular: FeaturedSeg;
+  totalViews: number;
+  featuredShareOfViews: number;
+  avgDaysFeatured: number;
+  rows: {
+    id: string;
+    name: string;
+    municipality: string;
+    category: string;
+    isActive: boolean;
+    views: number;
+    contactClicks: number;
+    intentions: number;
+    contactRate: number;
+    destacadoDesde: string | null;
+    daysFeatured: number | null;
+  }[];
+};
+
+const pct1 = (v: number) => `${v.toFixed(1).replace(/\.0$/, "")}%`;
+
+/** Percentages computed on fewer than 10 observations are unreliable. */
+function RateValue({
+  value,
+  n,
+  className,
+}: {
+  value: number;
+  n: number;
+  className?: string;
+}) {
+  const low = n < 10;
+  return (
+    <span
+      className={className}
+      style={{ color: low ? "var(--text-muted)" : undefined }}
+    >
+      {pct1(value)}
+      {low && (
+        <span className="ml-1 text-[10px] font-medium">n bajo</span>
+      )}
+    </span>
+  );
+}
+
+function FeaturedSection({ data }: { data?: FeaturedData }) {
+  const f = data?.featured;
+  const r = data?.regular;
+  const rows = data?.rows ?? [];
+  const [sortBy, setSortBy] = useState<"views" | "contact" | "intentions">(
+    "views",
+  );
+  const sorted = useMemo(() => {
+    const copy = [...rows];
+    copy.sort((a, b) =>
+      sortBy === "views"
+        ? b.views - a.views
+        : sortBy === "contact"
+          ? b.contactClicks - a.contactClicks
+          : b.intentions - a.intentions,
+    );
+    return copy;
+  }, [rows, sortBy]);
+
+  const headline = f && r
+    ? `Los ${f.markets} ${f.markets === 1 ? "mercado destacado activo generó" : "mercados destacados activos generaron"} ${f.views.toLocaleString("es-PR")} ${f.views === 1 ? "vista de ficha" : "vistas de ficha"} (${pct1(data!.featuredShareOfViews)} del total), con una tasa de contacto de ${pct1(f.contactRate)} — comparado con ${pct1(r.contactRate)} en los mercados no destacados.`
+    : "Sin datos suficientes en el período seleccionado.";
+
+  return (
+    <>
+      <p
+        className="max-w-4xl text-[13.5px] leading-relaxed"
+        style={{ color: "var(--text-secondary)" }}
+      >
+        {headline}
+      </p>
+
+      <div className="grid gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-12">
+          <Card
+            title="Destacados vs. no destacados"
+            subtitle="Rendimiento comparado dentro del rango de fechas seleccionado"
+            n={data?.totalViews ?? 0}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              {([
+                ["Destacados", f, "var(--accent)"],
+                ["No destacados", r, "var(--text-muted)"],
+              ] as const).map(([label, s, color]) => (
+                <div
+                  key={label}
+                  className="rounded-xl border p-4"
+                  style={{
+                    borderColor: "var(--border-default)",
+                    background: "var(--surface-3)",
+                  }}
+                >
+                  <div
+                    className="text-[11.5px] font-semibold uppercase tracking-wider"
+                    style={{ color }}
+                  >
+                    {label}
+                    {s ? ` · ${s.markets} ${s.markets === 1 ? "mercado" : "mercados"}` : ""}
+                  </div>
+                  <dl className="mt-3 space-y-2 text-[13px]">
+                    <Row label="Vistas de ficha" value={(s?.views ?? 0).toLocaleString("es-PR")} />
+                    <Row
+                      label="Vistas promedio por mercado"
+                      value={(s?.avgViewsPerMarket ?? 0).toFixed(1).replace(/\.0$/, "")}
+                    />
+                    <Row
+                      label="Tasa de contacto"
+                      value={<RateValue value={s?.contactRate ?? 0} n={s?.views ?? 0} />}
+                    />
+                    <Row
+                      label="Tasa de intención"
+                      value={<RateValue value={s?.intentionRate ?? 0} n={s?.views ?? 0} />}
+                    />
+                  </dl>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-12">
+          <Card
+            title="Mercados destacados actuales"
+            subtitle="Un renglón por cada mercado con la insignia activa"
+            n={rows.length}
+            action={
+              <CsvButton
+                disabled={!rows.length}
+                onClick={() =>
+                  downloadCSV(
+                    "mercados-destacados.csv",
+                    sorted.map((m) => ({
+                      mercado: m.name,
+                      municipio: m.municipality,
+                      categoria: m.category,
+                      vistas: m.views,
+                      clics_contacto: m.contactClicks,
+                      intencion: m.intentions,
+                      tasa_contacto: pct1(m.contactRate),
+                      destacado_desde: m.destacadoDesde ?? "",
+                      dias_destacado: m.daysFeatured ?? "",
+                    })),
+                  )
+                }
+              />
+            }
+            delay={80}
+          >
+            {rows.length === 0 ? (
+              <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+                No hay mercados destacados en este momento.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {(
+                    [
+                      ["views", "Vistas"],
+                      ["contact", "Clics de contacto"],
+                      ["intentions", "Intención"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSortBy(key)}
+                      className="rounded-md border px-2 py-1 text-[11px] font-medium"
+                      style={{
+                        borderColor:
+                          sortBy === key ? "var(--accent)" : "var(--border-default)",
+                        color:
+                          sortBy === key ? "var(--accent)" : "var(--text-secondary)",
+                        background: "var(--surface-3)",
+                      }}
+                    >
+                      Ordenar por {label}
+                    </button>
+                  ))}
+                </div>
+                <TableSimple
+                  head={[
+                    "Mercado",
+                    "Categoría",
+                    "Vistas",
+                    "Contacto",
+                    "Intención",
+                    "Tasa contacto",
+                    "Destacado desde",
+                  ]}
+                  alignRight={[false, false, true, true, true, true, false]}
+                  rows={sorted.map((m) => [
+                    <div key={m.id}>
+                      <div style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+                        {m.name}
+                      </div>
+                      <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+                        {m.municipality}
+                        {m.isActive ? "" : " · inactivo"}
+                      </div>
+                    </div>,
+                    m.category,
+                    m.views.toLocaleString("es-PR"),
+                    m.contactClicks.toLocaleString("es-PR"),
+                    m.intentions.toLocaleString("es-PR"),
+                    <RateValue key={`${m.id}-r`} value={m.contactRate} n={m.views} />,
+                    m.destacadoDesde
+                      ? `${fmtDay(new Date(m.destacadoDesde))} (${m.daysFeatured} d)`
+                      : "—",
+                  ])}
+                />
+              </div>
+            )}
+          </Card>
+        </div>
+
+        <div className="lg:col-span-12">
+          <Card title="Nota de contexto" subtitle="Cómo leer esta comparación" delay={160}>
+            <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              Los mercados destacados llevan en promedio{" "}
+              {(data?.avgDaysFeatured ?? 0).toFixed(1).replace(/\.0$/, "")} días con la
+              insignia activa; los datos de mercados no destacados incluyen todo el
+              historial disponible dentro del rango seleccionado, por lo que la
+              comparación es orientativa, no definitiva. Los eventos registrados antes de
+              activar esta medición se contabilizan como no destacados.
+            </p>
+          </Card>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Row({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="text-[12px]" style={{ color: "var(--text-muted)" }}>
+        {label}
+      </dt>
+      <dd
+        className="text-[13.5px] font-semibold tabular-nums"
+        style={{ color: "var(--text-primary)" }}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+
+/* ============================================================== */
 /*  Section divider                                                */
 /* ============================================================== */
 
