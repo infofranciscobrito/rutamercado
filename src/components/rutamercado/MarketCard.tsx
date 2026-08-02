@@ -73,7 +73,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
           featured ? "px-6 pb-6 pt-5" : "px-5 pb-5 pt-4"
         }`}
       >
-        <h3 className="font-display rm-text-card-title text-[#18253f] line-clamp-2">
+        <h3
+          className={`font-display rm-text-card-title text-[#18253f] line-clamp-2 ${
+            featured ? "text-[1.25em] leading-tight" : ""
+          }`}
+        >
           {market.name}
         </h3>
         <div className="h-[2px] w-10 bg-[#54b678]" aria-hidden="true" />
