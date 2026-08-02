@@ -38,7 +38,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
         fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
       } ${featured ? "border-2 border-[#54b678]" : ""}`}
     >
-      <div className="relative aspect-video w-full overflow-hidden bg-[#FFF8EC]">
+      <div
+        className={`relative w-full overflow-hidden bg-[#FFF8EC] ${
+          featured ? "aspect-video sm:aspect-[21/8]" : "aspect-video"
+        }`}
+      >
         <MarketImage
           src={market.image_url}
           alt={market.name}
