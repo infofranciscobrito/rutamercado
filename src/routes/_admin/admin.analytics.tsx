@@ -49,6 +49,7 @@ import {
   getPageActivity,
   getSubmissionsStats,
   getAmenitiesDistribution,
+  getFeaturedPerformance,
 } from "@/lib/admin-analytics.functions";
 import { downloadCSV } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
