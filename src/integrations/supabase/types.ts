@@ -128,6 +128,7 @@ export type Database = {
       market_attendance_intentions: {
         Row: {
           created_at: string
+          era_destacado: boolean | null
           id: string
           intention_type: string
           market_id: string
@@ -135,6 +136,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          era_destacado?: boolean | null
           id?: string
           intention_type: string
           market_id: string
@@ -142,6 +144,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          era_destacado?: boolean | null
           id?: string
           intention_type?: string
           market_id?: string
@@ -161,18 +164,21 @@ export type Database = {
         Row: {
           click_type: Database["public"]["Enums"]["click_type"]
           created_at: string
+          era_destacado: boolean | null
           id: string
           market_id: string
         }
         Insert: {
           click_type: Database["public"]["Enums"]["click_type"]
           created_at?: string
+          era_destacado?: boolean | null
           id?: string
           market_id: string
         }
         Update: {
           click_type?: Database["public"]["Enums"]["click_type"]
           created_at?: string
+          era_destacado?: boolean | null
           id?: string
           market_id?: string
         }
@@ -386,6 +392,7 @@ export type Database = {
           created_at: string
           description: string | null
           destacado: boolean
+          destacado_desde: string | null
           end_time: string
           family_friendly: string | null
           focal_x: number
@@ -423,6 +430,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           destacado?: boolean
+          destacado_desde?: string | null
           end_time: string
           family_friendly?: string | null
           focal_x?: number
@@ -460,6 +468,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           destacado?: boolean
+          destacado_desde?: string | null
           end_time?: string
           family_friendly?: string | null
           focal_x?: number
