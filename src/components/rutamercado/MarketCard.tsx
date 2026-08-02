@@ -78,17 +78,22 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
       </div>
       <div
         className={`flex flex-1 flex-col gap-2 ${
-          featured ? "px-6 pb-6 pt-5" : "px-5 pb-5 pt-4"
+          featured ? "px-6 pb-6 pt-5 sm:px-7 sm:pb-7 sm:pt-6" : "px-5 pb-5 pt-4"
         }`}
       >
         <h3
           className={`font-display rm-text-card-title text-[#18253f] line-clamp-2 ${
-            featured ? "text-[1.25em] leading-tight" : ""
+            featured
+              ? "text-[1.35em] font-bold leading-tight sm:text-[1.55em]"
+              : ""
           }`}
         >
           {market.name}
         </h3>
-        <div className="h-[2px] w-10 bg-[#54b678]" aria-hidden="true" />
+        <div
+          className={`h-[2px] bg-[#54b678] ${featured ? "w-16" : "w-10"}`}
+          aria-hidden="true"
+        />
 
         <div className="mt-1 space-y-1.5 text-sm">
           <div className="flex items-center gap-2 text-[#18253f]">
