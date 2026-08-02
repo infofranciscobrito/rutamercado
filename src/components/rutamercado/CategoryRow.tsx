@@ -63,7 +63,9 @@ export function CategoryRow({
           {visible.map((m, i) => (
             <div
               key={m.id}
-              className="rm-animate-fade-up"
+              className={`rm-animate-fade-up ${
+                m.destacado ? "lg:col-span-2" : ""
+              }`}
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
               <MarketCard
