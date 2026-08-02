@@ -655,6 +655,10 @@ function AnalyticsPage() {
     queryKey: ["admin", "analytics", "amenities"],
     queryFn: () => amenitiesFn(),
   });
+  const featured = useQuery({
+    queryKey: ["admin", "analytics", "featured", ...rangeKey],
+    queryFn: () => featuredFn({ data: rangeArg }),
+  });
 
   const isLoading =
     overview.isLoading ||
