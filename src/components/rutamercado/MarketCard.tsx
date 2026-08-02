@@ -64,11 +64,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
         )}
         {featured && (
           <span
-            className={`absolute left-3 inline-flex items-center gap-1 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.15)] ${
+            className={`absolute left-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#54b678] to-[#3f9560] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#18253f] shadow-[0_4px_14px_rgba(84,182,120,0.45)] ${
               today || tomorrow ? "top-12" : "top-3"
             }`}
           >
-            <Star className="h-3 w-3" />
+            <Star className="h-3.5 w-3.5 fill-[#18253f]" />
             Destacado
           </span>
         )}
