@@ -34,8 +34,17 @@ export function CategoryRow({
       return da.localeCompare(db);
     });
 
-    // Keep all cards the same width; featured markets simply lead the row.
-    return sorted.slice(0, 4);
+    // Build a clean 4-column row: featured cards span 2 columns, normal cards 1.
+    // Stop once the next card would overflow the 4-column grid or we hit 4 cards.
+    const result: EnrichedMarket[] = [];
+    let slots = 0;
+    for (const m of sorted) {
+      const need = m.destacado ? 2 : 1;
+      if (slots + need > 4 || result.length >= 4) break;
+      result.push(m);
+      slots += need;
+    }
+    return result;
   }, [markets]);
 
   return (
@@ -65,7 +74,9 @@ export function CategoryRow({
           {visible.map((m, i) => (
             <div
               key={m.id}
-              className="rm-animate-fade-up"
+              className={`rm-animate-fade-up ${
+                m.destacado ? "lg:col-span-2" : ""
+              }`}
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
               <MarketCard
