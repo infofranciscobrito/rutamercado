@@ -86,8 +86,18 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
         />
 
         <div className="mt-1 space-y-1.5 text-sm">
-          <div className="flex items-center gap-2 text-[#18253f]">
-            <CalendarDays className="h-4 w-4 shrink-0 text-[#54b678]" />
+          <div
+            className={`flex items-center gap-2 rounded-md px-3 py-1.5 ${
+              featured
+                ? "bg-[#18253f] text-white shadow-sm"
+                : "text-[#18253f]"
+            }`}
+          >
+            <CalendarDays
+              className={`h-4 w-4 shrink-0 ${
+                featured ? "text-[#54b678]" : "text-[#54b678]"
+              }`}
+            />
             <span>{formatDateEs(nextDate)}</span>
           </div>
           <div className="flex items-center gap-2 text-[#6B7280]">
