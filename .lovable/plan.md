@@ -1,41 +1,52 @@
-## Objetivo
+## Diagnóstico (verificado en el código)
 
-Permitir marcar mercados como "Destacado" y que aparezcan primero, con una ficha ligeramente más grande y una insignia, solo en las páginas de categoría (`/mercados-agricolas`, `/bazares`, `/ferias-artesanales`, `/food-market`, `/mercados-mixtos`, `/flea-market`).
+La lógica de la Parte 1 **sí existe** en el preview: `CategoryPage.tsx` ordena destacados primero, `MarketGrid` pasa `featured`, y `MarketCard` pinta la insignia + borde verde + padding mayor. Dos razones probables de que no lo veas:
 
-## 1. Base de datos
+1. El sitio en `rutamercadopr.com` es la versión **publicada**, que aún no incluye estos cambios.
+2. Las **filas por categoría de la homepage** (`CategoryRow.tsx`) NO usan `destacado`: ordenan solo por próxima fecha y ni siquiera pasan la insignia. Ahí el destacado no sale primero.
 
-Migración sobre la tabla existente `markets`:
-- Nueva columna `destacado boolean not null default false`.
-- Ningún otro campo se toca; todos los registros actuales quedan en `false`.
+Primero verifico con capturas en el preview antes de tocar nada más.
 
-## 2. Panel admin
+---
 
-En `/admin/markets` (tabla), nueva columna "Destacado" con el mismo componente `<Switch>` que ya usa "Activo", con el mismo patrón de guardado inmediato:
-- Nueva server function `toggleMarketDestacado` (misma forma que `toggleMarketActive`, con `requireSupabaseAuth`).
-- Al cambiar, invalida `["admin","markets"]` y `["markets"]` igual que el toggle actual.
-- El campo también se incluye en el formulario de edición solo si hace falta; el toggle de la fila es la vía principal. Sin límite de cantidad y sin expiración.
+## Parte 1 — Destacado en los listados
 
-## 3. Orden
+- `CategoryRow.tsx` (homepage): anteponer el grupo `destacado = true` antes del corte a 4 fichas, manteniendo la fecha ascendente dentro de cada grupo, y activar la insignia.
+- `MarketGrid.tsx`: en desktop dar `sm:col-span-2` a la ficha destacada (probado primero; si desalinea el grid se revierte al refuerzo de padding/tipografía). En móvil sigue ocupando una columna completa.
+- `MarketCard.tsx`: subir el nombre del mercado un paso en la escala tipográfica existente cuando es destacado, y dejar **solo** el borde de 2px en `#54b678` (sin sombra extra). La insignia "Destacado" ya usa el mismo pill/tipografía que el badge de categoría.
+- Verificación obligatoria con Playwright: activo destacado en 2 mercados de categorías distintas que hoy no salen primeros, capturo la página de categoría a 1280px y a 375px, y confirmo orden, insignia, tamaño y ausencia de scroll horizontal.
 
-En `CategoryPage` (`src/components/rutamercado/CategoryPage.tsx`), el orden actual es por `nextDate` ascendente. Se antepone el grupo destacado:
-- Primero `destacado = true`, ordenados entre sí por `nextDate` (criterio actual, sin cambios).
-- Luego el resto, con el mismo criterio.
+---
 
-No se modifica el orden de la homepage ni de otras vistas.
+## Parte 2 — Medición de mercados destacados
 
-## 4. Ficha destacada (visual)
+### Base de datos (una migración)
 
-Se reutiliza `MarketCard` con un prop opcional `featured`; las fichas normales quedan idénticas byte a byte. Cuando `featured`:
+- `markets.destacado_desde timestamptz` + trigger que lo setea a `now()` al pasar `destacado` de false→true y lo limpia al desactivar.
+- `market_clicks.era_destacado boolean` y `market_attendance_intentions.era_destacado boolean`, para congelar el estado en el momento del evento. Los eventos ya guardan `market_id`, así que no hay que corregir eso.
+- Los registros históricos quedan en `null` (desconocido) y se tratan como "no destacado" en los cálculos, indicándolo en la nota de contexto.
 
-- **Insignia**: badge en la esquina superior del área de imagen, con el mismo patrón visual que el badge de categoría existente (`rounded-md`, `px-2.5 py-1`, `text-[11px] font-bold uppercase tracking-wide`, misma sombra), en el verde de marca `#54b678` con texto `#18253f`. Texto "Destacado" con el ícono `Star` de lucide-react (ya en uso en el sitio). Se coloca a la izquierda; si ya hay badge "HOY"/"MAÑANA", el de Destacado se ubica debajo para no solaparse.
-- **Tamaño**: sin tocar el grid — padding interno un paso mayor (`px-6 pb-6 pt-5`) y el nombre del mercado un paso arriba en la escala tipográfica ya existente. Esto da ~8–12% de crecimiento y en móvil (1 columna) no altera el ancho.
-- **Resalte**: solo un borde de 2px en `#54b678` (no se añade sombra extra), coherente con los bordes verdes que ya usa el sitio.
-- Contenido, orden de campos, hover y clic/modal: sin cambios.
+### Captura
 
-## 5. Fuera de alcance
+`trackMarketClick` y el registro de intención leen el `destacado` actual del mercado y lo escriben en `era_destacado`. No se crean eventos nuevos ni un sistema paralelo.
 
-Modal de detalle, formulario de registro, panel de aprobación, footer, homepage y cualquier otra vista quedan intactos. No se introducen colores, fuentes, radios ni sombras nuevos.
+### Dashboard `/admin/analytics`
 
-## Verificación
+Nueva sección con `SectionDivider label="Mercados destacados"`, justo después de "Rendimiento por mercado", con el mismo sistema `ba-card` / bento grid y respetando el filtro de fechas y el toggle de tráfico interno existentes:
 
-Revisión en preview a 1338px y 375px: varios destacados en una misma categoría, sin scroll horizontal ni desalineación, y fichas normales sin cambios visuales.
+1. **Titular narrativo** generado de los datos (vistas de destacados, % del total, tasa de contacto vs. no destacados).
+2. **Tarjeta 1 — Resumen comparativo**: dos columnas Destacados / No destacados con vistas totales, promedio por mercado, tasa de contacto y tasa de intención, aplicando la regla de "n bajo" ya existente.
+3. **Tarjeta 2 — Tabla de destacados actuales**: mercado + municipio, categoría, vistas, clics de contacto, intención, tasa de contacto y `destacado_desde`; ordenable, por vistas por defecto.
+4. **Tarjeta 3 — Nota de contexto** con el promedio real de días con insignia activa.
+
+Un servidor nuevo `getFeaturedPerformance` en `admin-analytics.functions.ts` siguiendo el patrón de `getTopMarkets` (mismo middleware admin y helper de rango).
+
+### Verificación
+
+Activo/desactivo destacados, genero vistas y clics reales en el preview, y confirmo con captura que la sección refleja esos números y que un mercado desactivado conserva su histórico.
+
+---
+
+## Fuera de alcance
+
+Sin pagos, sin asignación automática, sin cambios al toggle del admin ni tokens visuales nuevos.
