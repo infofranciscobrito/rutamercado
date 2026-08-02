@@ -45,9 +45,16 @@ export const trackMarketClick = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    // Snapshot the featured flag at event time for the destacados analytics.
+    const { data: mk } = await supabaseAdmin
+      .from("markets")
+      .select("destacado")
+      .eq("id", data.marketId)
+      .maybeSingle();
     const { error } = await supabaseAdmin.from("market_clicks").insert({
       market_id: data.marketId,
       click_type: data.clickType,
+      era_destacado: Boolean(mk?.destacado),
     });
     if (error) {
       console.error("trackMarketClick failed:", error);

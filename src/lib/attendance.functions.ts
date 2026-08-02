@@ -15,12 +15,22 @@ export const recordAttendanceIntention = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    // Freeze the market's featured state at event time so the analytics
+    // comparison survives the admin toggling `destacado` later.
+    const { data: mk } = await supabaseAdmin
+      .from("markets")
+      .select("destacado")
+      .eq("id", data.marketId)
+      .maybeSingle();
+    const eraDestacado = Boolean(mk?.destacado);
+
     const { error: insErr } = await supabaseAdmin
       .from("market_attendance_intentions")
       .insert({
         market_id: data.marketId,
         intention_type: data.intentionType,
         visitor_id: data.visitorId,
+        era_destacado: eraDestacado,
       });
     if (insErr) {
       console.error("recordAttendanceIntention failed:", insErr);
@@ -30,6 +40,7 @@ export const recordAttendanceIntention = createServerFn({ method: "POST" })
     const { error: clickErr } = await supabaseAdmin.from("market_clicks").insert({
       market_id: data.marketId,
       click_type: "click_attendance",
+      era_destacado: eraDestacado,
     });
     if (clickErr) console.error("attendance click track failed:", clickErr);
     return { ok: true as const };

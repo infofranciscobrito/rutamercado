@@ -38,7 +38,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
         fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
       } ${featured ? "border-2 border-[#54b678]" : ""}`}
     >
-      <div className="relative aspect-video w-full overflow-hidden bg-[#FFF8EC]">
+      <div
+        className={`relative w-full overflow-hidden bg-[#FFF8EC] aspect-video ${
+          featured ? "sm:!aspect-[21/8]" : ""
+        }`}
+      >
         <MarketImage
           src={market.image_url}
           alt={market.name}
@@ -73,7 +77,11 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
           featured ? "px-6 pb-6 pt-5" : "px-5 pb-5 pt-4"
         }`}
       >
-        <h3 className="font-display rm-text-card-title text-[#18253f] line-clamp-2">
+        <h3
+          className={`font-display rm-text-card-title text-[#18253f] line-clamp-2 ${
+            featured ? "text-[1.25em] leading-tight" : ""
+          }`}
+        >
           {market.name}
         </h3>
         <div className="h-[2px] w-10 bg-[#54b678]" aria-hidden="true" />

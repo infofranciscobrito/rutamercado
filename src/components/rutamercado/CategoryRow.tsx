@@ -23,6 +23,10 @@ export function CategoryRow({
 }: Props) {
   const visible = useMemo(() => {
     const sorted = [...markets].sort((a, b) => {
+      // Featured markets lead the row; date order is preserved inside each group.
+      const fa = a.destacado ? 0 : 1;
+      const fb = b.destacado ? 0 : 1;
+      if (fa !== fb) return fa - fb;
       const da = a.nextDate ?? a.recurrence_start_date ?? "";
       const db = b.nextDate ?? b.recurrence_start_date ?? "";
       if (!da) return 1;
@@ -62,7 +66,11 @@ export function CategoryRow({
               className="rm-animate-fade-up"
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
-              <MarketCard market={m} onClick={() => onSelect(m.id)} />
+              <MarketCard
+                market={m}
+                onClick={() => onSelect(m.id)}
+                featured={Boolean(m.destacado)}
+              />
             </div>
           ))}
         </div>
