@@ -985,6 +985,12 @@ function AnalyticsPage() {
               </div>
             </div>
 
+            {/* Mercados destacados */}
+            <SectionDivider label="Mercados destacados" />
+            <FeaturedSection data={featured.data} />
+
+
+
             {/* Clicks + Distribución */}
             <div className="grid gap-6 lg:grid-cols-12">
               <div className="lg:col-span-5">
