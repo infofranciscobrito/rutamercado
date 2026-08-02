@@ -589,6 +589,7 @@ function AnalyticsPage() {
   const pageActivityFn = useServerFn(getPageActivity);
   const submissionsFn = useServerFn(getSubmissionsStats);
   const amenitiesFn = useServerFn(getAmenitiesDistribution);
+  const featuredFn = useServerFn(getFeaturedPerformance);
 
   const rangeKey = [from ?? "", to ?? ""];
 
