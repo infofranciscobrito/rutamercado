@@ -89,7 +89,7 @@ export const getRelatedMarkets = createServerFn({ method: "GET" })
         .from("markets")
         .select("*")
         .eq("is_active", true)
-        .eq(column, value)
+        .eq(column, value as never)
         .neq("id", data.id)
         .not("slug", "is", null)
         .limit(12);
