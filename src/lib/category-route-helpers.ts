@@ -1,8 +1,25 @@
 import { z } from "zod";
+import { redirect } from "@tanstack/react-router";
 import { fallback } from "@tanstack/zod-adapter";
 import { MARKET_REGIONS } from "@/types/market";
+import { getMarketSlugById } from "@/lib/market-detail.functions";
 import type { CategoryPageConfig } from "@/lib/category-pages";
 import type { EnrichedMarket } from "@/types/market";
+
+/** Enlaces viejos (?market=uuid) → redirección 301 a /mercados/[slug]. */
+export async function redirectLegacyMarket(marketId: string | undefined) {
+  if (!marketId) return;
+  const slug = await getMarketSlugById({ data: { id: marketId } });
+  if (slug) {
+    throw redirect({
+      to: "/mercados/$slug",
+      params: { slug },
+      statusCode: 301,
+    });
+  }
+}
+
+
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
