@@ -15,7 +15,6 @@ import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-p
 import { Route as NegociosRouteImport } from './routes/negocios'
 import { Route as MercadosMixtosRouteImport } from './routes/mercados-mixtos'
 import { Route as MercadosAgricolasRouteImport } from './routes/mercados-agricolas'
-import { Route as MercadosRouteImport } from './routes/mercados'
 import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
 import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
 import { Route as FoodMarketRouteImport } from './routes/food-market'
@@ -26,6 +25,7 @@ import { Route as BazaresRouteImport } from './routes/bazares'
 import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MercadosIndexRouteImport } from './routes/mercados/index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
@@ -64,11 +64,6 @@ const MercadosMixtosRoute = MercadosMixtosRouteImport.update({
 const MercadosAgricolasRoute = MercadosAgricolasRouteImport.update({
   id: '/mercados-agricolas',
   path: '/mercados-agricolas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MercadosRoute = MercadosRouteImport.update({
-  id: '/mercados',
-  path: '/mercados',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MercadoMixtoRoute = MercadoMixtoRouteImport.update({
@@ -118,6 +113,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadosIndexRoute = MercadosIndexRouteImport.update({
+  id: '/mercados/',
+  path: '/mercados/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -176,7 +176,6 @@ export interface FileRoutesByFullPath {
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
-  '/mercados': typeof MercadosRoute
   '/mercados-agricolas': typeof MercadosAgricolasRoute
   '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
@@ -184,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
+  '/mercados/': typeof MercadosIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
@@ -203,7 +203,6 @@ export interface FileRoutesByTo {
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
-  '/mercados': typeof MercadosRoute
   '/mercados-agricolas': typeof MercadosAgricolasRoute
   '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
@@ -211,6 +210,7 @@ export interface FileRoutesByTo {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
+  '/mercados': typeof MercadosIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
@@ -232,7 +232,6 @@ export interface FileRoutesById {
   '/food-market': typeof FoodMarketRoute
   '/mercado-agricola': typeof MercadoAgricolaRoute
   '/mercado-mixto': typeof MercadoMixtoRoute
-  '/mercados': typeof MercadosRoute
   '/mercados-agricolas': typeof MercadosAgricolasRoute
   '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
@@ -240,6 +239,7 @@ export interface FileRoutesById {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
+  '/mercados/': typeof MercadosIndexRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_admin/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
@@ -261,7 +261,6 @@ export interface FileRouteTypes {
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
-    | '/mercados'
     | '/mercados-agricolas'
     | '/mercados-mixtos'
     | '/negocios'
@@ -269,6 +268,7 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
+    | '/mercados/'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/emprendedores'
@@ -288,7 +288,6 @@ export interface FileRouteTypes {
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
-    | '/mercados'
     | '/mercados-agricolas'
     | '/mercados-mixtos'
     | '/negocios'
@@ -296,6 +295,7 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
+    | '/mercados'
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/emprendedores'
@@ -316,7 +316,6 @@ export interface FileRouteTypes {
     | '/food-market'
     | '/mercado-agricola'
     | '/mercado-mixto'
-    | '/mercados'
     | '/mercados-agricolas'
     | '/mercados-mixtos'
     | '/negocios'
@@ -324,6 +323,7 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
+    | '/mercados/'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
     | '/_admin/admin/emprendedores'
@@ -345,7 +345,6 @@ export interface RootRouteChildren {
   FoodMarketRoute: typeof FoodMarketRoute
   MercadoAgricolaRoute: typeof MercadoAgricolaRoute
   MercadoMixtoRoute: typeof MercadoMixtoRoute
-  MercadosRoute: typeof MercadosRoute
   MercadosAgricolasRoute: typeof MercadosAgricolasRoute
   MercadosMixtosRoute: typeof MercadosMixtosRoute
   NegociosRoute: typeof NegociosRoute
@@ -353,6 +352,7 @@ export interface RootRouteChildren {
   ProductoresRoute: typeof ProductoresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  MercadosIndexRoute: typeof MercadosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -397,13 +397,6 @@ declare module '@tanstack/react-router' {
       path: '/mercados-agricolas'
       fullPath: '/mercados-agricolas'
       preLoaderRoute: typeof MercadosAgricolasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mercados': {
-      id: '/mercados'
-      path: '/mercados'
-      fullPath: '/mercados'
-      preLoaderRoute: typeof MercadosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mercado-mixto': {
@@ -474,6 +467,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercados/': {
+      id: '/mercados/'
+      path: '/mercados'
+      fullPath: '/mercados/'
+      preLoaderRoute: typeof MercadosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
@@ -577,7 +577,6 @@ const rootRouteChildren: RootRouteChildren = {
   FoodMarketRoute: FoodMarketRoute,
   MercadoAgricolaRoute: MercadoAgricolaRoute,
   MercadoMixtoRoute: MercadoMixtoRoute,
-  MercadosRoute: MercadosRoute,
   MercadosAgricolasRoute: MercadosAgricolasRoute,
   MercadosMixtosRoute: MercadosMixtosRoute,
   NegociosRoute: NegociosRoute,
@@ -585,17 +584,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProductoresRoute: ProductoresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
+  MercadosIndexRoute: MercadosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
