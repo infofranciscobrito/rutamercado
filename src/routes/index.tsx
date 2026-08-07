@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { marketsQueryOptions } from "@/lib/markets-query";
 import { trackPageView } from "@/lib/analytics.functions";
 import { CATEGORY_PARAM_TO_SLUG } from "@/lib/category-pages";
+import { redirectLegacyMarket } from "@/lib/category-route-helpers";
 import {
   applyFilters,
   defaultFilters,
