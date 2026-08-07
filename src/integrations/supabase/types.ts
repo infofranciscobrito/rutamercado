@@ -419,6 +419,7 @@ export type Database = {
           recurrence_type: string
           recurrence_week_of_month: string | null
           region: Database["public"]["Enums"]["market_region"]
+          slug: string | null
           start_time: string
           updated_at: string
           view_count: number
@@ -457,6 +458,7 @@ export type Database = {
           recurrence_type?: string
           recurrence_week_of_month?: string | null
           region: Database["public"]["Enums"]["market_region"]
+          slug?: string | null
           start_time: string
           updated_at?: string
           view_count?: number
@@ -495,6 +497,7 @@ export type Database = {
           recurrence_type?: string
           recurrence_week_of_month?: string | null
           region?: Database["public"]["Enums"]["market_region"]
+          slug?: string | null
           start_time?: string
           updated_at?: string
           view_count?: number
@@ -668,6 +671,8 @@ export type Database = {
     }
     Functions: {
       increment_view_count: { Args: { market_id: string }; Returns: undefined }
+      slugify_market_name: { Args: { _name: string }; Returns: string }
+      unaccent_fallback: { Args: { _txt: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
