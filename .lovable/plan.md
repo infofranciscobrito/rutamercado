@@ -25,3 +25,7 @@ Este proyecto no usa `index.html`: el `<head>` se genera en el servidor desde el
 - En el navegador: clic derecho > Inspeccionar > pestaña Red, filtra por `collect`. Al cargar la página debe aparecer una petición a `google-analytics.com/g/collect`.
 - Navega a `/bazares` y `/productores` sin recargar: debe aparecer una petición `collect` nueva por cada página.
 - Confirma que el Pixel de Facebook sigue funcionando con la extensión Meta Pixel Helper.
+
+## Arreglo adicional incluido
+
+Hay 4 errores de compilación pendientes en `src/components/rutamercado/CategoryPage.tsx` (parámetro `prev` sin tipo en las llamadas a `navigate`). Se corrigen anotándolo como `(prev: S)` en las cuatro líneas. Sin esto el sitio no compila.
