@@ -26,13 +26,18 @@ export function FavoritesDrawer({ open, onOpenChange }: Props) {
     .map((id) => markets?.find((m) => m.id === id))
     .filter((m): m is NonNullable<typeof m> => Boolean(m));
 
-  const openMarket = (id: string) => {
+  const openMarket = (m: { id: string; slug: string | null }) => {
     onOpenChange(false);
+    if (m.slug) {
+      void navigate({ to: "/mercados/$slug", params: { slug: m.slug } });
+      return;
+    }
     void navigate({
       to: "/",
-      search: (prev: Record<string, unknown>) => ({ ...prev, market: id }),
+      search: (prev: Record<string, unknown>) => ({ ...prev, market: m.id }),
     });
   };
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
