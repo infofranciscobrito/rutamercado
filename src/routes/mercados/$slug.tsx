@@ -276,10 +276,15 @@ function MarketPage() {
                 </section>
               )}
 
-              <section className="space-y-3">
-                <SectionTitle>Servicios e instalaciones</SectionTitle>
-                <MarketAmenityChips market={market} />
-              </section>
+              {(market.pets ||
+                market.parking ||
+                market.accessibility ||
+                market.family_friendly) && (
+                <section className="space-y-3">
+                  <SectionTitle>Servicios e instalaciones</SectionTitle>
+                  <MarketAmenityChips market={market} />
+                </section>
+              )}
             </div>
 
             <div className="lg:col-span-2">
