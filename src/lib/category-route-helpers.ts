@@ -60,7 +60,7 @@ export function buildCategoryHead(
         "@type": "Event",
         name: m.name,
         startDate: m.nextDate,
-        url: `${url}?market=${m.id}`,
+        url: `${BASE}/mercados/${m.slug ?? ""}`,
         location: {
           "@type": "Place",
           name: `${m.municipality}, ${m.region}`,

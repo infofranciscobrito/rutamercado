@@ -6,6 +6,7 @@ import { CATEGORY_BY_SLUG } from "@/lib/category-pages";
 import {
   buildCategoryHead,
   categorySearchSchema,
+  redirectLegacyMarket,
 } from "@/lib/category-route-helpers";
 import { CategoryPage } from "@/components/rutamercado/CategoryPage";
 import type { MarketFilters } from "@/lib/market-filters";
@@ -19,6 +20,7 @@ const marketsQueryOptions = queryOptions({
 
 export const Route = createFileRoute("/ferias-artesanales")({
   validateSearch: zodValidator(categorySearchSchema),
+  beforeLoad: ({ search }) => redirectLegacyMarket(search.market),
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(marketsQueryOptions),
   head: ({ loaderData }) => buildCategoryHead(config, loaderData),
