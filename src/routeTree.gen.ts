@@ -26,6 +26,7 @@ import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MercadosIndexRouteImport } from './routes/mercados/index'
+import { Route as MercadosSlugRouteImport } from './routes/mercados/$slug'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
@@ -120,6 +121,11 @@ const MercadosIndexRoute = MercadosIndexRouteImport.update({
   path: '/mercados/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MercadosSlugRoute = MercadosSlugRouteImport.update({
+  id: '/mercados/$slug',
+  path: '/mercados/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
+  '/mercados/$slug': typeof MercadosSlugRoute
   '/mercados/': typeof MercadosIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByTo {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
+  '/mercados/$slug': typeof MercadosSlugRoute
   '/mercados': typeof MercadosIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
+  '/mercados/$slug': typeof MercadosSlugRoute
   '/mercados/': typeof MercadosIndexRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
+    | '/mercados/$slug'
     | '/mercados/'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
+    | '/mercados/$slug'
     | '/mercados'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/productores'
     | '/sitemap.xml'
     | '/admin/login'
+    | '/mercados/$slug'
     | '/mercados/'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
@@ -352,6 +364,7 @@ export interface RootRouteChildren {
   ProductoresRoute: typeof ProductoresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  MercadosSlugRoute: typeof MercadosSlugRoute
   MercadosIndexRoute: typeof MercadosIndexRoute
 }
 
@@ -476,6 +489,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MercadosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mercados/$slug': {
+      id: '/mercados/$slug'
+      path: '/mercados/$slug'
+      fullPath: '/mercados/$slug'
+      preLoaderRoute: typeof MercadosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -584,6 +604,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductoresRoute: ProductoresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
+  MercadosSlugRoute: MercadosSlugRoute,
   MercadosIndexRoute: MercadosIndexRoute,
 }
 export const routeTree = rootRouteImport
