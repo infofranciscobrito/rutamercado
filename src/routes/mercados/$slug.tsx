@@ -1,15 +1,23 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { ChevronRight } from "lucide-react";
-import { getMarketBySlug } from "@/lib/market-detail.functions";
+import { ChevronRight, Mail, Phone } from "lucide-react";
+import {
+  getMarketBySlug,
+  getRelatedMarkets,
+} from "@/lib/market-detail.functions";
 import { incrementMarketView } from "@/lib/analytics.functions";
 import { Header } from "@/components/rutamercado/Header";
 import { Footer } from "@/components/rutamercado/Footer";
 import { MarketImage } from "@/components/rutamercado/MarketImage";
 import {
-  MarketDetailContent,
+  AttendanceSection,
+  SectionTitle,
   track,
 } from "@/components/rutamercado/MarketDetailContent";
+import { MarketTicketCard } from "@/components/rutamercado/MarketTicketCard";
+import { TicketPerforation } from "@/components/rutamercado/TicketPerforation";
+import { MarketAmenityChips } from "@/components/rutamercado/MarketAmenityChips";
+import { RelatedMarkets } from "@/components/rutamercado/RelatedMarkets";
 import { PAGE_BY_CATEGORY } from "@/lib/category-pages";
 
 const BASE = "https://rutamercadopr.com";
@@ -18,7 +26,14 @@ export const Route = createFileRoute("/mercados/$slug")({
   loader: async ({ params }) => {
     const market = await getMarketBySlug({ data: { slug: params.slug } });
     if (!market) throw notFound();
-    return market;
+    const related = await getRelatedMarkets({
+      data: {
+        id: market.id,
+        category: market.category,
+        region: market.region,
+      },
+    }).catch(() => []);
+    return { market, related };
   },
   head: ({ params, loaderData }) => {
     const url = `${BASE}/mercados/${params.slug}`;
@@ -30,12 +45,13 @@ export const Route = createFileRoute("/mercados/$slug")({
         ],
       };
     }
-    const m = loaderData;
+    const m = loaderData.market;
     const title = `${m.name} — ${m.municipality}, PR | RutaMercado`;
     const description =
       (m.description?.trim().slice(0, 155) ||
         `${m.category} en ${m.municipality}, ${m.region}. Fechas, horario y cómo llegar.`) ?? "";
     const image = m.image_url ?? `${BASE}/og-image.png`;
+
 
     const event = {
       "@context": "https://schema.org",
