@@ -140,7 +140,7 @@ function MarketNotFound() {
 }
 
 function MarketPage() {
-  const market = Route.useLoaderData();
+  const { market, related } = Route.useLoaderData();
   const tracked = useRef(false);
 
   useEffect(() => {
@@ -151,12 +151,18 @@ function MarketPage() {
   }, [market.id]);
 
   const cat = PAGE_BY_CATEGORY.get(market.category);
+  const hasOrganizer =
+    market.organizer_name ||
+    market.organizer_phone ||
+    market.organizer_email ||
+    market.organizer_instagram ||
+    market.organizer_contact_url;
 
   return (
     <div className="flex min-h-dvh flex-col bg-[#FAFAF8]">
       <Header />
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-6">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-4 sm:px-6">
           <nav
             aria-label="breadcrumb"
             className="flex flex-wrap items-center gap-1.5 text-sm text-[#6B7280]"
@@ -177,23 +183,118 @@ function MarketPage() {
           </nav>
         </div>
 
-        <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
-          <article className="overflow-hidden rounded-2xl bg-white rm-shadow-warm">
-            <div
-              className="relative min-h-[280px] w-full overflow-hidden"
-              style={{
-                background: "linear-gradient(135deg, #18253f 0%, #2d3058 100%)",
-              }}
-            >
-              <MarketImage src={market.image_url} alt={market.name} fit="contain" />
-              <span className="absolute left-4 top-4 rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
-                {market.category}
-              </span>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+          {/* HERO — flyer + boleto */}
+          <div className="grid gap-6 lg:grid-cols-5">
+            <div className="lg:col-span-3">
+              <div
+                className="relative flex min-h-[280px] w-full items-center justify-center overflow-hidden rounded-2xl rm-shadow-warm motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:duration-500 motion-safe:fill-mode-backwards"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #18253f 0%, #2d3058 100%)",
+                }}
+              >
+                <MarketImage
+                  src={market.image_url}
+                  alt={market.name}
+                  fit="contain"
+                />
+              </div>
+              <h1 className="mt-6 font-display text-3xl leading-tight text-[#18253f] sm:text-4xl">
+                {market.name}
+              </h1>
+              <div className="mt-3 h-[3px] w-12 bg-[#54b678]" aria-hidden="true" />
             </div>
-            <MarketDetailContent market={market} headingLevel="h1" />
-          </article>
+
+            <div className="lg:col-span-2">
+              <div className="lg:sticky lg:top-24 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-6 motion-safe:duration-[450ms] motion-safe:delay-100 motion-safe:fill-mode-backwards">
+                <MarketTicketCard market={market} />
+              </div>
+            </div>
+          </div>
+
+          {/* DIVISOR PERFORADO */}
+          <TicketPerforation className="my-10" />
+
+          <div className="grid gap-10 lg:grid-cols-5">
+            <div className="space-y-10 lg:col-span-3">
+              {market.description && (
+                <section className="space-y-3">
+                  <SectionTitle>Sobre el mercado</SectionTitle>
+                  <p className="max-w-[65ch] whitespace-pre-line text-base leading-relaxed text-[#4B5563]">
+                    {market.description}
+                  </p>
+                </section>
+              )}
+
+              {hasOrganizer && (
+                <section className="space-y-3">
+                  <SectionTitle>Organizador</SectionTitle>
+                  <div className="rounded-xl bg-white p-4 rm-shadow-warm">
+                    {market.organizer_name && (
+                      <p className="text-base font-semibold text-[#18253f]">
+                        {market.organizer_name}
+                      </p>
+                    )}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {market.organizer_phone && (
+                        <a
+                          href={`tel:${market.organizer_phone}`}
+                          onClick={() => track(market.id, "click_phone")}
+                          className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#54b678] px-3 text-sm font-semibold text-[#18253f] transition-colors hover:bg-[#3f9560]"
+                        >
+                          <Phone className="h-4 w-4" /> Llamar
+                        </a>
+                      )}
+                      {market.organizer_email && (
+                        <a
+                          href={`mailto:${market.organizer_email}`}
+                          onClick={() => track(market.id, "click_email")}
+                          className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f] transition-colors hover:border-[#54b678]"
+                        >
+                          <Mail className="h-4 w-4" /> Email
+                        </a>
+                      )}
+                      {market.organizer_instagram && (
+                        <span className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f]">
+                          Redes: {market.organizer_instagram}
+                        </span>
+                      )}
+                      {market.organizer_contact_url && (
+                        <a
+                          href={market.organizer_contact_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => track(market.id, "click_contact")}
+                          className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#18253f] transition-colors hover:border-[#54b678]"
+                        >
+                          Contactar al productor
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              <section className="space-y-3">
+                <SectionTitle>Servicios e instalaciones</SectionTitle>
+                <MarketAmenityChips market={market} />
+              </section>
+            </div>
+
+            <div className="lg:col-span-2">
+              <div className="rounded-2xl bg-white px-5 py-2 rm-shadow-warm">
+                <AttendanceSection marketId={market.id} />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12">
+            <RelatedMarkets markets={related} />
+          </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );
