@@ -76,15 +76,23 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
   };
 
   type S = CategoryPageSearch;
-  type SIn = Partial<S>;
+  type SIn = {
+    q?: string;
+    date?: S["date"];
+    region?: string;
+    municipality?: string;
+    day?: string;
+    market?: string;
+  };
   const withDefaults = (prev: SIn): S => ({
     q: prev.q ?? defaultFilters.q,
     date: prev.date ?? defaultFilters.date,
-    region: prev.region ?? defaultFilters.region,
+    region: (prev.region as S["region"]) ?? defaultFilters.region,
     municipality: prev.municipality ?? defaultFilters.municipality,
     day: prev.day,
     market: prev.market,
   });
+
 
   const updateFilters = (next: Partial<MarketFilters>) => {
     void navigate({
