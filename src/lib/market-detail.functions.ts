@@ -78,6 +78,71 @@ export const getMarketBySlug = createServerFn({ method: "GET" })
     };
   });
 
+/** Mercados relacionados (misma categoría, o misma región como respaldo). */
+export const getRelatedMarkets = createServerFn({ method: "GET" })
+  .inputValidator(
+    (data: { id: string; category: string; region: string }) => data,
+  )
+  .handler(async ({ data }): Promise<EnrichedMarket[]> => {
+    const pick = async (column: "category" | "region", value: string) => {
+      const { data: rows } = await supabase
+        .from("markets")
+        .select("*")
+        .eq("is_active", true)
+        .eq(column, value as never)
+        .neq("id", data.id)
+        .not("slug", "is", null)
+        .limit(12);
+      return (rows ?? []) as Market[];
+    };
+
+    const byCategory = await pick("category", data.category);
+    let pool = byCategory;
+    if (pool.length < 4) {
+      const byRegion = await pick("region", data.region);
+      const seen = new Set(pool.map((m) => m.id));
+      pool = [...pool, ...byRegion.filter((m) => !seen.has(m.id))];
+    }
+    if (pool.length === 0) return [];
+
+    const enriched: EnrichedMarket[] = pool.map((m) => {
+      const scheduleDays = m.category === "Feria Artesanal" ? 730 : 90;
+      const { upcoming, cancelled } = computeSchedule(
+        {
+          recurrence_type: m.recurrence_type,
+          recurrence_day_of_week: m.recurrence_day_of_week,
+          recurrence_week_of_month: m.recurrence_week_of_month,
+          recurrence_start_date: m.recurrence_start_date,
+          recurrence_end_date: m.recurrence_end_date,
+          start_time: m.start_time,
+          end_time: m.end_time,
+        },
+        [],
+        [],
+        { days: scheduleDays },
+      );
+      const next = upcoming[0];
+      return {
+        ...m,
+        upcoming,
+        cancelled,
+        nextDate: next?.date ?? null,
+        nextStartTime: next?.startTime ?? m.start_time,
+        nextEndTime: next?.endTime ?? m.end_time,
+        nextIsOverridden: next?.isOverridden ?? false,
+        nextOverrideNote: next?.overrideNote ?? null,
+      };
+    });
+
+    enriched.sort((a, b) => {
+      const da = a.nextDate ?? "9999-12-31";
+      const db = b.nextDate ?? "9999-12-31";
+      return da.localeCompare(db);
+    });
+
+    return enriched.slice(0, 4);
+  });
+
 /** Traduce un id legacy (?market=uuid) al slug actual, para redirigir 301. */
 export const getMarketSlugById = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => data)

@@ -230,7 +230,7 @@ function ServicesSection({ market }: { market: EnrichedMarket }) {
   );
 }
 
-function AttendanceSection({ marketId }: { marketId: string }) {
+export function AttendanceSection({ marketId }: { marketId: string }) {
   const [voted, setVoted] = useState(false);
   const [counts, setCounts] = useState<{
     total: number;
