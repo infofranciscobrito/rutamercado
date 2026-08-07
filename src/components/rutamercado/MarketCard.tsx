@@ -129,6 +129,39 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
           </div>
         )}
       </div>
+    </>
+  );
+
+  if (market.slug) {
+    return (
+      <Link
+        to="/mercados/$slug"
+        params={{ slug: market.slug }}
+        aria-label={`Ver detalles de ${market.name}`}
+        onClick={onClick}
+        className={className}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      aria-label={`Ver detalles de ${market.name}`}
+      className={className}
+    >
+      {inner}
     </div>
   );
 }
+
