@@ -66,9 +66,27 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+// 301 www.example.com/path -> example.com/path (preserves path + query)
+function wwwRedirect(request: Request): Response | undefined {
+  const url = new URL(request.url);
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? url.host;
+  if (!host.toLowerCase().startsWith("www.")) return undefined;
+
+  const proto = request.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "");
+  const target = `${proto}://${host.slice(4)}${url.pathname}${url.search}`;
+  return new Response(null, {
+    status: 301,
+    headers: { location: target, "cache-control": "max-age=300" },
+  });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const redirectResponse = wwwRedirect(request);
+      if (redirectResponse) return redirectResponse;
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
@@ -78,3 +96,4 @@ export default {
     }
   },
 };
+

@@ -17,8 +17,13 @@ export const Route = createFileRoute("/politica-de-privacidad")({
         content:
           "Política de Privacidad y Términos de Uso del portal RutaMercado PR.",
       },
+      { property: "og:url", content: "https://rutamercadopr.com/politica-de-privacidad" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://rutamercadopr.com/politica-de-privacidad" },
     ],
   }),
+
   component: PrivacyPage,
 });
 

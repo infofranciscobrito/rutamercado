@@ -78,7 +78,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
   type S = CategoryPageSearch;
   const updateFilters = (next: Partial<MarketFilters>) => {
     void navigate({
-      search: (prev: S) => {
+      search: (prev) => {
         const { category: _ignore, ...rest } = next;
         void _ignore;
         return { ...prev, ...rest } as S;
@@ -89,7 +89,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
 
   const clearFilters = () => {
     void navigate({
-      search: (prev: S) =>
+      search: (prev) =>
         ({
           q: defaultFilters.q,
           date: defaultFilters.date,
@@ -113,11 +113,11 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
   };
 
   const openMarket = (id: string) => {
-    void navigate({ search: (prev: S) => ({ ...prev, market: id }) as S });
+    void navigate({ search: (prev) => ({ ...prev, market: id }) as S });
   };
   const closeMarket = () => {
     void navigate({
-      search: (prev: S) => ({ ...prev, market: undefined }) as S,
+      search: (prev) => ({ ...prev, market: undefined }) as S,
       replace: true,
     });
   };
