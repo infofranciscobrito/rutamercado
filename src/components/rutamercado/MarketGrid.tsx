@@ -24,7 +24,7 @@ export function MarketGrid({ markets, onSelect, highlightFeatured }: Props) {
             className={`rm-animate-fade-up ${featured ? "sm:col-span-2" : ""}`}
             style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
           >
-            <MarketCard market={m} onClick={() => onSelect(m.id)} featured={featured} />
+            <MarketCard market={m} onClick={m.slug ? undefined : () => onSelect(m.id)} featured={featured} />
           </div>
         );
       })}
