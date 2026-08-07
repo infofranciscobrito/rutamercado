@@ -178,12 +178,32 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthInvalidator />
+      <GaPageViews />
       <Toaster />
       <ErrorBoundary>
         <Outlet />
       </ErrorBoundary>
     </QueryClientProvider>
   );
+}
+
+function GaPageViews() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      // gtag('config') ya envía la primera vista de página.
+      first.current = false;
+      return;
+    }
+    const w = window as unknown as { gtag?: (...args: unknown[]) => void };
+    w.gtag?.("event", "page_view", {
+      page_path: pathname,
+      page_location: window.location.href,
+      page_title: document.title,
+    });
+  }, [pathname]);
+  return null;
 }
 
 function AuthInvalidator() {
