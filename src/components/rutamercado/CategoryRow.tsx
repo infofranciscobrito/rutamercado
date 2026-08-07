@@ -81,7 +81,7 @@ export function CategoryRow({
             >
               <MarketCard
                 market={m}
-                onClick={() => onSelect(m.id)}
+                onClick={m.slug ? undefined : () => onSelect(m.id)}
                 featured={Boolean(m.destacado)}
               />
             </div>

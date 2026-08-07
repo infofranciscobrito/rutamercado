@@ -76,12 +76,30 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
   };
 
   type S = CategoryPageSearch;
+  type SIn = {
+    q?: string;
+    date?: S["date"];
+    region?: string;
+    municipality?: string;
+    day?: string;
+    market?: string;
+  };
+  const withDefaults = (prev: SIn): S => ({
+    q: prev.q ?? defaultFilters.q,
+    date: prev.date ?? defaultFilters.date,
+    region: (prev.region as S["region"]) ?? defaultFilters.region,
+    municipality: prev.municipality ?? defaultFilters.municipality,
+    day: prev.day,
+    market: prev.market,
+  });
+
+
   const updateFilters = (next: Partial<MarketFilters>) => {
     void navigate({
-      search: (prev: S) => {
+      search: (prev: SIn) => {
         const { category: _ignore, ...rest } = next;
         void _ignore;
-        return { ...prev, ...rest } as S;
+        return { ...withDefaults(prev), ...rest } as S;
       },
       replace: true,
     });
@@ -89,7 +107,7 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
 
   const clearFilters = () => {
     void navigate({
-      search: (prev: S) =>
+      search: (prev: SIn) =>
         ({
           q: defaultFilters.q,
           date: defaultFilters.date,
@@ -113,14 +131,17 @@ export function CategoryPage({ config, search, routeFrom }: Props) {
   };
 
   const openMarket = (id: string) => {
-    void navigate({ search: (prev: S) => ({ ...prev, market: id }) as S });
+    void navigate({
+      search: (prev: SIn) => ({ ...withDefaults(prev), market: id }) as S,
+    });
   };
   const closeMarket = () => {
     void navigate({
-      search: (prev: S) => ({ ...prev, market: undefined }) as S,
+      search: (prev: SIn) => ({ ...withDefaults(prev), market: undefined }) as S,
       replace: true,
     });
   };
+
 
   return (
     <div className="flex min-h-dvh flex-col bg-[#FAFAF8]">

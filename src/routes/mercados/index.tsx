@@ -5,7 +5,7 @@ import { SubmitMarketForm } from "@/components/rutamercado/SubmitMarketForm";
 import { Header } from "@/components/rutamercado/Header";
 
 
-export const Route = createFileRoute("/mercados")({
+export const Route = createFileRoute("/mercados/")({
   head: () => ({
     meta: [
       { title: "Registra tu Mercado en RutaMercado | Puerto Rico" },

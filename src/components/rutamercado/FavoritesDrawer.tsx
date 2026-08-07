@@ -26,13 +26,18 @@ export function FavoritesDrawer({ open, onOpenChange }: Props) {
     .map((id) => markets?.find((m) => m.id === id))
     .filter((m): m is NonNullable<typeof m> => Boolean(m));
 
-  const openMarket = (id: string) => {
+  const openMarket = (m: { id: string; slug: string | null }) => {
     onOpenChange(false);
+    if (m.slug) {
+      void navigate({ to: "/mercados/$slug", params: { slug: m.slug } });
+      return;
+    }
     void navigate({
       to: "/",
-      search: (prev: Record<string, unknown>) => ({ ...prev, market: id }),
+      search: (prev: Record<string, unknown>) => ({ ...prev, market: m.id }),
     });
   };
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -73,7 +78,7 @@ export function FavoritesDrawer({ open, onOpenChange }: Props) {
                 <div className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-[#FAFAF8]">
                   <button
                     type="button"
-                    onClick={() => openMarket(m.id)}
+                    onClick={() => openMarket(m)}
                     className="flex flex-1 items-center gap-3 text-left focus:outline-none"
                   >
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[#FFF8EC]">

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { marketsQueryOptions } from "@/lib/markets-query";
 import { trackPageView } from "@/lib/analytics.functions";
 import { CATEGORY_PARAM_TO_SLUG } from "@/lib/category-pages";
+import { redirectLegacyMarket } from "@/lib/category-route-helpers";
 import {
   applyFilters,
   defaultFilters,
@@ -69,7 +70,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
-  beforeLoad: ({ search }) => {
+  beforeLoad: async ({ search }) => {
     const cat = search.category;
     if (cat && cat !== "all") {
       const slug = CATEGORY_PARAM_TO_SLUG[cat];
@@ -77,7 +78,9 @@ export const Route = createFileRoute("/")({
         throw redirect({ to: `/${slug}` as "/", statusCode: 301 });
       }
     }
+    await redirectLegacyMarket(search.market);
   },
+
   head: () => ({
     meta: [
       { title: "RutaMercado — Directorio de Mercados Locales en Puerto Rico" },

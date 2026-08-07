@@ -1,5 +1,6 @@
 import { CalendarDays, Clock, MapPin, RefreshCcw, AlertTriangle, Star, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { EnrichedMarket } from "@/types/market";
 import { MarketImage } from "./MarketImage";
 import { FavoriteButton } from "./FavoriteButton";
@@ -7,7 +8,7 @@ import { formatDateEs, formatTimeRange, isToday, isTomorrow } from "@/lib/format
 
 interface Props {
   market: EnrichedMarket;
-  onClick: () => void;
+  onClick?: () => void;
   fixedWidth?: boolean;
   featured?: boolean;
 }
@@ -22,26 +23,17 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
   const tomorrow = mounted && !today && isTomorrow(nextDate);
   const label = market.recurrence_label?.trim();
 
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      aria-label={`Ver detalles de ${market.name}`}
-      className={`group relative flex cursor-pointer shrink-0 flex-col overflow-hidden rounded-2xl text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
-        fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
-      } ${
-        featured
-          ? "bg-[#18253f] text-white shadow-[0_8px_32px_rgba(84,182,120,0.28)] hover:shadow-[0_12px_40px_rgba(84,182,120,0.38)]"
-          : "bg-white text-[#18253f]"
-      }`}
-    >
+  const className = `group relative flex cursor-pointer shrink-0 flex-col overflow-hidden rounded-2xl text-left transition-all duration-[250ms] ease-out rm-shadow-warm hover:-translate-y-1.5 hover:rm-shadow-warm-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2 ${
+    fixedWidth ? "w-[280px] sm:w-[320px]" : "w-full"
+  } ${
+    featured
+      ? "bg-[#18253f] text-white shadow-[0_8px_32px_rgba(84,182,120,0.28)] hover:shadow-[0_12px_40px_rgba(84,182,120,0.38)]"
+      : "bg-white text-[#18253f]"
+  }`;
+
+  const inner = (
+    <>
+
       {/* Top accent bar for featured cards */}
       {featured && (
         <div className="absolute left-0 right-0 top-0 z-20 h-1.5 bg-gradient-to-r from-[#54b678] via-[#3f9560] to-[#2f7a4c]" />
@@ -137,6 +129,39 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
           </div>
         )}
       </div>
+    </>
+  );
+
+  if (market.slug) {
+    return (
+      <Link
+        to="/mercados/$slug"
+        params={{ slug: market.slug }}
+        aria-label={`Ver detalles de ${market.name}`}
+        onClick={onClick}
+        className={className}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      aria-label={`Ver detalles de ${market.name}`}
+      className={className}
+    >
+      {inner}
     </div>
   );
 }
+
