@@ -1,52 +1,32 @@
-## Diagnóstico (verificado en el código)
+# Redirección 301 de www → dominio raíz
 
-La lógica de la Parte 1 **sí existe** en el preview: `CategoryPage.tsx` ordena destacados primero, `MarketGrid` pasa `featured`, y `MarketCard` pinta la insignia + borde verde + padding mayor. Dos razones probables de que no lo veas:
+## Objetivo
+Que `www.rutamercadopr.com/cualquier-ruta` redirija de forma permanente (301) a `rutamercadopr.com/cualquier-ruta`, dejando una sola versión canónica del sitio.
 
-1. El sitio en `rutamercadopr.com` es la versión **publicada**, que aún no incluye estos cambios.
-2. Las **filas por categoría de la homepage** (`CategoryRow.tsx`) NO usan `destacado`: ordenan solo por próxima fecha y ni siquiera pasan la insignia. Ahí el destacado no sale primero.
+## 1. Redirección en el servidor
+En el punto de entrada del servidor (`src/server.ts`), antes de que la petición llegue a la app:
 
-Primero verifico con capturas en el preview antes de tocar nada más.
+- Leer el host de la petición.
+- Si empieza con `www.`, devolver un 301 hacia el mismo host sin `www`, conservando ruta y parámetros de búsqueda (`/mercados-agricolas?x=1` sigue igual).
+- Cualquier otro host pasa sin cambios (incluye el preview de Lovable y localhost, que no se ven afectados).
 
----
+Detalle técnico: se usa el header `host` (con `x-forwarded-host` como respaldo) y se responde con `Response.redirect(url, 301)` más `Cache-Control` corto para evitar cachear mal durante pruebas.
 
-## Parte 1 — Destacado en los listados
+## 2. Revisión de etiquetas canonical
+Estado actual verificado:
 
-- `CategoryRow.tsx` (homepage): anteponer el grupo `destacado = true` antes del corte a 4 fichas, manteniendo la fecha ascendente dentro de cada grupo, y activar la insignia.
-- `MarketGrid.tsx`: en desktop dar `sm:col-span-2` a la ficha destacada (probado primero; si desalinea el grid se revierte al refuerzo de padding/tipografía). En móvil sigue ocupando una columna completa.
-- `MarketCard.tsx`: subir el nombre del mercado un paso en la escala tipográfica existente cuando es destacado, y dejar **solo** el borde de 2px en `#54b678` (sin sombra extra). La insignia "Destacado" ya usa el mismo pill/tipografía que el badge de categoría.
-- Verificación obligatoria con Playwright: activo destacado en 2 mercados de categorías distintas que hoy no salen primeros, capturo la página de categoría a 1280px y a 375px, y confirmo orden, insignia, tamaño y ausencia de scroll horizontal.
+- `/` (index), `/negocios`, `/mercados`, `/productores` y todas las páginas de categoría (vía `src/lib/category-route-helpers.ts`) ya declaran canonical sin `www`.
+- `/politica-de-privacidad` no tiene canonical ni `og:url`.
 
----
+Acción: agregar `canonical` y `og:url` apuntando a `https://rutamercadopr.com/politica-de-privacidad`. No se toca ninguna otra etiqueta.
 
-## Parte 2 — Medición de mercados destacados
+## 3. Fuera de alcance
+Ningún otro cambio de contenido, diseño ni lógica.
 
-### Base de datos (una migración)
+## Cómo verificar al terminar
+1. Escribe `www.rutamercadopr.com` en el navegador: la barra de direcciones debe terminar mostrando `rutamercadopr.com` (sin www).
+2. Prueba una ruta interna: `www.rutamercadopr.com/mercados-agricolas` debe aterrizar en `rutamercadopr.com/mercados-agricolas`, no en la home.
+3. Comprobación del código 301: en una terminal, `curl -I https://www.rutamercadopr.com/mercados` debe responder `HTTP/2 301` y `location: https://rutamercadopr.com/mercados`.
+4. En Search Console, tras unos días la versión con www debería dejar de indexarse.
 
-- `markets.destacado_desde timestamptz` + trigger que lo setea a `now()` al pasar `destacado` de false→true y lo limpia al desactivar.
-- `market_clicks.era_destacado boolean` y `market_attendance_intentions.era_destacado boolean`, para congelar el estado en el momento del evento. Los eventos ya guardan `market_id`, así que no hay que corregir eso.
-- Los registros históricos quedan en `null` (desconocido) y se tratan como "no destacado" en los cálculos, indicándolo en la nota de contexto.
-
-### Captura
-
-`trackMarketClick` y el registro de intención leen el `destacado` actual del mercado y lo escriben en `era_destacado`. No se crean eventos nuevos ni un sistema paralelo.
-
-### Dashboard `/admin/analytics`
-
-Nueva sección con `SectionDivider label="Mercados destacados"`, justo después de "Rendimiento por mercado", con el mismo sistema `ba-card` / bento grid y respetando el filtro de fechas y el toggle de tráfico interno existentes:
-
-1. **Titular narrativo** generado de los datos (vistas de destacados, % del total, tasa de contacto vs. no destacados).
-2. **Tarjeta 1 — Resumen comparativo**: dos columnas Destacados / No destacados con vistas totales, promedio por mercado, tasa de contacto y tasa de intención, aplicando la regla de "n bajo" ya existente.
-3. **Tarjeta 2 — Tabla de destacados actuales**: mercado + municipio, categoría, vistas, clics de contacto, intención, tasa de contacto y `destacado_desde`; ordenable, por vistas por defecto.
-4. **Tarjeta 3 — Nota de contexto** con el promedio real de días con insignia activa.
-
-Un servidor nuevo `getFeaturedPerformance` en `admin-analytics.functions.ts` siguiendo el patrón de `getTopMarkets` (mismo middleware admin y helper de rango).
-
-### Verificación
-
-Activo/desactivo destacados, genero vistas y clics reales en el preview, y confirmo con captura que la sección refleja esos números y que un mercado desactivado conserva su histórico.
-
----
-
-## Fuera de alcance
-
-Sin pagos, sin asignación automática, sin cambios al toggle del admin ni tokens visuales nuevos.
+Nota: el cambio solo aplica en el sitio publicado, así que hay que publicar para verlo en vivo.
