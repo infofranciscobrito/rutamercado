@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { CATEGORY_PAGES } from "@/lib/category-pages";
+import { listMarketSlugs } from "@/lib/market-detail.functions";
 
 const BASE_URL = "https://rutamercadopr.com";
 
@@ -14,6 +15,13 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        let marketSlugs: string[] = [];
+        try {
+          marketSlugs = await listMarketSlugs();
+        } catch {
+          marketSlugs = [];
+        }
+
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/mercados", changefreq: "monthly", priority: "0.5" },
@@ -24,7 +32,13 @@ export const Route = createFileRoute("/sitemap.xml")({
             changefreq: "weekly" as const,
             priority: "0.7",
           })),
+          ...marketSlugs.map((s) => ({
+            path: `/mercados/${s}`,
+            changefreq: "weekly" as const,
+            priority: "0.8",
+          })),
         ];
+
 
         const urls = entries.map((e) =>
           [
