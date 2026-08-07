@@ -78,7 +78,7 @@ export function FavoritesDrawer({ open, onOpenChange }: Props) {
                 <div className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-[#FAFAF8]">
                   <button
                     type="button"
-                    onClick={() => openMarket(m.id)}
+                    onClick={() => openMarket(m)}
                     className="flex flex-1 items-center gap-3 text-left focus:outline-none"
                   >
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[#FFF8EC]">
