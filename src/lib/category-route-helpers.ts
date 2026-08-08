@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { redirect } from "@tanstack/react-router";
+import { redirect, stripSearchParams } from "@tanstack/react-router";
 import { fallback } from "@tanstack/zod-adapter";
 import { MARKET_REGIONS } from "@/types/market";
 import { getMarketSlugById } from "@/lib/market-detail.functions";
@@ -37,6 +37,15 @@ export const categorySearchSchema = z.object({
   day: fallback(z.string().regex(ISO_DAY).optional(), undefined),
   market: fallback(z.string().uuid().optional(), undefined),
 });
+
+export const categorySearchMiddlewares = [
+  stripSearchParams({
+    q: "",
+    date: "all",
+    region: "all",
+    municipality: "all",
+  }),
+];
 
 const BASE = "https://rutamercadopr.com";
 
