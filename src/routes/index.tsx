@@ -18,7 +18,6 @@ import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import type { EnrichedMarket, MarketCategory } from "@/types/market";
 import { Header } from "@/components/rutamercado/Header";
 import { Hero } from "@/components/rutamercado/Hero";
-import { IntroSEO } from "@/components/rutamercado/IntroSEO";
 import { FilterBar } from "@/components/rutamercado/FilterBar";
 import { ActiveFilterChips } from "@/components/rutamercado/ActiveFilterChips";
 import { ViewToggle, type ViewMode } from "@/components/rutamercado/ViewToggle";
@@ -364,10 +363,6 @@ function MarketsContent({
   return (
     <>
       <Hero query={query} onQueryChange={onQueryChange} stats={stats} />
-
-      <IntroSEO />
-
-
 
       <FilterBar
         filters={filters}

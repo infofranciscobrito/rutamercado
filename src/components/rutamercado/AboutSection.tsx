@@ -2,11 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { CategoryIcon } from "@/components/rutamercado/icons/CategoryIcons";
 import type { MarketCategory } from "@/types/market";
 
-const CATEGORY_ITEMS: { category: MarketCategory; label: string }[] = [
-  { category: "Mercado Agrícola", label: "Mercados Agrícolas" },
-  { category: "Bazaar/Pop Up", label: "Bazares" },
-  { category: "Feria Artesanal", label: "Ferias Artesanales" },
-  { category: "Mercado Mixto", label: "Mercados Mixtos" },
+const CATEGORY_ITEMS: { category: MarketCategory; label: string; href: string }[] = [
+  { category: "Mercado Agrícola", label: "Mercados Agrícolas", href: "/mercados-agricolas" },
+  { category: "Bazaar/Pop Up", label: "Bazares", href: "/bazares" },
+  { category: "Feria Artesanal", label: "Ferias Artesanales", href: "/ferias-artesanales" },
+  { category: "Mercado Mixto", label: "Mercados Mixtos", href: "/mercados-mixtos" },
 ];
 
 export function AboutSection() {
@@ -31,6 +31,11 @@ export function AboutSection() {
           >
             Tu guía para descubrir los mejores mercados locales de Puerto Rico
           </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/70">
+            Mercados locales, ferias artesanales, bazares y mercados agrícolas de
+            Puerto Rico en un solo lugar. Cubrimos las regiones Metro, Norte,
+            Sur, Este, Oeste y Centro.
+          </p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
@@ -50,15 +55,19 @@ export function AboutSection() {
               ¿Qué encontrarás?
             </h3>
             <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              {CATEGORY_ITEMS.map(({ category, label }) => (
-                <li
-                  key={category}
-                  className="flex items-center gap-3 rounded-xl bg-white/5 p-3"
-                >
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#54b678]/15 text-[#54b678]">
-                    <CategoryIcon category={category} className="h-5 w-5" />
-                  </span>
-                  <span className="font-medium text-white/90">{label}</span>
+              {CATEGORY_ITEMS.map(({ category, label, href }) => (
+                <li key={category}>
+                  <Link
+                    to={href as "/"}
+                    className="group flex items-center gap-3 rounded-xl bg-white/5 p-3 transition-all hover:bg-white/10"
+                  >
+                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#54b678]/15 text-[#54b678] transition-colors group-hover:bg-[#54b678] group-hover:text-white">
+                      <CategoryIcon category={category} className="h-5 w-5" />
+                    </span>
+                    <span className="font-medium text-white/90 transition-colors group-hover:text-[#54b678]">
+                      {label}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>
