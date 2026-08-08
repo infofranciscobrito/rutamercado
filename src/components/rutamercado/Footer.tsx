@@ -30,9 +30,9 @@ export function Footer() {
             {/* Col 1 — Brand */}
             <div className="flex flex-col items-start">
               <img
-                src="/logo-rutamercado-horizontal.png"
+                src="/logo-rutamercado-footer.png"
                 alt="RutaMercado"
-                className="h-14 w-auto"
+                className="h-20 w-auto"
               />
               <p className="mt-4 text-sm leading-relaxed text-white/70">
                 Descubre los mercados locales de Puerto Rico.
