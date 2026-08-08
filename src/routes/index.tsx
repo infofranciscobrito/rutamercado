@@ -364,10 +364,6 @@ function MarketsContent({
     <>
       <Hero query={query} onQueryChange={onQueryChange} stats={stats} />
 
-      <IntroSEO />
-
-
-
       <FilterBar
         filters={filters}
         availableDays={availableDays}
