@@ -52,7 +52,7 @@ export function Hero({ query, onQueryChange, stats }: Props) {
           id="hero-title"
           className="rm-animate-fade-up-lg font-display rm-text-hero text-white drop-shadow-lg"
         >
-          Descubre los mercados locales de Puerto Rico
+          Descubre los Mercados Locales en Puerto Rico
         </h1>
         <p
           className="rm-animate-fade-up-lg mx-auto mt-5 max-w-xl rm-text-hero-sub text-white/85"
