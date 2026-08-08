@@ -81,35 +81,56 @@ export const Route = createFileRoute("/")({
     await redirectLegacyMarket(search.market);
   },
 
-  head: () => ({
-    meta: [
-      { title: "RutaMercado — Directorio de Mercados Locales en Puerto Rico" },
-      {
-        name: "description",
-        content:
-          "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico. Encuentra el mercado más cercano a ti.",
-      },
-      { property: "og:title", content: "RutaMercado — Directorio de Mercados Locales en Puerto Rico" },
-      {
-        property: "og:description",
-        content:
-          "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico. Encuentra el mercado más cercano a ti.",
-      },
-      { property: "og:url", content: "https://rutamercadopr.com/" },
-      { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "RutaMercado" },
-      { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "RutaMercado — Mercados Locales en Puerto Rico" },
-      {
-        name: "twitter:description",
-        content:
-          "Descubre los mercados locales, ferias artesanales, bazares y mercados agrícolas en Puerto Rico.",
-      },
-      { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
-    ],
-    links: [{ rel: "canonical", href: "https://rutamercadopr.com/" }],
-  }),
+  head: ({ loaderData }: { loaderData?: EnrichedMarket[] }) => {
+    const title = "Mercados Locales en Puerto Rico | RutaMercado";
+    const description =
+      "Descubre todos los mercados locales, ferias artesanales, bazares y mercados agrícolas activos en Puerto Rico. Encuentra el mercado más cercano por región, fecha y categoría — actualizado semanalmente.";
+    const items = (loaderData ?? [])
+      .filter((m) => m.slug && m.nextDate)
+      .slice(0, 50)
+      .map((m, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: m.name,
+        url: `https://rutamercadopr.com/mercados/${m.slug}`,
+      }));
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: "https://rutamercadopr.com/" },
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: "RutaMercado" },
+        { property: "og:image", content: "https://rutamercadopr.com/og-image.png" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: "https://rutamercadopr.com/og-image.png" },
+      ],
+      links: [{ rel: "canonical", href: "https://rutamercadopr.com/" }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: title,
+            description,
+            url: "https://rutamercadopr.com/",
+            mainEntity: {
+              "@type": "ItemList",
+              name: "Mercados locales en Puerto Rico",
+              numberOfItems: items.length,
+              itemListElement: items,
+            },
+          }),
+        },
+      ],
+    };
+  },
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(marketsQueryOptions),
   component: IndexPage,
