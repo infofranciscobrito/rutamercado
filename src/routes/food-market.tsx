@@ -5,6 +5,7 @@ import { listMarkets } from "@/lib/markets.functions";
 import { CATEGORY_BY_SLUG } from "@/lib/category-pages";
 import {
   buildCategoryHead,
+  categorySearchMiddlewares,
   categorySearchSchema,
   redirectLegacyMarket,
 } from "@/lib/category-route-helpers";
@@ -20,6 +21,7 @@ const marketsQueryOptions = queryOptions({
 
 export const Route = createFileRoute("/food-market")({
   validateSearch: zodValidator(categorySearchSchema),
+  search: { middlewares: categorySearchMiddlewares },
   beforeLoad: ({ search }) => redirectLegacyMarket(search.market),
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(marketsQueryOptions),

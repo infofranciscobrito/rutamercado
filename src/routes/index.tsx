@@ -1,4 +1,9 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  stripSearchParams,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -70,6 +75,18 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
+  // Keep the URL clean: default filter values are never written to the URL.
+  search: {
+    middlewares: [
+      stripSearchParams({
+        q: "",
+        date: "all",
+        region: "all",
+        municipality: "all",
+        category: "all",
+      }),
+    ],
+  },
   beforeLoad: async ({ search }) => {
     const cat = search.category;
     if (cat && cat !== "all") {
