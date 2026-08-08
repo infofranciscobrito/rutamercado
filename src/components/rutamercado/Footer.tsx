@@ -64,22 +64,22 @@ export function Footer() {
               <h3 className={columnTitleClass}>Explorar</h3>
               <ul className="mt-4 space-y-2.5 text-sm">
                 <li>
-                  <Link to="/mercado-agricola" className={linkClass}>
+                  <Link to="/mercados-agricolas" className={linkClass}>
                     Mercados Agrícolas
                   </Link>
                 </li>
                 <li>
-                  <Link to="/bazar-pop-up" className={linkClass}>
+                  <Link to="/bazares" className={linkClass}>
                     Bazares
                   </Link>
                 </li>
                 <li>
-                  <Link to="/feria-artesanal" className={linkClass}>
+                  <Link to="/ferias-artesanales" className={linkClass}>
                     Ferias Artesanales
                   </Link>
                 </li>
                 <li>
-                  <Link to="/mercado-mixto" className={linkClass}>
+                  <Link to="/mercados-mixtos" className={linkClass}>
                     Mercados Mixtos
                   </Link>
                 </li>
