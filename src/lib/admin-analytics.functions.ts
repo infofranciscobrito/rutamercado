@@ -763,12 +763,15 @@ export const getClicksByType = createServerFn({ method: "GET" })
 
 function categorizeReferrer(referrer: string | null): { category: string; host: string } {
   if (!referrer || referrer.trim() === "") return { category: "Directo", host: "(directo)" };
+  const kind = classifyReferrer(referrer);
   let host = "";
   try {
     host = new URL(referrer).hostname.toLowerCase().replace(/^www\./, "");
   } catch {
     return { category: "Otro", host: referrer.slice(0, 80) };
   }
+  if (kind === "interno") return { category: "Interno", host };
+  if (kind === "desarrollo") return { category: "Desarrollo", host };
   if (host.includes("google.")) return { category: "Google", host };
   if (host.includes("instagram.")) return { category: "Instagram", host };
   if (host.includes("facebook.") || host.includes("fb.") || host === "l.facebook.com")
@@ -780,14 +783,16 @@ export const getTrafficSources = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await applyRange(
+    const { data: allRows, error } = await applyRange(
       context.supabase.from("page_views").select("referrer"),
       data,
     );
     if (error) throw new Error(error.message);
+    const rawRows = (allRows ?? []) as { referrer: string | null }[];
+    const rows = filterTraffic(rawRows, data.excludeInternal);
     const byCategory = new Map<string, number>();
     const byHost = new Map<string, { host: string; category: string; count: number }>();
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       const { category, host } = categorizeReferrer(r.referrer);
       byCategory.set(category, (byCategory.get(category) ?? 0) + 1);
       const cur = byHost.get(host) ?? { host, category, count: 0 };
@@ -795,6 +800,8 @@ export const getTrafficSources = createServerFn({ method: "GET" })
       byHost.set(host, cur);
     }
     return {
+      totalRaw: rawRows.length,
+      totalFiltered: rows.length,
       byCategory: Array.from(byCategory.entries())
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value),
@@ -808,13 +815,17 @@ export const getPageActivity = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await applyRange(
-      context.supabase.from("page_views").select("page"),
+    const { data: allRows, error } = await applyRange(
+      context.supabase.from("page_views").select("page, referrer"),
       data,
     );
     if (error) throw new Error(error.message);
+    const rows = filterTraffic(
+      (allRows ?? []) as { page: string | null; referrer: string | null }[],
+      data.excludeInternal,
+    );
     const byPage = new Map<string, number>();
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       const p = (r.page ?? "(desconocido)") as string;
       byPage.set(p, (byPage.get(p) ?? 0) + 1);
     }
