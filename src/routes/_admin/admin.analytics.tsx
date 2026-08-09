@@ -1289,6 +1289,17 @@ function AnalyticsPage() {
                       {(trafficSources.data?.topReferrers ?? []).length ===
                         0 && <EmptyLine />}
                     </ul>
+                    {excludeInternal && (
+                      <p
+                        className="mt-3 text-[11px]"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        Se excluye el tráfico interno (rutamercadopr.com) y de
+                        desarrollo. Los clics e intenciones de asistencia no
+                        guardan referrer, así que no se ven afectados por este
+                        filtro.
+                      </p>
+                    )}
                   </div>
                 </Card>
               </div>
