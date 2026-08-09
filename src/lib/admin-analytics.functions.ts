@@ -368,10 +368,15 @@ export const getTopMarkets = createServerFn({ method: "GET" })
       ),
     ]);
     if (marketsRes.error) throw new Error(marketsRes.error.message);
-    const clicks = filterEvents<{ click_type: string; traffic_source: string | null }>(
-      (clicksRes.data ?? []) as { click_type: string; traffic_source: string | null }[],
+    const clicks = filterEvents(
+      (clicksRes.data ?? []) as {
+        market_id: string;
+        click_type: string;
+        traffic_source: string | null;
+      }[],
       data.excludeInternal,
     );
+
     const byMarket = new Map<
       string,
       { phone: number; email: number; contact: number; directions: number }
