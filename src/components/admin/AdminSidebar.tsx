@@ -14,6 +14,7 @@ const items = [
   { to: "/admin/emprendedores", label: "Registro de negocios", icon: Briefcase },
   { to: "/admin/submissions", label: "Solicitudes de Mercados", icon: Inbox },
   { to: "/admin/messages", label: "Mensajes", icon: Mail },
+  { to: "/admin/newsletter", label: "Newsletter", icon: Send },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
 ] as const;
 
