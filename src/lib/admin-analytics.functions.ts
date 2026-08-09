@@ -295,7 +295,10 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     const rawPageViews = rawPageRows.length;
     const totalPageViews = pageRows.length;
     const homeViews = pageRows.filter((r) => r.page === "/").length;
-    const clicks = filterEvents(clicksRes.data ?? [], data.excludeInternal);
+    const clicks = filterEvents<{ click_type: string; traffic_source: string | null }>(
+      (clicksRes.data ?? []) as { click_type: string; traffic_source: string | null }[],
+      data.excludeInternal,
+    );
     const counts = {
       view_detail: 0,
       click_phone: 0,
@@ -311,7 +314,10 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     }
     let willAttend = 0;
     let interested = 0;
-    for (const r of filterEvents(intRes.data ?? [], data.excludeInternal)) {
+    for (const r of filterEvents(
+      (intRes.data ?? []) as { intention_type: string; traffic_source: string | null }[],
+      data.excludeInternal,
+    )) {
       if (r.intention_type === "will_attend") willAttend++;
       else if (r.intention_type === "interested") interested++;
     }
@@ -362,7 +368,10 @@ export const getTopMarkets = createServerFn({ method: "GET" })
       ),
     ]);
     if (marketsRes.error) throw new Error(marketsRes.error.message);
-    const clicks = filterEvents(clicksRes.data ?? [], data.excludeInternal);
+    const clicks = filterEvents<{ click_type: string; traffic_source: string | null }>(
+      (clicksRes.data ?? []) as { click_type: string; traffic_source: string | null }[],
+      data.excludeInternal,
+    );
     const byMarket = new Map<
       string,
       { phone: number; email: number; contact: number; directions: number }
@@ -377,7 +386,14 @@ export const getTopMarkets = createServerFn({ method: "GET" })
       byMarket.set(c.market_id, cur);
     }
     const intByMarket = new Map<string, { willAttend: number; interested: number }>();
-    for (const r of filterEvents(intRes.data ?? [], data.excludeInternal)) {
+    for (const r of filterEvents(
+      (intRes.data ?? []) as {
+        market_id: string;
+        intention_type: string;
+        traffic_source: string | null;
+      }[],
+      data.excludeInternal,
+    )) {
       const cur = intByMarket.get(r.market_id) ?? { willAttend: 0, interested: 0 };
       if (r.intention_type === "will_attend") cur.willAttend++;
       else if (r.intention_type === "interested") cur.interested++;
@@ -737,7 +753,10 @@ export const getClicksByType = createServerFn({ method: "GET" })
       click_attendance: 0,
       click_instagram: 0,
     };
-    for (const r of filterEvents(rows ?? [], data.excludeInternal)) {
+    for (const r of filterEvents(
+      (rows ?? []) as { click_type: string; traffic_source: string | null }[],
+      data.excludeInternal,
+    )) {
       const k = r.click_type as string;
       counts[k] = (counts[k] ?? 0) + 1;
     }
