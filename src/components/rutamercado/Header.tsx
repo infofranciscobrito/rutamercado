@@ -1,6 +1,6 @@
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Sheet,
   SheetContent,
@@ -15,6 +15,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [favOpen, setFavOpen] = useState(false);
+  const isHome = useRouterState({ select: (s) => s.location.pathname === "/" });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -65,6 +66,14 @@ export function Header() {
           >
             Enviar mi Mercado
           </Link>
+          {isHome && (
+            <a
+              href="#newsletter"
+              className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
+            >
+              Newsletter
+            </a>
+          )}
           <FavoritesTrigger onOpen={() => setFavOpen(true)} />
         </nav>
 
@@ -115,6 +124,15 @@ export function Header() {
                 >
                   Enviar mi Mercado
                 </Link>
+                {isHome && (
+                  <a
+                    href="#newsletter"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
+                  >
+                    Newsletter
+                  </a>
+                )}
               </div>
             </SheetContent>
           </Sheet>
