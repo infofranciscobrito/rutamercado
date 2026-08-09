@@ -555,12 +555,33 @@ function AnalyticsPage() {
     marketFromUrl ?? null,
   );
   const [themeMode, resolvedTheme, setThemeMode] = useDashboardTheme();
+  const [excludeInternal, setExcludeInternal] = useState(true);
+
+  // Preferencia recordada en el navegador del admin.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("rm_analytics_exclude_internal");
+      if (saved !== null) setExcludeInternal(saved === "true");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        "rm_analytics_exclude_internal",
+        String(excludeInternal),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [excludeInternal]);
 
   const { from, to } = useMemo(
     () => computeRange(preset, customFrom, customTo),
     [preset, customFrom, customTo],
   );
-  const rangeArg = { from: from ?? "", to: to ?? "" };
+  const rangeArg = { from: from ?? "", to: to ?? "", excludeInternal };
   const fromDate = from ? new Date(from) : null;
   const toDate = to ? new Date(to) : null;
 
