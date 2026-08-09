@@ -288,7 +288,7 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     const [pvRes, clicksRes, intRes, activeRes, inactiveRes, pendingRes] = await Promise.all([
       // Misma fuente que "Actividad por Página": leemos las páginas del rango
       // y derivamos la home ('/') de ahí, para que ambos números no se desincronicen.
-      applyRange(supabase.from("page_views").select("page"), data),
+      applyRange(supabase.from("page_views").select("page, referrer"), data),
       applyRange(supabase.from("market_clicks").select("click_type"), data),
       applyRange(
         supabase.from("market_attendance_intentions").select("intention_type"),
@@ -298,7 +298,12 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", false),
       supabase.from("market_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
-    const pageRows = (pvRes.data ?? []) as { page: string | null }[];
+    const rawPageRows = (pvRes.data ?? []) as {
+      page: string | null;
+      referrer: string | null;
+    }[];
+    const pageRows = filterTraffic(rawPageRows, data.excludeInternal);
+    const rawPageViews = rawPageRows.length;
     const totalPageViews = pageRows.length;
     const homeViews = pageRows.filter((r) => r.page === "/").length;
     const clicks = clicksRes.data ?? [];
