@@ -54,6 +54,7 @@ import {
 import { downloadCSV } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -555,12 +556,33 @@ function AnalyticsPage() {
     marketFromUrl ?? null,
   );
   const [themeMode, resolvedTheme, setThemeMode] = useDashboardTheme();
+  const [excludeInternal, setExcludeInternal] = useState(true);
+
+  // Preferencia recordada en el navegador del admin.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("rm_analytics_exclude_internal");
+      if (saved !== null) setExcludeInternal(saved === "true");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        "rm_analytics_exclude_internal",
+        String(excludeInternal),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [excludeInternal]);
 
   const { from, to } = useMemo(
     () => computeRange(preset, customFrom, customTo),
     [preset, customFrom, customTo],
   );
-  const rangeArg = { from: from ?? "", to: to ?? "" };
+  const rangeArg = { from: from ?? "", to: to ?? "", excludeInternal };
   const fromDate = from ? new Date(from) : null;
   const toDate = to ? new Date(to) : null;
 
@@ -591,7 +613,7 @@ function AnalyticsPage() {
   const amenitiesFn = useServerFn(getAmenitiesDistribution);
   const featuredFn = useServerFn(getFeaturedPerformance);
 
-  const rangeKey = [from ?? "", to ?? ""];
+  const rangeKey = [from ?? "", to ?? "", String(excludeInternal)];
 
   const overview = useQuery({
     queryKey: ["admin", "analytics", "overview", ...rangeKey],
@@ -688,6 +710,10 @@ function AnalyticsPage() {
     submissions.error;
 
   const ov = overview.data;
+  const rawViews = ov?.rawPageViews ?? 0;
+  const shownViews = ov?.totalPageViews ?? 0;
+  const excludedPct =
+    rawViews > 0 ? Math.round(((rawViews - shownViews) / rawViews) * 100) : 0;
   const subm = submissions.data;
   const clicks = clicksByType.data ?? [];
   const clicksMax = Math.max(1, ...clicks.map((c) => c.count));
@@ -756,7 +782,18 @@ function AnalyticsPage() {
               </FilterField>
             </>
           )}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-3">
+            <label
+              className="flex cursor-pointer items-center gap-2 text-[12.5px]"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              <Switch
+                checked={excludeInternal}
+                onCheckedChange={setExcludeInternal}
+                aria-label="Excluir tráfico interno"
+              />
+              Excluir tráfico interno
+            </label>
             <ThemeToggle mode={themeMode} onChange={setThemeMode} />
           </div>
         </div>
@@ -771,6 +808,26 @@ function AnalyticsPage() {
                 ? `${fmtDay(fromDate)} — ${fmtDay(toDate)}`
                 : "de todo el histórico"}
             </strong>
+          </span>
+          <span
+            className="text-[11.5px]"
+            style={{ color: "var(--text-muted)" }}
+          >
+            {excludeInternal ? (
+              <>
+                · Mostrando{" "}
+                <strong style={{ color: "var(--text-primary)" }}>
+                  {shownViews.toLocaleString("es-PR")}
+                </strong>{" "}
+                de {rawViews.toLocaleString("es-PR")} visitas totales (
+                {excludedPct}% excluido por tráfico interno y de desarrollo)
+              </>
+            ) : (
+              <>
+                · {rawViews.toLocaleString("es-PR")} visitas totales (sin
+                filtrar)
+              </>
+            )}
           </span>
         </div>
       </div>
@@ -1232,6 +1289,17 @@ function AnalyticsPage() {
                       {(trafficSources.data?.topReferrers ?? []).length ===
                         0 && <EmptyLine />}
                     </ul>
+                    {excludeInternal && (
+                      <p
+                        className="mt-3 text-[11px]"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        Se excluye el tráfico interno (rutamercadopr.com) y de
+                        desarrollo. Los clics e intenciones de asistencia no
+                        guardan referrer, así que no se ven afectados por este
+                        filtro.
+                      </p>
+                    )}
                   </div>
                 </Card>
               </div>

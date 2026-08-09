@@ -26,6 +26,7 @@ const rangeSchema = z
     from: z.string().datetime().optional(),
     to: z.string().datetime().optional(),
     days: z.number().int().min(1).max(3650).optional(),
+    excludeInternal: z.boolean().optional(),
   })
   .transform((v) => {
     let fromISO = v.from;
@@ -34,10 +35,56 @@ const rangeSchema = z
       const days = v.days ?? 30;
       fromISO = minusDaysISO(days);
     }
-    return { from: fromISO, to: toISO };
+    return { from: fromISO, to: toISO, excludeInternal: v.excludeInternal ?? false };
   });
 
-type RangeInput = { from?: string; to?: string; days?: number };
+type RangeInput = {
+  from?: string;
+  to?: string;
+  days?: number;
+  excludeInternal?: boolean;
+};
+
+export type TrafficKind = "externo" | "interno" | "desarrollo";
+
+/**
+ * Clasifica una visita según su referrer:
+ * - interno: navegación dentro del propio dominio
+ * - desarrollo: previews de Lovable y entornos locales
+ * - externo: buscadores, redes, directo, etc.
+ */
+export function classifyReferrer(referrer: string | null): TrafficKind {
+  if (!referrer || referrer.trim() === "") return "externo";
+  let host: string;
+  try {
+    host = new URL(referrer).hostname.toLowerCase();
+  } catch {
+    host = referrer.toLowerCase();
+  }
+  const bare = host.replace(/^www\./, "");
+  if (bare === "rutamercadopr.com") return "interno";
+  if (
+    bare === "localhost" ||
+    bare === "127.0.0.1" ||
+    bare === "lovable.dev" ||
+    bare.endsWith(".lovable.dev") ||
+    bare === "lovable.app" ||
+    bare.endsWith(".lovable.app")
+  ) {
+    return "desarrollo";
+  }
+  return "externo";
+}
+
+/** Filtra filas de page_views dejando solo tráfico externo cuando aplica. */
+function filterTraffic<T extends { referrer: string | null }>(
+  rows: T[],
+  excludeInternal: boolean,
+): T[] {
+  if (!excludeInternal) return rows;
+  return rows.filter((r) => classifyReferrer(r.referrer) === "externo");
+}
+
 
 type ScheduledMarket = {
   id: string;
@@ -241,7 +288,7 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     const [pvRes, clicksRes, intRes, activeRes, inactiveRes, pendingRes] = await Promise.all([
       // Misma fuente que "Actividad por Página": leemos las páginas del rango
       // y derivamos la home ('/') de ahí, para que ambos números no se desincronicen.
-      applyRange(supabase.from("page_views").select("page"), data),
+      applyRange(supabase.from("page_views").select("page, referrer"), data),
       applyRange(supabase.from("market_clicks").select("click_type"), data),
       applyRange(
         supabase.from("market_attendance_intentions").select("intention_type"),
@@ -251,7 +298,12 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", false),
       supabase.from("market_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
-    const pageRows = (pvRes.data ?? []) as { page: string | null }[];
+    const rawPageRows = (pvRes.data ?? []) as {
+      page: string | null;
+      referrer: string | null;
+    }[];
+    const pageRows = filterTraffic(rawPageRows, data.excludeInternal);
+    const rawPageViews = rawPageRows.length;
     const totalPageViews = pageRows.length;
     const homeViews = pageRows.filter((r) => r.page === "/").length;
     const clicks = clicksRes.data ?? [];
@@ -281,6 +333,7 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     return {
       homeViews,
       totalPageViews,
+      rawPageViews,
       detailViews: counts.view_detail,
       clickPhone: counts.click_phone,
       clickEmail: counts.click_email,
@@ -410,11 +463,15 @@ export const getDailyTraffic = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await applyRange(
-      context.supabase.from("page_views").select("created_at"),
+    const { data: allRows, error } = await applyRange(
+      context.supabase.from("page_views").select("created_at, referrer"),
       data,
     );
     if (error) throw new Error(error.message);
+    const rows = filterTraffic(
+      (allRows ?? []) as { created_at: string; referrer: string | null }[],
+      data.excludeInternal,
+    );
     const fromDay = data.from.slice(0, 10);
     const toDay = (data.to ?? new Date().toISOString()).slice(0, 10);
     const buckets = new Map<string, number>();
@@ -706,12 +763,15 @@ export const getClicksByType = createServerFn({ method: "GET" })
 
 function categorizeReferrer(referrer: string | null): { category: string; host: string } {
   if (!referrer || referrer.trim() === "") return { category: "Directo", host: "(directo)" };
+  const kind = classifyReferrer(referrer);
   let host = "";
   try {
     host = new URL(referrer).hostname.toLowerCase().replace(/^www\./, "");
   } catch {
     return { category: "Otro", host: referrer.slice(0, 80) };
   }
+  if (kind === "interno") return { category: "Interno", host };
+  if (kind === "desarrollo") return { category: "Desarrollo", host };
   if (host.includes("google.")) return { category: "Google", host };
   if (host.includes("instagram.")) return { category: "Instagram", host };
   if (host.includes("facebook.") || host.includes("fb.") || host === "l.facebook.com")
@@ -723,14 +783,16 @@ export const getTrafficSources = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await applyRange(
+    const { data: allRows, error } = await applyRange(
       context.supabase.from("page_views").select("referrer"),
       data,
     );
     if (error) throw new Error(error.message);
+    const rawRows = (allRows ?? []) as { referrer: string | null }[];
+    const rows = filterTraffic(rawRows, data.excludeInternal);
     const byCategory = new Map<string, number>();
     const byHost = new Map<string, { host: string; category: string; count: number }>();
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       const { category, host } = categorizeReferrer(r.referrer);
       byCategory.set(category, (byCategory.get(category) ?? 0) + 1);
       const cur = byHost.get(host) ?? { host, category, count: 0 };
@@ -738,6 +800,8 @@ export const getTrafficSources = createServerFn({ method: "GET" })
       byHost.set(host, cur);
     }
     return {
+      totalRaw: rawRows.length,
+      totalFiltered: rows.length,
       byCategory: Array.from(byCategory.entries())
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value),
@@ -751,13 +815,17 @@ export const getPageActivity = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await applyRange(
-      context.supabase.from("page_views").select("page"),
+    const { data: allRows, error } = await applyRange(
+      context.supabase.from("page_views").select("page, referrer"),
       data,
     );
     if (error) throw new Error(error.message);
+    const rows = filterTraffic(
+      (allRows ?? []) as { page: string | null; referrer: string | null }[],
+      data.excludeInternal,
+    );
     const byPage = new Map<string, number>();
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       const p = (r.page ?? "(desconocido)") as string;
       byPage.set(p, (byPage.get(p) ?? 0) + 1);
     }
