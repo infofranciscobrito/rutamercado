@@ -26,6 +26,7 @@ const rangeSchema = z
     from: z.string().datetime().optional(),
     to: z.string().datetime().optional(),
     days: z.number().int().min(1).max(3650).optional(),
+    excludeInternal: z.boolean().optional(),
   })
   .transform((v) => {
     let fromISO = v.from;
@@ -34,10 +35,56 @@ const rangeSchema = z
       const days = v.days ?? 30;
       fromISO = minusDaysISO(days);
     }
-    return { from: fromISO, to: toISO };
+    return { from: fromISO, to: toISO, excludeInternal: v.excludeInternal ?? false };
   });
 
-type RangeInput = { from?: string; to?: string; days?: number };
+type RangeInput = {
+  from?: string;
+  to?: string;
+  days?: number;
+  excludeInternal?: boolean;
+};
+
+export type TrafficKind = "externo" | "interno" | "desarrollo";
+
+/**
+ * Clasifica una visita según su referrer:
+ * - interno: navegación dentro del propio dominio
+ * - desarrollo: previews de Lovable y entornos locales
+ * - externo: buscadores, redes, directo, etc.
+ */
+export function classifyReferrer(referrer: string | null): TrafficKind {
+  if (!referrer || referrer.trim() === "") return "externo";
+  let host: string;
+  try {
+    host = new URL(referrer).hostname.toLowerCase();
+  } catch {
+    host = referrer.toLowerCase();
+  }
+  const bare = host.replace(/^www\./, "");
+  if (bare === "rutamercadopr.com") return "interno";
+  if (
+    bare === "localhost" ||
+    bare === "127.0.0.1" ||
+    bare === "lovable.dev" ||
+    bare.endsWith(".lovable.dev") ||
+    bare === "lovable.app" ||
+    bare.endsWith(".lovable.app")
+  ) {
+    return "desarrollo";
+  }
+  return "externo";
+}
+
+/** Filtra filas de page_views dejando solo tráfico externo cuando aplica. */
+function filterTraffic<T extends { referrer: string | null }>(
+  rows: T[],
+  excludeInternal: boolean,
+): T[] {
+  if (!excludeInternal) return rows;
+  return rows.filter((r) => classifyReferrer(r.referrer) === "externo");
+}
+
 
 type ScheduledMarket = {
   id: string;
