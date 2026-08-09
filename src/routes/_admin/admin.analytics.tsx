@@ -777,7 +777,18 @@ function AnalyticsPage() {
               </FilterField>
             </>
           )}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-3">
+            <label
+              className="flex cursor-pointer items-center gap-2 text-[12.5px]"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              <Switch
+                checked={excludeInternal}
+                onCheckedChange={setExcludeInternal}
+                aria-label="Excluir tráfico interno"
+              />
+              Excluir tráfico interno
+            </label>
             <ThemeToggle mode={themeMode} onChange={setThemeMode} />
           </div>
         </div>
@@ -792,6 +803,26 @@ function AnalyticsPage() {
                 ? `${fmtDay(fromDate)} — ${fmtDay(toDate)}`
                 : "de todo el histórico"}
             </strong>
+          </span>
+          <span
+            className="text-[11.5px]"
+            style={{ color: "var(--text-muted)" }}
+          >
+            {excludeInternal ? (
+              <>
+                · Mostrando{" "}
+                <strong style={{ color: "var(--text-primary)" }}>
+                  {shownViews.toLocaleString("es-PR")}
+                </strong>{" "}
+                de {rawViews.toLocaleString("es-PR")} visitas totales (
+                {excludedPct}% excluido por tráfico interno y de desarrollo)
+              </>
+            ) : (
+              <>
+                · {rawViews.toLocaleString("es-PR")} visitas totales (sin
+                filtrar)
+              </>
+            )}
           </span>
         </div>
       </div>
