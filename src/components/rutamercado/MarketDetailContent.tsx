@@ -25,8 +25,19 @@ import {
   markVoted,
 } from "@/lib/visitor-id";
 
+/** Contexto de origen del evento, para clasificar tráfico interno/desarrollo. */
+export function clientSource() {
+  if (typeof window === "undefined") return {};
+  return {
+    referrer: document.referrer || undefined,
+    pageUrl: window.location.href,
+  };
+}
+
 export function track(marketId: string, clickType: string) {
-  void trackMarketClick({ data: { marketId, clickType } }).catch(() => {});
+  void trackMarketClick({
+    data: { marketId, clickType, ...clientSource() },
+  }).catch(() => {});
 }
 
 function MiniFact({
@@ -259,11 +270,11 @@ export function AttendanceSection({ marketId }: { marketId: string }) {
     const visitorId = getOrCreateVisitorId() || crypto.randomUUID();
     try {
       const res = await recordAttendanceIntention({
-        data: { marketId, intentionType, visitorId },
+        data: { marketId, intentionType, visitorId, ...clientSource() },
       });
       if (!res.ok) throw new Error(res.error);
       void trackMarketClick({
-        data: { marketId, clickType: "click_attendance" },
+        data: { marketId, clickType: "click_attendance", ...clientSource() },
       }).catch(() => {});
       markVoted(marketId);
       setVoted(true);
