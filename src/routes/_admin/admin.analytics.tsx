@@ -835,6 +835,10 @@ function AnalyticsPage() {
               <KpiTile
                 label="Vistas del directorio"
                 value={ov?.homeViews ?? 0}
+                chip={{
+                  text: `${(ov?.totalPageViews ?? 0).toLocaleString("es-PR")} vistas en todo el sitio`,
+                  tone: "neutral",
+                }}
                 delay={0}
               />
               <KpiTile

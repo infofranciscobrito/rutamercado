@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { redirect, stripSearchParams } from "@tanstack/react-router";
+import type { SearchMiddleware } from "@tanstack/react-router";
 import { fallback } from "@tanstack/zod-adapter";
 import { MARKET_REGIONS } from "@/types/market";
 import { getMarketSlugById } from "@/lib/market-detail.functions";
@@ -38,7 +39,9 @@ export const categorySearchSchema = z.object({
   market: fallback(z.string().uuid().optional(), undefined),
 });
 
-export const categorySearchMiddlewares = [
+export type CategorySearch = z.infer<typeof categorySearchSchema>;
+
+export const categorySearchMiddlewares: SearchMiddleware<CategorySearch>[] = [
   stripSearchParams({
     q: "",
     date: "all",

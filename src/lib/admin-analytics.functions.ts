@@ -239,10 +239,9 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [pvRes, clicksRes, intRes, activeRes, inactiveRes, pendingRes] = await Promise.all([
-      applyRange(
-        supabase.from("page_views").select("id", { count: "exact", head: true }).eq("page", "home"),
-        data,
-      ),
+      // Misma fuente que "Actividad por Página": leemos las páginas del rango
+      // y derivamos la home ('/') de ahí, para que ambos números no se desincronicen.
+      applyRange(supabase.from("page_views").select("page"), data),
       applyRange(supabase.from("market_clicks").select("click_type"), data),
       applyRange(
         supabase.from("market_attendance_intentions").select("intention_type"),
@@ -252,6 +251,9 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", false),
       supabase.from("market_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
+    const pageRows = (pvRes.data ?? []) as { page: string | null }[];
+    const totalPageViews = pageRows.length;
+    const homeViews = pageRows.filter((r) => r.page === "/").length;
     const clicks = clicksRes.data ?? [];
     const counts = {
       view_detail: 0,
@@ -277,7 +279,8 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     const engagementRate =
       counts.view_detail > 0 ? (contactClicksAll / counts.view_detail) * 100 : 0;
     return {
-      homeViews: pvRes.count ?? 0,
+      homeViews,
+      totalPageViews,
       detailViews: counts.view_detail,
       clickPhone: counts.click_phone,
       clickEmail: counts.click_email,
