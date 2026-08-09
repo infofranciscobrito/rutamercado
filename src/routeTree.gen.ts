@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProductoresRouteImport } from './routes/productores'
 import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
+import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as NegociosRouteImport } from './routes/negocios'
 import { Route as MercadosMixtosRouteImport } from './routes/mercados-mixtos'
 import { Route as MercadosAgricolasRouteImport } from './routes/mercados-agricolas'
@@ -51,6 +52,11 @@ const ProductoresRoute = ProductoresRouteImport.update({
 const PoliticaDePrivacidadRoute = PoliticaDePrivacidadRouteImport.update({
   id: '/politica-de-privacidad',
   path: '/politica-de-privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsletterRoute = NewsletterRouteImport.update({
+  id: '/newsletter',
+  path: '/newsletter',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NegociosRoute = NegociosRouteImport.update({
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/mercados-agricolas': typeof MercadosAgricolasRoute
   '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
+  '/newsletter': typeof NewsletterRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/mercados-agricolas': typeof MercadosAgricolasRoute
   '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
+  '/newsletter': typeof NewsletterRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/mercados-agricolas': typeof MercadosAgricolasRoute
   '/mercados-mixtos': typeof MercadosMixtosRoute
   '/negocios': typeof NegociosRoute
+  '/newsletter': typeof NewsletterRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/mercados-agricolas'
     | '/mercados-mixtos'
     | '/negocios'
+    | '/newsletter'
     | '/politica-de-privacidad'
     | '/productores'
     | '/sitemap.xml'
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/mercados-agricolas'
     | '/mercados-mixtos'
     | '/negocios'
+    | '/newsletter'
     | '/politica-de-privacidad'
     | '/productores'
     | '/sitemap.xml'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/mercados-agricolas'
     | '/mercados-mixtos'
     | '/negocios'
+    | '/newsletter'
     | '/politica-de-privacidad'
     | '/productores'
     | '/sitemap.xml'
@@ -372,6 +384,7 @@ export interface RootRouteChildren {
   MercadosAgricolasRoute: typeof MercadosAgricolasRoute
   MercadosMixtosRoute: typeof MercadosMixtosRoute
   NegociosRoute: typeof NegociosRoute
+  NewsletterRoute: typeof NewsletterRoute
   PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
   ProductoresRoute: typeof ProductoresRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -401,6 +414,13 @@ declare module '@tanstack/react-router' {
       path: '/politica-de-privacidad'
       fullPath: '/politica-de-privacidad'
       preLoaderRoute: typeof PoliticaDePrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/newsletter': {
+      id: '/newsletter'
+      path: '/newsletter'
+      fullPath: '/newsletter'
+      preLoaderRoute: typeof NewsletterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/negocios': {
@@ -621,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   MercadosAgricolasRoute: MercadosAgricolasRoute,
   MercadosMixtosRoute: MercadosMixtosRoute,
   NegociosRoute: NegociosRoute,
+  NewsletterRoute: NewsletterRoute,
   PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
   ProductoresRoute: ProductoresRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
