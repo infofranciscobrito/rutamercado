@@ -285,6 +285,7 @@ function IndexPage() {
           onViewChange={setView}
         />
       </Suspense>
+      <NewsletterSignup />
       <AboutSection />
       <ContactSection />
       <Footer />
