@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { redirect, stripSearchParams } from "@tanstack/react-router";
+import type { SearchMiddleware } from "@tanstack/react-router";
 import { fallback } from "@tanstack/zod-adapter";
 import { MARKET_REGIONS } from "@/types/market";
 import { getMarketSlugById } from "@/lib/market-detail.functions";
