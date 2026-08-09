@@ -709,6 +709,10 @@ function AnalyticsPage() {
     submissions.error;
 
   const ov = overview.data;
+  const rawViews = ov?.rawPageViews ?? 0;
+  const shownViews = ov?.totalPageViews ?? 0;
+  const excludedPct =
+    rawViews > 0 ? Math.round(((rawViews - shownViews) / rawViews) * 100) : 0;
   const subm = submissions.data;
   const clicks = clicksByType.data ?? [];
   const clicksMax = Math.max(1, ...clicks.map((c) => c.count));
