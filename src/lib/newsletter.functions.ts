@@ -45,6 +45,10 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export type NewsletterSubscriberRow = NewsletterSubscriber & {
+  market_name: string | null;
+};
+
 export const listNewsletterSubscribers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -53,5 +57,41 @@ export const listNewsletterSubscribers = createServerFn({ method: "GET" })
       .select("*")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (data ?? []) as NewsletterSubscriber[];
+    const rows = (data ?? []) as NewsletterSubscriber[];
+
+    const slugs = Array.from(
+      new Set(rows.map((r) => r.market_slug).filter((s): s is string => !!s)),
+    );
+    const nameBySlug = new Map<string, string>();
+    if (slugs.length > 0) {
+      const { data: markets } = await context.supabase
+        .from("markets")
+        .select("slug, name")
+        .in("slug", slugs);
+      for (const m of markets ?? []) {
+        if (m.slug) nameBySlug.set(m.slug, m.name);
+      }
+    }
+
+    const now = Date.now();
+    const DAY = 24 * 60 * 60 * 1000;
+    const active = rows.filter((r) => r.status === "activo");
+    const since = (days: number) =>
+      active.filter((r) => now - new Date(r.created_at).getTime() <= days * DAY)
+        .length;
+
+    return {
+      subscribers: rows.map((r) => ({
+        ...r,
+        market_name: r.market_slug
+          ? nameBySlug.get(r.market_slug) ?? r.market_slug
+          : null,
+      })) as NewsletterSubscriberRow[],
+      stats: {
+        totalActive: active.length,
+        last7Days: since(7),
+        last30Days: since(30),
+      },
+    };
   });
+
