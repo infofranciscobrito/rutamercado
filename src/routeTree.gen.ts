@@ -31,6 +31,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
 import { Route as AdminAdminProducersRouteImport } from './routes/_admin/admin.producers'
+import { Route as AdminAdminNewsletterRouteImport } from './routes/_admin/admin.newsletter'
 import { Route as AdminAdminMessagesRouteImport } from './routes/_admin/admin.messages'
 import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
 import { Route as AdminAdminEmprendedoresRouteImport } from './routes/_admin/admin.emprendedores'
@@ -146,6 +147,11 @@ const AdminAdminProducersRoute = AdminAdminProducersRouteImport.update({
   path: '/admin/producers',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminNewsletterRoute = AdminAdminNewsletterRouteImport.update({
+  id: '/admin/newsletter',
+  path: '/admin/newsletter',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminMessagesRoute = AdminAdminMessagesRouteImport.update({
   id: '/admin/messages',
   path: '/admin/messages',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
+  '/admin/newsletter': typeof AdminAdminNewsletterRoute
   '/admin/producers': typeof AdminAdminProducersRoute
   '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin/': typeof AdminAdminIndexRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
+  '/admin/newsletter': typeof AdminAdminNewsletterRoute
   '/admin/producers': typeof AdminAdminProducersRoute
   '/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/admin': typeof AdminAdminIndexRoute
@@ -254,6 +262,7 @@ export interface FileRoutesById {
   '/_admin/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
   '/_admin/admin/markets': typeof AdminAdminMarketsRoute
   '/_admin/admin/messages': typeof AdminAdminMessagesRoute
+  '/_admin/admin/newsletter': typeof AdminAdminNewsletterRoute
   '/_admin/admin/producers': typeof AdminAdminProducersRoute
   '/_admin/admin/submissions': typeof AdminAdminSubmissionsRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
@@ -284,6 +293,7 @@ export interface FileRouteTypes {
     | '/admin/emprendedores'
     | '/admin/markets'
     | '/admin/messages'
+    | '/admin/newsletter'
     | '/admin/producers'
     | '/admin/submissions'
     | '/admin/'
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/admin/emprendedores'
     | '/admin/markets'
     | '/admin/messages'
+    | '/admin/newsletter'
     | '/admin/producers'
     | '/admin/submissions'
     | '/admin'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/emprendedores'
     | '/_admin/admin/markets'
     | '/_admin/admin/messages'
+    | '/_admin/admin/newsletter'
     | '/_admin/admin/producers'
     | '/_admin/admin/submissions'
     | '/_admin/admin/'
@@ -524,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminProducersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/newsletter': {
+      id: '/_admin/admin/newsletter'
+      path: '/admin/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AdminAdminNewsletterRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/messages': {
       id: '/_admin/admin/messages'
       path: '/admin/messages'
@@ -568,6 +587,7 @@ interface AdminRouteChildren {
   AdminAdminEmprendedoresRoute: typeof AdminAdminEmprendedoresRoute
   AdminAdminMarketsRoute: typeof AdminAdminMarketsRoute
   AdminAdminMessagesRoute: typeof AdminAdminMessagesRoute
+  AdminAdminNewsletterRoute: typeof AdminAdminNewsletterRoute
   AdminAdminProducersRoute: typeof AdminAdminProducersRoute
   AdminAdminSubmissionsRoute: typeof AdminAdminSubmissionsRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
@@ -579,6 +599,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminEmprendedoresRoute: AdminAdminEmprendedoresRoute,
   AdminAdminMarketsRoute: AdminAdminMarketsRoute,
   AdminAdminMessagesRoute: AdminAdminMessagesRoute,
+  AdminAdminNewsletterRoute: AdminAdminNewsletterRoute,
   AdminAdminProducersRoute: AdminAdminProducersRoute,
   AdminAdminSubmissionsRoute: AdminAdminSubmissionsRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
@@ -610,13 +631,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

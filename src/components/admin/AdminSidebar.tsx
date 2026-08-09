@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Store, TrendingUp, LogOut, Inbox, Users, Mail, Briefcase } from "lucide-react";
+import { BarChart3, Store, TrendingUp, LogOut, Inbox, Users, Mail, Briefcase, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { countPendingSubmissions } from "@/lib/submissions.functions";
 import { countNewContactMessages } from "@/lib/contact.functions";
@@ -14,6 +14,7 @@ const items = [
   { to: "/admin/emprendedores", label: "Registro de negocios", icon: Briefcase },
   { to: "/admin/submissions", label: "Solicitudes de Mercados", icon: Inbox },
   { to: "/admin/messages", label: "Mensajes", icon: Mail },
+  { to: "/admin/newsletter", label: "Newsletter", icon: Send },
   { to: "/admin/analytics", label: "Analíticas", icon: TrendingUp },
 ] as const;
 

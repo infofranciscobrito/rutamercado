@@ -18,6 +18,7 @@ import { MarketTicketCard } from "@/components/rutamercado/MarketTicketCard";
 import { TicketPerforation } from "@/components/rutamercado/TicketPerforation";
 import { MarketAmenityChips } from "@/components/rutamercado/MarketAmenityChips";
 import { RelatedMarkets } from "@/components/rutamercado/RelatedMarkets";
+import { NewsletterSignup } from "@/components/rutamercado/NewsletterSignup";
 import { PAGE_BY_CATEGORY } from "@/lib/category-pages";
 
 const BASE = "https://rutamercadopr.com";
@@ -296,6 +297,10 @@ function MarketPage() {
 
           <div className="mt-12">
             <RelatedMarkets markets={related} />
+          </div>
+
+          <div className="mt-12">
+            <NewsletterSignup variant="compact" marketSlug={market.slug ?? undefined} />
           </div>
         </div>
       </main>
