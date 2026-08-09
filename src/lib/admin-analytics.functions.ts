@@ -251,6 +251,9 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", false),
       supabase.from("market_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
+    const pageRows = (pvRes.data ?? []) as { page: string | null }[];
+    const totalPageViews = pageRows.length;
+    const homeViews = pageRows.filter((r) => r.page === "/").length;
     const clicks = clicksRes.data ?? [];
     const counts = {
       view_detail: 0,
