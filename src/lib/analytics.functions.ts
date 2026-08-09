@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { classifyClickSource } from "@/lib/traffic-source";
 
 const ClickTypeSchema = z.enum([
   "view_detail",
@@ -36,11 +37,18 @@ export const trackPageView = createServerFn({ method: "POST" })
   });
 
 export const trackMarketClick = createServerFn({ method: "POST" })
-  .inputValidator((input: { marketId: string; clickType: string }) =>
+  .inputValidator((input: {
+    marketId: string;
+    clickType: string;
+    referrer?: string;
+    pageUrl?: string;
+  }) =>
     z
       .object({
         marketId: z.string().uuid(),
         clickType: ClickTypeSchema,
+        referrer: z.string().max(2048).optional(),
+        pageUrl: z.string().max(2048).optional(),
       })
       .parse(input),
   )
@@ -55,6 +63,10 @@ export const trackMarketClick = createServerFn({ method: "POST" })
       market_id: data.marketId,
       click_type: data.clickType,
       era_destacado: Boolean(mk?.destacado),
+      traffic_source: classifyClickSource(
+        data.referrer ?? null,
+        data.pageUrl ?? null,
+      ),
     });
     if (error) {
       console.error("trackMarketClick failed:", error);
