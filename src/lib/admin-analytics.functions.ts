@@ -45,40 +45,8 @@ type RangeInput = {
   excludeInternal?: boolean;
 };
 
-export type TrafficKind = "externo" | "interno" | "desarrollo";
-
-/**
- * Clasifica una visita según su referrer:
- * - interno: navegación dentro del propio dominio
- * - desarrollo: previews de Lovable y entornos locales
- * - externo: buscadores, redes, directo, etc.
- */
-export function classifyReferrer(referrer: string | null): TrafficKind {
-  const raw = (referrer ?? "").trim();
-  if (raw === "") return "externo";
-  const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
-  let host: string;
-  try {
-    host = new URL(withScheme).hostname.toLowerCase();
-  } catch {
-    host = raw.toLowerCase().split("/")[0]!.split("?")[0]!;
-  }
-  const bare = host.replace(/^www\./, "").replace(/:\d+$/, "");
-  if (bare === "rutamercadopr.com") return "interno";
-  const devDomains = [
-    "lovable.dev",
-    "lovable.app",
-    "lovableproject.com",
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-  ];
-  if (devDomains.some((d) => bare === d || bare.endsWith(`.${d}`))) {
-    return "desarrollo";
-  }
-  return "externo";
-}
-
+export type { TrafficKind } from "@/lib/traffic-source";
+export { classifyReferrer } from "@/lib/traffic-source";
 
 /** Filtra filas de page_views dejando solo tráfico externo cuando aplica. */
 function filterTraffic<T extends { referrer: string | null }>(
@@ -88,6 +56,21 @@ function filterTraffic<T extends { referrer: string | null }>(
   if (!excludeInternal) return rows;
   return rows.filter((r) => classifyReferrer(r.referrer) === "externo");
 }
+
+/**
+ * Filtra filas de eventos (clics, intenciones) por su origen ya clasificado.
+ * Las filas históricas sin clasificar (`null`) se conservan siempre.
+ */
+function filterEvents<T extends { traffic_source?: string | null }>(
+  rows: T[],
+  excludeInternal: boolean,
+): T[] {
+  if (!excludeInternal) return rows;
+  return rows.filter(
+    (r) => !r.traffic_source || r.traffic_source === "externo",
+  );
+}
+
 
 
 type ScheduledMarket = {
