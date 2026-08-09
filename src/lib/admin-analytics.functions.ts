@@ -278,9 +278,11 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       // Misma fuente que "Actividad por Página": leemos las páginas del rango
       // y derivamos la home ('/') de ahí, para que ambos números no se desincronicen.
       applyRange(supabase.from("page_views").select("page, referrer"), data),
-      applyRange(supabase.from("market_clicks").select("click_type"), data),
+      applyRange(supabase.from("market_clicks").select("click_type, traffic_source"), data),
       applyRange(
-        supabase.from("market_attendance_intentions").select("intention_type"),
+        supabase
+          .from("market_attendance_intentions")
+          .select("intention_type, traffic_source"),
         data,
       ),
       supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", true),
@@ -295,7 +297,7 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     const rawPageViews = rawPageRows.length;
     const totalPageViews = pageRows.length;
     const homeViews = pageRows.filter((r) => r.page === "/").length;
-    const clicks = clicksRes.data ?? [];
+    const clicks = filterEvents(clicksRes.data ?? [], data.excludeInternal);
     const counts = {
       view_detail: 0,
       click_phone: 0,
@@ -311,7 +313,7 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     }
     let willAttend = 0;
     let interested = 0;
-    for (const r of intRes.data ?? []) {
+    for (const r of filterEvents(intRes.data ?? [], data.excludeInternal)) {
       if (r.intention_type === "will_attend") willAttend++;
       else if (r.intention_type === "interested") interested++;
     }
@@ -350,14 +352,19 @@ export const getTopMarkets = createServerFn({ method: "GET" })
         .select("id, name, view_count, recurrence_type")
         .order("view_count", { ascending: false })
         .limit(10),
-      applyRange(supabase.from("market_clicks").select("market_id, click_type"), data),
       applyRange(
-        supabase.from("market_attendance_intentions").select("market_id, intention_type"),
+        supabase.from("market_clicks").select("market_id, click_type, traffic_source"),
+        data,
+      ),
+      applyRange(
+        supabase
+          .from("market_attendance_intentions")
+          .select("market_id, intention_type, traffic_source"),
         data,
       ),
     ]);
     if (marketsRes.error) throw new Error(marketsRes.error.message);
-    const clicks = clicksRes.data ?? [];
+    const clicks = filterEvents(clicksRes.data ?? [], data.excludeInternal);
     const byMarket = new Map<
       string,
       { phone: number; email: number; contact: number; directions: number }
@@ -372,7 +379,7 @@ export const getTopMarkets = createServerFn({ method: "GET" })
       byMarket.set(c.market_id, cur);
     }
     const intByMarket = new Map<string, { willAttend: number; interested: number }>();
-    for (const r of intRes.data ?? []) {
+    for (const r of filterEvents(intRes.data ?? [], data.excludeInternal)) {
       const cur = intByMarket.get(r.market_id) ?? { willAttend: 0, interested: 0 };
       if (r.intention_type === "will_attend") cur.willAttend++;
       else if (r.intention_type === "interested") cur.interested++;
@@ -719,7 +726,7 @@ export const getClicksByType = createServerFn({ method: "GET" })
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await applyRange(
-      context.supabase.from("market_clicks").select("click_type"),
+      context.supabase.from("market_clicks").select("click_type, traffic_source"),
       data,
     );
     if (error) throw new Error(error.message);
@@ -732,7 +739,7 @@ export const getClicksByType = createServerFn({ method: "GET" })
       click_attendance: 0,
       click_instagram: 0,
     };
-    for (const r of rows ?? []) {
+    for (const r of filterEvents(rows ?? [], data.excludeInternal)) {
       const k = r.click_type as string;
       counts[k] = (counts[k] ?? 0) + 1;
     }
