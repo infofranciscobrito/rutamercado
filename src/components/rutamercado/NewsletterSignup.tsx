@@ -165,7 +165,8 @@ export function NewsletterSignup({ variant = "full", marketSlug }: Props) {
 
   return (
     <section
-      className="w-full border-y-4 border-[#54b678]"
+      id="newsletter"
+      className="w-full scroll-mt-24 border-y-4 border-[#54b678]"
       style={{ backgroundImage: "linear-gradient(135deg, #18253f 0%, #1d2b49 50%, #16213a 100%)" }}
     >
       <div className="mx-auto w-full max-w-[760px] px-6 py-20 text-center sm:px-8 sm:py-28">
