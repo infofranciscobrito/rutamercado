@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Loader2, Mail } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { subscribeToNewsletter } from "@/lib/newsletter.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,46 @@ type Props = {
   variant?: "full" | "compact";
   marketSlug?: string;
 };
+
+const STOPS = ["Metro", "Norte", "Sur", "Este", "Tu correo"];
+
+function RouteStepper() {
+  return (
+    <div className="w-full select-none" aria-hidden="true">
+      <div className="flex items-start justify-center">
+        {STOPS.map((stop, i) => {
+          const last = i === STOPS.length - 1;
+          return (
+            <div key={stop} className="flex min-w-0 items-start">
+              {i > 0 && (
+                <div
+                  className="mt-[7px] h-0 w-10 shrink-0 border-t-2 border-dashed border-[#3c4d6b] sm:w-16"
+                />
+              )}
+              <div className="flex w-auto flex-col items-center sm:w-20">
+                {last ? (
+                  <span
+                    className="mt-[1px] h-[13px] w-[13px] rounded-full bg-[#54b678]"
+                    style={{ boxShadow: "0 0 0 5px rgba(84,182,120,0.18), 0 0 14px rgba(84,182,120,0.55)" }}
+                  />
+                ) : (
+                  <span className="mt-[4px] h-[7px] w-[7px] rounded-full bg-[#5b6c8a]" />
+                )}
+                <span
+                  className={`mt-3 hidden text-[10px] uppercase tracking-[0.14em] sm:block ${
+                    last ? "font-semibold text-[#54b678]" : "text-[#8291ac]"
+                  }`}
+                >
+                  {stop}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function NewsletterSignup({ variant = "full", marketSlug }: Props) {
   const subscribeFn = useServerFn(subscribeToNewsletter);
@@ -86,19 +126,19 @@ export function NewsletterSignup({ variant = "full", marketSlug }: Props) {
         placeholder="tucorreo@ejemplo.com"
         disabled={submitting}
         aria-label="Correo electrónico"
-        className="h-12 flex-1 border-transparent bg-white text-[#18253f] placeholder:text-[#9CA3AF]"
+        className="h-12 w-full flex-1 border-[#3c4d6b] bg-[#101a2e] text-white placeholder:text-[#7c8aa3] focus-visible:border-[#54b678]"
       />
       <Button
         type="submit"
         disabled={submitting}
-        className="h-12 bg-[#54b678] px-7 text-base font-semibold text-[#18253f] hover:bg-[#3f9560]"
+        className="h-12 w-full bg-[#54b678] px-7 text-base font-semibold text-[#18253f] hover:bg-[#3f9560] sm:w-auto"
       >
         {submitting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" /> Enviando...
           </>
         ) : (
-          "Suscribirme"
+          "Suscribirme →"
         )}
       </Button>
     </form>
@@ -106,8 +146,7 @@ export function NewsletterSignup({ variant = "full", marketSlug }: Props) {
 
   if (compact) {
     return (
-      <section className="overflow-hidden rounded-2xl bg-[#18253f] rm-shadow-warm">
-        <div className="h-[3px] w-full bg-[#54b678]" aria-hidden="true" />
+      <section className="overflow-hidden rounded-2xl border-y-4 border-[#54b678] bg-[#18253f] rm-shadow-warm">
         <div className="px-6 py-8 sm:px-8 sm:py-10">
           <h2 className="font-display text-xl leading-tight text-white">
             ¿Quieres enterarte de mercados como este?
@@ -125,20 +164,20 @@ export function NewsletterSignup({ variant = "full", marketSlug }: Props) {
   }
 
   return (
-    <section className="w-full bg-[#18253f]">
-      <div className="h-[3px] w-full bg-[#54b678]" aria-hidden="true" />
-      <div className="mx-auto w-full max-w-2xl px-6 py-20 text-center sm:px-8 sm:py-24">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#54b678] text-[#18253f]">
-          <Mail className="h-5 w-5" />
-        </div>
-        <h2 className="mt-6 font-display text-2xl leading-tight text-white sm:text-3xl">
-          Recibe los mercados de la semana en tu correo
+    <section
+      className="w-full border-y-4 border-[#54b678]"
+      style={{ backgroundImage: "linear-gradient(135deg, #18253f 0%, #1d2b49 50%, #16213a 100%)" }}
+    >
+      <div className="mx-auto w-full max-w-[760px] px-6 py-20 text-center sm:px-8 sm:py-28">
+        <RouteStepper />
+        <h2 className="mt-14 font-display text-3xl leading-tight text-white sm:text-4xl">
+          Los mercados de la semana, directo en tu correo
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-[#C7D0DE]">
-          Cada semana te mandamos los mercados activos en Puerto Rico. Sin spam,
-          cancelas cuando quieras.
+        <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[#C7D0DE]">
+          Cada semana seleccionamos los mercados activos en Puerto Rico y te los
+          mandamos antes del fin de semana. Sin spam, cancelas cuando quieras.
         </p>
-        <div className="mt-8 space-y-3">
+        <div className="mt-9 space-y-3">
           {done ? successBox : form}
           {!done && error && (
             <p className="text-sm text-[#FCA5A5]">{error}</p>
