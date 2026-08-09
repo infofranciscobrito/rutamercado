@@ -16,7 +16,7 @@ import {
 } from "@/components/rutamercado/MarketDetailContent";
 import { MarketTicketCard } from "@/components/rutamercado/MarketTicketCard";
 import { TicketPerforation } from "@/components/rutamercado/TicketPerforation";
-import { MarketAmenityChips } from "@/components/rutamercado/MarketAmenityChips";
+
 import { RelatedMarkets } from "@/components/rutamercado/RelatedMarkets";
 import { NewsletterSignup } from "@/components/rutamercado/NewsletterSignup";
 import { PAGE_BY_CATEGORY } from "@/lib/category-pages";
