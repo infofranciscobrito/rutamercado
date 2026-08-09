@@ -279,7 +279,8 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     const engagementRate =
       counts.view_detail > 0 ? (contactClicksAll / counts.view_detail) * 100 : 0;
     return {
-      homeViews: pvRes.count ?? 0,
+      homeViews,
+      totalPageViews,
       detailViews: counts.view_detail,
       clickPhone: counts.click_phone,
       clickEmail: counts.click_email,
