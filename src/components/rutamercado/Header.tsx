@@ -66,6 +66,14 @@ export function Header() {
           >
             Enviar mi Mercado
           </Link>
+          {isHome && (
+            <a
+              href="#newsletter"
+              className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
+            >
+              Newsletter
+            </a>
+          )}
           <FavoritesTrigger onOpen={() => setFavOpen(true)} />
         </nav>
 
