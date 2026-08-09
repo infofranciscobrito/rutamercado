@@ -132,6 +132,7 @@ export type Database = {
           id: string
           intention_type: string
           market_id: string
+          traffic_source: string | null
           visitor_id: string
         }
         Insert: {
@@ -140,6 +141,7 @@ export type Database = {
           id?: string
           intention_type: string
           market_id: string
+          traffic_source?: string | null
           visitor_id: string
         }
         Update: {
@@ -148,6 +150,7 @@ export type Database = {
           id?: string
           intention_type?: string
           market_id?: string
+          traffic_source?: string | null
           visitor_id?: string
         }
         Relationships: [
@@ -167,6 +170,7 @@ export type Database = {
           era_destacado: boolean | null
           id: string
           market_id: string
+          traffic_source: string | null
         }
         Insert: {
           click_type: Database["public"]["Enums"]["click_type"]
@@ -174,6 +178,7 @@ export type Database = {
           era_destacado?: boolean | null
           id?: string
           market_id: string
+          traffic_source?: string | null
         }
         Update: {
           click_type?: Database["public"]["Enums"]["click_type"]
@@ -181,6 +186,7 @@ export type Database = {
           era_destacado?: boolean | null
           id?: string
           market_id?: string
+          traffic_source?: string | null
         }
         Relationships: [
           {

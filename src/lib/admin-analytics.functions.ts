@@ -45,39 +45,9 @@ type RangeInput = {
   excludeInternal?: boolean;
 };
 
-export type TrafficKind = "externo" | "interno" | "desarrollo";
-
-/**
- * Clasifica una visita según su referrer:
- * - interno: navegación dentro del propio dominio
- * - desarrollo: previews de Lovable y entornos locales
- * - externo: buscadores, redes, directo, etc.
- */
-export function classifyReferrer(referrer: string | null): TrafficKind {
-  const raw = (referrer ?? "").trim();
-  if (raw === "") return "externo";
-  const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
-  let host: string;
-  try {
-    host = new URL(withScheme).hostname.toLowerCase();
-  } catch {
-    host = raw.toLowerCase().split("/")[0]!.split("?")[0]!;
-  }
-  const bare = host.replace(/^www\./, "").replace(/:\d+$/, "");
-  if (bare === "rutamercadopr.com") return "interno";
-  const devDomains = [
-    "lovable.dev",
-    "lovable.app",
-    "lovableproject.com",
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-  ];
-  if (devDomains.some((d) => bare === d || bare.endsWith(`.${d}`))) {
-    return "desarrollo";
-  }
-  return "externo";
-}
+import { classifyReferrer } from "@/lib/traffic-source";
+export type { TrafficKind } from "@/lib/traffic-source";
+export { classifyReferrer };
 
 
 /** Filtra filas de page_views dejando solo tráfico externo cuando aplica. */
@@ -88,6 +58,19 @@ function filterTraffic<T extends { referrer: string | null }>(
   if (!excludeInternal) return rows;
   return rows.filter((r) => classifyReferrer(r.referrer) === "externo");
 }
+
+/**
+ * Filtra filas de eventos (clics, intenciones) por su origen ya clasificado.
+ * Las filas históricas sin clasificar (`null`) se conservan siempre.
+ */
+function filterEvents<T>(rows: T[], excludeInternal: boolean): T[] {
+  if (!excludeInternal) return rows;
+  return rows.filter((r) => {
+    const src = (r as { traffic_source?: string | null }).traffic_source;
+    return !src || src === "externo";
+  });
+}
+
 
 
 type ScheduledMarket = {
@@ -293,9 +276,11 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       // Misma fuente que "Actividad por Página": leemos las páginas del rango
       // y derivamos la home ('/') de ahí, para que ambos números no se desincronicen.
       applyRange(supabase.from("page_views").select("page, referrer"), data),
-      applyRange(supabase.from("market_clicks").select("click_type"), data),
+      applyRange(supabase.from("market_clicks").select("click_type, traffic_source"), data),
       applyRange(
-        supabase.from("market_attendance_intentions").select("intention_type"),
+        supabase
+          .from("market_attendance_intentions")
+          .select("intention_type, traffic_source"),
         data,
       ),
       supabase.from("markets").select("id", { count: "exact", head: true }).eq("is_active", true),
@@ -310,7 +295,10 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     const rawPageViews = rawPageRows.length;
     const totalPageViews = pageRows.length;
     const homeViews = pageRows.filter((r) => r.page === "/").length;
-    const clicks = clicksRes.data ?? [];
+    const clicks = filterEvents<{ click_type: string; traffic_source: string | null }>(
+      (clicksRes.data ?? []) as { click_type: string; traffic_source: string | null }[],
+      data.excludeInternal,
+    );
     const counts = {
       view_detail: 0,
       click_phone: 0,
@@ -326,7 +314,10 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     }
     let willAttend = 0;
     let interested = 0;
-    for (const r of intRes.data ?? []) {
+    for (const r of filterEvents(
+      (intRes.data ?? []) as { intention_type: string; traffic_source: string | null }[],
+      data.excludeInternal,
+    )) {
       if (r.intention_type === "will_attend") willAttend++;
       else if (r.intention_type === "interested") interested++;
     }
@@ -365,14 +356,27 @@ export const getTopMarkets = createServerFn({ method: "GET" })
         .select("id, name, view_count, recurrence_type")
         .order("view_count", { ascending: false })
         .limit(10),
-      applyRange(supabase.from("market_clicks").select("market_id, click_type"), data),
       applyRange(
-        supabase.from("market_attendance_intentions").select("market_id, intention_type"),
+        supabase.from("market_clicks").select("market_id, click_type, traffic_source"),
+        data,
+      ),
+      applyRange(
+        supabase
+          .from("market_attendance_intentions")
+          .select("market_id, intention_type, traffic_source"),
         data,
       ),
     ]);
     if (marketsRes.error) throw new Error(marketsRes.error.message);
-    const clicks = clicksRes.data ?? [];
+    const clicks = filterEvents(
+      (clicksRes.data ?? []) as {
+        market_id: string;
+        click_type: string;
+        traffic_source: string | null;
+      }[],
+      data.excludeInternal,
+    );
+
     const byMarket = new Map<
       string,
       { phone: number; email: number; contact: number; directions: number }
@@ -387,7 +391,14 @@ export const getTopMarkets = createServerFn({ method: "GET" })
       byMarket.set(c.market_id, cur);
     }
     const intByMarket = new Map<string, { willAttend: number; interested: number }>();
-    for (const r of intRes.data ?? []) {
+    for (const r of filterEvents(
+      (intRes.data ?? []) as {
+        market_id: string;
+        intention_type: string;
+        traffic_source: string | null;
+      }[],
+      data.excludeInternal,
+    )) {
       const cur = intByMarket.get(r.market_id) ?? { willAttend: 0, interested: 0 };
       if (r.intention_type === "will_attend") cur.willAttend++;
       else if (r.intention_type === "interested") cur.interested++;
@@ -734,7 +745,7 @@ export const getClicksByType = createServerFn({ method: "GET" })
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await applyRange(
-      context.supabase.from("market_clicks").select("click_type"),
+      context.supabase.from("market_clicks").select("click_type, traffic_source"),
       data,
     );
     if (error) throw new Error(error.message);
@@ -747,7 +758,10 @@ export const getClicksByType = createServerFn({ method: "GET" })
       click_attendance: 0,
       click_instagram: 0,
     };
-    for (const r of rows ?? []) {
+    for (const r of filterEvents(
+      (rows ?? []) as { click_type: string; traffic_source: string | null }[],
+      data.excludeInternal,
+    )) {
       const k = r.click_type as string;
       counts[k] = (counts[k] ?? 0) + 1;
     }

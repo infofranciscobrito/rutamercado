@@ -66,6 +66,9 @@ import { RECURRENCE_TYPE_HUMAN, type RecurrenceType } from "@/lib/recurrence";
 
 type AnalyticsSearch = { market?: string };
 
+const UNCLASSIFIED_NOTE =
+  "Los datos anteriores al 9 de agosto de 2026 no están clasificados por este filtro.";
+
 export const Route = createFileRoute("/_admin/admin/analytics")({
   validateSearch: (search: Record<string, unknown>): AnalyticsSearch => ({
     market: typeof search.market === "string" ? search.market : undefined,
@@ -880,23 +883,34 @@ function AnalyticsPage() {
                 }}
                 delay={0}
               />
-              <KpiTile
-                label="Vistas de detalle"
-                value={ov?.detailViews ?? 0}
-                delay={60}
-              />
+              <div className="space-y-1.5">
+                <KpiTile
+                  label="Vistas de detalle"
+                  value={ov?.detailViews ?? 0}
+                  delay={60}
+                />
+                <p className="px-1 text-[11px] leading-snug text-muted-foreground">
+                  {UNCLASSIFIED_NOTE}
+                </p>
+              </div>
               <KpiTile
                 label="Clics en cómo llegar"
                 value={ov?.directionsClicks ?? 0}
                 delay={120}
               />
-              <KpiTile
-                label="Engagement"
-                value={ov?.engagementRate ?? 0}
-                suffix="%"
-                chip={{ text: "detalle / directorio", tone: "accent" }}
-                delay={180}
-              />
+              <div className="space-y-1.5">
+                <KpiTile
+                  label="Engagement"
+                  value={ov?.engagementRate ?? 0}
+                  suffix="%"
+                  chip={{ text: "detalle / directorio", tone: "accent" }}
+                  delay={180}
+                />
+                <p className="px-1 text-[11px] leading-snug text-muted-foreground">
+                  {UNCLASSIFIED_NOTE}
+                </p>
+              </div>
+
             </div>
 
             {/* KPIs — Interacción */}

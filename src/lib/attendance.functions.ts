@@ -1,16 +1,25 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { classifyClickSource } from "@/lib/traffic-source";
 
 const IntentionTypeSchema = z.enum(["will_attend", "interested"]);
 
 export const recordAttendanceIntention = createServerFn({ method: "POST" })
-  .inputValidator((input: { marketId: string; intentionType: string; visitorId: string }) =>
+  .inputValidator((input: {
+    marketId: string;
+    intentionType: string;
+    visitorId: string;
+    referrer?: string;
+    pageUrl?: string;
+  }) =>
     z
       .object({
         marketId: z.string().uuid(),
         intentionType: IntentionTypeSchema,
         visitorId: z.string().min(1).max(64),
+        referrer: z.string().max(2048).optional(),
+        pageUrl: z.string().max(2048).optional(),
       })
       .parse(input),
   )
@@ -23,6 +32,10 @@ export const recordAttendanceIntention = createServerFn({ method: "POST" })
       .eq("id", data.marketId)
       .maybeSingle();
     const eraDestacado = Boolean(mk?.destacado);
+    const trafficSource = classifyClickSource(
+      data.referrer ?? null,
+      data.pageUrl ?? null,
+    );
 
     const { error: insErr } = await supabaseAdmin
       .from("market_attendance_intentions")
@@ -31,6 +44,7 @@ export const recordAttendanceIntention = createServerFn({ method: "POST" })
         intention_type: data.intentionType,
         visitor_id: data.visitorId,
         era_destacado: eraDestacado,
+        traffic_source: trafficSource,
       });
     if (insErr) {
       console.error("recordAttendanceIntention failed:", insErr);
@@ -41,6 +55,7 @@ export const recordAttendanceIntention = createServerFn({ method: "POST" })
       market_id: data.marketId,
       click_type: "click_attendance",
       era_destacado: eraDestacado,
+      traffic_source: trafficSource,
     });
     if (clickErr) console.error("attendance click track failed:", clickErr);
     return { ok: true as const };
