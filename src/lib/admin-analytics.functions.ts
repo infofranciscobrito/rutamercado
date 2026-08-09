@@ -333,6 +333,7 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
     return {
       homeViews,
       totalPageViews,
+      rawPageViews,
       detailViews: counts.view_detail,
       clickPhone: counts.click_phone,
       clickEmail: counts.click_email,
