@@ -38,7 +38,9 @@ export const categorySearchSchema = z.object({
   market: fallback(z.string().uuid().optional(), undefined),
 });
 
-export const categorySearchMiddlewares = [
+export type CategorySearch = z.infer<typeof categorySearchSchema>;
+
+export const categorySearchMiddlewares: SearchMiddleware<CategorySearch>[] = [
   stripSearchParams({
     q: "",
     date: "all",
