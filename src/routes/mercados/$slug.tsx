@@ -16,7 +16,7 @@ import {
 } from "@/components/rutamercado/MarketDetailContent";
 import { MarketTicketCard } from "@/components/rutamercado/MarketTicketCard";
 import { TicketPerforation } from "@/components/rutamercado/TicketPerforation";
-import { MarketAmenityChips } from "@/components/rutamercado/MarketAmenityChips";
+
 import { RelatedMarkets } from "@/components/rutamercado/RelatedMarkets";
 import { NewsletterSignup } from "@/components/rutamercado/NewsletterSignup";
 import { PAGE_BY_CATEGORY } from "@/lib/category-pages";
@@ -277,15 +277,6 @@ function MarketPage() {
                 </section>
               )}
 
-              {(market.pets ||
-                market.parking ||
-                market.accessibility ||
-                market.family_friendly) && (
-                <section className="space-y-3">
-                  <SectionTitle>Servicios e instalaciones</SectionTitle>
-                  <MarketAmenityChips market={market} />
-                </section>
-              )}
             </div>
 
             <div className="lg:col-span-2">
@@ -296,12 +287,13 @@ function MarketPage() {
           </div>
 
           <div className="mt-12">
-            <RelatedMarkets markets={related} />
+            <NewsletterSignup variant="compact" marketSlug={market.slug ?? undefined} />
           </div>
 
           <div className="mt-12">
-            <NewsletterSignup variant="compact" marketSlug={market.slug ?? undefined} />
+            <RelatedMarkets markets={related} />
           </div>
+
         </div>
       </main>
 
