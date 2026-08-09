@@ -239,10 +239,9 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [pvRes, clicksRes, intRes, activeRes, inactiveRes, pendingRes] = await Promise.all([
-      applyRange(
-        supabase.from("page_views").select("id", { count: "exact", head: true }).eq("page", "home"),
-        data,
-      ),
+      // Misma fuente que "Actividad por Página": leemos las páginas del rango
+      // y derivamos la home ('/') de ahí, para que ambos números no se desincronicen.
+      applyRange(supabase.from("page_views").select("page"), data),
       applyRange(supabase.from("market_clicks").select("click_type"), data),
       applyRange(
         supabase.from("market_attendance_intentions").select("intention_type"),
