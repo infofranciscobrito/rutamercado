@@ -297,6 +297,10 @@ function MarketPage() {
           <div className="mt-12">
             <RelatedMarkets markets={related} />
           </div>
+
+          <div className="mt-12">
+            <NewsletterSignup variant="compact" marketSlug={market.slug ?? undefined} />
+          </div>
         </div>
       </main>
 
