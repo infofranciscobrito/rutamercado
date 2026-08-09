@@ -612,7 +612,7 @@ function AnalyticsPage() {
   const amenitiesFn = useServerFn(getAmenitiesDistribution);
   const featuredFn = useServerFn(getFeaturedPerformance);
 
-  const rangeKey = [from ?? "", to ?? ""];
+  const rangeKey = [from ?? "", to ?? "", String(excludeInternal)];
 
   const overview = useQuery({
     queryKey: ["admin", "analytics", "overview", ...rangeKey],
