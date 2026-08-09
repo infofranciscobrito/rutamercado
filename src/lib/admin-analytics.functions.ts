@@ -54,27 +54,31 @@ export type TrafficKind = "externo" | "interno" | "desarrollo";
  * - externo: buscadores, redes, directo, etc.
  */
 export function classifyReferrer(referrer: string | null): TrafficKind {
-  if (!referrer || referrer.trim() === "") return "externo";
+  const raw = (referrer ?? "").trim();
+  if (raw === "") return "externo";
+  const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
   let host: string;
   try {
-    host = new URL(referrer).hostname.toLowerCase();
+    host = new URL(withScheme).hostname.toLowerCase();
   } catch {
-    host = referrer.toLowerCase();
+    host = raw.toLowerCase().split("/")[0]!.split("?")[0]!;
   }
-  const bare = host.replace(/^www\./, "");
+  const bare = host.replace(/^www\./, "").replace(/:\d+$/, "");
   if (bare === "rutamercadopr.com") return "interno";
-  if (
-    bare === "localhost" ||
-    bare === "127.0.0.1" ||
-    bare === "lovable.dev" ||
-    bare.endsWith(".lovable.dev") ||
-    bare === "lovable.app" ||
-    bare.endsWith(".lovable.app")
-  ) {
+  const devDomains = [
+    "lovable.dev",
+    "lovable.app",
+    "lovableproject.com",
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+  ];
+  if (devDomains.some((d) => bare === d || bare.endsWith(`.${d}`))) {
     return "desarrollo";
   }
   return "externo";
 }
+
 
 /** Filtra filas de page_views dejando solo tráfico externo cuando aplica. */
 function filterTraffic<T extends { referrer: string | null }>(

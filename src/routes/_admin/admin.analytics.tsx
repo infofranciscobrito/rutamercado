@@ -556,27 +556,9 @@ function AnalyticsPage() {
     marketFromUrl ?? null,
   );
   const [themeMode, resolvedTheme, setThemeMode] = useDashboardTheme();
+  // Siempre ON al cargar la página; se puede apagar durante la sesión.
   const [excludeInternal, setExcludeInternal] = useState(true);
 
-  // Preferencia recordada en el navegador del admin.
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("rm_analytics_exclude_internal");
-      if (saved !== null) setExcludeInternal(saved === "true");
-    } catch {
-      /* ignore */
-    }
-  }, []);
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(
-        "rm_analytics_exclude_internal",
-        String(excludeInternal),
-      );
-    } catch {
-      /* ignore */
-    }
-  }, [excludeInternal]);
 
   const { from, to } = useMemo(
     () => computeRange(preset, customFrom, customTo),
