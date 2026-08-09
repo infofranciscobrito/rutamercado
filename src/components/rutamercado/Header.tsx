@@ -64,7 +64,7 @@ export function Header() {
             to="/mercados"
             className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
           >
-            Enviar mi Mercado
+            Registrar mercado
           </Link>
           {isHome && (
             <a
@@ -122,7 +122,7 @@ export function Header() {
                   onClick={() => setOpen(false)}
                   className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
                 >
-                  Enviar mi Mercado
+                  Registrar mercado
                 </Link>
                 {isHome && (
                   <a
