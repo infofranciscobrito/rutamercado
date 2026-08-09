@@ -45,8 +45,10 @@ type RangeInput = {
   excludeInternal?: boolean;
 };
 
+import { classifyReferrer } from "@/lib/traffic-source";
 export type { TrafficKind } from "@/lib/traffic-source";
-export { classifyReferrer } from "@/lib/traffic-source";
+export { classifyReferrer };
+
 
 /** Filtra filas de page_views dejando solo tráfico externo cuando aplica. */
 function filterTraffic<T extends { referrer: string | null }>(
