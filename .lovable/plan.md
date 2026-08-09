@@ -37,3 +37,9 @@ Es decir: el registro funciona bien; lo roto es la consulta del KPI, que busca u
 ## Verificación
 
 En el panel de analítica, con el mismo rango: el KPI "Vistas del directorio" debe mostrar el mismo número que la fila `/` de "Actividad por Página" (hoy, 687 en ese periodo).
+
+## Arreglo adicional necesario (compilación)
+
+Las 6 rutas de categoría (`/bazares`, `/ferias-artesanales`, `/flea-market`, `/food-market`, `/mercados-agricolas`, `/mercados-mixtos`) no compilan: el arreglo de middlewares compartido de limpieza de URL queda tipado como genérico y no encaja con el tipo de búsqueda de cada ruta.
+
+Corrección: en `src/lib/category-route-helpers.ts`, anotar explícitamente `categorySearchMiddlewares` como `SearchMiddleware<z.infer<typeof categorySearchSchema>>[]`. Sin cambios de comportamiento; las rutas quedan igual.
