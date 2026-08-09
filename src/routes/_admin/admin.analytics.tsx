@@ -66,6 +66,9 @@ import { RECURRENCE_TYPE_HUMAN, type RecurrenceType } from "@/lib/recurrence";
 
 type AnalyticsSearch = { market?: string };
 
+const UNCLASSIFIED_NOTE =
+  "Los datos anteriores al 9 de agosto de 2026 no están clasificados por este filtro.";
+
 export const Route = createFileRoute("/_admin/admin/analytics")({
   validateSearch: (search: Record<string, unknown>): AnalyticsSearch => ({
     market: typeof search.market === "string" ? search.market : undefined,

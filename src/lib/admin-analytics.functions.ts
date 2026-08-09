@@ -63,14 +63,12 @@ function filterTraffic<T extends { referrer: string | null }>(
  * Filtra filas de eventos (clics, intenciones) por su origen ya clasificado.
  * Las filas históricas sin clasificar (`null`) se conservan siempre.
  */
-function filterEvents<T extends { traffic_source?: string | null }>(
-  rows: T[],
-  excludeInternal: boolean,
-): T[] {
+function filterEvents<T>(rows: T[], excludeInternal: boolean): T[] {
   if (!excludeInternal) return rows;
-  return rows.filter(
-    (r) => !r.traffic_source || r.traffic_source === "externo",
-  );
+  return rows.filter((r) => {
+    const src = (r as { traffic_source?: string | null }).traffic_source;
+    return !src || src === "externo";
+  });
 }
 
 
