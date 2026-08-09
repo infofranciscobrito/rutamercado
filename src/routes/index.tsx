@@ -32,6 +32,7 @@ import { MarketGrid } from "@/components/rutamercado/MarketGrid";
 import { EmptyState } from "@/components/rutamercado/EmptyState";
 import { MarketDetailDialog } from "@/components/rutamercado/MarketDetailDialog";
 import { AboutSection } from "@/components/rutamercado/AboutSection";
+import { NewsletterSignup } from "@/components/rutamercado/NewsletterSignup";
 import { ContactSection } from "@/components/rutamercado/ContactSection";
 import { Footer } from "@/components/rutamercado/Footer";
 import { SkeletonGrid } from "@/components/rutamercado/SkeletonCard";
