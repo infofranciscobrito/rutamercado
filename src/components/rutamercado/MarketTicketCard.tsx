@@ -1,28 +1,15 @@
-import { CalendarDays, CalendarPlus, Clock, MapPin, Navigation, Repeat } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Navigation, Repeat } from "lucide-react";
 import type { EnrichedMarket } from "@/types/market";
 import { formatDateEs, formatTimeRange, googleMapsUrl } from "@/lib/format";
-import { downloadIcs } from "@/lib/ics";
 import { track } from "@/components/rutamercado/MarketDetailContent";
 import { TicketPerforation } from "./TicketPerforation";
+import { MarketAmenityChips } from "./MarketAmenityChips";
 
 /** Tarjeta "boleto de entrada" con los datos clave y acciones del mercado. */
 export function MarketTicketCard({ market }: { market: EnrichedMarket }) {
   const date = market.nextDate ?? market.recurrence_start_date;
 
-  const handleCalendar = () => {
-    downloadIcs(market.slug ?? market.id, {
-      uid: market.id,
-      title: market.name,
-      description: market.description,
-      location: `${market.address}, ${market.municipality}, Puerto Rico`,
-      date,
-      startTime: market.nextStartTime ?? market.start_time,
-      endTime: market.nextEndTime ?? market.end_time,
-      url: market.slug
-        ? `https://rutamercadopr.com/mercados/${market.slug}`
-        : undefined,
-    });
-  };
+
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-white rm-shadow-warm">
