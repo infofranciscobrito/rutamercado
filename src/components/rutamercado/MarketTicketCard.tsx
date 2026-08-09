@@ -62,7 +62,7 @@ export function MarketTicketCard({ market }: { market: EnrichedMarket }) {
           </li>
         </ul>
 
-        <div className="space-y-2.5 pt-1">
+        <div className="pt-1">
           <a
             href={googleMapsUrl(market.address, market.municipality)}
             target="_blank"
@@ -73,15 +73,12 @@ export function MarketTicketCard({ market }: { market: EnrichedMarket }) {
             <Navigation className="h-5 w-5" />
             Cómo llegar
           </a>
-          <button
-            type="button"
-            onClick={handleCalendar}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#54b678] text-base font-semibold text-[#18253f] transition-colors hover:bg-[#3f9560]"
-          >
-            <CalendarPlus className="h-5 w-5" />
-            Agregar a mi calendario
-          </button>
         </div>
+
+        <div className="h-px bg-[#E5E7EB]" />
+
+        <MarketAmenityChips market={market} />
+
       </div>
     </div>
   );
