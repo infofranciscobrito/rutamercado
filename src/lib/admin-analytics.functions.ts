@@ -463,11 +463,15 @@ export const getDailyTraffic = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: RangeInput) => rangeSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await applyRange(
-      context.supabase.from("page_views").select("created_at"),
+    const { data: allRows, error } = await applyRange(
+      context.supabase.from("page_views").select("created_at, referrer"),
       data,
     );
     if (error) throw new Error(error.message);
+    const rows = filterTraffic(
+      (allRows ?? []) as { created_at: string; referrer: string | null }[],
+      data.excludeInternal,
+    );
     const fromDay = data.from.slice(0, 10);
     const toDay = (data.to ?? new Date().toISOString()).slice(0, 10);
     const buckets = new Map<string, number>();
