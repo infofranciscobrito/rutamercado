@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { countPendingSubmissions } from "@/lib/submissions.functions";
 import { countNewContactMessages } from "@/lib/contact.functions";
 import { adminCountPendingEmprendedores } from "@/lib/admin-emprendedores.functions";
+import { countRecentNewsletterSubscribers } from "@/lib/newsletter.functions";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
@@ -31,6 +32,12 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { data: newMessages } = useQuery({
     queryKey: ["admin", "contact-messages", "new-count"],
     queryFn: () => countNewMessagesFn(),
+    refetchInterval: 60_000,
+  });
+  const countNewSubscribersFn = useServerFn(countRecentNewsletterSubscribers);
+  const { data: newSubs } = useQuery({
+    queryKey: ["admin", "newsletter", "recent-count"],
+    queryFn: () => countNewSubscribersFn(),
     refetchInterval: 60_000,
   });
   const { data: pendingEmp } = useQuery({
@@ -78,6 +85,11 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
               {item.to === "/admin/messages" && (newMessages?.count ?? 0) > 0 && (
                 <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#18253f]">
                   {newMessages!.count}
+                </span>
+              )}
+              {item.to === "/admin/newsletter" && (newSubs?.count ?? 0) > 0 && (
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#54b678] px-1.5 text-xs font-bold text-[#18253f]">
+                  {newSubs!.count}
                 </span>
               )}
               {item.to === "/admin/emprendedores" && (pendingEmp?.count ?? 0) > 0 && (
