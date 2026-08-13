@@ -29,7 +29,7 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
       "@/integrations/supabase/client.server"
     );
 
-    const { data: inserted, error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .upsert(
         {
@@ -38,8 +38,8 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
           market_slug: data.source === "ficha_mercado" ? data.marketSlug ?? null : null,
         },
         { onConflict: "email", ignoreDuplicates: true },
-      )
-      .select("id");
+      );
+
 
     if (error) throw new Error(error.message);
 
