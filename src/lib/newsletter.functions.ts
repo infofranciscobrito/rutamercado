@@ -43,46 +43,31 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    const isNew = (inserted ?? []).length > 0;
-    const apiKey = process.env.RESEND_API_KEY;
-    if (isNew && apiKey) {
-      try {
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            from: "RutaMercado <productores@rutamercadopr.com>",
-            to: ["rutamercadopr@gmail.com"],
-            subject: `Nueva suscripción al newsletter — ${data.email}`,
-            text:
-              `Correo: ${data.email}\n` +
-              `Origen: ${NEWSLETTER_SOURCE_LABELS[data.source] ?? data.source}\n` +
-              (data.marketSlug ? `Mercado: ${data.marketSlug}\n` : ""),
-          }),
-        });
-      } catch (e) {
-        console.error("subscribeToNewsletter Resend send failed", e);
-      }
-    }
-
     return { ok: true as const };
   });
 
 export const countRecentNewsletterSubscribers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const { count, error } = await context.supabase
       .from("newsletter_subscribers")
       .select("id", { count: "exact", head: true })
-      .eq("status", "activo")
-      .gte("created_at", since);
+      .eq("seen", false);
     if (error) throw new Error(error.message);
     return { count: count ?? 0 };
   });
+
+export const markNewsletterSubscribersSeen = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { error } = await context.supabase
+      .from("newsletter_subscribers")
+      .update({ seen: true })
+      .eq("seen", false);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
 
 
 export type NewsletterSubscriberRow = NewsletterSubscriber & {
