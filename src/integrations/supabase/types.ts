@@ -516,6 +516,7 @@ export type Database = {
           email: string
           id: string
           market_slug: string | null
+          seen: boolean
           source: string
           status: string
           updated_at: string
@@ -525,6 +526,7 @@ export type Database = {
           email: string
           id?: string
           market_slug?: string | null
+          seen?: boolean
           source?: string
           status?: string
           updated_at?: string
@@ -534,6 +536,7 @@ export type Database = {
           email?: string
           id?: string
           market_slug?: string | null
+          seen?: boolean
           source?: string
           status?: string
           updated_at?: string

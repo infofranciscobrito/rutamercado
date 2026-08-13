@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, CalendarDays, Download, Mail, Users } from "lucide-react";
 import {
   listNewsletterSubscribers,
+  markNewsletterSubscribersSeen,
   NEWSLETTER_SOURCE_LABELS,
 } from "@/lib/newsletter.functions";
 import { downloadCSV } from "@/lib/csv";
@@ -32,6 +33,16 @@ function NewsletterPage() {
     queryFn: () => listFn(),
     refetchInterval: 60_000,
   });
+
+  const markSeenFn = useServerFn(markNewsletterSubscribersSeen);
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!data) return;
+    void markSeenFn().then(() => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "newsletter", "recent-count"] });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const subscribers = data?.subscribers ?? [];
   const stats = data?.stats ?? { totalActive: 0, last7Days: 0, last30Days: 0 };
