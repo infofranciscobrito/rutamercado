@@ -29,7 +29,7 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
       "@/integrations/supabase/client.server"
     );
 
-    const { error } = await supabaseAdmin
+    const { data: inserted, error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .upsert(
         {
@@ -38,12 +38,52 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
           market_slug: data.source === "ficha_mercado" ? data.marketSlug ?? null : null,
         },
         { onConflict: "email", ignoreDuplicates: true },
-      );
+      )
+      .select("id");
 
     if (error) throw new Error(error.message);
 
+    const isNew = (inserted ?? []).length > 0;
+    const apiKey = process.env.RESEND_API_KEY;
+    if (isNew && apiKey) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: "RutaMercado <productores@rutamercadopr.com>",
+            to: ["rutamercadopr@gmail.com"],
+            subject: `Nueva suscripción al newsletter — ${data.email}`,
+            text:
+              `Correo: ${data.email}\n` +
+              `Origen: ${NEWSLETTER_SOURCE_LABELS[data.source] ?? data.source}\n` +
+              (data.marketSlug ? `Mercado: ${data.marketSlug}\n` : ""),
+          }),
+        });
+      } catch (e) {
+        console.error("subscribeToNewsletter Resend send failed", e);
+      }
+    }
+
     return { ok: true as const };
   });
+
+export const countRecentNewsletterSubscribers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { count, error } = await context.supabase
+      .from("newsletter_subscribers")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "activo")
+      .gte("created_at", since);
+    if (error) throw new Error(error.message);
+    return { count: count ?? 0 };
+  });
+
 
 export type NewsletterSubscriberRow = NewsletterSubscriber & {
   market_name: string | null;
