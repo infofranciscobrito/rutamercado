@@ -87,15 +87,19 @@ const MarketInputSchema = z
     food_area: z.string().trim().max(100).nullable().optional(),
 
   })
+  .transform((v) => ({
+    ...v,
+    recurrence_day_of_week:
+      v.recurrence_type === "unico" ? null : v.recurrence_day_of_week ?? null,
+    recurrence_week_of_month:
+      v.recurrence_type === "mensual_por_dia"
+        ? v.recurrence_week_of_month ?? null
+        : null,
+    recurrence_end_date:
+      v.recurrence_type === "unico" ? null : v.recurrence_end_date ?? null,
+  }))
   .superRefine((v, ctx) => {
-    if (v.recurrence_type === "unico") {
-      if (v.recurrence_day_of_week || v.recurrence_week_of_month) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Único no debe tener día/semana de recurrencia",
-        });
-      }
-    } else if (
+    if (
       v.recurrence_type === "semanal" ||
       v.recurrence_type === "quincenal"
     ) {
