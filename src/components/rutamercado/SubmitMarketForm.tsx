@@ -118,8 +118,14 @@ export function SubmitMarketForm() {
           start_time: v.start_time,
           end_time: v.end_time,
           recurrence_type: v.recurrence_type,
-          recurrence_day_of_week: v.recurrence_day_of_week || undefined,
-          recurrence_week_of_month: v.recurrence_week_of_month || undefined,
+          recurrence_day_of_week:
+            v.recurrence_type === "unico"
+              ? undefined
+              : v.recurrence_day_of_week || undefined,
+          recurrence_week_of_month:
+            v.recurrence_type === "unico" || v.recurrence_type === "semanal"
+              ? undefined
+              : v.recurrence_week_of_month || undefined,
           recurrence_start_date: v.recurrence_start_date,
           recurrence_end_date: v.recurrence_end_date || undefined,
           image_url: v.image_url || undefined,

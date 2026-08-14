@@ -181,8 +181,12 @@ export function MarketFormDrawer({
           start_time: v.start_time,
           end_time: v.end_time,
           recurrence_type: v.recurrence_type,
-          recurrence_day_of_week: v.recurrence_day_of_week || null,
-          recurrence_week_of_month: v.recurrence_week_of_month || null,
+          recurrence_day_of_week:
+            v.recurrence_type === "unico" ? null : v.recurrence_day_of_week || null,
+          recurrence_week_of_month:
+            v.recurrence_type === "unico" || v.recurrence_type === "semanal"
+              ? null
+              : v.recurrence_week_of_month || null,
           recurrence_start_date: v.recurrence_start_date,
           recurrence_end_date: v.recurrence_end_date || null,
           image_url: v.image_url || null,
