@@ -105,7 +105,8 @@ export const getRelatedMarkets = createServerFn({ method: "GET" })
     }
     if (pool.length === 0) return [];
 
-    const enriched: EnrichedMarket[] = pool.map((m) => {
+    const enriched: EnrichedMarket[] = [];
+    for (const m of pool) {
       const scheduleDays = m.category === "Feria Artesanal" ? 730 : 90;
       const { upcoming, cancelled } = computeSchedule(
         {
