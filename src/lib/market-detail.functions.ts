@@ -123,17 +123,19 @@ export const getRelatedMarkets = createServerFn({ method: "GET" })
         { days: scheduleDays },
       );
       const next = upcoming[0];
-      return {
+      // Solo mercados con fecha vigente (próxima) — descarta los ya pasados.
+      if (!next) continue;
+      enriched.push({
         ...m,
         upcoming,
         cancelled,
-        nextDate: next?.date ?? null,
-        nextStartTime: next?.startTime ?? m.start_time,
-        nextEndTime: next?.endTime ?? m.end_time,
-        nextIsOverridden: next?.isOverridden ?? false,
-        nextOverrideNote: next?.overrideNote ?? null,
-      };
-    });
+        nextDate: next.date,
+        nextStartTime: next.startTime,
+        nextEndTime: next.endTime,
+        nextIsOverridden: next.isOverridden,
+        nextOverrideNote: next.overrideNote,
+      });
+    }
 
     enriched.sort((a, b) => {
       const da = a.nextDate ?? "9999-12-31";
