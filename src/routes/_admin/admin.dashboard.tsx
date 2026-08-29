@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Store, Eye, CalendarDays, MousePointerClick, Users } from "lucide-react";
+import { Store, Eye, CalendarDays, MousePointerClick, Users, Link2 } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -20,6 +20,7 @@ import {
   getUpcomingMarkets,
   getAttendanceMetrics,
   getTopMarketsByIntention,
+  getShortUrlClicks,
 } from "@/lib/admin-analytics.functions";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { formatDateEs } from "@/lib/format";
