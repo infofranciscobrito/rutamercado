@@ -193,6 +193,7 @@ function RootComponent() {
       <AuthInvalidator />
       <GaPageViews />
       <Toaster />
+      <PromoPopup />
       <ErrorBoundary>
         <Outlet />
       </ErrorBoundary>
