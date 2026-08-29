@@ -5,6 +5,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import promoRodeoAsset from "@/assets/promo-rodeo.png.asset.json";
 
 const STORAGE_KEY = "rm_promo_rodeo_seen";
 const VENDORS_URL = "https://rodeocookoffpr.com/vendors";
@@ -52,7 +53,7 @@ export function PromoPopup() {
         </DialogDescription>
 
         <img
-          src="/promo-rodeo.png"
+          src={promoRodeoAsset.url}
           alt="Rodeo Cook Off Puerto Rico — arte promocional del evento"
           className="h-auto w-full rounded-xl"
           loading="lazy"
