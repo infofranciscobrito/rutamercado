@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Store, Eye, CalendarDays, MousePointerClick, Users } from "lucide-react";
+import { Store, Eye, CalendarDays, MousePointerClick, Users, Link2 } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -20,6 +20,7 @@ import {
   getUpcomingMarkets,
   getAttendanceMetrics,
   getTopMarketsByIntention,
+  getShortUrlClicks,
 } from "@/lib/admin-analytics.functions";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { formatDateEs } from "@/lib/format";
@@ -79,6 +80,11 @@ function DashboardPage() {
     queryKey: ["admin", "dashboard", "topIntention"],
     queryFn: () => logFetch("dashboard topIntention", () => topIntentionFn({ data: { limit: 5 } })),
   });
+  const shortUrlFn = useServerFn(getShortUrlClicks);
+  const shortUrl = useQuery({
+    queryKey: ["admin", "dashboard", "shortUrlClicks"],
+    queryFn: () => logFetch("dashboard shortUrlClicks", () => shortUrlFn()),
+  });
 
   const isLoading = metrics.isLoading || views.isLoading || clicks.isLoading || upcoming.isLoading || attendance.isLoading;
   const error = metrics.error ?? views.error ?? clicks.error ?? upcoming.error ?? attendance.error;
@@ -107,7 +113,7 @@ function DashboardPage() {
         <p className="text-sm text-muted-foreground">Resumen general de RutaMercado</p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="Mercados Activos" value={metricsData.activeMarkets} icon={Store} />
         <MetricCard label="Vistas Totales" value={metricsData.totalViews} icon={Eye} />
         <MetricCard label="Esta Semana" value={metricsData.upcomingThisWeek} icon={CalendarDays} />
@@ -117,6 +123,12 @@ function DashboardPage() {
           value={attendance.data?.total ?? 0}
           icon={Users}
           subtext={`${attendance.data?.willAttend ?? 0} van a ir · ${attendance.data?.interested ?? 0} interesados`}
+        />
+        <MetricCard
+          label="Clics /navimarketath"
+          value={shortUrl.data?.total ?? 0}
+          icon={Link2}
+          subtext={`${shortUrl.data?.last30Days ?? 0} en los últimos 30 días`}
         />
       </div>
 
