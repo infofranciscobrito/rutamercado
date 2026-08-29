@@ -204,6 +204,26 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
     };
   });
 
+export const getShortUrlClicks = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const since = minusDaysISO(30);
+    const [totalRes, recentRes] = await Promise.all([
+      context.supabase
+        .from("page_views")
+        .select("id", { count: "exact" })
+        .eq("page", "/navimarketath"),
+      context.supabase
+        .from("page_views")
+        .select("id", { count: "exact" })
+        .eq("page", "/navimarketath")
+        .gte("created_at", since),
+    ]);
+    if (totalRes.error) throw new Error(totalRes.error.message);
+    if (recentRes.error) throw new Error(recentRes.error.message);
+    return { total: totalRes.count ?? 0, last30Days: recentRes.count ?? 0 };
+  });
+
 export const getViewsPerMarket = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
