@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import {
   Dialog,
   DialogContent,
@@ -7,42 +8,22 @@ import {
 } from "@/components/ui/dialog";
 import promoRodeoAsset from "@/assets/promo-rodeo.png.asset.json";
 
-const STORAGE_KEY = "rm_promo_rodeo_seen";
 const VENDORS_URL = "https://rodeocookoffpr.com/vendors";
 const SHOW_DELAY_MS = 1500;
 
 export function PromoPopup() {
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  // Mostrar en cada carga y en cada cambio de página (sin límite por visitante)
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = window.localStorage.getItem(STORAGE_KEY) === "true";
-    } catch {
-      seen = true; // si no hay storage, no molestar
-    }
-    if (seen) return;
-
+    setOpen(false);
     const timer = setTimeout(() => setOpen(true), SHOW_DELAY_MS);
     return () => clearTimeout(timer);
-  }, []);
-
-  const dismiss = () => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, "true");
-    } catch {
-      // ignore
-    }
-    setOpen(false);
-  };
+  }, [pathname]);
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) dismiss();
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="w-[calc(100vw-2rem)] max-w-[520px] overflow-hidden border-0 bg-transparent p-0 shadow-none">
         <DialogTitle className="sr-only">
           Rodeo Cook Off PR — Regístrate como vendor
@@ -63,7 +44,7 @@ export function PromoPopup() {
           href={VENDORS_URL}
           target="_blank"
           rel="noopener"
-          onClick={dismiss}
+          onClick={() => setOpen(false)}
           className="mt-4 flex h-12 w-full items-center justify-center rounded-md bg-[#54b678] text-base font-semibold text-white transition-colors hover:bg-[#439660]"
         >
           Regístrate como vendors
