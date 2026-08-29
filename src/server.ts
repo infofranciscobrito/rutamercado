@@ -97,7 +97,7 @@ function wwwRedirect(request: Request): Response | undefined {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const redirectResponse = wwwRedirect(request);
+      const redirectResponse = wwwRedirect(request) ?? shortUrlRedirect(request);
       if (redirectResponse) return redirectResponse;
 
       const handler = await getServerEntry();
