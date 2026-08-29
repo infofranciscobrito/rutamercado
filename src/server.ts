@@ -70,9 +70,36 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 const ATH_MOVIL_TARGET =
   "https://portal.athmovil.com/navimarket/#vendors?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAadgc6gFjBt5LdY7uxT25IBClvGiYSGO0hHEemGnLz6J-T3TokbdBQAohxCH6A_aem_9tVJLc8N8Wwx3nxE-jRjbg";
 
-function shortUrlRedirect(request: Request): Response | undefined {
+// Track each short-URL hit in page_views (fire-and-forget, service role).
+function trackShortUrlHit(request: Request, env: unknown, ctx: unknown): void {
+  const e = (env ?? {}) as Record<string, string | undefined>;
+  const url = e.SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const key = e.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return;
+
+  const insert = fetch(`${url}/rest/v1/page_views`, {
+    method: "POST",
+    headers: {
+      apikey: key,
+      authorization: `Bearer ${key}`,
+      "content-type": "application/json",
+      prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      page: "/navimarketath",
+      referrer: request.headers.get("referer"),
+      user_agent: request.headers.get("user-agent"),
+    }),
+  }).catch((err) => console.error("short-url tracking failed:", err));
+
+  const waitUntil = (ctx as { waitUntil?: (p: Promise<unknown>) => void } | null)?.waitUntil;
+  if (waitUntil) waitUntil.call(ctx, insert);
+}
+
+function shortUrlRedirect(request: Request, env: unknown, ctx: unknown): Response | undefined {
   const path = new URL(request.url).pathname.replace(/\/+$/, "").toLowerCase();
   if (path !== "/navimarketath") return undefined;
+  trackShortUrlHit(request, env, ctx);
   return new Response(null, {
     status: 302,
     headers: { location: ATH_MOVIL_TARGET, "cache-control": "max-age=300" },
@@ -97,7 +124,7 @@ function wwwRedirect(request: Request): Response | undefined {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const redirectResponse = wwwRedirect(request) ?? shortUrlRedirect(request);
+      const redirectResponse = wwwRedirect(request) ?? shortUrlRedirect(request, env, ctx);
       if (redirectResponse) return redirectResponse;
 
       const handler = await getServerEntry();
