@@ -124,6 +124,12 @@ function DashboardPage() {
           icon={Users}
           subtext={`${attendance.data?.willAttend ?? 0} van a ir · ${attendance.data?.interested ?? 0} interesados`}
         />
+        <MetricCard
+          label="Clics /navimarketath"
+          value={shortUrl.data?.total ?? 0}
+          icon={Link2}
+          subtext={`${shortUrl.data?.last30Days ?? 0} en los últimos 30 días`}
+        />
       </div>
 
       <div className="rounded-xl border bg-card p-5">
