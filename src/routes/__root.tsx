@@ -13,6 +13,7 @@ import { Component, useEffect, useRef, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
+import { PromoPopup } from "@/components/rutamercado/PromoPopup";
 
 function NotFoundComponent() {
   return (
