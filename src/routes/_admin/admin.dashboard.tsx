@@ -113,7 +113,7 @@ function DashboardPage() {
         <p className="text-sm text-muted-foreground">Resumen general de RutaMercado</p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="Mercados Activos" value={metricsData.activeMarkets} icon={Store} />
         <MetricCard label="Vistas Totales" value={metricsData.totalViews} icon={Eye} />
         <MetricCard label="Esta Semana" value={metricsData.upcomingThisWeek} icon={CalendarDays} />
