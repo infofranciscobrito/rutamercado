@@ -66,6 +66,19 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+// Short URL: /navimarketath -> ATH Móvil portal (302 so the target can change later)
+const ATH_MOVIL_TARGET =
+  "https://portal.athmovil.com/navimarket/#vendors?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAadgc6gFjBt5LdY7uxT25IBClvGiYSGO0hHEemGnLz6J-T3TokbdBQAohxCH6A_aem_9tVJLc8N8Wwx3nxE-jRjbg";
+
+function shortUrlRedirect(request: Request): Response | undefined {
+  const path = new URL(request.url).pathname.replace(/\/+$/, "").toLowerCase();
+  if (path !== "/navimarketath") return undefined;
+  return new Response(null, {
+    status: 302,
+    headers: { location: ATH_MOVIL_TARGET, "cache-control": "max-age=300" },
+  });
+}
+
 // 301 www.example.com/path -> example.com/path (preserves path + query)
 function wwwRedirect(request: Request): Response | undefined {
   const url = new URL(request.url);
