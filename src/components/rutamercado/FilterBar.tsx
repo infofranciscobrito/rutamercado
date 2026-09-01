@@ -18,7 +18,7 @@ import {
 import { MARKET_CATEGORIES, MARKET_REGIONS } from "@/types/market";
 import type { DateFilter, MarketFilters } from "@/lib/market-filters";
 import { hasActiveFilters } from "@/lib/market-filters";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 
 interface Props {
@@ -276,13 +276,6 @@ export function FilterBar({ filters, municipalities = [], onChange, onClear, hid
           </div>
         </div>
 
-        {/* Row 2: municipality chips */}
-        <div id="municipios" className="mt-3 scroll-mt-24">
-          <MunicipalityChips
-            value={filters.municipality}
-            onChange={(municipality) => onChange({ municipality })}
-          />
-        </div>
 
       </div>
     </div>
