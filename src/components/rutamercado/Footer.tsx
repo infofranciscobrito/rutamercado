@@ -93,11 +93,6 @@ export function Footer() {
                     Emprendedores
                   </Link>
                 </li>
-                <li>
-                  <a href="/#municipios" className={linkClass}>
-                    Todos los municipios
-                  </a>
-                </li>
               </ul>
             </div>
 
