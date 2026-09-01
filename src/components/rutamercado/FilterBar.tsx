@@ -37,13 +37,6 @@ const DATE_OPTIONS: { value: DateFilter; label: string }[] = [
   { value: "all", label: "Todos" },
 ];
 
-const FEATURED_MUNICIPALITIES = [
-  "San Juan",
-  "Aguadilla",
-  "Caguas",
-  "Canóvanas",
-  "Hatillo",
-];
 
 function DatePills({
   value,
