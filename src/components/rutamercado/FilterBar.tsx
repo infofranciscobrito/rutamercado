@@ -70,41 +70,6 @@ function DatePills({
   );
 }
 
-function MunicipalityChips({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const options = useMemo(
-    () => [{ value: "all", label: "Todos" }, ...FEATURED_MUNICIPALITIES.map((m) => ({ value: m, label: m }))],
-    [],
-  );
-  return (
-    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap">
-        {options.map((opt) => {
-          const active = value === opt.value;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => onChange(opt.value)}
-              className={`min-h-11 shrink-0 rounded-full px-4 text-sm transition-all duration-150 ${
-                active
-                  ? "bg-[#54b678] font-semibold text-[#18253f] scale-[1.02]"
-                  : "border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#54b678] hover:text-[#18253f]"
-              }`}
-            >
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 function RegionSelect({
   value,
