@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { FavoritesTrigger } from "./FavoritesTrigger";
 import { FavoritesDrawer } from "./FavoritesDrawer";
-import logoAsset from "@/assets/rutamercado-symbol.png";
+import logoAsset from "@/assets/rutamercado-logo-white.png";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -37,7 +37,7 @@ export function Header() {
           <img
             src={logoAsset}
             alt="RutaMercado"
-            className="h-12 w-12 object-contain"
+            className="h-14 w-auto object-contain"
           />
 
         </a>
