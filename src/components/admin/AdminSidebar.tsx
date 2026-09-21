@@ -7,6 +7,7 @@ import { countPendingSubmissions } from "@/lib/submissions.functions";
 import { countNewContactMessages } from "@/lib/contact.functions";
 import { adminCountPendingEmprendedores } from "@/lib/admin-emprendedores.functions";
 import { countRecentNewsletterSubscribers } from "@/lib/newsletter.functions";
+import logoAsset from "@/assets/rutamercado-symbol.png";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
@@ -55,9 +56,9 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
     <aside className="flex h-full w-full flex-col bg-[#18253f] text-white">
       <div className="flex items-center justify-center px-4 py-5 border-b border-white/10">
         <img
-          src="/logo-rutamercado-horizontal.png"
+          src={logoAsset}
           alt="RutaMercado — Directorio de mercados locales"
-          className="h-14 w-auto"
+          className="h-14 w-14 object-contain"
         />
       </div>
       <nav className="flex-1 py-4">

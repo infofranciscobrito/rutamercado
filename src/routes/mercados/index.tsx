@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MapPin, CalendarDays, Gift } from "lucide-react";
 import { SubmitMarketForm } from "@/components/rutamercado/SubmitMarketForm";
 import { Header } from "@/components/rutamercado/Header";
+import logoAsset from "@/assets/rutamercado-symbol.png";
 
 
 export const Route = createFileRoute("/mercados/")({
@@ -309,7 +310,7 @@ function SubmitPage() {
       {/* 7. FOOTER */}
       <footer className="bg-[#18253f] text-white" style={{ paddingTop: "3rem", paddingBottom: "3rem" }}>
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 text-center sm:px-6">
-          <img src="/logo-rutamercado-horizontal.png" alt="RutaMercado" className="h-24 w-auto md:h-28" />
+          <img src={logoAsset} alt="RutaMercado" className="h-24 w-24 object-contain md:h-28 md:w-28" />
           <p className="text-sm text-white/60">© 2025 RutaMercado. Todos los derechos reservados.</p>
           <Link to="/" className="text-sm font-semibold text-[#54b678] hover:underline">
             Ver directorio completo
