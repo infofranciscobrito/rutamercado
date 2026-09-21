@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthReady, AuthLoadingSpinner } from "@/hooks/use-auth-ready";
-import logoAsset from "@/assets/rutamercado-symbol.png";
+import logoAsset from "@/assets/rutamercado-logo-navy.png";
 
 export const Route = createFileRoute("/admin/login")({
   // Client-only: Supabase session lives in localStorage, unavailable during SSR.
@@ -48,7 +48,7 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#18253f] p-4">
       <div className="w-full max-w-sm bg-white rounded-xl p-8 shadow-xl">
         <div className="text-center mb-6">
-          <img src={logoAsset} alt="RutaMercado" className="mx-auto mb-3 h-14 w-14 object-contain" />
+          <img src={logoAsset} alt="RutaMercado — Directorio de mercados locales" className="mx-auto mb-5 h-auto w-56 object-contain" />
           <h1 className="font-display text-2xl text-[#18253f]">Panel de Administración</h1>
           <p className="text-sm text-muted-foreground mt-1">Inicia sesión para continuar</p>
         </div>

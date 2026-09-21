@@ -7,7 +7,7 @@ import { countPendingSubmissions } from "@/lib/submissions.functions";
 import { countNewContactMessages } from "@/lib/contact.functions";
 import { adminCountPendingEmprendedores } from "@/lib/admin-emprendedores.functions";
 import { countRecentNewsletterSubscribers } from "@/lib/newsletter.functions";
-import logoAsset from "@/assets/rutamercado-symbol.png";
+import logoAsset from "@/assets/rutamercado-logo-white.png";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
@@ -58,7 +58,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
         <img
           src={logoAsset}
           alt="RutaMercado — Directorio de mercados locales"
-          className="h-14 w-14 object-contain"
+          className="h-auto w-44 object-contain"
         />
       </div>
       <nav className="flex-1 py-4">
