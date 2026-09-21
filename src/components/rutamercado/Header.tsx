@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { FavoritesTrigger } from "./FavoritesTrigger";
 import { FavoritesDrawer } from "./FavoritesDrawer";
+import logoAsset from "@/assets/rutamercado-symbol.png";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -34,9 +35,9 @@ export function Header() {
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <a href="/" aria-label="RutaMercado — Inicio" className="flex items-center">
           <img
-            src="/logo-rutamercado-horizontal.png"
+            src={logoAsset}
             alt="RutaMercado"
-            className="h-16 w-auto"
+            className="h-12 w-12 object-contain"
           />
 
         </a>

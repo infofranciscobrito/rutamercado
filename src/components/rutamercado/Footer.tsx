@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Facebook } from "lucide-react";
 import footerBg from "@/assets/footer-bg.png.asset.json";
+import logoAsset from "@/assets/rutamercado-symbol.png";
 
 const linkClass =
   "text-white/80 transition-colors hover:text-[#54b678]";
@@ -30,9 +31,9 @@ export function Footer() {
             {/* Col 1 — Brand */}
             <div className="flex flex-col items-start">
               <img
-                src="/logo-rutamercado-footer.png"
+                src={logoAsset}
                 alt="RutaMercado"
-                className="h-20 w-auto"
+                className="h-20 w-20 object-contain"
               />
               <p className="mt-4 text-sm leading-relaxed text-white/70">
                 Descubre los mercados locales de Puerto Rico.
