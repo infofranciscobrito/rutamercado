@@ -97,14 +97,23 @@ const SubmissionInputSchema = z
   .transform((v) => ({
     ...v,
     recurrence_day_of_week:
-      v.recurrence_type === "unico" ? undefined : v.recurrence_day_of_week,
+      (v.recurrence_type === "unico" || v.recurrence_type === "varios_dias") ? undefined : v.recurrence_day_of_week,
     recurrence_week_of_month:
       v.recurrence_type === "mensual_por_dia"
         ? v.recurrence_week_of_month
         : undefined,
     recurrence_end_date:
       v.recurrence_type === "unico" ? "" : v.recurrence_end_date,
-  }));
+  }))
+  .refine(
+    (v) =>
+      v.recurrence_type !== "varios_dias" ||
+      (!!v.recurrence_end_date && v.recurrence_end_date >= v.recurrence_start_date),
+    {
+      path: ["recurrence_end_date"],
+      message: "La fecha de finalización debe ser igual o posterior a la de inicio",
+    },
+  );
 
 export const createMarketSubmission = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SubmissionInputSchema.parse(input))

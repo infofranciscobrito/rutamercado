@@ -49,10 +49,15 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
   // Cast: form field names are known constants present in T (extends RecurrenceFormShape)
   const type = watch("recurrence_type" as never) as unknown as string;
   const isUnique = type === "unico";
+  const isMultiDay = type === "varios_dias";
   const isMonthly = type === "mensual_por_dia";
   const needsDay = type === "semanal" || type === "quincenal" || isMonthly;
 
-  const startLabel = isUnique ? "Fecha del evento *" : "Empieza el *";
+  const startLabel = isUnique
+    ? "Fecha del evento *"
+    : isMultiDay
+      ? "Fecha de inicio *"
+      : "Empieza el *";
   const gap = compact ? "gap-3" : "gap-4";
 
   return (
@@ -189,10 +194,11 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
       </div>
 
       {!isUnique && (
-        <Wrap label="Termina el (opcional)">
+        <Wrap label={isMultiDay ? "Fecha de finalización *" : "Termina el (opcional)"}>
           <Controller
             control={control}
             name={"recurrence_end_date" as never}
+            rules={{ required: isMultiDay }}
             render={({ field }) => (
               <Input
                 type="date"
@@ -203,7 +209,9 @@ export function RecurrenceFields<T extends RecurrenceFormShape>({
             )}
           />
           <p className="text-xs text-muted-foreground">
-            Déjalo en blanco si el mercado no tiene fecha de fin.
+            {isMultiDay
+              ? "Cada día entre la fecha de inicio y la de finalización tendrá su propia ficha."
+              : "Déjalo en blanco si el mercado no tiene fecha de fin."}
           </p>
         </Wrap>
       )}

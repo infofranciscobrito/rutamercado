@@ -73,7 +73,7 @@ export function CategoryRow({
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {visible.map((m, i) => (
             <div
-              key={m.id}
+              key={`${m.id}-${m.nextDate}`}
               className={`rm-animate-fade-up ${
                 m.destacado ? "lg:col-span-2" : ""
               }`}

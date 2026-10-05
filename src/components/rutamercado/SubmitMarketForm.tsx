@@ -119,11 +119,11 @@ export function SubmitMarketForm() {
           end_time: v.end_time,
           recurrence_type: v.recurrence_type,
           recurrence_day_of_week:
-            v.recurrence_type === "unico"
+            (v.recurrence_type === "unico" || v.recurrence_type === "varios_dias")
               ? undefined
               : v.recurrence_day_of_week || undefined,
           recurrence_week_of_month:
-            v.recurrence_type === "unico" || v.recurrence_type === "semanal"
+            v.recurrence_type !== "mensual_por_dia"
               ? undefined
               : v.recurrence_week_of_month || undefined,
           recurrence_start_date: v.recurrence_start_date,

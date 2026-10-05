@@ -3,12 +3,14 @@
 
 export type RecurrenceType =
   | "unico"
+  | "varios_dias"
   | "semanal"
   | "quincenal"
   | "mensual_por_dia";
 
 export const RECURRENCE_TYPES: RecurrenceType[] = [
   "unico",
+  "varios_dias",
   "semanal",
   "quincenal",
   "mensual_por_dia",
@@ -190,6 +192,19 @@ function rawDatesInWindow(
     return out;
   }
 
+  if (cfg.recurrence_type === "varios_dias") {
+    if (!endDate) {
+      if (inRange(startDate)) out.push(isoDay(startDate));
+      return out;
+    }
+    const cur = new Date(startDate);
+    while (cur <= endDate && cur <= to) {
+      if (inRange(cur)) out.push(isoDay(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }
+
   const dow = cfg.recurrence_day_of_week as WeekdayEs | null;
   if (!dow || !(dow in WEEKDAY_INDEX)) return out;
   const targetWeekday = WEEKDAY_INDEX[dow];
@@ -293,7 +308,7 @@ export function generateRecurrenceLabel(
   dayOfWeek: string | null,
   weekOfMonth: string | null,
 ): string {
-  if (type === "unico") return "";
+  if (type === "unico" || type === "varios_dias") return "";
   const dow = dayOfWeek as WeekdayEs | null;
   if (!dow || !(dow in WEEKDAY_LABEL)) return "";
   if (type === "semanal") return `Todos los ${WEEKDAY_PLURAL[dow]}`;
@@ -327,6 +342,7 @@ export const WEEK_OF_MONTH_HUMAN: Record<WeekOfMonthEs, string> = {
 
 export const RECURRENCE_TYPE_HUMAN: Record<RecurrenceType, string> = {
   unico: "Evento Único",
+  varios_dias: "Varios días (fecha de inicio y fin)",
   semanal: "Semanal",
   quincenal: "Quincenal",
   mensual_por_dia: "Mensual por día",

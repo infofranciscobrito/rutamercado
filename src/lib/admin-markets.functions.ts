@@ -90,7 +90,7 @@ const MarketInputSchema = z
   .transform((v) => ({
     ...v,
     recurrence_day_of_week:
-      v.recurrence_type === "unico" ? null : v.recurrence_day_of_week ?? null,
+      (v.recurrence_type === "unico" || v.recurrence_type === "varios_dias") ? null : v.recurrence_day_of_week ?? null,
     recurrence_week_of_month:
       v.recurrence_type === "mensual_por_dia"
         ? v.recurrence_week_of_month ?? null
@@ -99,6 +99,15 @@ const MarketInputSchema = z
       v.recurrence_type === "unico" ? null : v.recurrence_end_date ?? null,
   }))
   .superRefine((v, ctx) => {
+    if (v.recurrence_type === "varios_dias") {
+      if (!v.recurrence_end_date || v.recurrence_end_date < v.recurrence_start_date) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["recurrence_end_date"],
+          message: "La fecha de finalización debe ser igual o posterior a la de inicio",
+        });
+      }
+    }
     if (
       v.recurrence_type === "semanal" ||
       v.recurrence_type === "quincenal"
