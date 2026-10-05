@@ -104,7 +104,16 @@ const SubmissionInputSchema = z
         : undefined,
     recurrence_end_date:
       v.recurrence_type === "unico" ? "" : v.recurrence_end_date,
-  }));
+  }))
+  .refine(
+    (v) =>
+      v.recurrence_type !== "varios_dias" ||
+      (!!v.recurrence_end_date && v.recurrence_end_date >= v.recurrence_start_date),
+    {
+      path: ["recurrence_end_date"],
+      message: "La fecha de finalización debe ser igual o posterior a la de inicio",
+    },
+  );
 
 export const createMarketSubmission = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SubmissionInputSchema.parse(input))

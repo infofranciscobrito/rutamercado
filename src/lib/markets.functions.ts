@@ -70,6 +70,22 @@ export const listMarkets = createServerFn({ method: "GET" }).handler(
         { days: scheduleDays },
       );
       if (upcoming.length === 0) continue;
+      // Mercados de varios días: una ficha separada por cada día.
+      if (m.recurrence_type === "varios_dias") {
+        for (const d of upcoming) {
+          enriched.push({
+            ...m,
+            upcoming: [d],
+            cancelled,
+            nextDate: d.date,
+            nextStartTime: d.startTime,
+            nextEndTime: d.endTime,
+            nextIsOverridden: d.isOverridden,
+            nextOverrideNote: d.overrideNote,
+          });
+        }
+        continue;
+      }
       const next = upcoming[0];
       enriched.push({
         ...m,
