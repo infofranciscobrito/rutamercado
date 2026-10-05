@@ -83,7 +83,7 @@ export const Route = createFileRoute("/productores")({
   component: ProducersPage,
   errorComponent: ({ error }) => (
     <div className="p-8 text-center text-sm text-destructive">
-      Error: {error.message}
+      Error: {(error as Error).message}
     </div>
   ),
   notFoundComponent: () => <div className="p-8">No encontrado</div>,
