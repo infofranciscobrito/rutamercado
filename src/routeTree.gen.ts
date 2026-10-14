@@ -9,104 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ProductoresRouteImport } from './routes/productores'
-import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
-import { Route as NewsletterRouteImport } from './routes/newsletter'
-import { Route as NegociosRouteImport } from './routes/negocios'
-import { Route as MercadosMixtosRouteImport } from './routes/mercados-mixtos'
-import { Route as MercadosAgricolasRouteImport } from './routes/mercados-agricolas'
-import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
-import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
-import { Route as FoodMarketRouteImport } from './routes/food-market'
-import { Route as FleaMarketRouteImport } from './routes/flea-market'
-import { Route as FeriasArtesanalesRouteImport } from './routes/ferias-artesanales'
-import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
-import { Route as BazaresRouteImport } from './routes/bazares'
-import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
-import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/_admin'
+import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
+import { Route as BazaresRouteImport } from './routes/bazares'
+import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
+import { Route as FeriasArtesanalesRouteImport } from './routes/ferias-artesanales'
+import { Route as FleaMarketRouteImport } from './routes/flea-market'
+import { Route as FoodMarketRouteImport } from './routes/food-market'
+import { Route as MercadoAgricolaRouteImport } from './routes/mercado-agricola'
+import { Route as MercadoMixtoRouteImport } from './routes/mercado-mixto'
+import { Route as MercadosAgricolasRouteImport } from './routes/mercados-agricolas'
+import { Route as MercadosMixtosRouteImport } from './routes/mercados-mixtos'
+import { Route as NegociosRouteImport } from './routes/negocios'
+import { Route as NewsletterRouteImport } from './routes/newsletter'
+import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
+import { Route as ProductoresRouteImport } from './routes/productores'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as MercadosIndexRouteImport } from './routes/mercados/index'
 import { Route as MercadosSlugRouteImport } from './routes/mercados/$slug'
-import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
-import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
-import { Route as AdminAdminProducersRouteImport } from './routes/_admin/admin.producers'
-import { Route as AdminAdminNewsletterRouteImport } from './routes/_admin/admin.newsletter'
-import { Route as AdminAdminMessagesRouteImport } from './routes/_admin/admin.messages'
-import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
-import { Route as AdminAdminEmprendedoresRouteImport } from './routes/_admin/admin.emprendedores'
-import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
+import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
+import { Route as AdminAdminEmprendedoresRouteImport } from './routes/_admin/admin.emprendedores'
+import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
+import { Route as AdminAdminMessagesRouteImport } from './routes/_admin/admin.messages'
+import { Route as AdminAdminNewsletterRouteImport } from './routes/_admin/admin.newsletter'
+import { Route as AdminAdminProducersRouteImport } from './routes/_admin/admin.producers'
+import { Route as AdminAdminSubmissionsRouteImport } from './routes/_admin/admin.submissions'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProductoresRoute = ProductoresRouteImport.update({
-  id: '/productores',
-  path: '/productores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PoliticaDePrivacidadRoute = PoliticaDePrivacidadRouteImport.update({
-  id: '/politica-de-privacidad',
-  path: '/politica-de-privacidad',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NewsletterRoute = NewsletterRouteImport.update({
-  id: '/newsletter',
-  path: '/newsletter',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NegociosRoute = NegociosRouteImport.update({
-  id: '/negocios',
-  path: '/negocios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MercadosMixtosRoute = MercadosMixtosRouteImport.update({
-  id: '/mercados-mixtos',
-  path: '/mercados-mixtos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MercadosAgricolasRoute = MercadosAgricolasRouteImport.update({
-  id: '/mercados-agricolas',
-  path: '/mercados-agricolas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MercadoMixtoRoute = MercadoMixtoRouteImport.update({
-  id: '/mercado-mixto',
-  path: '/mercado-mixto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
-  id: '/mercado-agricola',
-  path: '/mercado-agricola',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FoodMarketRoute = FoodMarketRouteImport.update({
-  id: '/food-market',
-  path: '/food-market',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FleaMarketRoute = FleaMarketRouteImport.update({
-  id: '/flea-market',
-  path: '/flea-market',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeriasArtesanalesRoute = FeriasArtesanalesRouteImport.update({
-  id: '/ferias-artesanales',
-  path: '/ferias-artesanales',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeriaArtesanalRoute = FeriaArtesanalRouteImport.update({
-  id: '/feria-artesanal',
-  path: '/feria-artesanal',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BazaresRoute = BazaresRouteImport.update({
-  id: '/bazares',
-  path: '/bazares',
+const AdminRoute = AdminRouteImport.update({
+  id: '/_admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BazarPopUpRoute = BazarPopUpRouteImport.update({
@@ -114,13 +53,79 @@ const BazarPopUpRoute = BazarPopUpRouteImport.update({
   path: '/bazar-pop-up',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/_admin',
+const BazaresRoute = BazaresRouteImport.update({
+  id: '/bazares',
+  path: '/bazares',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const FeriaArtesanalRoute = FeriaArtesanalRouteImport.update({
+  id: '/feria-artesanal',
+  path: '/feria-artesanal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeriasArtesanalesRoute = FeriasArtesanalesRouteImport.update({
+  id: '/ferias-artesanales',
+  path: '/ferias-artesanales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FleaMarketRoute = FleaMarketRouteImport.update({
+  id: '/flea-market',
+  path: '/flea-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoodMarketRoute = FoodMarketRouteImport.update({
+  id: '/food-market',
+  path: '/food-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadoAgricolaRoute = MercadoAgricolaRouteImport.update({
+  id: '/mercado-agricola',
+  path: '/mercado-agricola',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadoMixtoRoute = MercadoMixtoRouteImport.update({
+  id: '/mercado-mixto',
+  path: '/mercado-mixto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadosAgricolasRoute = MercadosAgricolasRouteImport.update({
+  id: '/mercados-agricolas',
+  path: '/mercados-agricolas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadosMixtosRoute = MercadosMixtosRouteImport.update({
+  id: '/mercados-mixtos',
+  path: '/mercados-mixtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NegociosRoute = NegociosRouteImport.update({
+  id: '/negocios',
+  path: '/negocios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsletterRoute = NewsletterRouteImport.update({
+  id: '/newsletter',
+  path: '/newsletter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDePrivacidadRoute = PoliticaDePrivacidadRouteImport.update({
+  id: '/politica-de-privacidad',
+  path: '/politica-de-privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductoresRoute = ProductoresRouteImport.update({
+  id: '/productores',
+  path: '/productores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MercadosIndexRoute = MercadosIndexRouteImport.update({
@@ -133,44 +138,14 @@ const MercadosSlugRoute = MercadosSlugRouteImport.update({
   path: '/mercados/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAdminSubmissionsRoute = AdminAdminSubmissionsRouteImport.update({
-  id: '/admin/submissions',
-  path: '/admin/submissions',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminProducersRoute = AdminAdminProducersRouteImport.update({
-  id: '/admin/producers',
-  path: '/admin/producers',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminNewsletterRoute = AdminAdminNewsletterRouteImport.update({
-  id: '/admin/newsletter',
-  path: '/admin/newsletter',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminMessagesRoute = AdminAdminMessagesRouteImport.update({
-  id: '/admin/messages',
-  path: '/admin/messages',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminMarketsRoute = AdminAdminMarketsRouteImport.update({
-  id: '/admin/markets',
-  path: '/admin/markets',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminEmprendedoresRoute = AdminAdminEmprendedoresRouteImport.update({
-  id: '/admin/emprendedores',
-  path: '/admin/emprendedores',
+const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
+  id: '/admin/analytics',
+  path: '/admin/analytics',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
@@ -178,9 +153,34 @@ const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAdminAnalyticsRoute = AdminAdminAnalyticsRouteImport.update({
-  id: '/admin/analytics',
-  path: '/admin/analytics',
+const AdminAdminEmprendedoresRoute = AdminAdminEmprendedoresRouteImport.update({
+  id: '/admin/emprendedores',
+  path: '/admin/emprendedores',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminMarketsRoute = AdminAdminMarketsRouteImport.update({
+  id: '/admin/markets',
+  path: '/admin/markets',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminMessagesRoute = AdminAdminMessagesRouteImport.update({
+  id: '/admin/messages',
+  path: '/admin/messages',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminNewsletterRoute = AdminAdminNewsletterRouteImport.update({
+  id: '/admin/newsletter',
+  path: '/admin/newsletter',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminProducersRoute = AdminAdminProducersRouteImport.update({
+  id: '/admin/producers',
+  path: '/admin/producers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminSubmissionsRoute = AdminAdminSubmissionsRouteImport.update({
+  id: '/admin/submissions',
+  path: '/admin/submissions',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -395,109 +395,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/productores': {
-      id: '/productores'
-      path: '/productores'
-      fullPath: '/productores'
-      preLoaderRoute: typeof ProductoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/politica-de-privacidad': {
-      id: '/politica-de-privacidad'
-      path: '/politica-de-privacidad'
-      fullPath: '/politica-de-privacidad'
-      preLoaderRoute: typeof PoliticaDePrivacidadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/newsletter': {
-      id: '/newsletter'
-      path: '/newsletter'
-      fullPath: '/newsletter'
-      preLoaderRoute: typeof NewsletterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/negocios': {
-      id: '/negocios'
-      path: '/negocios'
-      fullPath: '/negocios'
-      preLoaderRoute: typeof NegociosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mercados-mixtos': {
-      id: '/mercados-mixtos'
-      path: '/mercados-mixtos'
-      fullPath: '/mercados-mixtos'
-      preLoaderRoute: typeof MercadosMixtosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mercados-agricolas': {
-      id: '/mercados-agricolas'
-      path: '/mercados-agricolas'
-      fullPath: '/mercados-agricolas'
-      preLoaderRoute: typeof MercadosAgricolasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mercado-mixto': {
-      id: '/mercado-mixto'
-      path: '/mercado-mixto'
-      fullPath: '/mercado-mixto'
-      preLoaderRoute: typeof MercadoMixtoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mercado-agricola': {
-      id: '/mercado-agricola'
-      path: '/mercado-agricola'
-      fullPath: '/mercado-agricola'
-      preLoaderRoute: typeof MercadoAgricolaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/food-market': {
-      id: '/food-market'
-      path: '/food-market'
-      fullPath: '/food-market'
-      preLoaderRoute: typeof FoodMarketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/flea-market': {
-      id: '/flea-market'
-      path: '/flea-market'
-      fullPath: '/flea-market'
-      preLoaderRoute: typeof FleaMarketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ferias-artesanales': {
-      id: '/ferias-artesanales'
-      path: '/ferias-artesanales'
-      fullPath: '/ferias-artesanales'
-      preLoaderRoute: typeof FeriasArtesanalesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feria-artesanal': {
-      id: '/feria-artesanal'
-      path: '/feria-artesanal'
-      fullPath: '/feria-artesanal'
-      preLoaderRoute: typeof FeriaArtesanalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/bazares': {
-      id: '/bazares'
-      path: '/bazares'
-      fullPath: '/bazares'
-      preLoaderRoute: typeof BazaresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/bazar-pop-up': {
-      id: '/bazar-pop-up'
-      path: '/bazar-pop-up'
-      fullPath: '/bazar-pop-up'
-      preLoaderRoute: typeof BazarPopUpRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin': {
@@ -507,11 +409,116 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/bazar-pop-up': {
+      id: '/bazar-pop-up'
+      path: '/bazar-pop-up'
+      fullPath: '/bazar-pop-up'
+      preLoaderRoute: typeof BazarPopUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bazares': {
+      id: '/bazares'
+      path: '/bazares'
+      fullPath: '/bazares'
+      preLoaderRoute: typeof BazaresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feria-artesanal': {
+      id: '/feria-artesanal'
+      path: '/feria-artesanal'
+      fullPath: '/feria-artesanal'
+      preLoaderRoute: typeof FeriaArtesanalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ferias-artesanales': {
+      id: '/ferias-artesanales'
+      path: '/ferias-artesanales'
+      fullPath: '/ferias-artesanales'
+      preLoaderRoute: typeof FeriasArtesanalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flea-market': {
+      id: '/flea-market'
+      path: '/flea-market'
+      fullPath: '/flea-market'
+      preLoaderRoute: typeof FleaMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/food-market': {
+      id: '/food-market'
+      path: '/food-market'
+      fullPath: '/food-market'
+      preLoaderRoute: typeof FoodMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercado-agricola': {
+      id: '/mercado-agricola'
+      path: '/mercado-agricola'
+      fullPath: '/mercado-agricola'
+      preLoaderRoute: typeof MercadoAgricolaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercado-mixto': {
+      id: '/mercado-mixto'
+      path: '/mercado-mixto'
+      fullPath: '/mercado-mixto'
+      preLoaderRoute: typeof MercadoMixtoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercados-agricolas': {
+      id: '/mercados-agricolas'
+      path: '/mercados-agricolas'
+      fullPath: '/mercados-agricolas'
+      preLoaderRoute: typeof MercadosAgricolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercados-mixtos': {
+      id: '/mercados-mixtos'
+      path: '/mercados-mixtos'
+      fullPath: '/mercados-mixtos'
+      preLoaderRoute: typeof MercadosMixtosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/negocios': {
+      id: '/negocios'
+      path: '/negocios'
+      fullPath: '/negocios'
+      preLoaderRoute: typeof NegociosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/newsletter': {
+      id: '/newsletter'
+      path: '/newsletter'
+      fullPath: '/newsletter'
+      preLoaderRoute: typeof NewsletterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-privacidad': {
+      id: '/politica-de-privacidad'
+      path: '/politica-de-privacidad'
+      fullPath: '/politica-de-privacidad'
+      preLoaderRoute: typeof PoliticaDePrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/productores': {
+      id: '/productores'
+      path: '/productores'
+      fullPath: '/productores'
+      preLoaderRoute: typeof ProductoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mercados/': {
@@ -528,13 +535,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MercadosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_admin/admin/': {
       id: '/_admin/admin/'
       path: '/admin'
@@ -542,46 +542,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_admin/admin/submissions': {
-      id: '/_admin/admin/submissions'
-      path: '/admin/submissions'
-      fullPath: '/admin/submissions'
-      preLoaderRoute: typeof AdminAdminSubmissionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/_admin/admin/producers': {
-      id: '/_admin/admin/producers'
-      path: '/admin/producers'
-      fullPath: '/admin/producers'
-      preLoaderRoute: typeof AdminAdminProducersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/_admin/admin/newsletter': {
-      id: '/_admin/admin/newsletter'
-      path: '/admin/newsletter'
-      fullPath: '/admin/newsletter'
-      preLoaderRoute: typeof AdminAdminNewsletterRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/_admin/admin/messages': {
-      id: '/_admin/admin/messages'
-      path: '/admin/messages'
-      fullPath: '/admin/messages'
-      preLoaderRoute: typeof AdminAdminMessagesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/_admin/admin/markets': {
-      id: '/_admin/admin/markets'
-      path: '/admin/markets'
-      fullPath: '/admin/markets'
-      preLoaderRoute: typeof AdminAdminMarketsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/_admin/admin/emprendedores': {
-      id: '/_admin/admin/emprendedores'
-      path: '/admin/emprendedores'
-      fullPath: '/admin/emprendedores'
-      preLoaderRoute: typeof AdminAdminEmprendedoresRouteImport
+    '/_admin/admin/analytics': {
+      id: '/_admin/admin/analytics'
+      path: '/admin/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAdminAnalyticsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/dashboard': {
@@ -591,11 +556,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_admin/admin/analytics': {
-      id: '/_admin/admin/analytics'
-      path: '/admin/analytics'
-      fullPath: '/admin/analytics'
-      preLoaderRoute: typeof AdminAdminAnalyticsRouteImport
+    '/_admin/admin/emprendedores': {
+      id: '/_admin/admin/emprendedores'
+      path: '/admin/emprendedores'
+      fullPath: '/admin/emprendedores'
+      preLoaderRoute: typeof AdminAdminEmprendedoresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/markets': {
+      id: '/_admin/admin/markets'
+      path: '/admin/markets'
+      fullPath: '/admin/markets'
+      preLoaderRoute: typeof AdminAdminMarketsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/messages': {
+      id: '/_admin/admin/messages'
+      path: '/admin/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AdminAdminMessagesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/newsletter': {
+      id: '/_admin/admin/newsletter'
+      path: '/admin/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AdminAdminNewsletterRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/producers': {
+      id: '/_admin/admin/producers'
+      path: '/admin/producers'
+      fullPath: '/admin/producers'
+      preLoaderRoute: typeof AdminAdminProducersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/submissions': {
+      id: '/_admin/admin/submissions'
+      path: '/admin/submissions'
+      fullPath: '/admin/submissions'
+      preLoaderRoute: typeof AdminAdminSubmissionsRouteImport
       parentRoute: typeof AdminRoute
     }
   }

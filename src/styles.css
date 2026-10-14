@@ -72,6 +72,14 @@
   --color-gold-text: #92400e;
   --color-today: #22c55e;
   --color-tomorrow: #3b82f6;
+  --color-category-surface: var(--category-surface);
+  --color-category-surface-alt: var(--category-surface-alt);
+  --color-category-heading: var(--category-heading);
+  --color-category-caption: var(--category-caption);
+  --color-brand-action: var(--brand-action);
+  --color-brand-action-hover: var(--brand-action-hover);
+  --color-brand-action-foreground: var(--brand-action-foreground);
+  --shadow-category-action: var(--category-action-shadow);
 }
 
 :root {
@@ -131,6 +139,14 @@
   --rm-gradient-brand: linear-gradient(135deg, #54b678 0%, #3f9560 50%, #2f7a4c 100%);
   --rm-gradient-hero: linear-gradient(180deg, #18253f 0%, #2d3058 100%);
   --rm-dot-pattern: radial-gradient(rgba(84, 182, 120, 0.18) 1px, transparent 1px);
+  --category-surface: oklch(0.268 0.052 263);
+  --category-surface-alt: oklch(0.208 0.037 281);
+  --category-heading: oklch(1 0 0);
+  --category-caption: oklch(0.84 0.015 263);
+  --brand-action: oklch(0.702 0.132 153);
+  --brand-action-hover: oklch(0.601 0.114 153);
+  --brand-action-foreground: oklch(0.268 0.052 263);
+  --category-action-shadow: 0 6px 16px color-mix(in oklab, var(--brand-action) 40%, transparent);
 }
 
 .dark {
