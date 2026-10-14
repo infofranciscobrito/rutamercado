@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { selectCategoryPreview } from "@/lib/category-preview";
 import type { EnrichedMarket, MarketCategory } from "@/types/market";
 import { MarketCard } from "./MarketCard";
 import { CategoryIcon } from "./icons/CategoryIcons";
@@ -21,62 +23,40 @@ export function CategoryRow({
   ctaHref,
   ctaLabel,
 }: Props) {
-  const visible = useMemo(() => {
-    const sorted = [...markets].sort((a, b) => {
-      // Featured markets lead the row; date order is preserved inside each group.
-      const fa = a.destacado ? 0 : 1;
-      const fb = b.destacado ? 0 : 1;
-      if (fa !== fb) return fa - fb;
-      const da = a.nextDate ?? a.recurrence_start_date ?? "";
-      const db = b.nextDate ?? b.recurrence_start_date ?? "";
-      if (!da) return 1;
-      if (!db) return -1;
-      return da.localeCompare(db);
-    });
-
-    // Build two clean 4-column rows (8 slots): featured cards span 2 columns.
-    // Markets that don't fit stay on the category page.
-    const result: EnrichedMarket[] = [];
-    let slots = 0;
-    for (const m of sorted) {
-      const need = m.destacado ? 2 : 1;
-      if (slots + need > 8) break;
-      result.push(m);
-      slots += need;
-    }
-    return result;
-  }, [markets]);
+  const visible = useMemo(() => selectCategoryPreview(markets), [markets]);
 
   return (
     <section
-      className={alt ? "bg-[#FFF8EC]" : "bg-[#FAFAF8]"}
+      className={alt ? "bg-category-surface-alt" : "bg-category-surface"}
       aria-label={`Categoría ${category}`}
     >
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
-        <div className="mb-5 flex items-center gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#54b678]/15 text-[#2f7a4c]">
+      <div className="mx-auto grid max-w-7xl gap-7 px-4 py-10 sm:px-6 sm:py-12 xl:grid-cols-[240px_minmax(0,1fr)] xl:items-center xl:gap-8">
+        <div className="min-w-0">
+          <span className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-action/15 text-brand-action">
             <CategoryIcon category={category} className="h-5 w-5" />
           </span>
           <div>
-            <h2
-              className="font-display text-[#18253f]"
-              style={{ fontSize: "clamp(1.3rem, 1.1rem + 1vw, 1.75rem)" }}
-            >
+            <h2 className="font-display text-3xl leading-tight text-category-heading">
               {category}
             </h2>
-            <p className="text-xs text-[#6B7280]">
+            <p className="mt-3 text-sm text-category-caption">
               {markets.length} {markets.length === 1 ? "mercado" : "mercados"}
             </p>
           </div>
+          {ctaHref && ctaLabel && (
+            <div className="mb-5 mt-4">
+              <Button asChild variant="category" className="h-auto min-h-10 max-w-full whitespace-normal px-5 py-2.5 text-center leading-5">
+                <Link to={ctaHref}>{ctaLabel}</Link>
+              </Button>
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid min-w-0 grid-cols-1 items-start gap-5 md:grid-cols-3">
           {visible.map((m, i) => (
             <div
               key={`${m.id}-${m.nextDate}`}
-              className={`rm-animate-fade-up ${
-                m.destacado ? "lg:col-span-2" : ""
-              }`}
+              className="min-w-0 rm-animate-fade-up"
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
               <MarketCard
@@ -88,20 +68,6 @@ export function CategoryRow({
           ))}
         </div>
 
-        {ctaHref && ctaLabel && (
-          <div style={{ marginTop: "16px", marginBottom: "20px" }}>
-            <Link
-              to={ctaHref}
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-[#54b678] px-5 text-sm font-semibold text-[#18253f] shadow-sm transition-all duration-200 hover:bg-[#3f9560] hover:scale-[1.02] hover:shadow-[0_6px_16px_rgba(84,182,120,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#54b678] focus-visible:ring-offset-2"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                padding: "10px 20px",
-              }}
-            >
-              {ctaLabel}
-            </Link>
-          </div>
-        )}
       </div>
     </section>
   );
