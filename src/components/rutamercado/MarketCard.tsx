@@ -99,7 +99,7 @@ export function MarketCard({ market, onClick, fixedWidth, featured }: Props) {
             </span>
           </div>
           <span className="rounded-md bg-[#54b678] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#18253f] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
-            {market.category}
+            Ver más información del mercado
           </span>
         </div>
         {label && (
