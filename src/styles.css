@@ -143,6 +143,8 @@
   --category-surface-alt: oklch(0.208 0.037 281);
   --category-heading: oklch(1 0 0);
   --category-caption: oklch(0.84 0.015 263);
+  --category-gradient: radial-gradient(ellipse at 0% 100%, color-mix(in oklab, #54b678 55%, transparent) 0%, transparent 55%), radial-gradient(ellipse at 85% 0%, color-mix(in oklab, #54b678 30%, transparent) 0%, transparent 50%), linear-gradient(135deg, #18253f 0%, #1d3350 50%, #141628 100%);
+  --category-gradient-alt: radial-gradient(ellipse at 100% 100%, color-mix(in oklab, #54b678 50%, transparent) 0%, transparent 55%), radial-gradient(ellipse at 10% 0%, color-mix(in oklab, #54b678 28%, transparent) 0%, transparent 50%), linear-gradient(225deg, #18253f 0%, #1d3350 50%, #141628 100%);
   --brand-action: oklch(0.702 0.132 153);
   --brand-action-hover: oklch(0.601 0.114 153);
   --brand-action-foreground: oklch(0.268 0.052 263);
