@@ -41,7 +41,10 @@ export const categorySearchSchema = z.object({
 
 export type CategorySearch = z.infer<typeof categorySearchSchema>;
 
-export const categorySearchMiddlewares: SearchMiddleware<CategorySearch>[] = [
+// `any` here on purpose: a concrete search-schema type in this position becomes
+// a competing inference site for the route's `validateSearch` generic and makes
+// TypeScript resolve the route's search params to `{}`.
+export const categorySearchMiddlewares: SearchMiddleware<any>[] = [
   stripSearchParams({
     q: "",
     date: "all",
