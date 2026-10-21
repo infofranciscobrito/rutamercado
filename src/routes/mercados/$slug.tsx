@@ -113,8 +113,8 @@ export const Route = createFileRoute("/mercados/$slug")({
     };
   },
   component: MarketPage,
-  notFoundComponent: MarketNotFound,
-  errorComponent: MarketNotFound,
+  notFoundComponent: () => <MarketNotFound />,
+  errorComponent: () => <MarketNotFound />,
 });
 
 function MarketNotFound() {
