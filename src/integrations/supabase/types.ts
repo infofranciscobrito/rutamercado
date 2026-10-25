@@ -125,6 +125,93 @@ export type Database = {
         }
         Relationships: []
       }
+      encuesta_respuestas: {
+        Row: {
+          cantidad_mercados: string | null
+          categorias: string[]
+          completada_en: string | null
+          consentimiento_email: boolean
+          created_at: string
+          descubrimiento: string[]
+          dispositivo: string | null
+          dudas: string | null
+          dudas_otro: string | null
+          edad: string | null
+          email: string | null
+          email_momento: string | null
+          frecuencia: string | null
+          gasto: string | null
+          id: string
+          id_respuesta: string
+          iniciada_en: string | null
+          intencion_24: string | null
+          lealtad: string | null
+          motivadores: string[]
+          origen: string
+          plan: string | null
+          precio_maximo: string | null
+          region: string | null
+          sexo: string | null
+          updated_at: string
+        }
+        Insert: {
+          cantidad_mercados?: string | null
+          categorias?: string[]
+          completada_en?: string | null
+          consentimiento_email?: boolean
+          created_at?: string
+          descubrimiento?: string[]
+          dispositivo?: string | null
+          dudas?: string | null
+          dudas_otro?: string | null
+          edad?: string | null
+          email?: string | null
+          email_momento?: string | null
+          frecuencia?: string | null
+          gasto?: string | null
+          id?: string
+          id_respuesta: string
+          iniciada_en?: string | null
+          intencion_24?: string | null
+          lealtad?: string | null
+          motivadores?: string[]
+          origen?: string
+          plan?: string | null
+          precio_maximo?: string | null
+          region?: string | null
+          sexo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cantidad_mercados?: string | null
+          categorias?: string[]
+          completada_en?: string | null
+          consentimiento_email?: boolean
+          created_at?: string
+          descubrimiento?: string[]
+          dispositivo?: string | null
+          dudas?: string | null
+          dudas_otro?: string | null
+          edad?: string | null
+          email?: string | null
+          email_momento?: string | null
+          frecuencia?: string | null
+          gasto?: string | null
+          id?: string
+          id_respuesta?: string
+          iniciada_en?: string | null
+          intencion_24?: string | null
+          lealtad?: string | null
+          motivadores?: string[]
+          origen?: string
+          plan?: string | null
+          precio_maximo?: string | null
+          region?: string | null
+          sexo?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_attendance_intentions: {
         Row: {
           created_at: string
