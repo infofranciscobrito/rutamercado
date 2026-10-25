@@ -34,6 +34,7 @@ import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
 import { Route as AdminAdminEmprendedoresRouteImport } from './routes/_admin/admin.emprendedores'
+import { Route as AdminAdminEncuestaRouteImport } from './routes/_admin/admin.encuesta'
 import { Route as AdminAdminMarketsRouteImport } from './routes/_admin/admin.markets'
 import { Route as AdminAdminMessagesRouteImport } from './routes/_admin/admin.messages'
 import { Route as AdminAdminNewsletterRouteImport } from './routes/_admin/admin.newsletter'
@@ -164,6 +165,11 @@ const AdminAdminEmprendedoresRoute = AdminAdminEmprendedoresRouteImport.update({
   path: '/admin/emprendedores',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminEncuestaRoute = AdminAdminEncuestaRouteImport.update({
+  id: '/admin/encuesta',
+  path: '/admin/encuesta',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminMarketsRoute = AdminAdminMarketsRouteImport.update({
   id: '/admin/markets',
   path: '/admin/markets',
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
+  '/admin/encuesta': typeof AdminAdminEncuestaRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/newsletter': typeof AdminAdminNewsletterRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
+  '/admin/encuesta': typeof AdminAdminEncuestaRoute
   '/admin/markets': typeof AdminAdminMarketsRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/newsletter': typeof AdminAdminNewsletterRoute
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_admin/admin/emprendedores': typeof AdminAdminEmprendedoresRoute
+  '/_admin/admin/encuesta': typeof AdminAdminEncuestaRoute
   '/_admin/admin/markets': typeof AdminAdminMarketsRoute
   '/_admin/admin/messages': typeof AdminAdminMessagesRoute
   '/_admin/admin/newsletter': typeof AdminAdminNewsletterRoute
@@ -311,6 +320,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/emprendedores'
+    | '/admin/encuesta'
     | '/admin/markets'
     | '/admin/messages'
     | '/admin/newsletter'
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/dashboard'
     | '/admin/emprendedores'
+    | '/admin/encuesta'
     | '/admin/markets'
     | '/admin/messages'
     | '/admin/newsletter'
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
     | '/_admin/admin/emprendedores'
+    | '/_admin/admin/encuesta'
     | '/_admin/admin/markets'
     | '/_admin/admin/messages'
     | '/_admin/admin/newsletter'
@@ -583,6 +595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminEmprendedoresRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/encuesta': {
+      id: '/_admin/admin/encuesta'
+      path: '/admin/encuesta'
+      fullPath: '/admin/encuesta'
+      preLoaderRoute: typeof AdminAdminEncuestaRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/markets': {
       id: '/_admin/admin/markets'
       path: '/admin/markets'
@@ -625,6 +644,7 @@ interface AdminRouteChildren {
   AdminAdminAnalyticsRoute: typeof AdminAdminAnalyticsRoute
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminAdminEmprendedoresRoute: typeof AdminAdminEmprendedoresRoute
+  AdminAdminEncuestaRoute: typeof AdminAdminEncuestaRoute
   AdminAdminMarketsRoute: typeof AdminAdminMarketsRoute
   AdminAdminMessagesRoute: typeof AdminAdminMessagesRoute
   AdminAdminNewsletterRoute: typeof AdminAdminNewsletterRoute
@@ -637,6 +657,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminAnalyticsRoute: AdminAdminAnalyticsRoute,
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminAdminEmprendedoresRoute: AdminAdminEmprendedoresRoute,
+  AdminAdminEncuestaRoute: AdminAdminEncuestaRoute,
   AdminAdminMarketsRoute: AdminAdminMarketsRoute,
   AdminAdminMessagesRoute: AdminAdminMessagesRoute,
   AdminAdminNewsletterRoute: AdminAdminNewsletterRoute,

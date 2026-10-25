@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Store, Eye, CalendarDays, MousePointerClick, Users, Link2 } from "lucide-react";
+import { Store, Eye, CalendarDays, MousePointerClick, Users, Link2, ClipboardList } from "lucide-react";
+import { listEncuestaRespuestas } from "@/lib/encuesta.functions";
 import {
   BarChart,
   Bar,
@@ -80,6 +81,16 @@ function DashboardPage() {
     queryKey: ["admin", "dashboard", "topIntention"],
     queryFn: () => logFetch("dashboard topIntention", () => topIntentionFn({ data: { limit: 5 } })),
   });
+  const encuestaFn = useServerFn(listEncuestaRespuestas);
+  const encuesta = useQuery({
+    queryKey: ["admin", "encuesta"],
+    queryFn: () => encuestaFn(),
+  });
+  const encuestaRows = encuesta.data?.respuestas ?? [];
+  const encuestaLista = encuestaRows.filter((r) => r.consentimiento_email === true).length;
+  const encuestaPaga = encuestaRows.length
+    ? Math.round((encuestaRows.filter((r) => r.plan === "anual" || r.plan === "mensual").length / encuestaRows.length) * 100)
+    : 0;
   const shortUrlFn = useServerFn(getShortUrlClicks);
   const shortUrl = useQuery({
     queryKey: ["admin", "dashboard", "shortUrlClicks"],
@@ -130,6 +141,14 @@ function DashboardPage() {
           icon={Link2}
           subtext={`${shortUrl.data?.last30Days ?? 0} en los últimos 30 días`}
         />
+        <Link to="/admin/encuesta" className="block rounded-xl transition hover:shadow-md">
+          <MetricCard
+            label="Encuesta de membresía"
+            value={encuestaRows.length}
+            icon={ClipboardList}
+            subtext={`${encuestaLista} en lista de espera · ${encuestaPaga}% pagaría $24`}
+          />
+        </Link>
       </div>
 
       <div className="rounded-xl border bg-card p-5">
