@@ -160,7 +160,6 @@ export function EncuestaApp() {
     clearTimeout(timer.current);
     A.current = freshAnswers();
     hist.current = [];
-    setView("survey");
     setView("hero");
     window.scrollTo({ top: 0, behavior: "auto" });
   };
