@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ClientOnly } from "@tanstack/react-router";
 import { EncuestaApp } from "@/components/encuesta/EncuestaApp";
 
 const URL = "https://rutamercadopr.com/encuesta";
@@ -38,9 +37,5 @@ export const Route = createFileRoute("/encuesta")({
 });
 
 function EncuestaPage() {
-  return (
-    <ClientOnly fallback={<div style={{ minHeight: "100svh", background: "#162540" }} />}>
-      <EncuestaApp />
-    </ClientOnly>
-  );
+  return <EncuestaApp />;
 }
