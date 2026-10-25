@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import { strictEqual } from "node:assert";
 import { computeDashboard, segment, signalOf, pays, grupo, type EncuestaRow } from "./encuesta-stats";
 
 const base: EncuestaRow = {
@@ -11,30 +12,30 @@ const r = (o: Partial<EncuestaRow>) => ({ ...base, ...o });
 
 describe("encuesta-stats", () => {
   it("pagarían $24 = plan anual o mensual", () => {
-    expect(pays(r({ plan: "anual" }))).toBe(true);
-    expect(pays(r({ plan: "mensual" }))).toBe(true);
-    expect(pays(r({ plan: "ninguno" }))).toBe(false);
+    strictEqual(pays(r({ plan: "anual" })), true);
+    strictEqual(pays(r({ plan: "mensual" })), true);
+    strictEqual(pays(r({ plan: "ninguno" })), false);
   });
   it("lo están pensando = no_se o plan ninguno", () => {
-    expect(grupo(r({ intencion_24: "no_se" }))).toBe("tal");
-    expect(grupo(r({ plan: "ninguno" }))).toBe("tal");
-    expect(grupo(r({}))).toBe("no");
+    strictEqual(grupo(r({ intencion_24: "no_se" })), "tal");
+    strictEqual(grupo(r({ plan: "ninguno" })), "tal");
+    strictEqual(grupo(r({})), "no");
   });
   it("umbrales de señal 15% y 8%", () => {
-    expect(signalOf(0.15)).toBe("fuerte");
-    expect(signalOf(0.1)).toBe("moderada");
-    expect(signalOf(0.08)).toBe("moderada");
-    expect(signalOf(0.079)).toBe("debil");
+    strictEqual(signalOf(0.15), "fuerte");
+    strictEqual(signalOf(0.1), "moderada");
+    strictEqual(signalOf(0.08), "moderada");
+    strictEqual(signalOf(0.079), "debil");
   });
   it("más interés exige al menos 15 personas", () => {
     const rows = [
       ...Array.from({ length: 14 }, () => r({ edad: "18_24", plan: "anual" })),
       ...Array.from({ length: 15 }, (_, i) => r({ edad: "35_44", plan: i < 3 ? "anual" : null })),
     ];
-    expect(segment(rows, "edad", false).best?.key).toBe("35_44");
+    strictEqual(segment(rows, "edad", false).best?.key, "35_44");
   });
   it("gasto promedio usa puntos medios", () => {
     const d = computeDashboard([r({ gasto: "menos_15" }), r({ gasto: "mas_80" })]);
-    expect(d.tiles.gasto).toBe(55);
+    strictEqual(d.tiles.gasto, 55);
   });
 });
