@@ -111,7 +111,7 @@ export const STEPS: Step[] = [
     { v: "anual", l: "Anual: $24", s: "Un solo pago al año" },
     { v: "mensual", l: "Mensual: $3.99", s: "Son $47.88 al año" },
     { v: "ninguno", l: "Ninguno" }] },
-  { id: "dudas", ch: 3, pose: "pensando", other: true, when: (A) => A.intencion_24 !== "seguro", lead: "Dímelo sin miedo, que para eso pregunto.", q: "¿Qué es lo que más te haría dudar?", react: "Eso es oro para mí. ¡Gracias!", opts: [
+  { id: "dudas", ch: 3, pose: "pensando", other: true, when: (A) => A.precio_maximo === "0", lead: "Dímelo sin miedo, que para eso pregunto.", q: "¿Qué es lo que más te haría dudar?", react: "Eso es oro para mí. ¡Gracias!", opts: [
     { v: "poco_uso", l: "No voy suficiente como para aprovecharla" },
     { v: "que_mesas", l: "Quiero saber primero qué mesas participan" },
     { v: "pago_por_uso", l: "Prefiero pagar solo cuando voy" },
