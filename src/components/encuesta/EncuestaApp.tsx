@@ -141,13 +141,13 @@ export function EncuestaApp() {
     const n = nextIndex(from);
     if (s.fast || !reaction) {
       setPose(s.pose, true);
-      timer.current = setTimeout(() => go(n, true, from), 380);
+      timer.current = setTimeout(() => go(n, true, from), 2380);
       return;
     }
     setPose(s.ch === 3 ? "anotando" : "feliz", true);
     speak(reaction, true);
     toTop();
-    timer.current = setTimeout(() => go(n, true, from), reduce ? 900 : 1500);
+    timer.current = setTimeout(() => go(n, true, from), reduce ? 2900 : 3500);
   }, [go, nextIndex, reduce, setPose, speak, toTop]);
 
   const start = () => {
