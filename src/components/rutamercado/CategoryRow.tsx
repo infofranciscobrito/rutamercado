@@ -50,11 +50,11 @@ export function CategoryRow({
           )}
         </div>
 
-        <div className="grid min-w-0 grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 items-stretch gap-6 sm:grid-cols-2">
           {visible.map((m, i) => (
             <div
               key={`${m.id}-${m.nextDate}`}
-              className={`min-w-0 rm-animate-fade-up ${m.destacado ? "sm:col-span-2 lg:col-span-1 xl:col-span-2" : ""}`}
+              className={`min-w-0 rm-animate-fade-up ${m.destacado ? "sm:col-span-2" : ""}`}
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
               <MarketCard
