@@ -54,7 +54,7 @@ export function CategoryRow({
           {visible.map((m, i) => (
             <div
               key={`${m.id}-${m.nextDate}`}
-              className="min-w-0 rm-animate-fade-up"
+              className={`min-w-0 rm-animate-fade-up ${m.destacado ? "sm:col-span-2 lg:col-span-1 xl:col-span-2" : ""}`}
               style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
             >
               <MarketCard
