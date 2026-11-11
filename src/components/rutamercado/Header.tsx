@@ -51,21 +51,27 @@ export function Header() {
           </a>
           <Link
             to="/productores"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
+            className="rounded-md px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:text-[#54b678]"
           >
             Productores
           </Link>
           <Link
             to="/negocios"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
+            className="rounded-md px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:text-[#54b678]"
           >
-            Registra tu negocio
+            Directorio de negocios
           </Link>
           <Link
             to="/mercados"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-[#54b678] bg-transparent px-4 text-sm font-semibold text-white transition-colors hover:bg-[#54b678]/15"
           >
             Registrar mercado
+          </Link>
+          <Link
+            to="/registra-tu-negocio"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-[#54b678] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
+          >
+            Registra tu negocio
           </Link>
           {isHome && (
             <a
@@ -105,26 +111,33 @@ export function Header() {
                   Sobre Nosotros
                 </a>
                 <Link
-                  to="/productores"
+            to="/productores"
                   onClick={() => setOpen(false)}
-                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
-                >
-                  Productores
-                </Link>
-                <Link
-                  to="/negocios"
+            className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
+          >
+            Productores
+          </Link>
+          <Link
+            to="/negocios"
                   onClick={() => setOpen(false)}
-                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
-                >
-                  Registra tu negocio
-                </Link>
-                <Link
-                  to="/mercados"
+            className="rounded-md px-3 py-3 text-base text-white/90 hover:bg-white/10"
+          >
+            Directorio de negocios
+          </Link>
+          <Link
+            to="/mercados"
                   onClick={() => setOpen(false)}
-                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
-                >
-                  Registrar mercado
-                </Link>
+            className="inline-flex h-12 items-center justify-center rounded-md border border-[#54b678] bg-transparent px-4 text-base font-semibold text-white transition-colors hover:bg-[#54b678]/15"
+          >
+            Registrar mercado
+          </Link>
+          <Link
+            to="/registra-tu-negocio"
+                  onClick={() => setOpen(false)}
+            className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-4 text-base font-semibold text-white transition-colors hover:bg-[#439660]"
+          >
+            Registra tu negocio
+          </Link>
                 {isHome && (
                   <a
                     href="#newsletter"
