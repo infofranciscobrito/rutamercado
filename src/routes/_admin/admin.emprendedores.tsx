@@ -90,6 +90,7 @@ function exportRows(rows: AdminEmprendedor[], name: string) {
       Categoría: r.categoria_producto,
       "Categoría (otro)": r.categoria_otro ?? "",
       "Artesano certificado": r.artesano_certificado ?? "",
+      "Mensaje privado": r.mensaje_privado ?? "",
       Descripción: r.descripcion,
       Región: r.region ?? "",
       Municipio: r.municipio ?? "",
@@ -131,6 +132,7 @@ const emptyItem = (): AdminEmprendedor => ({
   tamano_equipo: null,
   categoria_otro: null,
   artesano_certificado: null,
+  mensaje_privado: null,
   status: "approved",
   created_at: new Date().toISOString(),
 });
@@ -341,6 +343,12 @@ function EmprendedoresAdminPage() {
                         <div className="line-clamp-1 max-w-xs text-xs text-[#18253f]/60">
                           {r.descripcion}
                         </div>
+                        {r.mensaje_privado ? (
+                          <div className="mt-1 max-w-xs rounded bg-amber-50 px-2 py-1 text-xs text-[#18253f]">
+                            <span className="font-semibold">Mensaje privado:</span>{" "}
+                            {r.mensaje_privado}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </TableCell>

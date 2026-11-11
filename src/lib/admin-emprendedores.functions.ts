@@ -17,6 +17,7 @@ export type AdminEmprendedor = {
   id: string;
   nombre_negocio: string;
   logo_url: string | null;
+  mensaje_privado: string | null;
   descripcion: string;
   categoria_producto: string;
   region: string | null;
@@ -85,7 +86,7 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("emprendedores")
       .select(
-        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, categoria_otro, artesano_certificado, status, created_at",
+        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, categoria_otro, artesano_certificado, mensaje_privado, status, created_at",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -109,6 +110,7 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
       tamano_equipo: (r as { tamano_equipo?: string | null }).tamano_equipo ?? null,
       categoria_otro: (r as { categoria_otro?: string | null }).categoria_otro ?? null,
       artesano_certificado: (r as { artesano_certificado?: string | null }).artesano_certificado ?? null,
+      mensaje_privado: (r as { mensaje_privado?: string | null }).mensaje_privado ?? null,
       status: (r.status === "pending"
         ? "pending"
         : r.status === "rejected"

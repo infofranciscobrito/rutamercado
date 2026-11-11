@@ -15,6 +15,13 @@
       "when": 1792941841325,
       "tag": "0001_create_encuesta_respuestas",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794415440158,
+      "tag": "0002_emprendedores_mensaje_privado",
+      "breakpoints": true
     }
   ]
 }

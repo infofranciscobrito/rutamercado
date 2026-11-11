@@ -1,0 +1,1 @@
+ALTER TABLE public.emprendedores ADD COLUMN IF NOT EXISTS mensaje_privado text;

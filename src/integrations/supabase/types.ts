@@ -63,6 +63,7 @@ export type Database = {
           id: string
           instagram: string | null
           logo_url: string | null
+          mensaje_privado: string | null
           mercados_interes: string[] | null
           municipio: string | null
           nombre_negocio: string
@@ -87,6 +88,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           logo_url?: string | null
+          mensaje_privado?: string | null
           mercados_interes?: string[] | null
           municipio?: string | null
           nombre_negocio: string
@@ -111,6 +113,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           logo_url?: string | null
+          mensaje_privado?: string | null
           mercados_interes?: string[] | null
           municipio?: string | null
           nombre_negocio?: string
