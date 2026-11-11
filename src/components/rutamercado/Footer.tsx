@@ -27,7 +27,7 @@ export function Footer() {
       >
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
 
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5">
             {/* Col 1 — Brand */}
             <div className="flex flex-col items-start">
               <img
@@ -91,7 +91,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link to="/negocios" className={linkClass}>
-                    Emprendedores
+                    Directorio de negocios
                   </Link>
                 </li>
               </ul>
@@ -107,9 +107,26 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/negocios" className={linkClass}>
+                    Directorio de negocios
+                  </Link>
+                </li>
+                <li>
                   <a href="/#contacto" className={linkClass}>
                     Contacto
                   </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Col — Para Emprendedores */}
+            <div>
+              <h3 className={columnTitleClass}>Para Emprendedores</h3>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li>
+                  <Link to="/registra-tu-negocio" className={linkClass}>
+                    Registra tu negocio
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -128,18 +145,13 @@ export function Footer() {
                     Políticas de Privacidad
                   </Link>
                 </li>
-                <li>
-                  <Link to="/politica-de-privacidad" className={linkClass}>
-                    Términos de Uso
-                  </Link>
-                </li>
               </ul>
             </div>
           </div>
 
           <div className="mt-12 border-t border-white/10 pt-6 text-center">
             <p className="text-sm text-white/50">
-              © 2025 RutaMercado — Hecho con <span aria-label="amor">❤️</span> en Puerto Rico
+              © {new Date().getFullYear()} RutaMercado — Hecho con <span aria-label="amor">❤️</span> en Puerto Rico
             </p>
           </div>
         </div>
