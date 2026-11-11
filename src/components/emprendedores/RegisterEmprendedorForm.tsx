@@ -542,6 +542,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
           {submitting ? "Enviando..." : "Enviar registro"}
         </Button>
       </form>
+      )}
     </>
   );
 }
