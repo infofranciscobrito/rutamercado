@@ -17,6 +17,7 @@ export type AdminEmprendedor = {
   id: string;
   nombre_negocio: string;
   logo_url: string | null;
+  mensaje_privado: string | null;
   descripcion: string;
   categoria_producto: string;
   region: string | null;
