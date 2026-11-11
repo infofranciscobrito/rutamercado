@@ -341,6 +341,12 @@ function EmprendedoresAdminPage() {
                         <div className="line-clamp-1 max-w-xs text-xs text-[#18253f]/60">
                           {r.descripcion}
                         </div>
+                        {r.mensaje_privado ? (
+                          <div className="mt-1 max-w-xs rounded bg-amber-50 px-2 py-1 text-xs text-[#18253f]">
+                            <span className="font-semibold">Mensaje privado:</span>{" "}
+                            {r.mensaje_privado}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </TableCell>
