@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, Users, Sparkles, ShieldCheck } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   listEmprendedores,
   EMPRENDEDOR_CATEGORIES,
@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/select";
 import { EmprendedorCard } from "@/components/emprendedores/EmprendedorCard";
 import { EmprendedorProfileDialog } from "@/components/emprendedores/EmprendedorProfileDialog";
-import { RegisterEmprendedorDialog } from "@/components/emprendedores/RegisterEmprendedorDialog";
 import { MARKET_REGIONS } from "@/types/market";
 
 const emprendedoresQueryOptions = queryOptions({
@@ -33,19 +32,18 @@ export const Route = createFileRoute("/negocios")({
   head: () => ({
     meta: [
       {
-        title:
-          "Directorio de Negocios — Regístrate para vender en mercados y bazares de Puerto Rico | RutaMercado",
+        title: "Directorio de Negocios y Emprendedores para Mercados en Puerto Rico | RutaMercado",
       },
       {
         name: "description",
         content:
-          "Registra tu negocio y hazte visible ante los organizadores de mercados, bazares y popups de Puerto Rico. Gratis, un solo registro, invitaciones directas.",
+          "Encuentra emprendedores locales para tu mercado, bazar o pop-up en Puerto Rico. Busca por categoría y región, y contáctalos directamente.",
       },
-      { property: "og:title", content: "Directorio de Negocios — RutaMercado" },
+      { property: "og:title", content: "Directorio de Negocios y Emprendedores para Mercados | RutaMercado" },
       {
         property: "og:description",
         content:
-          "Tu negocio, visible ante los organizadores de mercados de Puerto Rico.",
+          "Encuentra emprendedores locales para tu próximo mercado, bazar o pop-up en Puerto Rico y contáctalos directamente.",
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "RutaMercado" },
@@ -54,11 +52,11 @@ export const Route = createFileRoute("/negocios")({
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Directorio de Negocios — RutaMercado" },
+      { name: "twitter:title", content: "Directorio de Negocios y Emprendedores para Mercados | RutaMercado" },
       {
         name: "twitter:description",
         content:
-          "Tu negocio, visible ante los organizadores de mercados de Puerto Rico.",
+          "Encuentra emprendedores locales para tu próximo mercado, bazar o pop-up en Puerto Rico y contáctalos directamente.",
       },
       { name: "twitter:image", content: "https://rutamercadopr.com/og-negocios.png" },
     ],
@@ -81,7 +79,6 @@ function EmprendedoresPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [region, setRegion] = useState<string>("all");
-  const [registerOpen, setRegisterOpen] = useState(false);
   const [selected, setSelected] = useState<Emprendedor | null>(null);
 
   const grouped = useMemo(() => {
@@ -125,76 +122,31 @@ function EmprendedoresPage() {
       <Header />
 
       {/* Hero */}
-      <section className="border-b border-white/15 bg-[#18253f]">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
-          <h1 className="font-display text-4xl text-white md:text-5xl">
+      <section className="bg-[#18253f]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10">
+          <h1 className="font-display text-3xl text-white md:text-4xl">
             Directorio de Negocios
           </h1>
-          <p className="mt-3 max-w-2xl text-lg text-[#54b678] md:text-xl">
-            Tu negocio, visible ante los organizadores de mercados de Puerto Rico.
+          <p className="mt-2 max-w-2xl text-lg text-[#54b678]">
+            Encuentra emprendedores para tu próximo mercado, bazar o pop-up.
           </p>
-          <p className="mt-4 max-w-2xl text-base text-white/80">
-            Registra tu negocio una vez y queda disponible para que los
-            organizadores de mercados, bazares y popups te encuentren, conozcan
-            tu negocio y te inviten a participar en sus próximos eventos.
+          <p className="mt-2 max-w-2xl text-sm text-white/80 md:text-base">
+            Busca por nombre, producto, categoría o región y contacta directamente a cada negocio.
           </p>
-          <div className="mt-6">
-            <button
-              type="button"
-              onClick={() => setRegisterOpen(true)}
-              className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-[#439660]"
-            >
-              Registra tu Negocio
-            </button>
-          </div>
         </div>
       </section>
 
-      {/* ¿Por qué registrarte? */}
-      <section className="border-b border-white/10 bg-[#18253f]">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-          <h2 className="font-display text-2xl text-white md:text-3xl">
-            ¿Por qué registrarte?
-          </h2>
-          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-[#54b678]/30 bg-white/5 p-6">
-              <Users className="h-8 w-8 text-[#54b678]" />
-              <h3 className="mt-3 font-display text-xl text-white">
-                Más invitaciones
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/80">
-                Los organizadores buscan aquí primero cuando arman su próximo
-                mercado o bazar.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#54b678]/30 bg-white/5 p-6">
-              <Sparkles className="h-8 w-8 text-[#54b678]" />
-              <h3 className="mt-3 font-display text-xl text-white">
-                Cero costo, un solo registro
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/80">
-                Creas tu perfil una vez y queda visible para todos los
-                organizadores en la plataforma.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#54b678]/30 bg-white/5 p-6">
-              <ShieldCheck className="h-8 w-8 text-[#54b678]" />
-              <h3 className="mt-3 font-display text-xl text-white">
-                Presencia seria
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/80">
-                Tu perfil pasa por aprobación, igual que los mercados y
-                productores, así que estar listado transmite confianza.
-              </p>
-            </div>
-          </div>
+      <div className="border-y border-white/10 bg-white/5">
+        <div className="mx-auto max-w-7xl px-4 py-2.5 text-sm sm:px-6">
+          <Link to="/registra-tu-negocio" className="text-white/70 transition-colors hover:text-[#54b678]">
+            ¿Tienes un negocio? <span className="font-semibold text-[#54b678]">Regístrate gratis →</span>
+          </Link>
         </div>
-      </section>
-
+      </div>
 
       {/* Filtros */}
-      <section className="border-b border-white/10 bg-[#18253f]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <section className="sticky top-16 z-30 border-b border-white/10 bg-[#18253f] shadow-[0_6px_16px_-8px_rgba(0,0,0,0.5)]">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative w-full sm:flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
@@ -234,7 +186,7 @@ function EmprendedoresPage() {
               </SelectContent>
             </Select>
           </div>
-          <p className="mt-3 text-sm text-white/60">
+          <p className="mt-2 text-sm text-white/60">
             {total} emprendedor{total === 1 ? "" : "es"} en el directorio.
           </p>
         </div>
@@ -273,12 +225,20 @@ function EmprendedoresPage() {
             ))}
           </div>
         )}
+
+        <div className="mt-16 flex flex-col items-start gap-4 rounded-2xl border border-[#54b678]/30 bg-white/5 p-6 sm:flex-row sm:items-center sm:justify-between md:p-8">
+          <p className="font-display text-xl text-white md:text-2xl">
+            ¿Tienes un negocio? Regístrate gratis
+          </p>
+          <Link
+            to="/registra-tu-negocio"
+            className="inline-flex h-12 items-center justify-center rounded-md bg-[#54b678] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#439660]"
+          >
+            Regístrate gratis →
+          </Link>
+        </div>
       </main>
 
-      <RegisterEmprendedorDialog
-        open={registerOpen}
-        onOpenChange={setRegisterOpen}
-      />
       <EmprendedorProfileDialog
         item={selected}
         open={!!selected}
