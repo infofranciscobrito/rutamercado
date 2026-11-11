@@ -90,6 +90,7 @@ function exportRows(rows: AdminEmprendedor[], name: string) {
       Categoría: r.categoria_producto,
       "Categoría (otro)": r.categoria_otro ?? "",
       "Artesano certificado": r.artesano_certificado ?? "",
+      "Mensaje privado": r.mensaje_privado ?? "",
       Descripción: r.descripcion,
       Región: r.region ?? "",
       Municipio: r.municipio ?? "",
@@ -131,6 +132,7 @@ const emptyItem = (): AdminEmprendedor => ({
   tamano_equipo: null,
   categoria_otro: null,
   artesano_certificado: null,
+  mensaje_privado: null,
   status: "approved",
   created_at: new Date().toISOString(),
 });
