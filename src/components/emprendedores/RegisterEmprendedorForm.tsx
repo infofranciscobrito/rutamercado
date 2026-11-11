@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_REGIONS } from "@/types/market";
+import { MUNICIPIOS, regionDeMunicipio } from "@/lib/municipios";
 import {
   EMPRENDEDOR_CATEGORIES,
   submitEmprendedor,
@@ -63,13 +63,13 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
   const [categoria, setCategoria] = useState<EmprendedorCategory | "">("");
   const [categoriaOtro, setCategoriaOtro] = useState("");
   const [artesanoCert, setArtesanoCert] = useState<string>("");
-  const [region, setRegion] = useState("");
   const [municipio, setMunicipio] = useState("");
   const [instagram, setInstagram] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [personaContacto, setPersonaContacto] = useState("");
   const [mercadosInteres, setMercadosInteres] = useState("");
+  const [mensajePrivado, setMensajePrivado] = useState("");
   const [tiempoOperando, setTiempoOperando] = useState<string>("");
   const [registroComerciante, setRegistroComerciante] = useState<string>("");
   const [fuenteIngreso, setFuenteIngreso] = useState<string>("");
@@ -81,7 +81,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
   const [done, setDone] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const regionOptions = useMemo(() => [...MARKET_REGIONS], []);
+  const region = regionDeMunicipio(municipio);
 
 
   const handleSelectFile = (file: File) => {
@@ -116,6 +116,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
       if (countWords(categoriaOtro) > 20)
         return toast.error("La categoría personalizada no puede exceder 20 palabras.");
     }
+    if (!municipio) return toast.error("Selecciona tu municipio.");
     if (!instagram.trim() && !email.trim() && !telefono.trim()) {
       return toast.error("Provee al menos un contacto (Instagram, email o teléfono).");
     }
@@ -137,8 +138,8 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
           nombre_negocio: nombre.trim(),
           descripcion: descripcion.trim(),
           categoria_producto: categoria,
-          region: region || null,
-          municipio: municipio.trim() || null,
+          municipio,
+          mensaje_privado: mensajePrivado.trim() || null,
           instagram: instagram.trim() || null,
           email: email.trim() || null,
           telefono: telefono.trim() || null,
@@ -178,6 +179,10 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
       </div>
     ) : (
       <form onSubmit={handleSubmit} className="space-y-4" {...noFill}>
+        <div className="border-b border-[#18253f]/10 pb-2 pt-2">
+          <h3 className="font-display text-lg text-[#18253f]">Tu perfil público</h3>
+          <p className="text-xs text-[#18253f]/60">Lo verán los organizadores.</p>
+        </div>
         <div>
           <Label htmlFor="emp-nombre">
             Nombre del negocio / emprendedor <span className="text-destructive">*</span>
@@ -198,7 +203,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
             Descripción breve del negocio <span className="text-destructive">*</span>
           </Label>
           <p className="mt-1 text-xs text-[#18253f]/60">
-            Qué vendes, 1-2 frases. Máx 500 caracteres.
+            Se publica tal cual en tu perfil. Describe tu negocio y tus productos; no escribas aquí un mensaje para nosotros. Máx 500 caracteres.
           </p>
           <Textarea
             id="emp-desc"
@@ -274,36 +279,26 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
           </Select>
         </div>
 
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="emp-region">Región</Label>
-            <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger id="emp-region" className="mt-1">
-                <SelectValue placeholder="Selecciona una región" />
-              </SelectTrigger>
-              <SelectContent>
-                {regionOptions.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="emp-mun">Municipio base</Label>
-            <Input
-              id="emp-mun"
-              value={municipio}
-              onChange={(e) => setMunicipio(e.target.value)}
-              maxLength={100}
-              className="mt-1"
-              {...noFill}
-            />
-          </div>
+        <div>
+          <Label htmlFor="emp-mun">
+            Municipio base <span className="text-destructive">*</span>
+          </Label>
+          <Select value={municipio} onValueChange={setMunicipio}>
+            <SelectTrigger id="emp-mun" className="mt-1">
+              <SelectValue placeholder="Selecciona tu municipio" />
+            </SelectTrigger>
+            <SelectContent>
+              {MUNICIPIOS.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {region ? (
+            <p className="mt-1 text-xs text-[#18253f]/70">Región: {region}</p>
+          ) : null}
         </div>
-
         <div>
           <Label htmlFor="emp-persona">Persona de contacto</Label>
           <Input
@@ -357,7 +352,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
 
         <div>
           <Label htmlFor="emp-mercados">
-            Mercados donde ha participado o le interesaría participar
+            Mercados donde has participado (se publica en tu perfil)
           </Label>
           <p className="mt-1 text-xs text-[#18253f]/60">
             Separa por comas.
@@ -372,7 +367,65 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
             {...noFill}
           />
         </div>
+        <div>
+          <Label>Logo o foto representativa</Label>
+          <p className="mt-1 text-xs text-[#18253f]/60">
+            JPG o PNG, máximo 5MB.
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png"
+            className="sr-only"
+            autoComplete="off"
+            data-lpignore="true"
+            data-form-type="other"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleSelectFile(f);
+            }}
+          />
+          {logoPreview ? (
+            <div className="mt-2 flex items-center gap-3 rounded-lg border border-[#18253f]/10 bg-[#FFF8EC] p-3">
+              <img
+                src={logoPreview}
+                alt="Vista previa"
+                className="h-20 w-20 rounded-md object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-[#18253f]">{logoFile?.name}</p>
+                <p className="text-xs text-[#18253f]/60">
+                  {logoFile ? `${(logoFile.size / 1024).toFixed(0)} KB` : ""}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={removeLogo}
+                className="text-[#18253f]/60 hover:text-destructive"
+                aria-label="Quitar imagen"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2 w-full border-dashed border-[#54b678]/40 text-[#18253f] hover:border-[#54b678] hover:bg-[#54b678]/5"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <ImagePlus className="mr-2 h-4 w-4 text-[#54b678]" />
+              Seleccionar imagen
+            </Button>
+          )}
+        </div>
 
+        <div className="border-b border-[#18253f]/10 pb-2 pt-2">
+          <h3 className="font-display text-lg text-[#18253f]">Preguntas internas</h3>
+          <p className="text-xs text-[#18253f]/60">No se publican.</p>
+        </div>
         <div>
           <Label htmlFor="emp-tiempo">
             ¿Cuánto tiempo lleva operando tu negocio?
@@ -477,62 +530,23 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
             </SelectContent>
           </Select>
         </div>
-
-
         <div>
-          <Label>Logo o foto representativa</Label>
-          <p className="mt-1 text-xs text-[#18253f]/60">
-            JPG o PNG, máximo 5MB.
-          </p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png"
-            className="sr-only"
-            autoComplete="off"
-            data-lpignore="true"
-            data-form-type="other"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) handleSelectFile(f);
-            }}
+          <Label htmlFor="emp-privado">
+            ¿Algo que quieras decirnos? (privado, no se publica)
+          </Label>
+          <Textarea
+            id="emp-privado"
+            value={mensajePrivado}
+            onChange={(e) => setMensajePrivado(e.target.value)}
+            maxLength={500}
+            rows={3}
+            className="mt-1"
+            placeholder="Opcional"
+            {...noFill}
           />
-          {logoPreview ? (
-            <div className="mt-2 flex items-center gap-3 rounded-lg border border-[#18253f]/10 bg-[#FFF8EC] p-3">
-              <img
-                src={logoPreview}
-                alt="Vista previa"
-                className="h-20 w-20 rounded-md object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-[#18253f]">{logoFile?.name}</p>
-                <p className="text-xs text-[#18253f]/60">
-                  {logoFile ? `${(logoFile.size / 1024).toFixed(0)} KB` : ""}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={removeLogo}
-                className="text-[#18253f]/60 hover:text-destructive"
-                aria-label="Quitar imagen"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-2 w-full border-dashed border-[#54b678]/40 text-[#18253f] hover:border-[#54b678] hover:bg-[#54b678]/5"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <ImagePlus className="mr-2 h-4 w-4 text-[#54b678]" />
-              Seleccionar imagen
-            </Button>
-          )}
+          <p className="mt-1 text-xs text-[#18253f]/60">{mensajePrivado.length}/500</p>
         </div>
+
 
         <Button
           type="submit"

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
+import { MUNICIPIOS, regionDeMunicipio } from "@/lib/municipios";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -120,8 +121,11 @@ const RegisterSchema = z
     nombre_negocio: z.string().trim().min(1, "El nombre es obligatorio").max(200),
     descripcion: z.string().trim().min(1, "La descripción es obligatoria").max(500),
     categoria_producto: z.enum(EMPRENDEDOR_CATEGORIES),
-    region: optText(100),
-    municipio: optText(100),
+    municipio: z
+      .string()
+      .trim()
+      .refine((v) => MUNICIPIOS.includes(v), { message: "Selecciona un municipio válido." }),
+    mensaje_privado: optText(500).optional(),
     instagram: optText(300),
     email: z.preprocess(
       (v) => {
@@ -189,6 +193,7 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
       logoUrl = pub.publicUrl;
     }
 
+    const region = regionDeMunicipio(data.municipio);
     const mercadosArray = (data.mercados_interes ?? "")
       .split(",")
       .map((s) => s.trim())
@@ -200,8 +205,9 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
         nombre_negocio: data.nombre_negocio,
         descripcion: data.descripcion,
         categoria_producto: data.categoria_producto,
-        region: data.region,
+        region,
         municipio: data.municipio,
+        mensaje_privado: data.mensaje_privado ?? null,
         instagram: data.instagram,
         email: data.email,
         telefono: data.telefono,
@@ -245,7 +251,7 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
               (data.categoria_producto === "Artesanías"
                 ? `Artesano/a certificado/a: ${data.artesano_certificado ?? "—"}\n`
                 : "") +
-              `Región: ${data.region ?? "—"}\n` +
+              `Región: ${region ?? "—"}\n` +
               `Municipio: ${data.municipio ?? "—"}\n` +
               `Contacto: ${data.persona_contacto ?? "—"}\n` +
               `Instagram: ${data.instagram ?? "—"}\n` +
@@ -258,6 +264,7 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
               `Fuente de ingreso: ${data.fuente_ingreso ?? "—"}\n` +
               `Canales de venta: ${(data.canales_venta ?? []).join(", ") || "—"}\n` +
               `Tamaño del equipo: ${data.tamano_equipo ?? "—"}\n` +
+              `Mensaje privado: ${data.mensaje_privado ?? "—"}\n` +
               `\nDescripción:\n${data.descripcion}\n` +
               (logoUrl ? `\nLogo: ${logoUrl}\n` : ""),
           }),
