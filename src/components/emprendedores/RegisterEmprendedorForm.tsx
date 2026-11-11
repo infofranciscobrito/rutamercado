@@ -180,8 +180,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
     ) : (
       <form onSubmit={handleSubmit} className="space-y-4" {...noFill}>
         <div className="border-b border-[#18253f]/10 pb-2 pt-2">
-          <h3 className="font-display text-lg text-[#18253f]">Tu perfil público</h3>
-          <p className="text-xs text-[#18253f]/60">Lo verán los organizadores.</p>
+          <h3 className="font-display text-lg text-[#18253f]">Tu perfil público (lo verán los organizadores)</h3>
         </div>
         <div>
           <Label htmlFor="emp-nombre">
@@ -423,8 +422,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
         </div>
 
         <div className="border-b border-[#18253f]/10 pb-2 pt-2">
-          <h3 className="font-display text-lg text-[#18253f]">Preguntas internas</h3>
-          <p className="text-xs text-[#18253f]/60">No se publican.</p>
+          <h3 className="font-display text-lg text-[#18253f]">Preguntas internas (no se publican)</h3>
         </div>
         <div>
           <Label htmlFor="emp-tiempo">
