@@ -26,6 +26,7 @@ import { Route as NegociosRouteImport } from './routes/negocios'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
 import { Route as ProductoresRouteImport } from './routes/productores'
+import { Route as RegistraTuNegocioRouteImport } from './routes/registra-tu-negocio'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as MercadosIndexRouteImport } from './routes/mercados/index'
@@ -125,6 +126,11 @@ const ProductoresRoute = ProductoresRouteImport.update({
   path: '/productores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistraTuNegocioRoute = RegistraTuNegocioRouteImport.update({
+  id: '/registra-tu-negocio',
+  path: '/registra-tu-negocio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -213,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/newsletter': typeof NewsletterRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
+  '/registra-tu-negocio': typeof RegistraTuNegocioRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/mercados/$slug': typeof MercadosSlugRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/newsletter': typeof NewsletterRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
+  '/registra-tu-negocio': typeof RegistraTuNegocioRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/mercados/$slug': typeof MercadosSlugRoute
@@ -279,6 +287,7 @@ export interface FileRoutesById {
   '/newsletter': typeof NewsletterRoute
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
+  '/registra-tu-negocio': typeof RegistraTuNegocioRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/mercados/$slug': typeof MercadosSlugRoute
@@ -313,6 +322,7 @@ export interface FileRouteTypes {
     | '/newsletter'
     | '/politica-de-privacidad'
     | '/productores'
+    | '/registra-tu-negocio'
     | '/sitemap.xml'
     | '/admin/login'
     | '/mercados/$slug'
@@ -345,6 +355,7 @@ export interface FileRouteTypes {
     | '/newsletter'
     | '/politica-de-privacidad'
     | '/productores'
+    | '/registra-tu-negocio'
     | '/sitemap.xml'
     | '/admin/login'
     | '/mercados/$slug'
@@ -378,6 +389,7 @@ export interface FileRouteTypes {
     | '/newsletter'
     | '/politica-de-privacidad'
     | '/productores'
+    | '/registra-tu-negocio'
     | '/sitemap.xml'
     | '/admin/login'
     | '/mercados/$slug'
@@ -412,6 +424,7 @@ export interface RootRouteChildren {
   NewsletterRoute: typeof NewsletterRoute
   PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
   ProductoresRoute: typeof ProductoresRoute
+  RegistraTuNegocioRoute: typeof RegistraTuNegocioRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
   MercadosSlugRoute: typeof MercadosSlugRoute
@@ -537,6 +550,13 @@ declare module '@tanstack/react-router' {
       path: '/productores'
       fullPath: '/productores'
       preLoaderRoute: typeof ProductoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registra-tu-negocio': {
+      id: '/registra-tu-negocio'
+      path: '/registra-tu-negocio'
+      fullPath: '/registra-tu-negocio'
+      preLoaderRoute: typeof RegistraTuNegocioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -686,6 +706,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsletterRoute: NewsletterRoute,
   PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
   ProductoresRoute: ProductoresRoute,
+  RegistraTuNegocioRoute: RegistraTuNegocioRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
   MercadosSlugRoute: MercadosSlugRoute,
