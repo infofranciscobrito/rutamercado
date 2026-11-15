@@ -24,7 +24,7 @@ export const Route = createFileRoute("/encuesta")({
       { name: "theme-color", content: "#162540" },
     ],
     links: [
-      { rel: "canonical", href: URL },
+      { rel: "canonical", href: "https://rutamercadopr.com/rutralover" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
