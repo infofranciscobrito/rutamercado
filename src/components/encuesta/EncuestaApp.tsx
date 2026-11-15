@@ -11,7 +11,7 @@ const track = (fn: "gtag" | "fbq", ...args: unknown[]) => {
   w[fn]?.(...args);
 };
 
-const SHARE_URL = "https://rutamercadopr.com/encuesta?origen=compartido";
+const SHARE_URL = "https://rutamercadopr.com/rutralover?origen=compartido";
 const PIN_CHECK = (
   <span className="pin" aria-hidden="true">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>

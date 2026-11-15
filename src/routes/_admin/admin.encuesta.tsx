@@ -51,7 +51,7 @@ function EncuestaAdminPage() {
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl text-[#18253f]">Encuesta de membresía</h1>
-          <p className="text-sm text-muted-foreground">Resultados de rutamercadopr.com/encuesta</p>
+          <p className="text-sm text-muted-foreground">Resultados de rutamercadopr.com/rutralover</p>
         </div>
         <div className="flex gap-2">
           {d && (
@@ -80,12 +80,12 @@ function EncuestaAdminPage() {
 
 function EmptyState() {
   const copy = async () => {
-    await navigator.clipboard.writeText("https://rutamercadopr.com/encuesta");
+    await navigator.clipboard.writeText("https://rutamercadopr.com/rutralover");
     toast.success("Enlace copiado");
   };
   return (
     <div className="rounded-xl border bg-card p-10 text-center space-y-4">
-      <p className="text-[#18253f]">Todavía no hay respuestas. Comparte rutamercadopr.com/encuesta para empezar.</p>
+      <p className="text-[#18253f]">Todavía no hay respuestas. Comparte rutamercadopr.com/rutralover para empezar.</p>
       <Button variant="outline" onClick={copy}><Copy className="h-4 w-4" /> Copiar enlace</Button>
     </div>
   );
