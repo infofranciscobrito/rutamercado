@@ -58,15 +58,21 @@ export type Database = {
           categoria_producto: string
           created_at: string
           descripcion: string
+          discount_offer: string | null
+          discount_offer_other: string | null
+          discount_willing: string | null
           email: string | null
           fuente_ingreso: string | null
           id: string
           instagram: string | null
+          is_test: boolean
           logo_url: string | null
           mensaje_privado: string | null
           mercados_interes: string[] | null
           municipio: string | null
           nombre_negocio: string
+          participation_needs: string[] | null
+          participation_needs_other: string | null
           persona_contacto: string | null
           region: string | null
           registro_comerciante: string | null
@@ -75,6 +81,7 @@ export type Database = {
           telefono: string | null
           tiempo_operando: string | null
           updated_at: string
+          wants_founder: boolean | null
         }
         Insert: {
           artesano_certificado?: string | null
@@ -83,15 +90,21 @@ export type Database = {
           categoria_producto: string
           created_at?: string
           descripcion: string
+          discount_offer?: string | null
+          discount_offer_other?: string | null
+          discount_willing?: string | null
           email?: string | null
           fuente_ingreso?: string | null
           id?: string
           instagram?: string | null
+          is_test?: boolean
           logo_url?: string | null
           mensaje_privado?: string | null
           mercados_interes?: string[] | null
           municipio?: string | null
           nombre_negocio: string
+          participation_needs?: string[] | null
+          participation_needs_other?: string | null
           persona_contacto?: string | null
           region?: string | null
           registro_comerciante?: string | null
@@ -100,6 +113,7 @@ export type Database = {
           telefono?: string | null
           tiempo_operando?: string | null
           updated_at?: string
+          wants_founder?: boolean | null
         }
         Update: {
           artesano_certificado?: string | null
@@ -108,15 +122,21 @@ export type Database = {
           categoria_producto?: string
           created_at?: string
           descripcion?: string
+          discount_offer?: string | null
+          discount_offer_other?: string | null
+          discount_willing?: string | null
           email?: string | null
           fuente_ingreso?: string | null
           id?: string
           instagram?: string | null
+          is_test?: boolean
           logo_url?: string | null
           mensaje_privado?: string | null
           mercados_interes?: string[] | null
           municipio?: string | null
           nombre_negocio?: string
+          participation_needs?: string[] | null
+          participation_needs_other?: string | null
           persona_contacto?: string | null
           region?: string | null
           registro_comerciante?: string | null
@@ -125,6 +145,7 @@ export type Database = {
           telefono?: string | null
           tiempo_operando?: string | null
           updated_at?: string
+          wants_founder?: boolean | null
         }
         Relationships: []
       }
