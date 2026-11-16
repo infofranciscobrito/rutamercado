@@ -4,10 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Download, Copy, ArrowDown, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { filterRows, plural, topMesas, type RawRow } from "@/lib/encuesta-stats";
+import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, type RawRow } from "@/lib/encuesta-stats";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas } from "@/lib/encuesta.functions";
+import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas, exportTodasRespuestas } from "@/lib/encuesta.functions";
 import { downloadCSV } from "@/lib/csv";
 import {
   computeDashboard, int, pct, money, dec1, MIN,
@@ -25,7 +25,6 @@ const MUTED = "rgba(24,37,63,0.25)";
 const GRID = "rgba(24,37,63,0.08)";
 const BAD = "#d9534f";
 const toneColor = { brand: BRAND, brandSoft: "rgba(84,182,120,0.45)", muted: MUTED, grid: GRID } as const;
-const SIGNAL_COLOR = { fuerte: BRAND, moderada: "#e0a526", debil: BAD } as const;
 
 function EncuestaAdminPage() {
   const listFn = useServerFn(listEncuestaRespuestas);
@@ -49,6 +48,19 @@ function EncuestaAdminPage() {
     }
   };
   const d = useMemo(() => (rows.length ? computeDashboard(rows) : null), [rows]);
+
+  const allFn = useServerFn(exportTodasRespuestas);
+  const downloadAll = async () => {
+    try {
+      const all = await allFn();
+      const list = all.filter((r) => (showTest || !r.is_test) && (version === "todas" || (r.survey_version ?? "v1") === version));
+      if (!list.length) { toast.info("No hay respuestas con estos filtros."); return; }
+      downloadCSV(`encuesta-respuestas-${version}-${new Date().toISOString().slice(0, 10)}.csv`,
+        list.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, Array.isArray(v) ? v.join("; ") : v]))));
+    } catch {
+      toast.error("No se pudieron descargar las respuestas.");
+    }
+  };
 
   const download = async () => {
     setDownloading(true);
@@ -88,6 +100,9 @@ function EncuestaAdminPage() {
           <Button onClick={download} disabled={downloading} className="bg-[#54b678] hover:bg-[#54b678]/90 text-white">
             <Download className="h-4 w-4" /> Descargar lista de espera (CSV)
           </Button>
+          <Button variant="outline" onClick={downloadAll}>
+            <Download className="h-4 w-4" /> Descargar todas las respuestas (CSV)
+          </Button>
         </div>
       </header>
 
@@ -125,14 +140,17 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
     <>
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">¿Pagarían $24 al año por la membresía?</p>
-        <p className="font-display text-3xl md:text-4xl text-[#18253f] leading-tight">
-          <span className="inline-block h-[0.55em] w-[0.55em] rounded-full mr-2 align-[0.08em]" style={{ background: SIGNAL_COLOR[d.signal] }} />
-          {d.verdict}
-        </p>
-        <p className="text-lg leading-snug max-w-3xl">
-          De cada 10 personas, <b>{Math.round(d.sSi * 10)} {plural(Math.round(d.sSi * 10), "pagaría", "pagarían")} los $24</b> y{" "}
-          <b>{Math.round(d.sComp * 10) || "menos de 1"} ya {plural(Math.round(d.sComp * 10), "dejó", "dejaron")} su email</b>. {plural(d.comp, "Esa persona", `Esas ${int(d.comp)} personas`)} ({pct(d.sComp)}) {plural(d.comp, "es la más probable", "son las más probables")} de comprar.
-        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <span className="text-sm text-muted-foreground">Pagarían $24</span>
+            <p className="font-display text-3xl text-[#18253f] tabular-nums">{fmtProp(d.si, d.n)}</p>
+          </div>
+          <div>
+            <span className="text-sm text-muted-foreground">Pagarían y dejaron email</span>
+            <p className="font-display text-3xl text-[#18253f] tabular-nums">{fmtProp(d.comp, d.n)}</p>
+          </div>
+        </div>
+        <NNote n={d.n} />
         <div className="flex h-2.5 max-w-2xl overflow-hidden rounded-full" style={{ background: GRID }} aria-hidden>
           {d.strip.slice(0, 3).map((s) => (
             <span key={s.label} style={{ width: `${Math.max(0, s.v) * 100}%`, background: toneColor[s.tone] }} />
@@ -140,17 +158,17 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           {d.strip.map((s) => (
-            <span key={s.label}><i className="inline-block h-2.5 w-2.5 rounded-full mr-1.5 align-[-1px]" style={{ background: toneColor[s.tone] }} />{s.label} {pct(Math.max(0, s.v))}</span>
+            <span key={s.label}><i className="inline-block h-2.5 w-2.5 rounded-full mr-1.5 align-[-1px]" style={{ background: toneColor[s.tone] }} />{s.label} {d.n < SMALL ? `${Math.round(Math.max(0, s.v) * d.n)} de ${d.n}` : pct(Math.max(0, s.v))}</span>
           ))}
         </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Tile label={plural(t.n, "Respuesta", "Respuestas")} value={int(t.n)} sub={`${pct(t.qr)} llegó por el QR en un mercado.`} />
-        <Tile label="Gastan por visita" value={money(t.gasto)} sub={`en promedio. ${pct(t.gasto1550)} gasta entre $15 y $50.`} />
-        <Tile label="Van a mercados" value={`${dec1(t.visitas)} al mes`} sub={`Gastan unos ${money(t.gastoMes)} al mes en mercados.`} />
-        <Tile label="Mercados distintos" value={dec1(t.mercados)} sub="en los últimos 3 meses, en promedio." />
-        <Tile label="Lista de espera" value={int(t.em)} sub={`${pct(t.em / t.n)} dejó su email. ${int(t.fin)} ${plural(t.fin, "se anotó", "se anotaron")} después del cálculo de ahorro.`} />
+        <Tile n={t.n} label={plural(t.n, "Respuesta", "Respuestas")} value={int(t.n)} sub={`${fmtVal(Math.round(t.qr * t.n), t.n)} llegó por el QR en un mercado.`} />
+        <Tile n={t.n} label="Gastan por visita" value={money(t.gasto)} sub={`en promedio. ${fmtVal(Math.round(t.gasto1550 * t.n), t.n)} gasta entre $15 y $50.`} />
+        <Tile n={t.n} label="Van a mercados" value={`${dec1(t.visitas)} al mes`} sub={`Gastan unos ${money(t.gastoMes)} al mes en mercados.`} />
+        <Tile n={t.n} label="Mercados distintos" value={dec1(t.mercados)} sub="en los últimos 3 meses, en promedio." />
+        <Tile n={t.n} label="Lista de espera" value={int(t.em)} sub={`${fmtProp(t.em, t.n)} dejó su email. ${int(t.fin)} ${plural(t.fin, "se anotó", "se anotaron")} después del cálculo de ahorro.`} />
       </section>
 
       <Section title="Quiénes respondieron y quiénes pagarían" desc="Cada grupo con su tamaño, qué parte pagaría los $24, cuánto gasta por visita y cuántos dejaron su email. El grupo con más interés sale resaltado.">
@@ -167,10 +185,10 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
         <BarCard title="¿Vuelven a las mismas mesas?" items={d.como.lealtad} />
       </Section>
 
-      <Section title="Qué compran y qué los mueve" desc="% de personas que escogió cada opción. Podían marcar varias, por eso no suman 100%.">
-        <BarCard title="En qué gastan más" items={d.compran.categorias} max={1} />
-        <BarCard title="Qué los haría ir a más mercados" items={d.compran.motivos} max={1} />
-        <BarCard title="Cómo deciden a qué mercado ir" items={d.compran.descubren} max={1} />
+      <Section title="Qué compran y qué los mueve" desc="Podían marcar varias opciones, por eso no suman 100%.">
+        <BarCard title="En qué gastan más" note="% que lo puso entre sus opciones (hasta 3)" items={d.compran.categorias} max={1} />
+        <BarCard title="Qué los haría ir a más mercados" note="% que lo puso entre sus opciones (hasta 3)" items={d.compran.motivos} max={1} />
+        <BarCard title="Cómo deciden a qué mercado ir" note="% que lo puso entre sus opciones (hasta 2)" items={d.compran.descubren} max={1} />
         <MesasCard rows={rows as unknown as RawRow[]} />
       </Section>
 
@@ -179,14 +197,15 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
         <article className="rounded-xl border bg-card p-5 space-y-3">
           <h3 className="font-display text-lg text-[#18253f]">Cómo la pagarían</h3>
           <p className="text-xs text-muted-foreground">{plural(d.membresia.planN, "Entre la persona que llegó", `Entre las ${int(d.membresia.planN)} personas que llegaron`)} a escoger plan.</p>
+          <NNote n={d.membresia.planN} />
           <div className="flex h-8 overflow-hidden rounded-md text-xs font-semibold text-white">
             {d.membresia.plan.map((x, i) => x.v > 0 && (
-              <div key={x.key} className="flex items-center justify-center" style={{ width: `${x.v * 100}%`, background: [BRAND, NAVY, MUTED][i] }}>{x.v >= 0.12 ? pct(x.v) : ""}</div>
+              <div key={x.key} className="flex items-center justify-center" style={{ width: `${x.v * 100}%`, background: [BRAND, NAVY, MUTED][i] }}>{x.v >= 0.12 ? fmtVal(x.c, x.n) : ""}</div>
             ))}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {d.membresia.plan.map((x, i) => (
-              <span key={x.key}><i className="inline-block h-2.5 w-2.5 rounded-full mr-1.5" style={{ background: [BRAND, NAVY, MUTED][i] }} />{x.label} {pct(x.v)}</span>
+              <span key={x.key}><i className="inline-block h-2.5 w-2.5 rounded-full mr-1.5" style={{ background: [BRAND, NAVY, MUTED][i] }} />{x.label} {fmtVal(x.c, x.n)}</span>
             ))}
           </div>
         </article>
@@ -198,7 +217,7 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resumen</p>
           <h2 className="font-display text-2xl text-[#18253f]">{d.resumen.titulo}</h2>
           <p className="text-sm">
-            De {int(d.n)} {plural(d.n, "respuesta", "respuestas")}, <b>{pct(d.resumen.general)} pagaría los $24</b> y <b>{int(d.comp)} {plural(d.comp, "persona", "personas")} ({pct(d.sComp)})</b> además {plural(d.comp, "dejó", "dejaron")} su email. Ese es el número que más se parece a una venta real.
+            De {int(d.n)} {plural(d.n, "respuesta", "respuestas")}, <b>{fmtProp(d.si, d.n)} pagaría los $24</b> y <b>{int(d.comp)} {plural(d.comp, "persona", "personas")} ({fmtProp(d.comp, d.n)})</b> además {plural(d.comp, "dejó", "dejaron")} su email. Ese es el número que más se parece a una venta real.
           </p>
         </header>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -225,12 +244,21 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
   );
 }
 
-function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
+function NNote({ n }: { n: number }) {
+  return (
+    <p className="text-xs text-muted-foreground">
+      n = {int(n)}{n < SMALL && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-800">Muestra muy pequeña</span>}
+    </p>
+  );
+}
+
+function Tile({ label, value, sub, n }: { label: string; value: string; sub: string; n: number }) {
   return (
     <div className="rounded-xl border bg-card p-5 space-y-1">
       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
       <strong className="block font-display text-3xl text-[#18253f] tabular-nums">{value}</strong>
       <p className="text-xs text-muted-foreground">{sub}</p>
+      <NNote n={n} />
     </div>
   );
 }
@@ -254,17 +282,18 @@ function BarCard({ title, items, max, noTop, note }: { title: string; items: Dis
     <article className="rounded-xl border bg-card p-5 space-y-3">
       <h3 className="font-display text-lg text-[#18253f]">{title}</h3>
       {note && <p className="text-xs text-muted-foreground">{note}</p>}
+      <NNote n={items[0]?.n ?? 0} />
       <div className="space-y-2">
         {items.map((it) => {
           const isTop = !noTop && it.v === top && top > 0;
           const bg = it.color === "brand" ? BRAND : it.color === "bad" ? BAD : it.color === "muted" ? MUTED : isTop ? BRAND : MUTED;
           return (
-            <div key={it.key} className="grid grid-cols-[minmax(0,10rem)_1fr_2.5rem] items-center gap-2 text-sm">
+            <div key={it.key} className="grid grid-cols-[minmax(0,10rem)_1fr_3.5rem] items-center gap-2 text-sm">
               <span className={`truncate ${isTop ? "font-semibold text-[#18253f]" : ""}`} title={it.label}>{it.label}</span>
               <div className="h-2 rounded-full" style={{ background: GRID }}>
                 <div className="h-full rounded-full" style={{ width: `${(it.v / m) * 100}%`, background: bg }} />
               </div>
-              <span className="text-right tabular-nums text-xs">{pct(it.v)}</span>
+              <span className="text-right tabular-nums text-xs">{fmtVal(it.c, it.n)}</span>
             </div>
           );
         })}
@@ -274,15 +303,16 @@ function BarCard({ title, items, max, noTop, note }: { title: string; items: Dis
 }
 
 function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof computeDashboard>["segments"][SegField] }) {
-  const { groups, best, big, maxSize, general } = seg;
+  const { groups, best, big, maxSize, general, n } = seg;
   return (
     <article className="rounded-xl border bg-card p-5 space-y-3">
       <h3 className="font-display text-lg text-[#18253f]">{title}</h3>
       <p className="text-sm text-muted-foreground">
         {best && big ? (
-          <>El grupo más grande es <b>{big.label} ({pct(big.size)})</b>. El que más pagaría: <b>{best.label}, {pct(best.pay)}</b> contra {pct(general)} en general.</>
+          <>El grupo más grande es <b>{big.label} ({fmtVal(big.n, n)})</b>. El que más pagaría: <b>{best.label}, {fmtProp(best.payK, best.n)}</b> contra {fmtVal(Math.round(general * n), n)} en general.</>
         ) : "Grupos muy pequeños para comparar."}
       </p>
+      <NNote n={n} />
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -294,12 +324,13 @@ function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof compute
           <tbody>
             {groups.map((g) => {
               const isBest = best?.key === g.key;
+              const isOtros = g.key === "otros";
               return (
-                <tr key={g.key} className={`border-t ${g.n < MIN ? "opacity-45" : ""} ${isBest ? "bg-[#54b678]/5" : ""}`}>
+                <tr key={g.key} className={`border-t ${g.n < MIN || isOtros ? "opacity-45" : ""} ${isBest ? "bg-[#54b678]/5" : ""}`}>
                   <td className="py-2 pr-2">
                     <b className="text-[#18253f]">{g.label}</b>
                     {isBest && <span className="ml-1.5 rounded-full bg-[#54b678]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[#2f7a4b]">más interés</span>}
-                    <span className="block text-xs text-muted-foreground">{int(g.n)} {plural(g.n, "persona", "personas")} · {pct(g.size)}</span>
+                    <span className="block text-xs text-muted-foreground">{int(g.n)} {plural(g.n, "persona", "personas")}{n >= SMALL ? ` · ${pct(g.size)}` : ""}</span>
                     <div className="mt-1 h-1 w-24 rounded-full" style={{ background: GRID }}>
                       <i className="block h-full rounded-full" style={{ width: `${(g.size / maxSize) * 100}%`, background: NAVY }} />
                     </div>
@@ -307,11 +338,11 @@ function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof compute
                   <td className="py-2">
                     <span className="rounded-full px-2 py-0.5 text-xs font-semibold text-[#18253f]"
                       style={{ background: isBest ? BRAND : `color-mix(in srgb, ${BRAND} ${Math.round(g.pay * 70 + 6)}%, transparent)` }}>
-                      {pct(g.pay)}
+                      {fmtProp(g.payK, g.n)}
                     </span>
                   </td>
                   <td className="py-2 tabular-nums">{money(g.spend)}</td>
-                  <td className="py-2 tabular-nums">{pct(g.mail)}</td>
+                  <td className="py-2 tabular-nums">{fmtVal(g.mailK, g.n)}</td>
                 </tr>
               );
             })}

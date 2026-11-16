@@ -39,6 +39,26 @@ export const SPEND: Record<string, number> = { menos_15: 10, "15_30": 22, "31_50
 export const VISITS: Record<string, number> = { fines_semana: 4, "2_3_mes": 2.5, "1_mes": 1, "2_3_meses": 0.4, casi_nunca: 0.2 };
 export const MARKETS: Record<string, number> = { "0": 0, "1": 1, "2_3": 2.5, "4_6": 5, "7_mas": 8 };
 export const MIN = 15;
+export const SMALL = 30;
+export const HIDE = 5;
+
+/** Intervalo de Wilson al 95% para k éxitos de n. */
+export function wilson(k: number, n: number): [number, number] {
+  if (!n) return [0, 0];
+  const z = 1.96, p = k / n, z2 = z * z;
+  const den = 1 + z2 / n;
+  const c = (p + z2 / (2 * n)) / den;
+  const h = (z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / den;
+  return [Math.max(0, c - h), Math.min(1, c + h)];
+}
+/** "2 de 3" si n<30, "67%" si no. */
+export const fmtVal = (k: number, n: number) => (n < SMALL ? `${k} de ${n}` : pct(n ? k / n : 0));
+/** Valor + rango de Wilson: "67% · rango 21–94%". */
+export function fmtProp(k: number, n: number): string {
+  if (!n) return "—";
+  const [lo, hi] = wilson(k, n);
+  return `${fmtVal(k, n)} · rango ${Math.round(lo * 100)}–${Math.round(hi * 100)}%`;
+}
 
 export const int = (v: number) => Math.round(v).toLocaleString("en-US");
 export const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -63,34 +83,45 @@ function mean<T>(rows: T[], f: (r: T) => number | undefined) {
 export type Signal = "fuerte" | "moderada" | "debil";
 export const signalOf = (sComp: number): Signal => (sComp >= 0.15 ? "fuerte" : sComp >= 0.08 ? "moderada" : "debil");
 
-export type DistItem = { key: string; label: string; v: number; color?: "brand" | "muted" | "bad" };
+export type DistItem = { key: string; label: string; v: number; c: number; n: number; color?: "brand" | "muted" | "bad" };
 export function dist(rows: EncuestaRow[], field: keyof EncuestaRow, labels: Record<string, string>, multi = false): DistItem[] {
   return Object.keys(labels).map((k) => {
     const c = rows.filter((r) => {
       const val = r[field];
       return multi ? Array.isArray(val) && val.includes(k) : val === k;
     }).length;
-    return { key: k, label: labels[k], v: rows.length ? c / rows.length : 0 };
+    return { key: k, label: labels[k], v: rows.length ? c / rows.length : 0, c, n: rows.length };
   });
 }
 
 export type SegField = "edad" | "sexo" | "region" | "origen";
-export type SegGroup = { key: string; label: string; n: number; size: number; pay: number; spend: number; mail: number };
+export type SegGroup = { key: string; label: string; n: number; size: number; pay: number; payK: number; spend: number; mail: number; mailK: number };
+function groupStats(key: string, label: string, gr: EncuestaRow[], n: number): SegGroup {
+  const payK = gr.filter(pays).length, mailK = gr.filter(hasEmail).length;
+  return { key, label, n: gr.length, size: n ? gr.length / n : 0, pay: gr.length ? payK / gr.length : 0, payK, spend: mean(gr, (r) => SPEND[r.gasto ?? ""]), mail: gr.length ? mailK / gr.length : 0, mailK };
+}
 export function segment(rows: EncuestaRow[], field: SegField, sortBySize: boolean) {
   const n = rows.length;
   const labels = L[field] as Record<string, string>;
-  const g: SegGroup[] = Object.keys(labels)
+  let g: SegGroup[] = Object.keys(labels)
     .map((k) => {
       const gr = rows.filter((r) => r[field] === k);
-      return { key: k, label: labels[k], n: gr.length, size: n ? gr.length / n : 0, pay: share(gr, pays), spend: mean(gr, (r) => SPEND[r.gasto ?? ""]), mail: share(gr, hasEmail) };
+      return groupStats(k, labels[k], gr, n);
     })
     .filter((d) => d.n > 0);
   if (sortBySize) g.sort((a, b) => b.n - a.n);
-  const elig = g.filter((d) => d.n >= MIN);
+  const small = g.filter((d) => d.n < HIDE);
+  if (small.length) {
+    const keys = new Set(small.map((d) => d.key));
+    const gr = rows.filter((r) => keys.has(r[field] as string));
+    g = g.filter((d) => d.n >= HIDE);
+    g.push(groupStats("otros", "Otros (n<5)", gr, n));
+  }
+  const elig = g.filter((d) => d.n >= MIN && d.key !== "otros");
   const best = elig.length ? elig.reduce((a, b) => (b.pay > a.pay ? b : a)) : null;
   const big = g.length ? g.reduce((a, b) => (b.n > a.n ? b : a)) : null;
   const maxSize = Math.max(0, ...g.map((d) => d.size)) || 1;
-  return { groups: g, best, big, maxSize, general: share(rows, pays) };
+  return { groups: g, best, big, maxSize, general: share(rows, pays), n };
 }
 
 export function computeDashboard(rows: EncuestaRow[]) {
@@ -100,7 +131,6 @@ export function computeDashboard(rows: EncuestaRow[]) {
   const compR = rows.filter((r) => pays(r) && hasEmail(r));
   const sSi = n ? si / n : 0, sComp = n ? compR.length / n : 0, sTal = n ? tal / n : 0;
   const signal = signalOf(sComp);
-  const verdict = signal === "fuerte" ? "Sí, hay buena señal" : signal === "moderada" ? "Hay señal, pero moderada" : "Todavía no hay suficiente señal";
   const strip = [
     { label: "Pagarían y dejaron email", v: sComp, tone: "brand" },
     { label: "Pagarían, sin email", v: sSi - sComp, tone: "brandSoft" },
@@ -130,9 +160,7 @@ export function computeDashboard(rows: EncuestaRow[]) {
 
   // Resumen
   const general = share(rows, pays);
-  const precioComp = mean(compR, (r) => (r.plan === "anual" ? 24 : 47.88)) || 24;
-  const por1000 = Math.round(sComp * 1000);
-  const ingreso = por1000 * precioComp;
+  const acepta24 = rows.filter((r) => ["24", "36", "mas_36"].includes(r.precio_maximo ?? "")).length;
   const e = segment(rows, "edad", false).best;
   const sx = segment(rows, "sexo", false).best;
   const rg = segment(rows, "region", true);
@@ -146,9 +174,8 @@ export function computeDashboard(rows: EncuestaRow[]) {
     "Todavía no hay suficiente interés para lanzar la membresía a $24.";
 
   const facts: [string, string, string][] = [
-    ["Si 1,000 visitantes ven la oferta", `Unos ${int(por1000)} comprarían`, `Serían cerca de ${money(ingreso)} al año, contando solo a quienes escogieron plan y dejaron su email.`],
     ["Tu cliente ideal", (e ? e.label + " años" : "") + (sx ? ", " + sx.label.toLowerCase() : ""), (e ? `${pct(e.pay)} de ese grupo de edad pagaría, contra ${pct(general)} en general.` : "") + (rg.best ? ` La zona con más interés es ${rg.best.label} (${pct(rg.best.pay)}).` : "")],
-    ["El precio", `${pct(share(rows, (r) => ["24", "36", "mas_36"].includes(r.precio_maximo ?? "")))} acepta $24 o más`, `De quienes escogen plan, ${pct(anual)} prefiere el anual de $24 y ${pct(mensual)} el mensual de $3.99.`],
+    ["El precio", `${fmtProp(acepta24, n)} acepta $24 o más`, `De quienes escogen plan, ${pct(anual)} prefiere el anual de $24 y ${pct(mensual)} el mensual de $3.99.`],
     ["El freno número 1", dudas[0] && dudas[0].v > 0 ? dudas[0].label : "—", dudas[0] && dudas[0].v > 0 ? `${pct(dudas[0].v)} de quienes dudan lo escogió. Le sigue: ` + (dudas[1] ? `${dudas[1].label.toLowerCase()} (${pct(dudas[1].v)}).` : "") : ""],
     ["Dónde encontrarlos", ch.best ? ch.best.label : "—", (ch.best ? `Es el canal con más interés (${pct(ch.best.pay)} pagaría). ` : "") + (ch.big ? `El que más respuestas trajo fue ${ch.big.label} (${pct(ch.big.size)}).` : "")],
     ["Qué Mesas Aliadas buscar", categorias[0].label, `Es lo que más compran (${pct(categorias[0].v)}), seguido de ${categorias[1].label.toLowerCase()} (${pct(categorias[1].v)}) y ${categorias[2].label.toLowerCase()} (${pct(categorias[2].v)}).`],
@@ -173,7 +200,7 @@ export function computeDashboard(rows: EncuestaRow[]) {
   if (fin > 0) todo.push(["Mantén el cálculo de ahorro al final.", ` ${int(fin)} personas se anotaron después de verlo: ${pct(fin / Math.max(em, 1))} de tu lista de espera.`]);
 
   return {
-    n, si, sSi, sComp, sTal, comp: compR.length, signal, verdict, strip, tiles,
+    n, si, sSi, sComp, sTal, comp: compR.length, acepta24, signal, strip, tiles,
     segments: {
       edad: segment(rows, "edad", false), sexo: segment(rows, "sexo", false),
       region: segment(rows, "region", true), origen: segment(rows, "origen", true),
