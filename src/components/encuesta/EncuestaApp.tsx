@@ -11,7 +11,7 @@ const track = (fn: "gtag" | "fbq", ...args: unknown[]) => {
   w[fn]?.(...args);
 };
 
-const SHARE_URL = "https://rutamercadopr.com/rutralover?origen=compartido";
+const SHARE_URL = "https://rutamercadopr.com/rutralover";
 const PIN_CHECK = (
   <span className="pin" aria-hidden="true">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
@@ -19,12 +19,19 @@ const PIN_CHECK = (
 );
 
 function freshAnswers(): Answers {
-  let origen = "directo";
+  let origen = "directo", source = "directo", market_slug: string | null = null, is_test = false;
   try {
-    origen = new URLSearchParams(window.location.search).get("origen") || "directo";
+    const q = new URLSearchParams(window.location.search);
+    origen = q.get("origen") || "directo";
+    const src = (q.get("src") || "").toLowerCase();
+    source = ["qr", "newsletter", "instagram"].includes(src) ? src : "directo";
+    const m = (q.get("m") || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 120);
+    market_slug = m || null;
+    is_test = q.get("test") === "1";
   } catch { /* noop */ }
   return {
     origen: origen.slice(0, 40),
+    source, market_slug, is_test,
     id_respuesta: "r_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
     dispositivo: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "movil" : "escritorio",
     iniciada_en: new Date().toISOString(),
@@ -54,6 +61,8 @@ export function EncuestaApp() {
   const [say, setSay] = useState({ text: "", react: false, n: 0 });
 
   useEffect(() => {
+    // El Pixel arrancó en otra página con eventos automáticos: recargar para que arranque sin ellos.
+    if ((window as unknown as { __rmPixelAuto?: number }).__rmPixelAuto) { window.location.reload(); return; }
     Object.values(POSES).forEach((src) => { const im = new Image(); im.src = src; });
     return () => clearTimeout(timer.current);
   }, []);
@@ -71,7 +80,7 @@ export function EncuestaApp() {
     setSay((s) => ({ text, react, n: s.n + 1 }));
   }, []);
 
-  const submit = useCallback(async () => {
+  const submit = useCallback(async (completed = true) => {
     const a = A.current;
     if (!a) return;
     const get = (k: string) => (a[k] as string | undefined) ?? null;
@@ -82,7 +91,11 @@ export function EncuestaApp() {
           origen: a.origen,
           dispositivo: a.dispositivo,
           iniciada_en: a.iniciada_en,
-          completada_en: a.completada_en ?? new Date().toISOString(),
+          completada_en: completed ? a.completada_en ?? new Date().toISOString() : null,
+          source: a.source as "qr" | "newsletter" | "instagram" | "directo",
+          market_slug: (a.market_slug as string | null) ?? null,
+          is_test: !!a.is_test,
+          completed,
           frecuencia: get("frecuencia"),
           cantidad_mercados: get("cantidad_mercados"),
           gasto: get("gasto"),
@@ -139,6 +152,7 @@ export function EncuestaApp() {
 
   const answered = useCallback((s: Step, from: number, reaction?: string) => {
     const n = nextIndex(from);
+    void submit(false);
     if (s.fast || !reaction) {
       setPose(s.pose, true);
       timer.current = setTimeout(() => go(n, true, from), 2380);
@@ -148,7 +162,7 @@ export function EncuestaApp() {
     speak(reaction, true);
     toTop();
     timer.current = setTimeout(() => go(n, true, from), reduce ? 2900 : 3500);
-  }, [go, nextIndex, reduce, setPose, speak, toTop]);
+  }, [go, nextIndex, reduce, setPose, speak, submit, toTop]);
 
   const start = () => {
     A.current = freshAnswers();
@@ -240,8 +254,8 @@ export function EncuestaApp() {
                     onDone={(left) => {
                       if (left) {
                         track("gtag", "event", "encuesta_lista_espera", { momento: "pregunta" });
-                        track("fbq", "track", "Lead");
                       }
+                      void submit(false);
                       go(nextIndex(current), true, current);
                     }}
                   />
@@ -501,6 +515,7 @@ function Final({ A, reduce, setPose, speak, submit, goHome }: {
       A.completada_en = new Date().toISOString();
       void submit();
       track("gtag", "event", "encuesta_completada", { origen: A.origen });
+      track("fbq", "trackCustom", "SurveyComplete");
     }
     setPose("feliz", true);
     speak(low ? "Tu respuesta me ayuda a diseñar algo que funcione para todo tipo de visitante." : "Hice los números con lo que me contaste. ¡Mira esto!", true);
@@ -515,7 +530,6 @@ function Final({ A, reduce, setPose, speak, submit, goHome }: {
     A.email_momento = "final";
     void submit();
     track("gtag", "event", "encuesta_lista_espera", { momento: "final" });
-    track("fbq", "track", "Lead");
     setJoined(true);
     setPose("feliz", true);
     speak("¡Listo, ya estás en mi lista! Gracias por darme otra oportunidad.", true);
