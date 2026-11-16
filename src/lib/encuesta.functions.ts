@@ -188,13 +188,21 @@ export const exportTodasRespuestas = createServerFn({ method: "GET" })
 export const getEncuestaConfig = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.from("encuesta_config").select("peso_seguro, peso_probable").eq("id", 1).maybeSingle();
-    return { peso_seguro: Number(data?.peso_seguro ?? 0.75), peso_probable: Number(data?.peso_probable ?? 0.25) };
+    const { data } = await context.supabase.from("encuesta_config").select("peso_seguro, peso_probable, min_n, verde_pct, verde_lim_inf, amarillo_pct").eq("id", 1).maybeSingle();
+    return {
+      peso_seguro: Number(data?.peso_seguro ?? 0.75), peso_probable: Number(data?.peso_probable ?? 0.25),
+      min_n: Number(data?.min_n ?? 50), verde_pct: Number(data?.verde_pct ?? 0.2),
+      verde_lim_inf: Number(data?.verde_lim_inf ?? 0.1), amarillo_pct: Number(data?.amarillo_pct ?? 0.1),
+    };
   });
 
 export const saveEncuestaConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ peso_seguro: z.number().min(0).max(1), peso_probable: z.number().min(0).max(1) }).parse(input))
+  .inputValidator((input: unknown) => z.object({
+    peso_seguro: z.number().min(0).max(1), peso_probable: z.number().min(0).max(1),
+    min_n: z.number().int().min(1).max(100000), verde_pct: z.number().min(0).max(1),
+    verde_lim_inf: z.number().min(0).max(1), amarillo_pct: z.number().min(0).max(1),
+  }).parse(input))
   .handler(async ({ context, data }) => {
     const { error } = await context.supabase.from("encuesta_config")
       .upsert({ id: 1, ...data, updated_at: new Date().toISOString() });

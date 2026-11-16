@@ -31,3 +31,22 @@ describe("métricas superiores", () => {
   });
   it("mediana", () => { assert.strictEqual(median([10, 100, 22]), 22); assert.strictEqual(median([10, 22]), 16); });
 });
+
+import { semaforo, proyeccion, porCanal } from "./encuesta-stats";
+const U = { min_n: 50, verde_pct: 0.2, verde_lim_inf: 0.1, amarillo_pct: 0.1 };
+describe("semáforo y proyección", () => {
+  it("con 49 respuestas faltan 1", () => { assert.deepStrictEqual(semaforo(20, 49, U), { estado: "faltan", faltan: 1 }); });
+  it("20% con límite inferior ≥ 10% es verde", () => { assert.strictEqual(semaforo(40, 200, U).estado, "verde"); });
+  it("20% con límite inferior < 10% es amarillo", () => { assert.strictEqual(semaforo(10, 50, { ...U, verde_lim_inf: 0.15 }).estado, "amarillo"); });
+  it("9% es rojo", () => { assert.strictEqual(semaforo(9, 100, U).estado, "rojo"); });
+  it("base = ponderada × 1,000 × $24 y conservador menor", () => {
+    const p = proyeccion(0.3, 100);
+    assert.ok(Math.abs(p.base.dinero - 7200) < 1e-9);
+    assert.ok(p.conservador.dinero < 7200 && p.conservador.dinero > 0);
+  });
+  it("QR se divide por mercado", () => {
+    const rows = [...Array(6)].map(() => base({ origen: "qr", market_slug: "a" } as Partial<ER>)).concat([...Array(2)].map(() => base({ origen: "qr", market_slug: "b" } as Partial<ER>)));
+    const t = porCanal(rows, { seguro: 0.75, probable: 0.25 });
+    assert.deepStrictEqual(t.map((r) => [r.label, r.n]), [["QR", 8], ["a", 6], ["Otros mercados (n<5)", 2]]);
+  });
+});
