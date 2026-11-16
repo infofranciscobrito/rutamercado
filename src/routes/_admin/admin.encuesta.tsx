@@ -435,13 +435,6 @@ function Metricas({ rows }: { rows: EncuestaRow[] }) {
           sub={e.n ? `"Seguro" + "probablemente sí", antes vs después del ahorro. ${e.subieron} ${plural(e.subieron, "persona subió", "personas subieron")} de categoría.` : "Todavía no hay respuestas con la pregunta de después."} />
         <MetricCard label="5 · La membresía se paga sola" value={m.pagaSola.n ? fmtProp(m.pagaSola.k, m.pagaSola.n) : "—"} n={m.pagaSola.n}
           sub={`ahorraría $24 o más al año (gasto × visitas × 10%). Ahorro mediano: ${money(m.pagaSola.mediana)} al año. Supone que todo su gasto es en Mesas Aliadas.`} />
-        <MetricCard label="7 · Calidad de datos" n={m.calidad.n}>
-          <ul className="space-y-1 text-sm text-[#18253f]">
-            <li className="flex justify-between gap-2"><span>Precio inconsistente ($36+ pero duda a $24)</span><b>{m.calidad.inconsistente}</b></li>
-            <li className="flex justify-between gap-2"><span>Completadas en menos de 30 segundos</span><b>{m.calidad.rapidas}</b></li>
-            <li className="flex justify-between gap-2"><span>Van poco pero dicen 4+ mercados en 3 meses</span><b>{m.calidad.contradictoria}</b></li>
-          </ul>
-        </MetricCard>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <MetricCard label='6 · Freno principal: "¿Qué es lo que más te haría dudar?"' n={m.freno.n}>
@@ -456,6 +449,13 @@ function Metricas({ rows }: { rows: EncuestaRow[] }) {
               <ul className="list-disc pl-5 text-sm">{m.freno.otros.map((o, i) => <li key={i}>{o}</li>)}</ul>
             </div>
           )}
+        </MetricCard>
+        <MetricCard label="7 · Calidad de datos" n={m.calidad.n}>
+          <ul className="space-y-1 text-sm text-[#18253f]">
+            <li className="flex justify-between gap-2"><span>Precio inconsistente ($36+ pero duda a $24)</span><b>{m.calidad.inconsistente}</b></li>
+            <li className="flex justify-between gap-2"><span>Completadas en menos de 30 segundos</span><b>{m.calidad.rapidas}</b></li>
+            <li className="flex justify-between gap-2"><span>Van poco pero dicen 4+ mercados en 3 meses</span><b>{m.calidad.contradictoria}</b></li>
+          </ul>
         </MetricCard>
       </div>
     </section>
