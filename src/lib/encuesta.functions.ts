@@ -167,3 +167,18 @@ export const deleteTestRespuestas = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { deleted: data?.length ?? 0 };
   });
+
+export const exportTodasRespuestas = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("encuesta_respuestas")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    // Correo solo de quienes dieron permiso; nunca el token de confirmación.
+    return (data ?? []).map(({ confirm_token: _t, confirm_sent_to: _s, ...r }) => ({
+      ...r,
+      email: r.consentimiento_email ? r.email : null,
+    }));
+  });
