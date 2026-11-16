@@ -130,22 +130,34 @@ export type Database = {
       }
       encuesta_config: {
         Row: {
+          amarillo_pct: number
           id: number
+          min_n: number
           peso_probable: number
           peso_seguro: number
           updated_at: string
+          verde_lim_inf: number
+          verde_pct: number
         }
         Insert: {
+          amarillo_pct?: number
           id?: number
+          min_n?: number
           peso_probable?: number
           peso_seguro?: number
           updated_at?: string
+          verde_lim_inf?: number
+          verde_pct?: number
         }
         Update: {
+          amarillo_pct?: number
           id?: number
+          min_n?: number
           peso_probable?: number
           peso_seguro?: number
           updated_at?: string
+          verde_lim_inf?: number
+          verde_pct?: number
         }
         Relationships: []
       }
