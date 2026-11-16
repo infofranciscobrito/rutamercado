@@ -23,8 +23,8 @@ describe("saltos de encuesta v2", () => {
     assert.equal(Number((PRECIO_MENSUAL * 12).toFixed(2)), 35.88);
   });
   it("ambos alias conservan exactamente los parámetros de QR y prueba", () => {
-    for (const alias of ["encuesta", "rutalover"]) assert.equal(surveyRedirectTarget(`https://rutamercadopr.com/${alias}?src=qr&m=mercado&test=1`), "/rutralover?src=qr&m=mercado&test=1");
-    assert.equal(surveyRedirectTarget("https://rutamercadopr.com/rutralover?test=1"), null);
+    for (const alias of ["encuesta", "rutralover"]) assert.equal(surveyRedirectTarget(`https://rutamercadopr.com/${alias}?src=qr&m=mercado&test=1`), "/rutalover?src=qr&m=mercado&test=1");
+    assert.equal(surveyRedirectTarget("https://rutamercadopr.com/rutalover?test=1"), null);
   });
   it("encuesta y panel calculan 4.80 al año para gasto de 10 y cada 2–3 meses", () => {
     const row = { gasto: "menos_15", frecuencia: "2_3_meses" } as EncuestaRow;

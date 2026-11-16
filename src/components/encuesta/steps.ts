@@ -120,7 +120,7 @@ export const STEPS: Step[] = [
     { v: "poco_uso", l: "No voy suficiente como para aprovecharla" },
     { v: "que_mesas", l: "Quiero saber primero qué mesas participan" },
     { v: "pago_por_uso", l: "Prefiero pagar solo cuando voy" },
-    { v: "descuento_bajo", l: "Un descuento de 15% no me mueve" },
+    { v: "descuento_bajo", l: "Un descuento de 5–15% no me compensa" },
     { v: "no_membresias", l: "No me gustan las membresías" },
     { v: "otro", l: "Otro" }] },
   { id: "mesas_favoritas", ch: 4, pose: "mercado", type: "text", lead: "Esta es opcional, pero me encantaría saberlo.", q: "¿Cuáles son tus mesas favoritas? <span style=\"font-weight:400;font-size:.7em\">(nombre de la mesa o negocio)</span>", placeholder: "Ej.: Café del Barrio, Finca La Esperanza", react: "¡Buenas mesas! Las voy a buscar." },
