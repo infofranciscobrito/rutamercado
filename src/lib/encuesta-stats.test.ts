@@ -30,7 +30,7 @@ describe("encuesta-stats", () => {
   it("más interés exige al menos 15 personas", () => {
     const rows = [
       ...Array.from({ length: 14 }, () => r({ edad: "18_24", plan: "anual" })),
-      ...Array.from({ length: 15 }, (_, i) => r({ edad: "35_44", plan: i < 3 ? "anual" : null })),
+      ...Array.from({ length: 15 }, (_, i) => r({ edad: "35_44", intencion_24: i < 3 ? "seguro" : "no", email_confirmed: true })),
     ];
     strictEqual(segment(rows, "edad", false).best?.key, "35_44");
   });

@@ -28,6 +28,7 @@ import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
 import { Route as ProductoresRouteImport } from './routes/productores'
 import { Route as RegistraTuNegocioRouteImport } from './routes/registra-tu-negocio'
+import { Route as RutaloverRouteImport } from './routes/rutalover'
 import { Route as RutraloverRouteImport } from './routes/rutralover'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -138,6 +139,11 @@ const RegistraTuNegocioRoute = RegistraTuNegocioRouteImport.update({
   path: '/registra-tu-negocio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RutaloverRoute = RutaloverRouteImport.update({
+  id: '/rutalover',
+  path: '/rutalover',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RutraloverRoute = RutraloverRouteImport.update({
   id: '/rutralover',
   path: '/rutralover',
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/registra-tu-negocio': typeof RegistraTuNegocioRoute
+  '/rutalover': typeof RutaloverRoute
   '/rutralover': typeof RutraloverRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
@@ -268,6 +275,7 @@ export interface FileRoutesByTo {
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/registra-tu-negocio': typeof RegistraTuNegocioRoute
+  '/rutalover': typeof RutaloverRoute
   '/rutralover': typeof RutraloverRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
   '/productores': typeof ProductoresRoute
   '/registra-tu-negocio': typeof RegistraTuNegocioRoute
+  '/rutalover': typeof RutaloverRoute
   '/rutralover': typeof RutraloverRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
@@ -342,6 +351,7 @@ export interface FileRouteTypes {
     | '/politica-de-privacidad'
     | '/productores'
     | '/registra-tu-negocio'
+    | '/rutalover'
     | '/rutralover'
     | '/sitemap.xml'
     | '/admin/login'
@@ -377,6 +387,7 @@ export interface FileRouteTypes {
     | '/politica-de-privacidad'
     | '/productores'
     | '/registra-tu-negocio'
+    | '/rutalover'
     | '/rutralover'
     | '/sitemap.xml'
     | '/admin/login'
@@ -413,6 +424,7 @@ export interface FileRouteTypes {
     | '/politica-de-privacidad'
     | '/productores'
     | '/registra-tu-negocio'
+    | '/rutalover'
     | '/rutralover'
     | '/sitemap.xml'
     | '/admin/login'
@@ -450,6 +462,7 @@ export interface RootRouteChildren {
   PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
   ProductoresRoute: typeof ProductoresRoute
   RegistraTuNegocioRoute: typeof RegistraTuNegocioRoute
+  RutaloverRoute: typeof RutaloverRoute
   RutraloverRoute: typeof RutraloverRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -590,6 +603,13 @@ declare module '@tanstack/react-router' {
       path: '/registra-tu-negocio'
       fullPath: '/registra-tu-negocio'
       preLoaderRoute: typeof RegistraTuNegocioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rutalover': {
+      id: '/rutalover'
+      path: '/rutalover'
+      fullPath: '/rutalover'
+      preLoaderRoute: typeof RutaloverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rutralover': {
@@ -748,6 +768,7 @@ const rootRouteChildren: RootRouteChildren = {
   PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
   ProductoresRoute: ProductoresRoute,
   RegistraTuNegocioRoute: RegistraTuNegocioRoute,
+  RutaloverRoute: RutaloverRoute,
   RutraloverRoute: RutraloverRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
