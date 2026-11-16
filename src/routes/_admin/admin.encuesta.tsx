@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Download, Copy, ArrowDown } from "lucide-react";
+import { Download, Copy, ArrowDown, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { filterRows, type RawRow } from "@/lib/encuesta-stats";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { listEncuestaRespuestas, exportListaEspera } from "@/lib/encuesta.functions";
+import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas } from "@/lib/encuesta.functions";
 import { downloadCSV } from "@/lib/csv";
 import {
   computeDashboard, int, pct, money, dec1, MIN,
@@ -30,7 +32,22 @@ function EncuestaAdminPage() {
   const exportFn = useServerFn(exportListaEspera);
   const [downloading, setDownloading] = useState(false);
   const q = useQuery({ queryKey: ["admin", "encuesta"], queryFn: () => listFn() });
-  const rows = (q.data?.respuestas ?? []) as unknown as EncuestaRow[];
+  const delFn = useServerFn(deleteTestRespuestas);
+  const [version, setVersion] = useState("v2");
+  const [showTest, setShowTest] = useState(false);
+  const raw = (q.data?.respuestas ?? []) as unknown as RawRow[];
+  const rows = useMemo(() => filterRows(raw, { version, showTest }), [raw, version, showTest]);
+  const testCount = raw.filter((r) => r.is_test).length;
+  const borrarPruebas = async () => {
+    if (!window.confirm(`¿Borrar ${testCount} respuesta(s) de prueba? Esto no se puede deshacer.`)) return;
+    try {
+      const r = await delFn();
+      toast.success(`Se borraron ${r.deleted} respuesta(s) de prueba.`);
+      void q.refetch();
+    } catch {
+      toast.error("No se pudieron borrar las respuestas de prueba.");
+    }
+  };
   const d = useMemo(() => (rows.length ? computeDashboard(rows) : null), [rows]);
 
   const download = async () => {
@@ -52,6 +69,15 @@ function EncuestaAdminPage() {
         <div>
           <h1 className="font-display text-3xl text-[#18253f]">Encuesta de membresía</h1>
           <p className="text-sm text-muted-foreground">Resultados de rutamercadopr.com/rutralover</p>
+          <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+            <label className="flex items-center gap-2">Versión
+              <select value={version} onChange={(e) => setVersion(e.target.value)} className="rounded-md border bg-background px-2 py-1">
+                <option value="v2">v2</option><option value="v1">v1</option><option value="todas">Todas</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2"><Switch checked={showTest} onCheckedChange={setShowTest} /> Ver respuestas de prueba</label>
+            <Button variant="outline" size="sm" onClick={borrarPruebas} disabled={!testCount}><Trash2 className="h-4 w-4" /> Borrar respuestas de prueba ({testCount})</Button>
+          </div>
         </div>
         <div className="flex gap-2">
           {d && (
