@@ -133,6 +133,8 @@ export type Database = {
           cantidad_mercados: string | null
           categorias: string[]
           completada_en: string | null
+          completed: boolean
+          completed_at: string | null
           consentimiento_email: boolean
           created_at: string
           descubrimiento: string[]
@@ -148,19 +150,26 @@ export type Database = {
           id_respuesta: string
           iniciada_en: string | null
           intencion_24: string | null
+          is_test: boolean
           lealtad: string | null
+          market_slug: string | null
           motivadores: string[]
           origen: string
           plan: string | null
           precio_maximo: string | null
           region: string | null
           sexo: string | null
+          source: string | null
+          started_at: string | null
+          survey_version: string
           updated_at: string
         }
         Insert: {
           cantidad_mercados?: string | null
           categorias?: string[]
           completada_en?: string | null
+          completed?: boolean
+          completed_at?: string | null
           consentimiento_email?: boolean
           created_at?: string
           descubrimiento?: string[]
@@ -176,19 +185,26 @@ export type Database = {
           id_respuesta: string
           iniciada_en?: string | null
           intencion_24?: string | null
+          is_test?: boolean
           lealtad?: string | null
+          market_slug?: string | null
           motivadores?: string[]
           origen?: string
           plan?: string | null
           precio_maximo?: string | null
           region?: string | null
           sexo?: string | null
+          source?: string | null
+          started_at?: string | null
+          survey_version?: string
           updated_at?: string
         }
         Update: {
           cantidad_mercados?: string | null
           categorias?: string[]
           completada_en?: string | null
+          completed?: boolean
+          completed_at?: string | null
           consentimiento_email?: boolean
           created_at?: string
           descubrimiento?: string[]
@@ -204,13 +220,18 @@ export type Database = {
           id_respuesta?: string
           iniciada_en?: string | null
           intencion_24?: string | null
+          is_test?: boolean
           lealtad?: string | null
+          market_slug?: string | null
           motivadores?: string[]
           origen?: string
           plan?: string | null
           precio_maximo?: string | null
           region?: string | null
           sexo?: string | null
+          source?: string | null
+          started_at?: string | null
+          survey_version?: string
           updated_at?: string
         }
         Relationships: []

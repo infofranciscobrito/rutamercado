@@ -86,7 +86,7 @@ function DashboardPage() {
     queryKey: ["admin", "encuesta"],
     queryFn: () => encuestaFn(),
   });
-  const encuestaRows = encuesta.data?.respuestas ?? [];
+  const encuestaRows = (encuesta.data?.respuestas ?? []).filter((r) => r.completed && !r.is_test && r.survey_version === "v2");
   const encuestaLista = encuestaRows.filter((r) => r.consentimiento_email === true).length;
   const encuestaPaga = encuestaRows.length
     ? Math.round((encuestaRows.filter((r) => r.plan === "anual" || r.plan === "mensual").length / encuestaRows.length) * 100)

@@ -20,7 +20,7 @@ export type EncuestaRow = {
 };
 
 export const L = {
-  origen: { ig: "Instagram", fb: "Facebook", "qr-mercado": "QR en mercado", newsletter: "Newsletter", compartido: "Compartido", directo: "Directo" },
+  origen: { qr: "QR", instagram: "Instagram", ig: "Instagram", fb: "Facebook", "qr-mercado": "QR en mercado", newsletter: "Newsletter", compartido: "Compartido", directo: "Directo" },
   region: { metro: "Área metro", norte: "Norte", sur: "Sur", este: "Este", oeste: "Oeste", centro: "Centro / montaña", islas: "Vieques o Culebra", visita: "De visita en PR" },
   edad: { "18_24": "18 a 24", "25_34": "25 a 34", "35_44": "35 a 44", "45_54": "45 a 54", "55_64": "55 a 64", "65_mas": "65 o más" },
   sexo: { mujer: "Mujeres", hombre: "Hombres", no_decir: "Prefiere no decir" },
@@ -111,7 +111,7 @@ export function computeDashboard(rows: EncuestaRow[]) {
   const em = rows.filter(hasEmail).length;
   const fin = rows.filter((r) => r.email_momento === "final").length;
   const tiles = {
-    n, qr: share(rows, (r) => r.origen === "qr-mercado"),
+    n, qr: share(rows, (r) => (r.origen === "qr-mercado" || r.origen === "qr")),
     gasto: mean(rows, (r) => SPEND[r.gasto ?? ""]),
     gasto1550: share(rows, (r) => r.gasto === "15_30" || r.gasto === "31_50"),
     visitas: mean(rows, (r) => VISITS[r.frecuencia ?? ""]),
@@ -189,4 +189,14 @@ export function computeDashboard(rows: EncuestaRow[]) {
     membresia: { precio, plan, planN: pr.length, dudas },
     resumen: { general, titulo, facts, todo },
   };
+}
+
+export type RawRow = EncuestaRow & { source?: string | null; survey_version?: string | null; is_test?: boolean | null; completed?: boolean | null };
+/** Filtra respuestas para el panel: solo completas; versión y pruebas según opciones. Canal = source (o origen viejo). */
+export function filterRows(rows: RawRow[], opts: { version: string; showTest: boolean }): EncuestaRow[] {
+  return rows
+    .filter((r) => r.completed !== false)
+    .filter((r) => opts.showTest || !r.is_test)
+    .filter((r) => opts.version === "todas" || (r.survey_version ?? "v1") === opts.version)
+    .map((r) => ({ ...r, origen: r.source || r.origen }));
 }
