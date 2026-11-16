@@ -25,6 +25,7 @@ export type Step = {
   other?: boolean;
   type?: "concept" | "email" | "final" | "text";
   placeholder?: string;
+  saving?: boolean;
   when?: (a: Answers) => boolean;
   opts?: Opt[];
 };
@@ -109,7 +110,10 @@ export const STEPS: Step[] = [
   { id: "intencion_24", ch: 3, pose: "pregunta", when: (A) => !["0", "24"].includes(A.precio_maximo as string), lead: "Ahora con un precio sobre la mesa.", q: "Si costara <em>$24 al año</em> (son $2 al mes), ¿qué tan probable es que la compres?", react: "Gracias por tu sinceridad. Eso es lo que más necesito.", opts: [
     { v: "seguro", l: "La compraría seguro" }, { v: "probable_si", l: "Probablemente sí" }, { v: "no_se", l: "No sé todavía" },
     { v: "probable_no", l: "Probablemente no" }, { v: "no", l: "No la compraría" }] },
-  { id: "plan", ch: 3, pose: "pregunta", when: (A) => A.precio_maximo !== "0" && !["no_se", "probable_no", "no"].includes(A.intencion_24 as string), lead: "Supongamos que te unes.", q: "¿Qué plan escogerías?", react: "Anotado.", opts: [
+  { id: "intencion_24_despues", ch: 3, pose: "celebrando", saving: true, when: (A) => !["0", "24"].includes(A.precio_maximo as string), lead: "Hice los números con lo que me contaste. ¡Mira esto!", q: "Ahora que ves cuánto ahorrarías, si costara <em>$24 al año</em>, ¿qué tan probable es que la compres?", react: "Gracias. Esto me dice si el ahorro convence.", opts: [
+    { v: "seguro", l: "La compraría seguro" }, { v: "probable_si", l: "Probablemente sí" }, { v: "no_se", l: "No sé todavía" },
+    { v: "probable_no", l: "Probablemente no" }, { v: "no", l: "No la compraría" }] },
+  { id: "plan", ch: 3, pose: "pregunta", when: (A) => A.precio_maximo !== "0" && !["no_se", "probable_no", "no"].includes((A.intencion_24_despues ?? A.intencion_24) as string), lead: "Supongamos que te unes.", q: "¿Qué plan escogerías?", react: "Anotado.", opts: [
     { v: "anual", l: "Anual: $24", s: "Un solo pago al año" },
     { v: "mensual", l: "Mensual: $3.99", s: "Son $47.88 al año" },
     { v: "ninguno", l: "Ninguno" }] },
