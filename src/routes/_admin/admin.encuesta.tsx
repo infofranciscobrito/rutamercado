@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Download, Copy, ArrowDown, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { filterRows, type RawRow } from "@/lib/encuesta-stats";
+import { filterRows, plural, topMesas, type RawRow } from "@/lib/encuesta-stats";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas } from "@/lib/encuesta.functions";
@@ -55,7 +55,7 @@ function EncuestaAdminPage() {
     try {
       const list = await exportFn();
       if (!list.length) toast.info("Todavía no hay nadie en la lista de espera.");
-      else downloadCSV(`lista-espera-encuesta-${new Date().toISOString().slice(0, 10)}.csv`, list);
+      else downloadCSV(`lista-espera-encuesta-${new Date().toISOString().slice(0, 10)}.csv`, list.map(({ email_confirmed, ...r }) => ({ ...r, confirmado: email_confirmed ? "sí" : "no" })));
     } catch {
       toast.error("No se pudo descargar la lista de espera.");
     } finally {
@@ -130,8 +130,8 @@ function Dashboard({ d }: { d: D }) {
           {d.verdict}
         </p>
         <p className="text-lg leading-snug max-w-3xl">
-          De cada 10 personas, <b>{Math.round(d.sSi * 10)} pagarían los $24</b> y{" "}
-          <b>{Math.round(d.sComp * 10) || "menos de 1"} ya dejaron su email</b>. Esas {int(d.comp)} personas ({pct(d.sComp)}) son las más probables de comprar.
+          De cada 10 personas, <b>{Math.round(d.sSi * 10)} {plural(Math.round(d.sSi * 10), "pagaría", "pagarían")} los $24</b> y{" "}
+          <b>{Math.round(d.sComp * 10) || "menos de 1"} ya {plural(Math.round(d.sComp * 10), "dejó", "dejaron")} su email</b>. {plural(d.comp, "Esa persona", `Esas ${int(d.comp)} personas`)} ({pct(d.sComp)}) {plural(d.comp, "es la más probable", "son las más probables")} de comprar.
         </p>
         <div className="flex h-2.5 max-w-2xl overflow-hidden rounded-full" style={{ background: GRID }} aria-hidden>
           {d.strip.slice(0, 3).map((s) => (
@@ -146,11 +146,11 @@ function Dashboard({ d }: { d: D }) {
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Tile label="Respuestas" value={int(t.n)} sub={`${pct(t.qr)} llegó por el QR en un mercado.`} />
+        <Tile label={plural(t.n, "Respuesta", "Respuestas")} value={int(t.n)} sub={`${pct(t.qr)} llegó por el QR en un mercado.`} />
         <Tile label="Gastan por visita" value={money(t.gasto)} sub={`en promedio. ${pct(t.gasto1550)} gasta entre $15 y $50.`} />
         <Tile label="Van a mercados" value={`${dec1(t.visitas)} al mes`} sub={`Gastan unos ${money(t.gastoMes)} al mes en mercados.`} />
         <Tile label="Mercados distintos" value={dec1(t.mercados)} sub="en los últimos 3 meses, en promedio." />
-        <Tile label="Lista de espera" value={int(t.em)} sub={`${pct(t.em / t.n)} dejó su email. ${int(t.fin)} se anotaron después del cálculo de ahorro.`} />
+        <Tile label="Lista de espera" value={int(t.em)} sub={`${pct(t.em / t.n)} dejó su email. ${int(t.fin)} ${plural(t.fin, "se anotó", "se anotaron")} después del cálculo de ahorro.`} />
       </section>
 
       <Section title="Quiénes respondieron y quiénes pagarían" desc="Cada grupo con su tamaño, qué parte pagaría los $24, cuánto gasta por visita y cuántos dejaron su email. El grupo con más interés sale resaltado.">
@@ -171,13 +171,14 @@ function Dashboard({ d }: { d: D }) {
         <BarCard title="En qué gastan más" items={d.compran.categorias} max={1} />
         <BarCard title="Qué los haría ir a más mercados" items={d.compran.motivos} max={1} />
         <BarCard title="Cómo deciden a qué mercado ir" items={d.compran.descubren} max={1} />
+        <MesasCard rows={rows as unknown as RawRow[]} />
       </Section>
 
       <Section title="La membresía" desc="Cuánto pagarían, cómo la pagarían y qué los frena.">
         <BarCard title="Lo máximo que pagarían al año" note="En verde, quienes aceptan $24 o más." items={d.membresia.precio} noTop />
         <article className="rounded-xl border bg-card p-5 space-y-3">
           <h3 className="font-display text-lg text-[#18253f]">Cómo la pagarían</h3>
-          <p className="text-xs text-muted-foreground">Entre las {int(d.membresia.planN)} personas que llegaron a escoger plan.</p>
+          <p className="text-xs text-muted-foreground">{plural(d.membresia.planN, "Entre la persona que llegó", `Entre las ${int(d.membresia.planN)} personas que llegaron`)} a escoger plan.</p>
           <div className="flex h-8 overflow-hidden rounded-md text-xs font-semibold text-white">
             {d.membresia.plan.map((x, i) => x.v > 0 && (
               <div key={x.key} className="flex items-center justify-center" style={{ width: `${x.v * 100}%`, background: [BRAND, NAVY, MUTED][i] }}>{x.v >= 0.12 ? pct(x.v) : ""}</div>
@@ -197,7 +198,7 @@ function Dashboard({ d }: { d: D }) {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resumen</p>
           <h2 className="font-display text-2xl text-[#18253f]">{d.resumen.titulo}</h2>
           <p className="text-sm">
-            De {int(d.n)} respuestas, <b>{pct(d.resumen.general)} pagaría los $24</b> y <b>{int(d.comp)} personas ({pct(d.sComp)})</b> además dejaron su email. Ese es el número que más se parece a una venta real.
+            De {int(d.n)} {plural(d.n, "respuesta", "respuestas")}, <b>{pct(d.resumen.general)} pagaría los $24</b> y <b>{int(d.comp)} {plural(d.comp, "persona", "personas")} ({pct(d.sComp)})</b> además {plural(d.comp, "dejó", "dejaron")} su email. Ese es el número que más se parece a una venta real.
           </p>
         </header>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -298,7 +299,7 @@ function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof compute
                   <td className="py-2 pr-2">
                     <b className="text-[#18253f]">{g.label}</b>
                     {isBest && <span className="ml-1.5 rounded-full bg-[#54b678]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[#2f7a4b]">más interés</span>}
-                    <span className="block text-xs text-muted-foreground">{int(g.n)} personas · {pct(g.size)}</span>
+                    <span className="block text-xs text-muted-foreground">{int(g.n)} {plural(g.n, "persona", "personas")} · {pct(g.size)}</span>
                     <div className="mt-1 h-1 w-24 rounded-full" style={{ background: GRID }}>
                       <i className="block h-full rounded-full" style={{ width: `${(g.size / maxSize) * 100}%`, background: NAVY }} />
                     </div>
@@ -317,6 +318,22 @@ function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof compute
           </tbody>
         </table>
       </div>
+    </article>
+  );
+}
+
+function MesasCard({ rows }: { rows: RawRow[] }) {
+  const list = topMesas(rows.map((r) => (r as { mesas_favoritas?: string | null }).mesas_favoritas));
+  const n = rows.filter((r) => (r as { mesas_favoritas?: string | null }).mesas_favoritas).length;
+  return (
+    <article className="rounded-xl border bg-card p-5 space-y-3">
+      <h3 className="font-display text-lg text-[#18253f]">Mesas favoritas</h3>
+      <p className="text-xs text-muted-foreground">{n} {plural(n, "persona escribió", "personas escribieron")} sus mesas favoritas.</p>
+      {list.length === 0 ? <p className="text-sm text-muted-foreground">Todavía nadie ha escrito mesas.</p> : (
+        <ul className="space-y-1 text-sm">
+          {list.map((m) => <li key={m.name} className="flex justify-between gap-2"><span>{m.name}</span><b className="text-[#18253f]">{m.n}</b></li>)}
+        </ul>
+      )}
     </article>
   );
 }
