@@ -4,10 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Download, Copy, ArrowDown, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, type RawRow } from "@/lib/encuesta-stats";
+import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, computeMetricas, type RawRow } from "@/lib/encuesta-stats";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas, exportTodasRespuestas } from "@/lib/encuesta.functions";
+import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas, exportTodasRespuestas, getEncuestaConfig, saveEncuestaConfig } from "@/lib/encuesta.functions";
 import { downloadCSV } from "@/lib/csv";
 import {
   computeDashboard, int, pct, money, dec1, MIN,
@@ -138,6 +138,7 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
   const t = d.tiles;
   return (
     <>
+      <Metricas rows={rows} />
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">¿Pagarían $24 al año por la membresía?</p>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -165,8 +166,8 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Tile n={t.n} label={plural(t.n, "Respuesta", "Respuestas")} value={int(t.n)} sub={`${fmtVal(Math.round(t.qr * t.n), t.n)} llegó por el QR en un mercado.`} />
-        <Tile n={t.n} label="Gastan por visita" value={money(t.gasto)} sub={`en promedio. ${fmtVal(Math.round(t.gasto1550 * t.n), t.n)} gasta entre $15 y $50.`} />
-        <Tile n={t.n} label="Van a mercados" value={`${dec1(t.visitas)} al mes`} sub={`Gastan unos ${money(t.gastoMes)} al mes en mercados.`} />
+        <GastoTile rows={rows} gasto1550={fmtVal(Math.round(t.gasto1550 * t.n), t.n)} />
+        <Tile n={t.n} label="Van a mercados" value={`${dec1(t.visitas)} al mes`} sub={`Gastan unos ${money(t.gastoMes)} al mes en mercados. Promedio del gasto mensual de cada persona (gasto × frecuencia).`} />
         <Tile n={t.n} label="Mercados distintos" value={dec1(t.mercados)} sub="en los últimos 3 meses, en promedio." />
         <Tile n={t.n} label="Lista de espera" value={int(t.em)} sub={`${fmtProp(t.em, t.n)} dejó su email. ${int(t.fin)} ${plural(t.fin, "se anotó", "se anotaron")} después del cálculo de ahorro.`} />
       </section>
@@ -354,7 +355,7 @@ function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof compute
 }
 
 function MesasCard({ rows }: { rows: RawRow[] }) {
-  const list = topMesas(rows.map((r) => (r as { mesas_favoritas?: string | null }).mesas_favoritas));
+  const list = topMesas(rows.map((r) => (r as { mesas_favoritas?: string | null }).mesas_favoritas), 1000);
   const n = rows.filter((r) => (r as { mesas_favoritas?: string | null }).mesas_favoritas).length;
   return (
     <article className="rounded-xl border bg-card p-5 space-y-3">
@@ -366,5 +367,97 @@ function MesasCard({ rows }: { rows: RawRow[] }) {
         </ul>
       )}
     </article>
+  );
+}
+
+function GastoTile({ rows, gasto1550 }: { rows: EncuestaRow[]; gasto1550: string }) {
+  const g = computeMetricas(rows, { seguro: 0, probable: 0 }).gasto;
+  return (
+    <div className="rounded-xl border bg-card p-5 space-y-1">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Gastan por visita</span>
+      <strong className="block font-display text-3xl text-[#18253f] tabular-nums">{money(g.mediana)} <span className="text-base font-normal text-muted-foreground">mediana</span></strong>
+      <p className="text-sm text-[#18253f]">Promedio: {money(g.promedio)}</p>
+      <p className="text-xs text-muted-foreground">{gasto1550} gasta entre $15 y $50.</p>
+      <p className="text-xs text-muted-foreground italic">Calculado con el punto medio de cada rango; 'Más de $80' = $100.</p>
+      <NNote n={g.n} />
+    </div>
+  );
+}
+
+function MetricCard({ label, value, sub, n, children, big }: { label: string; value?: string; sub?: string; n: number; children?: React.ReactNode; big?: boolean }) {
+  return (
+    <div className={"rounded-xl border bg-card p-5 space-y-1" + (big ? " border-2 border-[#54b678]" : "")}>
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+      {value && <strong className={"block font-display text-[#18253f] tabular-nums " + (big ? "text-4xl" : "text-2xl")}>{value}</strong>}
+      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+      {children}
+      <NNote n={n} />
+    </div>
+  );
+}
+
+function Metricas({ rows }: { rows: EncuestaRow[] }) {
+  const getFn = useServerFn(getEncuestaConfig);
+  const saveFn = useServerFn(saveEncuestaConfig);
+  const cfg = useQuery({ queryKey: ["admin", "encuesta", "config"], queryFn: () => getFn() });
+  const pesos = { seguro: cfg.data?.peso_seguro ?? 0.75, probable: cfg.data?.peso_probable ?? 0.25 };
+  const [edit, setEdit] = useState<{ a: string; b: string } | null>(null);
+  const m = useMemo(() => computeMetricas(rows, pesos), [rows, pesos.seguro, pesos.probable]);
+  const save = async () => {
+    if (!edit) return;
+    const a = Number(edit.a), b = Number(edit.b);
+    if (!(a >= 0 && a <= 1 && b >= 0 && b <= 1)) { toast.error("Los factores deben estar entre 0 y 1."); return; }
+    try { await saveFn({ data: { peso_seguro: a, peso_probable: b } }); await cfg.refetch(); setEdit(null); toast.success("Factores guardados"); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "No se pudo guardar"); }
+  };
+  const e = m.efecto;
+  return (
+    <section className="space-y-4">
+      <MetricCard big label="1 · Comprador calificado" value={fmtProp(m.calificado.k, m.calificado.n)} n={m.calificado.n}
+        sub='Intención (después del ahorro, o antes si no hay) "seguro" o "probablemente sí", acepta $24 o más y confirmó su correo.' />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <MetricCard label="2 · Intención ponderada" value={m.ponderada.n ? pct(m.ponderada.v) : "—"} n={m.ponderada.n}
+          sub={`${pesos.seguro} × ${pct(m.ponderada.pSeg)} seguro + ${pesos.probable} × ${pct(m.ponderada.pProb)} probablemente sí. Solo quienes vieron la pregunta.`}>
+          {edit ? (
+            <div className="flex flex-wrap items-end gap-2 pt-1 text-xs">
+              <label>Seguro<input type="number" step="0.05" min="0" max="1" value={edit.a} onChange={(ev) => setEdit({ ...edit, a: ev.target.value })} className="ml-1 w-16 rounded border px-1 py-0.5" /></label>
+              <label>Prob. sí<input type="number" step="0.05" min="0" max="1" value={edit.b} onChange={(ev) => setEdit({ ...edit, b: ev.target.value })} className="ml-1 w-16 rounded border px-1 py-0.5" /></label>
+              <Button size="sm" onClick={save}>Guardar</Button>
+              <Button size="sm" variant="ghost" onClick={() => setEdit(null)}>Cancelar</Button>
+            </div>
+          ) : (
+            <button type="button" className="text-xs underline text-[#18253f]" onClick={() => setEdit({ a: String(pesos.seguro), b: String(pesos.probable) })}>Editar factores</button>
+          )}
+        </MetricCard>
+        <MetricCard label="3 · % que acepta el precio" value={fmtProp(m.precio.k, m.precio.n)} n={m.precio.n} sub="Máximo que pagaría: $24 o más." />
+        <MetricCard label="4 · Efecto del cálculo de ahorro" n={e.n}
+          value={e.n ? `${fmtVal(e.antesK, e.n)} → ${fmtVal(e.despuesK, e.n)}` : "—"}
+          sub={e.n ? `"Seguro" + "probablemente sí", antes vs después del ahorro. ${e.subieron} ${plural(e.subieron, "persona subió", "personas subieron")} de categoría.` : "Todavía no hay respuestas con la pregunta de después."} />
+        <MetricCard label="5 · La membresía se paga sola" value={m.pagaSola.n ? fmtProp(m.pagaSola.k, m.pagaSola.n) : "—"} n={m.pagaSola.n}
+          sub={`ahorraría $24 o más al año (gasto × visitas × 10%). Ahorro mediano: ${money(m.pagaSola.mediana)} al año. Supone que todo su gasto es en Mesas Aliadas.`} />
+        <MetricCard label="7 · Calidad de datos" n={m.calidad.n}>
+          <ul className="space-y-1 text-sm text-[#18253f]">
+            <li className="flex justify-between gap-2"><span>Precio inconsistente ($36+ pero duda a $24)</span><b>{m.calidad.inconsistente}</b></li>
+            <li className="flex justify-between gap-2"><span>Completadas en menos de 30 segundos</span><b>{m.calidad.rapidas}</b></li>
+            <li className="flex justify-between gap-2"><span>Van poco pero dicen 4+ mercados en 3 meses</span><b>{m.calidad.contradictoria}</b></li>
+          </ul>
+        </MetricCard>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <MetricCard label='6 · Freno principal: "¿Qué es lo que más te haría dudar?"' n={m.freno.n}>
+          {m.freno.n === 0 ? <p className="text-sm text-muted-foreground">Nadie ha visto esta pregunta todavía.</p> : (
+            <ul className="space-y-1 text-sm">
+              {m.freno.items.map((x) => <li key={x.key} className="flex justify-between gap-2"><span>{x.label}</span><b className="text-[#18253f] tabular-nums">{fmtVal(x.c, x.n)}</b></li>)}
+            </ul>
+          )}
+          {m.freno.otros.length > 0 && (
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-muted-foreground">Respuestas "Otra":</p>
+              <ul className="list-disc pl-5 text-sm">{m.freno.otros.map((o, i) => <li key={i}>{o}</li>)}</ul>
+            </div>
+          )}
+        </MetricCard>
+      </div>
+    </section>
   );
 }
