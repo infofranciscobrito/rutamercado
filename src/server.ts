@@ -1,4 +1,5 @@
 import "./lib/error-capture";
+import { surveyRedirectTarget } from "./lib/encuesta-model";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -124,7 +125,9 @@ function wwwRedirect(request: Request): Response | undefined {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const redirectResponse = wwwRedirect(request) ?? shortUrlRedirect(request, env, ctx);
+      const surveyTarget = surveyRedirectTarget(request.url);
+      const surveyRedirect = surveyTarget ? new Response(null, { status: 301, headers: { location: surveyTarget } }) : undefined;
+      const redirectResponse = wwwRedirect(request) ?? surveyRedirect ?? shortUrlRedirect(request, env, ctx);
       if (redirectResponse) return redirectResponse;
 
       const handler = await getServerEntry();

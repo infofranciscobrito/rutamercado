@@ -1,3 +1,5 @@
+import { SPEND, VISITS, PRECIO_ANUAL, AHORRO_PCT, estimatedAnnualSavings } from "./encuesta-model";
+export { SPEND, VISITS, PRECIO_ANUAL, AHORRO_PCT };
 // Cálculos del dashboard de la encuesta (fiel al dashboard de referencia de la Fase 3).
 export type EncuestaRow = {
   origen: string | null;
@@ -43,8 +45,6 @@ export const L = {
   dudas: { poco_uso: "No van lo suficiente para aprovecharla", que_mesas: "Quieren saber qué mesas participan", pago_por_uso: "Prefieren pagar solo cuando van", descuento_bajo: "Un 15% no los mueve", no_membresias: "No les gustan las membresías", otro: "Otras razones" },
 } as const;
 
-export const SPEND: Record<string, number> = { menos_15: 10, "15_30": 22, "31_50": 40, "51_80": 65, mas_80: 100 };
-export const VISITS: Record<string, number> = { fines_semana: 4, "2_3_mes": 2.5, "1_mes": 1, "2_3_meses": 0.4, casi_nunca: 0.2 };
 export const MARKETS: Record<string, number> = { "0": 0, "1": 1, "2_3": 2.5, "4_6": 5, "7_mas": 8 };
 export const MIN = 15;
 export const SMALL = 30;
@@ -105,7 +105,7 @@ export function dist(rows: EncuestaRow[], field: keyof EncuestaRow, labels: Reco
 export type SegField = "edad" | "sexo" | "region" | "origen";
 export type SegGroup = { key: string; label: string; n: number; size: number; pay: number; payK: number; spend: number; mail: number; mailK: number };
 function groupStats(key: string, label: string, gr: EncuestaRow[], n: number): SegGroup {
-  const payK = gr.filter(pays).length, mailK = gr.filter(hasEmail).length;
+  const payK = gr.filter(compradorCalificado).length, mailK = gr.filter(hasEmail).length;
   return { key, label, n: gr.length, size: n ? gr.length / n : 0, pay: gr.length ? payK / gr.length : 0, payK, spend: mean(gr, (r) => SPEND[r.gasto ?? ""]), mail: gr.length ? mailK / gr.length : 0, mailK };
 }
 export function segment(rows: EncuestaRow[], field: SegField, sortBySize: boolean) {
@@ -129,7 +129,7 @@ export function segment(rows: EncuestaRow[], field: SegField, sortBySize: boolea
   const best = elig.length ? elig.reduce((a, b) => (b.pay > a.pay ? b : a)) : null;
   const big = g.length ? g.reduce((a, b) => (b.n > a.n ? b : a)) : null;
   const maxSize = Math.max(0, ...g.map((d) => d.size)) || 1;
-  return { groups: g, best, big, maxSize, general: share(rows, pays), n };
+  return { groups: g, best, big, maxSize, general: share(rows, compradorCalificado), n };
 }
 
 export function computeDashboard(rows: EncuestaRow[]) {
@@ -161,52 +161,13 @@ export function computeDashboard(rows: EncuestaRow[]) {
   const desc = (a: DistItem, b: DistItem) => b.v - a.v;
   const precio = dist(rows, "precio_maximo", L.precio).map((x) => ({ ...x, color: (["24", "36", "mas_36"].includes(x.key) ? "brand" : "muted") as DistItem["color"] }));
   const pr = rows.filter((r) => r.plan);
-  const plan = dist(pr, "plan", { anual: "Anual $24", mensual: "Mensual $3.99", ninguno: "Ninguno" });
+  const plan = dist(pr, "plan", { anual: "Anual $24", mensual: "Mensual $2.99", ninguno: "Ninguno" });
   const conDuda = rows.filter((r) => r.dudas);
   const dudas = dist(conDuda, "dudas", L.dudas).sort(desc).map((x, i) => (i === 0 ? { ...x, color: "bad" as const } : x));
   const categorias = dist(rows, "categorias", L.categorias, true).sort(desc);
 
-  // Resumen
-  const general = share(rows, pays);
-  const acepta24 = rows.filter((r) => ["24", "36", "mas_36"].includes(r.precio_maximo ?? "")).length;
-  const e = segment(rows, "edad", false).best;
-  const sx = segment(rows, "sexo", false).best;
-  const rg = segment(rows, "region", true);
-  const ch = segment(rows, "origen", true);
-  const anual = share(pr, (r) => r.plan === "anual");
-  const mensual = share(pr, (r) => r.plan === "mensual");
-
-  const titulo =
-    signal === "fuerte" ? "La membresía a $24 tiene mercado. El siguiente paso es probar que paguen." :
-    signal === "moderada" ? "Hay interés en la membresía, pero todavía no es suficiente para lanzar en grande." :
-    "Todavía no hay suficiente interés para lanzar la membresía a $24.";
-
-  const facts: [string, string, string][] = [
-    ["Tu cliente ideal", (e ? e.label + " años" : "") + (sx ? ", " + sx.label.toLowerCase() : ""), (e ? `${pct(e.pay)} de ese grupo de edad pagaría, contra ${pct(general)} en general.` : "") + (rg.best ? ` La zona con más interés es ${rg.best.label} (${pct(rg.best.pay)}).` : "")],
-    ["El precio", `${fmtProp(acepta24, n)} acepta $24 o más`, `De quienes escogen plan, ${pct(anual)} prefiere el anual de $24 y ${pct(mensual)} el mensual de $3.99.`],
-    ["El freno número 1", dudas[0] && dudas[0].v > 0 ? dudas[0].label : "—", dudas[0] && dudas[0].v > 0 ? `${pct(dudas[0].v)} de quienes dudan lo escogió. Le sigue: ` + (dudas[1] ? `${dudas[1].label.toLowerCase()} (${pct(dudas[1].v)}).` : "") : ""],
-    ["Dónde encontrarlos", ch.best ? ch.best.label : "—", (ch.best ? `Es el canal con más interés (${pct(ch.best.pay)} pagaría). ` : "") + (ch.big ? `El que más respuestas trajo fue ${ch.big.label} (${pct(ch.big.size)}).` : "")],
-    ["Qué Mesas Aliadas buscar", categorias[0].label, `Es lo que más compran (${pct(categorias[0].v)}), seguido de ${categorias[1].label.toLowerCase()} (${pct(categorias[1].v)}) y ${categorias[2].label.toLowerCase()} (${pct(categorias[2].v)}).`],
-  ];
-
-  const accionDuda: Record<string, [string, string]> = {
-    que_mesas: ["Consigue tus Mesas Aliadas antes de vender.", " Anuncia las primeras 25 Mesas Aliadas Fundadoras para que la gente vea dónde usaría el descuento."],
-    poco_uso: ["Enseña cuánto se ahorra.", " Usa el cálculo de ahorro en toda la promoción para que vean que los $24 se recuperan."],
-    pago_por_uso: ["Prueba una opción de pago por visita.", " Parte de la gente no quiere pagar por adelantado."],
-    descuento_bajo: ["Sube el descuento con las mesas.", " El 15% no convence a todos; busca ofertas más fuertes con algunas Mesas Aliadas."],
-    no_membresias: ["Cambia cómo la presentas.", " Llámala tarjeta de descuentos en vez de membresía."],
-    otro: ['Lee las respuestas de "Otro".', " Ahí hay razones que la encuesta no anticipó."],
-  };
-  const todo: [string, string][] = [];
-  todo.push(
-    signal === "fuerte" ? ["Abre una pre-venta a $24.", ` Ofrécesela primero a las ${int(em)} personas de la lista de espera, con devolución si no lanzas a tiempo.`] :
-    signal === "moderada" ? ["Haz una pre-venta pequeña.", ` Empieza con las ${int(em)} personas de la lista de espera antes de invertir en anuncios.`] :
-    ["No lances todavía.", " Resuelve primero el freno número 1 y vuelve a medir."],
-  );
-  if (dudas[0] && dudas[0].v > 0) todo.push(accionDuda[dudas[0].key]);
-  todo.push(["Enfoca tus anuncios.", ` Dirígelos a ${e ? `personas de ${e.label} años` : "tu grupo con más interés"}${rg.best ? ` en ${rg.best.label}` : ""}, y destaca el plan ${anual >= mensual ? "anual de $24." : "mensual de $3.99."}`]);
-  if (fin > 0) todo.push(["Mantén el cálculo de ahorro al final.", ` ${int(fin)} personas se anotaron después de verlo: ${pct(fin / Math.max(em, 1))} de tu lista de espera.`]);
-
+  const general = share(rows, compradorCalificado);
+  const acepta24 = rows.filter(aceptaPrecio).length;
   return {
     n, si, sSi, sComp, sTal, comp: compR.length, acepta24, signal, strip, tiles,
     segments: {
@@ -222,7 +183,7 @@ export function computeDashboard(rows: EncuestaRow[]) {
       descubren: dist(rows, "descubrimiento", L.descubrimiento, true).sort(desc),
     },
     membresia: { precio, plan, planN: pr.length, dudas },
-    resumen: { general, titulo, facts, todo },
+    resumen: { general },
   };
 }
 
@@ -259,7 +220,6 @@ export function topMesas(texts: (string | null | undefined)[], limit = 15): { na
 
 // ---------- Métricas superiores ----------
 export const PRECIO_MIN = 24;
-export const AHORRO_PCT = 0.1;
 export const RAPIDO_SEG = 30;
 const PRECIO_NUM: Record<string, number> = { "0": 0, "12": 12, "18": 18, "24": 24, "36": 36, mas_36: 48 };
 const POSITIVA = ["seguro", "probable_si"];
@@ -272,8 +232,7 @@ export const compradorCalificado = (r: EncuestaRow) =>
   POSITIVA.includes(intencionFinal(r) ?? "") && aceptaPrecio(r) && r.email_confirmed === true;
 /** Ahorro anual = gasto por visita × visitas al año × 10%. */
 export function ahorroAnual(r: EncuestaRow): number | null {
-  const s = SPEND[r.gasto ?? ""], v = VISITS[r.frecuencia ?? ""];
-  return s && v ? s * v * 12 * AHORRO_PCT : null;
+  return estimatedAnnualSavings(r.gasto, r.frecuencia);
 }
 export function median(v: number[]): number {
   if (!v.length) return 0;
@@ -282,6 +241,8 @@ export function median(v: number[]): number {
 }
 const RANK: Record<string, number> = { no: 0, probable_no: 1, no_se: 2, probable_si: 3, seguro: 4 };
 export const precioInconsistente = (r: EncuestaRow) =>
+  POSITIVA.includes(intencionFinal(r) ?? "") && r.precio_maximo !== null && (PRECIO_NUM[r.precio_maximo ?? ""] ?? Infinity) < PRECIO_MIN;
+export const maximoAltoConDuda = (r: EncuestaRow) =>
   (PRECIO_NUM[r.precio_maximo ?? ""] ?? 0) >= 36 && DUDA.includes(r.intencion_24 ?? "");
 export function duracionSeg(r: EncuestaRow): number | null {
   const a = r.started_at ?? r.iniciada_en, b = r.completed_at ?? r.completada_en;
@@ -291,6 +252,15 @@ export function duracionSeg(r: EncuestaRow): number | null {
 export const frecuenciaContradictoria = (r: EncuestaRow) =>
   (r.frecuencia === "2_3_meses" || r.frecuencia === "casi_nunca") && (r.cantidad_mercados === "4_6" || r.cantidad_mercados === "7_mas");
 
+export const finesSinMercados = (r: EncuestaRow) => r.frecuencia === "fines_semana" && r.cantidad_mercados === "0";
+export const CALIDAD_REGLAS = [
+  { key: "inconsistente", label: "Precio inconsistente: intención positiva y máximo menor de $24", matches: precioInconsistente },
+  { key: "maximoDuda", label: "Máximo $36+ pero duda a $24", matches: maximoAltoConDuda },
+  { key: "rapidas", label: "Completadas en menos de 30 segundos", matches: (r: EncuestaRow) => { const d = duracionSeg(r); return d !== null && d >= 0 && d < RAPIDO_SEG; } },
+  { key: "contradictoria", label: "Van poco pero dicen 4+ mercados en 3 meses", matches: frecuenciaContradictoria },
+  { key: "finesSinMercados", label: "Van casi todos los fines de semana pero 'Ninguno' en 3 meses", matches: finesSinMercados },
+] as const;
+
 export function computeMetricas(rows: EncuestaRow[], pesos: { seguro: number; probable: number }) {
   const n = rows.length;
   // Intención: solo quienes vieron la pregunta (quien escogió "Hasta $24" o "Nada" no la ve).
@@ -299,9 +269,9 @@ export function computeMetricas(rows: EncuestaRow[], pesos: { seguro: number; pr
   const kProb = vio.filter((r) => intencionFinal(r) === "probable_si").length;
   const pSeg = vio.length ? kSeg / vio.length : 0, pProb = vio.length ? kProb / vio.length : 0;
   const ambos = rows.filter((r) => r.intencion_24 && r.intencion_24_despues);
-  const antesK = ambos.filter((r) => POSITIVA.includes(r.intencion_24!)).length;
-  const despuesK = ambos.filter((r) => POSITIVA.includes(r.intencion_24_despues!)).length;
-  const subieron = ambos.filter((r) => RANK[r.intencion_24_despues!] > RANK[r.intencion_24!]).length;
+  const antesK = ambos.filter((r) => POSITIVA.includes(r.intencion_24 ?? "")).length;
+  const despuesK = ambos.filter((r) => POSITIVA.includes(r.intencion_24_despues ?? "")).length;
+  const subieron = ambos.filter((r) => RANK[r.intencion_24_despues ?? ""] > RANK[r.intencion_24 ?? ""]).length;
   const ahorros = rows.map(ahorroAnual).filter((x): x is number => x !== null);
   const vieronFreno = rows.filter((r) => r.dudas);
   const gastos = rows.map((r) => SPEND[r.gasto ?? ""]).filter((x): x is number => typeof x === "number");
@@ -315,7 +285,9 @@ export function computeMetricas(rows: EncuestaRow[], pesos: { seguro: number; pr
     freno: { items: dist(vieronFreno, "dudas", L.dudas).sort((a, b) => b.v - a.v), n: vieronFreno.length, otros: vieronFreno.map((r) => r.dudas_otro?.trim()).filter((x): x is string => !!x) },
     calidad: {
       inconsistente: rows.filter(precioInconsistente).length,
-      rapidas: rows.filter((r) => { const d = duracionSeg(r); return d !== null && d < RAPIDO_SEG; }).length,
+      maximoDuda: rows.filter(maximoAltoConDuda).length,
+      rapidas: rows.filter(CALIDAD_REGLAS[2].matches).length,
+      finesSinMercados: rows.filter(finesSinMercados).length,
       contradictoria: rows.filter(frecuenciaContradictoria).length,
       n,
     },
@@ -334,7 +306,6 @@ export function semaforo(k: number, n: number, u: Umbrales): Semaforo {
   const estado = p >= u.verde_pct && lo >= u.verde_lim_inf ? "verde" : p >= u.amarillo_pct ? "amarillo" : "rojo";
   return { estado, p, lo, hi };
 }
-export const PRECIO_ANUAL = 24;
 /** Base = ponderada × 1,000 × $24; conservador usa el límite inferior de Wilson con k = ponderada × n. */
 export function proyeccion(ponderada: number, nVio: number, visitantes = 1000) {
   const lo = nVio ? wilson(ponderada * nVio, nVio)[0] : 0;

@@ -1,3 +1,5 @@
+import { SPEND, VISITS, INTENCIONES_POSITIVAS, PRECIO_MENSUAL } from "../../lib/encuesta-model";
+export { SPEND, VISITS };
 // Contenido de la encuesta, copiado tal cual del HTML de referencia.
 export type Answers = Record<string, unknown> & {
   origen: string;
@@ -50,9 +52,6 @@ export const CH = [
   "Parada 5 · Para conocerte",
 ];
 const NEUTRAL = "Anotado. Gracias por decírmelo claro.";
-
-export const SPEND: Record<string, number> = { menos_15: 10, "15_30": 22, "31_50": 40, "51_80": 65, mas_80: 100 };
-export const VISITS: Record<string, number> = { fines_semana: 4, "2_3_mes": 2.5, "1_mes": 1, "2_3_meses": 0.4, casi_nunca: 0.2 };
 
 export const STEPS: Step[] = [
   { id: "frecuencia", ch: 0, pose: "pregunta", lead: "Primero lo primero.", q: "¿Cada cuánto vas a mercados locales?", opts: [
@@ -113,11 +112,11 @@ export const STEPS: Step[] = [
   { id: "intencion_24_despues", ch: 3, pose: "celebrando", saving: true, when: (A) => !["0", "24"].includes(A.precio_maximo as string), lead: "Hice los números con lo que me contaste. ¡Mira esto!", q: "Ahora que ves cuánto ahorrarías, si costara <em>$24 al año</em>, ¿qué tan probable es que la compres?", react: "Gracias. Esto me dice si el ahorro convence.", opts: [
     { v: "seguro", l: "La compraría seguro" }, { v: "probable_si", l: "Probablemente sí" }, { v: "no_se", l: "No sé todavía" },
     { v: "probable_no", l: "Probablemente no" }, { v: "no", l: "No la compraría" }] },
-  { id: "plan", ch: 3, pose: "pregunta", when: (A) => A.precio_maximo !== "0" && !["no_se", "probable_no", "no"].includes((A.intencion_24_despues ?? A.intencion_24) as string), lead: "Supongamos que te unes.", q: "¿Qué plan escogerías?", react: "Anotado.", opts: [
+  { id: "plan", ch: 3, pose: "pregunta", when: (A) => INTENCIONES_POSITIVAS.includes((A.intencion_24_despues ?? A.intencion_24) as string), q: "¿Qué plan preferirías?", react: "Anotado.", opts: [
     { v: "anual", l: "Anual: $24", s: "Un solo pago al año" },
-    { v: "mensual", l: "Mensual: $3.99", s: "Son $47.88 al año" },
+    { v: "mensual", l: `Mensual: $${PRECIO_MENSUAL.toFixed(2)}`, s: `Son $${(PRECIO_MENSUAL * 12).toFixed(2)} al año` },
     { v: "ninguno", l: "Ninguno" }] },
-  { id: "dudas", ch: 3, pose: "pensando", other: true, when: (A) => A.precio_maximo === "0", lead: "Dímelo sin miedo, que para eso pregunto.", q: "¿Qué es lo que más te haría dudar?", react: "Eso es oro para mí. ¡Gracias!", opts: [
+  { id: "dudas", ch: 3, pose: "pensando", other: true, when: (A) => ["probable_si", "no_se", "probable_no"].includes(A.intencion_24 as string), lead: "Dímelo sin miedo, que para eso pregunto.", q: "¿Qué es lo que más te haría dudar?", react: "Eso es oro para mí. ¡Gracias!", opts: [
     { v: "poco_uso", l: "No voy suficiente como para aprovecharla" },
     { v: "que_mesas", l: "Quiero saber primero qué mesas participan" },
     { v: "pago_por_uso", l: "Prefiero pagar solo cuando voy" },
