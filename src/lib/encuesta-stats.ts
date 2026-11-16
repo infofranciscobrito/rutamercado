@@ -357,7 +357,7 @@ function juntar<T extends { n: number }>(items: { key: string; rows: EncuestaRow
 }
 export function porCanal(rows: (EncuestaRow & { market_slug?: string | null })[], pesos: { seguro: number; probable: number }): CanalRow[] {
   const by = new Map<string, typeof rows>();
-  for (const r of rows) { const k = r.origen && CANAL_LABEL[r.origen] ? r.origen : "directo"; by.set(k, [...(by.get(k) ?? []), r]); }
+  for (const r of rows) { const o = r.origen === "qr-mercado" ? "qr" : r.origen; const k = o && CANAL_LABEL[o] ? o : "directo"; by.set(k, [...(by.get(k) ?? []), r]); }
   const out: CanalRow[] = [];
   const canales = juntar([...by].map(([key, rs]) => ({ key, rows: rs })), (k, rs) => canalStats(k, CANAL_LABEL[k], rs, pesos), (rs) => canalStats("otros", "Otros (n<5)", rs, pesos));
   for (const c of canales) {

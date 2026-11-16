@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Download, Copy, ArrowDown, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, computeMetricas, type RawRow } from "@/lib/encuesta-stats";
+import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, computeMetricas, semaforo, proyeccion, porCanal, wilson, type RawRow } from "@/lib/encuesta-stats";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas, exportTodasRespuestas, getEncuestaConfig, saveEncuestaConfig } from "@/lib/encuesta.functions";
@@ -401,33 +401,43 @@ function Metricas({ rows }: { rows: EncuestaRow[] }) {
   const saveFn = useServerFn(saveEncuestaConfig);
   const cfg = useQuery({ queryKey: ["admin", "encuesta", "config"], queryFn: () => getFn() });
   const pesos = { seguro: cfg.data?.peso_seguro ?? 0.75, probable: cfg.data?.peso_probable ?? 0.25 };
-  const [edit, setEdit] = useState<{ a: string; b: string } | null>(null);
+  const u = { min_n: cfg.data?.min_n ?? 50, verde_pct: cfg.data?.verde_pct ?? 0.2, verde_lim_inf: cfg.data?.verde_lim_inf ?? 0.1, amarillo_pct: cfg.data?.amarillo_pct ?? 0.1 };
+  const [edit, setEdit] = useState<Record<string, string> | null>(null);
   const m = useMemo(() => computeMetricas(rows, pesos), [rows, pesos.seguro, pesos.probable]);
   const save = async () => {
     if (!edit) return;
-    const a = Number(edit.a), b = Number(edit.b);
-    if (!(a >= 0 && a <= 1 && b >= 0 && b <= 1)) { toast.error("Los factores deben estar entre 0 y 1."); return; }
-    try { await saveFn({ data: { peso_seguro: a, peso_probable: b } }); await cfg.refetch(); setEdit(null); toast.success("Factores guardados"); }
+    const a = Number(edit.a), b = Number(edit.b), mn = Number(edit.min_n);
+    const vp = Number(edit.verde) / 100, vl = Number(edit.lim) / 100, ap = Number(edit.amarillo) / 100;
+    if (![a, b, vp, vl, ap].every((x) => x >= 0 && x <= 1) || !(Number.isInteger(mn) && mn >= 1)) { toast.error("Revisa los valores: factores entre 0 y 1, porcentajes entre 0 y 100."); return; }
+    try { await saveFn({ data: { peso_seguro: a, peso_probable: b, min_n: mn, verde_pct: vp, verde_lim_inf: vl, amarillo_pct: ap } }); await cfg.refetch(); setEdit(null); toast.success("Configuración guardada"); }
     catch (e) { toast.error(e instanceof Error ? e.message : "No se pudo guardar"); }
   };
   const e = m.efecto;
   return (
     <section className="space-y-4">
+      {edit && (
+        <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
+          <p className="font-semibold text-[#18253f]">Configuración del panel</p>
+          <div className="flex flex-wrap gap-3">
+            {([["a", "Factor seguro"], ["b", "Factor prob. sí"], ["min_n", "Mínimo de respuestas"], ["verde", "Verde desde (%)"], ["lim", "Límite inferior verde (%)"], ["amarillo", "Amarillo desde (%)"]] as const).map(([k, l]) => (
+              <label key={k} className="flex flex-col text-xs text-muted-foreground">{l}
+                <input type="number" step="any" value={edit[k]} onChange={(ev) => setEdit({ ...edit, [k]: ev.target.value })} className="mt-1 w-28 rounded border px-2 py-1 text-[#18253f]" />
+              </label>
+            ))}
+          </div>
+          <div className="flex gap-2"><Button size="sm" onClick={save}>Guardar</Button><Button size="sm" variant="ghost" onClick={() => setEdit(null)}>Cancelar</Button></div>
+        </div>
+      )}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <SemaforoCard k={m.calificado.k} n={m.calificado.n} u={u} />
+        <ProyeccionCard ponderada={m.ponderada.v} nVio={m.ponderada.n} n={m.n} minN={u.min_n} />
+      </div>
       <MetricCard big label="1 · Comprador calificado" value={fmtProp(m.calificado.k, m.calificado.n)} n={m.calificado.n}
         sub='Intención (después del ahorro, o antes si no hay) "seguro" o "probablemente sí", acepta $24 o más y confirmó su correo.' />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="2 · Intención ponderada" value={m.ponderada.n ? pct(m.ponderada.v) : "—"} n={m.ponderada.n}
           sub={`${pesos.seguro} × ${pct(m.ponderada.pSeg)} seguro + ${pesos.probable} × ${pct(m.ponderada.pProb)} probablemente sí. Solo quienes vieron la pregunta.`}>
-          {edit ? (
-            <div className="flex flex-wrap items-end gap-2 pt-1 text-xs">
-              <label>Seguro<input type="number" step="0.05" min="0" max="1" value={edit.a} onChange={(ev) => setEdit({ ...edit, a: ev.target.value })} className="ml-1 w-16 rounded border px-1 py-0.5" /></label>
-              <label>Prob. sí<input type="number" step="0.05" min="0" max="1" value={edit.b} onChange={(ev) => setEdit({ ...edit, b: ev.target.value })} className="ml-1 w-16 rounded border px-1 py-0.5" /></label>
-              <Button size="sm" onClick={save}>Guardar</Button>
-              <Button size="sm" variant="ghost" onClick={() => setEdit(null)}>Cancelar</Button>
-            </div>
-          ) : (
-            <button type="button" className="text-xs underline text-[#18253f]" onClick={() => setEdit({ a: String(pesos.seguro), b: String(pesos.probable) })}>Editar factores</button>
-          )}
+          <button type="button" className="text-xs underline text-[#18253f]" onClick={() => setEdit({ a: String(pesos.seguro), b: String(pesos.probable), min_n: String(u.min_n), verde: String(Math.round(u.verde_pct * 100)), lim: String(Math.round(u.verde_lim_inf * 100)), amarillo: String(Math.round(u.amarillo_pct * 100)) })}>Editar configuración</button>
         </MetricCard>
         <MetricCard label="3 · % que acepta el precio" value={fmtProp(m.precio.k, m.precio.n)} n={m.precio.n} sub="Máximo que pagaría: $24 o más." />
         <MetricCard label="4 · Efecto del cálculo de ahorro" n={e.n}
@@ -458,6 +468,74 @@ function Metricas({ rows }: { rows: EncuestaRow[] }) {
           </ul>
         </MetricCard>
       </div>
+      <CanalTable rows={rows} pesos={pesos} />
     </section>
+  );
+}
+
+const SEM_STYLE = { verde: "bg-[#54b678] text-white", amarillo: "bg-amber-400 text-[#18253f]", rojo: "bg-red-500 text-white" } as const;
+function SemaforoCard({ k, n, u }: { k: number; n: number; u: { min_n: number; verde_pct: number; verde_lim_inf: number; amarillo_pct: number } }) {
+  const s = semaforo(k, n, u);
+  return (
+    <div className="rounded-xl border bg-card p-5 space-y-2">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Semáforo</span>
+      {s.estado === "faltan" ? (
+        <p className="font-display text-xl text-[#18253f]">Faltan {s.faltan} {plural(s.faltan, "respuesta", "respuestas")} para un veredicto</p>
+      ) : (
+        <>
+          <span className={"inline-block rounded-full px-3 py-1 text-sm font-bold uppercase " + SEM_STYLE[s.estado]}>{s.estado}</span>
+          <p className="text-sm text-[#18253f]">Comprador calificado {pct(s.p)} · rango {Math.round(s.lo * 100)}–{Math.round(s.hi * 100)}%</p>
+          <p className="text-xs text-muted-foreground">
+            {s.estado === "verde" ? `Llega a ${pct(u.verde_pct)} y aun en el peor caso queda sobre ${pct(u.verde_lim_inf)}.`
+              : s.estado === "amarillo" ? (s.p >= u.verde_pct ? `Llega a ${pct(u.verde_pct)}, pero el límite inferior queda bajo ${pct(u.verde_lim_inf)}.` : `Entre ${pct(u.amarillo_pct)} y ${pct(u.verde_pct)}.`)
+              : `Menos de ${pct(u.amarillo_pct)}.`}
+          </p>
+        </>
+      )}
+      <NNote n={n} />
+    </div>
+  );
+}
+
+function ProyeccionCard({ ponderada, nVio, n, minN }: { ponderada: number; nVio: number; n: number; minN: number }) {
+  const p = proyeccion(ponderada, nVio);
+  return (
+    <div className="rounded-xl border bg-card p-5 space-y-2 lg:col-span-2">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Si 1,000 visitantes ven la oferta</span>
+      {n < minN ? (
+        <p className="font-display text-xl text-[#18253f]">Faltan {minN - n} {plural(minN - n, "respuesta", "respuestas")} para proyectar</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div><p className="text-xs text-muted-foreground">Conservador</p><strong className="block font-display text-2xl text-[#18253f] tabular-nums">{int(p.conservador.compradores)} compradores · {money(p.conservador.dinero)}</strong><p className="text-xs text-muted-foreground">Límite inferior de la intención ponderada × 1,000 × $24</p></div>
+          <div><p className="text-xs text-muted-foreground">Base</p><strong className="block font-display text-2xl text-[#18253f] tabular-nums">{int(p.base.compradores)} compradores · {money(p.base.dinero)}</strong><p className="text-xs text-muted-foreground">Intención ponderada × 1,000 × $24</p></div>
+        </div>
+      )}
+      <p className="text-xs italic text-muted-foreground">Basado en intención declarada, no en ventas.</p>
+      <NNote n={nVio} />
+    </div>
+  );
+}
+
+function CanalTable({ rows, pesos }: { rows: EncuestaRow[]; pesos: { seguro: number; probable: number } }) {
+  const t = porCanal(rows, pesos);
+  return (
+    <div className="rounded-xl border bg-card p-5 space-y-3">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Por canal</span>
+      <table className="w-full text-sm">
+        <thead><tr className="text-left text-xs text-muted-foreground"><th className="py-1 font-medium">Canal</th><th className="py-1 font-medium">n</th><th className="py-1 font-medium">Comprador calificado</th><th className="py-1 font-medium">Intención ponderada</th><th className="py-1 font-medium">Gasto mediano</th></tr></thead>
+        <tbody>
+          {t.map((r) => (
+            <tr key={r.key} className="border-t">
+              <td className={"py-1.5 " + (r.sub ? "pl-5 text-muted-foreground" : "font-medium text-[#18253f]")}>{r.sub ? "↳ " : ""}{r.label}</td>
+              <td className="py-1.5 tabular-nums">{r.n}</td>
+              <td className="py-1.5 tabular-nums">{fmtVal(r.calK, r.n)}</td>
+              <td className="py-1.5 tabular-nums">{r.ponderada === null ? "—" : pct(r.ponderada)}</td>
+              <td className="py-1.5 tabular-nums">{r.gastoMed === null ? "—" : money(r.gastoMed)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="text-xs italic text-muted-foreground">Los suscriptores del newsletter suelen responder más positivo que visitantes nuevos.</p>
+    </div>
   );
 }
