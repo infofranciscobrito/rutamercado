@@ -541,7 +541,7 @@ function ThanksNote({ email }: { email: string }) {
   return (
     <div className="note fade">
       {PIN_CHECK}
-      <div><b>¡Gracias por tu tiempo y tu interés!</b><p>Gracias por participar. Ya estás en la lista de espera de la membresía: te aviso primero a <span>{email}</span> cuando la lancemos.</p></div>
+      <div><b>¡Gracias por tu tiempo y tu interés!</b><p>Gracias por participar. Ya estás en la lista de espera de la membresía: te aviso primero a <span>{email}</span> cuando la lancemos. Te envié un correo: toca «Confirmar mi correo» para completar tu registro.</p></div>
     </div>
   );
 }
