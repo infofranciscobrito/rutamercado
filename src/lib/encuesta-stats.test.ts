@@ -41,7 +41,7 @@ describe("encuesta-stats", () => {
 });
 
 import { filterRows } from "./encuesta-stats";
-test("filterRows: solo completas, sin pruebas, versión y canal desde source", () => {
+it("filterRows: solo completas, sin pruebas, versión y canal desde source", () => {
   const base = { origen: "directo" } as never;
   const rows = [
     { ...(base as object), source: "qr", survey_version: "v2", is_test: false, completed: true },
@@ -50,8 +50,8 @@ test("filterRows: solo completas, sin pruebas, versión y canal desde source", (
     { ...(base as object), source: null, survey_version: "v1", is_test: false, completed: true },
   ] as never[];
   const v2 = filterRows(rows, { version: "v2", showTest: false });
-  assert.equal(v2.length, 1);
-  assert.equal(v2[0].origen, "qr");
-  assert.equal(filterRows(rows, { version: "v2", showTest: true }).length, 2);
-  assert.equal(filterRows(rows, { version: "todas", showTest: false }).length, 2);
+  strictEqual(v2.length, 1);
+  strictEqual(v2[0].origen, "qr");
+  strictEqual(filterRows(rows, { version: "v2", showTest: true }).length, 2);
+  strictEqual(filterRows(rows, { version: "todas", showTest: false }).length, 2);
 });
