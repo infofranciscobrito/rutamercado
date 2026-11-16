@@ -23,7 +23,8 @@ export type Step = {
   multi?: number;
   fast?: boolean;
   other?: boolean;
-  type?: "concept" | "email" | "final";
+  type?: "concept" | "email" | "final" | "text";
+  placeholder?: string;
   when?: (a: Answers) => boolean;
   opts?: Opt[];
 };
@@ -71,7 +72,7 @@ export const STEPS: Step[] = [
     { v: "31_50", l: "$31 a $50", r: "Se nota que apoyas lo local." },
     { v: "51_80", l: "$51 a $80", r: "¡Las mesas te deben querer mucho!" },
     { v: "mas_80", l: "Más de $80", r: "¡Tú eres el corazón del mercado!" }] },
-  { id: "categorias", ch: 1, pose: "mercado", multi: 3, lead: "Esta parte me encanta.", q: "¿En qué se te va más el dinero?", hint: "Escoge 3", opts: [
+  { id: "categorias", ch: 1, pose: "mercado", multi: 3, lead: "Esta parte me encanta.", q: "¿En qué se te va más el dinero?", hint: "Escoge hasta 3", opts: [
     { v: "comida", l: "Comida para comer ahí", r: "La comida del mercado no tiene competencia." },
     { v: "cafe_postres", l: "Café, postres y bebidas", r: "Yo tampoco salgo sin mi cafecito." },
     { v: "agricola", l: "Productos agrícolas y frescos", r: "De la finca a tu mesa. Así mismo." },
@@ -85,14 +86,15 @@ export const STEPS: Step[] = [
     { v: "favoritas", l: "Sí, tengo mis favoritas y las busco", r: "Eso es lealtad, y las mesas lo agradecen." },
     { v: "a_veces", l: "A veces", r: "Un poco de las dos cosas. Perfecto." },
     { v: "nuevas", l: "No, me gusta probar mesas nuevas", r: "Siempre buscando lo nuevo. ¡Me encanta!" }] },
-  { id: "descubrimiento", ch: 1, pose: "celular", multi: 2, lead: "Yo vivo pegado al celular buscando mercados.", q: "¿Cómo decides a qué mercado ir?", hint: "Escoge 2", react: "Anotado. Así sé dónde encontrarte la próxima vez.", opts: [
+  { id: "descubrimiento", ch: 1, pose: "celular", multi: 2, other: true, lead: "Yo vivo pegado al celular buscando mercados.", q: "¿Cómo decides a qué mercado ir?", hint: "Escoge hasta 2", react: "Anotado. Así sé dónde encontrarte la próxima vez.", opts: [
     { v: "redes_mercado", l: "Instagram o Facebook del mercado" },
     { v: "rutamercado", l: "RutaMercado" },
     { v: "amistades", l: "Amigos o familia" },
     { v: "whatsapp", l: "Grupos de WhatsApp" },
     { v: "de_paso", l: "Lo veo cuando paso por ahí" },
-    { v: "email", l: "Newsletter o email" }] },
-  { id: "motivadores", ch: 2, pose: "pensando", multi: 3, lead: "Ahora, en serio.", q: "¿Qué te haría ir a <em>más</em> mercados?", hint: "Escoge 3", react: "Mmm... eso me da una idea. Ven, que te cuento.", opts: [
+    { v: "email", l: "Newsletter o email" },
+    { v: "otro", l: "Otro" }] },
+  { id: "motivadores", ch: 2, pose: "pensando", multi: 3, lead: "Ahora, en serio.", q: "¿Qué te haría ir a <em>más</em> mercados?", hint: "Escoge hasta 3", react: "Mmm... eso me da una idea. Ven, que te cuento.", opts: [
     { v: "descuentos", l: "Descuentos en las mesas" },
     { v: "info_anticipada", l: "Saber con tiempo dónde y cuándo hay" },
     { v: "cercania", l: "Que haya mercados más cerca de mí" },
@@ -118,6 +120,7 @@ export const STEPS: Step[] = [
     { v: "descuento_bajo", l: "Un descuento de 15% no me mueve" },
     { v: "no_membresias", l: "No me gustan las membresías" },
     { v: "otro", l: "Otro" }] },
+  { id: "mesas_favoritas", ch: 4, pose: "mercado", type: "text", lead: "Esta es opcional, pero me encantaría saberlo.", q: "¿Cuáles son tus mesas favoritas? <span style=\"font-weight:400;font-size:.7em\">(nombre de la mesa o negocio)</span>", placeholder: "Ej.: Café del Barrio, Finca La Esperanza", react: "¡Buenas mesas! Las voy a buscar." },
   { id: "region", ch: 4, pose: "anotando", two: true, fast: true, lead: "Ya casi llegamos. Un poquito sobre ti.", q: "¿Por dónde vives?", opts: [
     { v: "metro", l: "Área metro" }, { v: "norte", l: "Norte" }, { v: "sur", l: "Sur" }, { v: "este", l: "Este" },
     { v: "oeste", l: "Oeste" }, { v: "centro", l: "Centro / montaña" }, { v: "islas", l: "Vieques o Culebra" }, { v: "visita", l: "Estoy de visita en PR" }] },
