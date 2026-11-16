@@ -43,6 +43,13 @@
       "when": 1794796006635,
       "tag": "0005_encuesta_intencion_despues_config",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794796390784,
+      "tag": "0006_encuesta_config_umbrales",
+      "breakpoints": true
     }
   ]
 }

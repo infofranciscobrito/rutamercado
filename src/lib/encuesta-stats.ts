@@ -323,3 +323,50 @@ export function computeMetricas(rows: EncuestaRow[], pesos: { seguro: number; pr
     mesas: topMesas(rows.map((r) => r.mesas_favoritas), 1000),
   };
 }
+
+// ---------- Semáforo, proyección y canal ----------
+export type Umbrales = { min_n: number; verde_pct: number; verde_lim_inf: number; amarillo_pct: number };
+export type Semaforo = { estado: "faltan"; faltan: number } | { estado: "verde" | "amarillo" | "rojo"; p: number; lo: number; hi: number };
+export function semaforo(k: number, n: number, u: Umbrales): Semaforo {
+  if (n < u.min_n) return { estado: "faltan", faltan: u.min_n - n };
+  const p = n ? k / n : 0;
+  const [lo, hi] = wilson(k, n);
+  const estado = p >= u.verde_pct && lo >= u.verde_lim_inf ? "verde" : p >= u.amarillo_pct ? "amarillo" : "rojo";
+  return { estado, p, lo, hi };
+}
+export const PRECIO_ANUAL = 24;
+/** Base = ponderada × 1,000 × $24; conservador usa el límite inferior de Wilson con k = ponderada × n. */
+export function proyeccion(ponderada: number, nVio: number, visitantes = 1000) {
+  const lo = nVio ? wilson(ponderada * nVio, nVio)[0] : 0;
+  return {
+    conservador: { compradores: lo * visitantes, dinero: lo * visitantes * PRECIO_ANUAL },
+    base: { compradores: ponderada * visitantes, dinero: ponderada * visitantes * PRECIO_ANUAL },
+  };
+}
+const CANAL_LABEL: Record<string, string> = { qr: "QR", newsletter: "Newsletter", instagram: "Instagram", directo: "Directo" };
+export type CanalRow = { key: string; label: string; n: number; calK: number; ponderada: number | null; gastoMed: number | null; sub?: boolean };
+function canalStats(key: string, label: string, gr: EncuestaRow[], pesos: { seguro: number; probable: number }, sub = false): CanalRow {
+  const m = computeMetricas(gr, pesos);
+  return { key, label, n: gr.length, calK: m.calificado.k, ponderada: m.ponderada.n ? m.ponderada.v : null, gastoMed: m.gasto.n ? m.gasto.mediana : null, sub };
+}
+function juntar<T extends { n: number }>(items: { key: string; rows: EncuestaRow[] }[], mk: (key: string, rows: EncuestaRow[]) => T, otros: (rows: EncuestaRow[]) => T): T[] {
+  const big = items.filter((x) => x.rows.length >= HIDE).sort((a, b) => b.rows.length - a.rows.length).map((x) => mk(x.key, x.rows));
+  const small = items.filter((x) => x.rows.length > 0 && x.rows.length < HIDE);
+  if (small.length) big.push(otros(small.flatMap((x) => x.rows)));
+  return big;
+}
+export function porCanal(rows: (EncuestaRow & { market_slug?: string | null })[], pesos: { seguro: number; probable: number }): CanalRow[] {
+  const by = new Map<string, typeof rows>();
+  for (const r of rows) { const o = r.origen === "qr-mercado" ? "qr" : r.origen; const k = o && CANAL_LABEL[o] ? o : "directo"; by.set(k, [...(by.get(k) ?? []), r]); }
+  const out: CanalRow[] = [];
+  const canales = juntar([...by].map(([key, rs]) => ({ key, rows: rs })), (k, rs) => canalStats(k, CANAL_LABEL[k], rs, pesos), (rs) => canalStats("otros", "Otros (n<5)", rs, pesos));
+  for (const c of canales) {
+    out.push(c);
+    if (c.key !== "qr") continue;
+    const qr = by.get("qr") ?? [];
+    const bm = new Map<string, typeof rows>();
+    for (const r of qr) if (r.market_slug) bm.set(r.market_slug, [...(bm.get(r.market_slug) ?? []), r]);
+    out.push(...juntar([...bm].map(([key, rs]) => ({ key, rows: rs })), (k, rs) => canalStats("qr:" + k, k, rs, pesos, true), (rs) => canalStats("qr:otros", "Otros mercados (n<5)", rs, pesos, true)));
+  }
+  return out;
+}
