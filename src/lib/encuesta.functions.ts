@@ -115,7 +115,9 @@ export const exportListaEspera = createServerFn({ method: "GET" })
 export const deleteTestRespuestas = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: roleRow } = await context.supabase
+      .from("user_roles").select("role").eq("user_id", context.userId).eq("role", "admin").maybeSingle();
+    const isAdmin = !!roleRow;
     if (!isAdmin) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin.from("encuesta_respuestas").delete().eq("is_test", true).select("id");
