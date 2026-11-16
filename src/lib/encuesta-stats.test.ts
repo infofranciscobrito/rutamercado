@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import { strictEqual } from "node:assert";
-import { computeDashboard, segment, signalOf, pays, grupo, type EncuestaRow } from "./encuesta-stats";
+import { computeDashboard, segment, compradorCalificado, type EncuestaRow } from "./encuesta-stats";
 
 const base: EncuestaRow = {
   origen: "ig", frecuencia: "1_mes", cantidad_mercados: "1", gasto: "15_30", categorias: ["comida"],
@@ -11,21 +11,10 @@ const base: EncuestaRow = {
 const r = (o: Partial<EncuestaRow>) => ({ ...base, ...o });
 
 describe("encuesta-stats", () => {
-  it("pagarían $24 = plan anual o mensual", () => {
-    strictEqual(pays(r({ plan: "anual" })), true);
-    strictEqual(pays(r({ plan: "mensual" })), true);
-    strictEqual(pays(r({ plan: "ninguno" })), false);
-  });
-  it("lo están pensando = no_se o plan ninguno", () => {
-    strictEqual(grupo(r({ intencion_24: "no_se" })), "tal");
-    strictEqual(grupo(r({ plan: "ninguno" })), "tal");
-    strictEqual(grupo(r({})), "no");
-  });
-  it("umbrales de señal 15% y 8%", () => {
-    strictEqual(signalOf(0.15), "fuerte");
-    strictEqual(signalOf(0.1), "moderada");
-    strictEqual(signalOf(0.08), "moderada");
-    strictEqual(signalOf(0.079), "debil");
+  it("la tarjeta general no cuenta escoger plan como comprador calificado", () => {
+    strictEqual(compradorCalificado(r({ plan: "anual" })), false);
+    strictEqual(compradorCalificado(r({ plan: null, intencion_24: "probable_si", precio_maximo: "24", email_confirmed: true })), true);
+    strictEqual(compradorCalificado(r({ plan: "mensual", intencion_24: "seguro", precio_maximo: "18", email_confirmed: true })), false);
   });
   it("más interés exige al menos 15 personas", () => {
     const rows = [

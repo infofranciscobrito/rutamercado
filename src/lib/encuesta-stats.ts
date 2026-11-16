@@ -73,13 +73,7 @@ export const pct = (v: number) => `${Math.round(v * 100)}%`;
 export const money = (v: number) => `$${Math.round(v)}`;
 export const dec1 = (v: number) => v.toFixed(1);
 
-export const pays = (r: EncuestaRow) => r.plan === "anual" || r.plan === "mensual";
 export const hasEmail = (r: EncuestaRow) => r.consentimiento_email === true;
-export function grupo(r: EncuestaRow): "si" | "tal" | "no" {
-  if (pays(r)) return "si";
-  if (r.intencion_24 === "no_se" || r.plan === "ninguno") return "tal";
-  return "no";
-}
 export function share<T>(rows: T[], f: (r: T) => boolean) {
   return rows.length ? rows.filter(f).length / rows.length : 0;
 }
@@ -87,9 +81,6 @@ function mean<T>(rows: T[], f: (r: T) => number | undefined) {
   const v = rows.map(f).filter((x): x is number => typeof x === "number");
   return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
 }
-
-export type Signal = "fuerte" | "moderada" | "debil";
-export const signalOf = (sComp: number): Signal => (sComp >= 0.15 ? "fuerte" : sComp >= 0.08 ? "moderada" : "debil");
 
 export type DistItem = { key: string; label: string; v: number; c: number; n: number; color?: "brand" | "muted" | "bad" };
 export function dist(rows: EncuestaRow[], field: keyof EncuestaRow, labels: Record<string, string>, multi = false): DistItem[] {
@@ -134,18 +125,6 @@ export function segment(rows: EncuestaRow[], field: SegField, sortBySize: boolea
 
 export function computeDashboard(rows: EncuestaRow[]) {
   const n = rows.length;
-  const si = rows.filter(pays).length;
-  const tal = rows.filter((r) => grupo(r) === "tal").length;
-  const compR = rows.filter((r) => pays(r) && hasEmail(r));
-  const sSi = n ? si / n : 0, sComp = n ? compR.length / n : 0, sTal = n ? tal / n : 0;
-  const signal = signalOf(sComp);
-  const strip = [
-    { label: "Pagarían y dejaron email", v: sComp, tone: "brand" },
-    { label: "Pagarían, sin email", v: sSi - sComp, tone: "brandSoft" },
-    { label: "Lo están pensando", v: sTal, tone: "muted" },
-    { label: "No pagarían $24", v: 1 - sSi - sTal, tone: "grid" },
-  ] as const;
-
   const em = rows.filter(hasEmail).length;
   const fin = rows.filter((r) => r.email_momento === "final").length;
   const tiles = {
@@ -169,7 +148,7 @@ export function computeDashboard(rows: EncuestaRow[]) {
   const general = share(rows, compradorCalificado);
   const acepta24 = rows.filter(aceptaPrecio).length;
   return {
-    n, si, sSi, sComp, sTal, comp: compR.length, acepta24, signal, strip, tiles,
+    n, acepta24, tiles,
     segments: {
       edad: segment(rows, "edad", false), sexo: segment(rows, "sexo", false),
       region: segment(rows, "region", true), origen: segment(rows, "origen", true),

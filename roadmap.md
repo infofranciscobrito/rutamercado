@@ -1,4 +1,5 @@
 # Correcciones de encuesta v2
+- [ ] Revisar los demás lugares que muestran los resultados: tarjeta del dashboard, cálculos, guardado, exportaciones, confirmación y enlaces.
 - [x] Corregir saltos de frenos y plan, precio mensual y texto final.
 - [x] Unificar los supuestos de ahorro entre encuesta y panel.
 - [x] Retirar métricas antiguas y usar comprador calificado en resumen y segmentos.
