@@ -55,3 +55,15 @@ it("filterRows: solo completas, sin pruebas, versión y canal desde source", () 
   strictEqual(filterRows(rows, { version: "v2", showTest: true }).length, 2);
   strictEqual(filterRows(rows, { version: "todas", showTest: false }).length, 2);
 });
+
+import { plural, topMesas } from "./encuesta-stats";
+it("plural: 1 persona / 2 personas", () => {
+  strictEqual(plural(1, "persona", "personas"), "persona");
+  strictEqual(plural(2, "persona", "personas"), "personas");
+  strictEqual(plural(0, "persona", "personas"), "personas");
+});
+it("topMesas cuenta menciones sin importar mayúsculas ni acentos", () => {
+  const r = topMesas(["Café Nativo, Finca Luz", "cafe nativo y Otra"]);
+  strictEqual(r[0].n, 2);
+  strictEqual(r.length, 3);
+});

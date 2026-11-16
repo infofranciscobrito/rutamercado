@@ -135,14 +135,18 @@ export type Database = {
           completada_en: string | null
           completed: boolean
           completed_at: string | null
+          confirm_sent_to: string | null
+          confirm_token: string | null
           consentimiento_email: boolean
           created_at: string
           descubrimiento: string[]
+          descubrimiento_otro: string | null
           dispositivo: string | null
           dudas: string | null
           dudas_otro: string | null
           edad: string | null
           email: string | null
+          email_confirmed: boolean
           email_momento: string | null
           frecuencia: string | null
           gasto: string | null
@@ -153,6 +157,7 @@ export type Database = {
           is_test: boolean
           lealtad: string | null
           market_slug: string | null
+          mesas_favoritas: string | null
           motivadores: string[]
           origen: string
           plan: string | null
@@ -170,14 +175,18 @@ export type Database = {
           completada_en?: string | null
           completed?: boolean
           completed_at?: string | null
+          confirm_sent_to?: string | null
+          confirm_token?: string | null
           consentimiento_email?: boolean
           created_at?: string
           descubrimiento?: string[]
+          descubrimiento_otro?: string | null
           dispositivo?: string | null
           dudas?: string | null
           dudas_otro?: string | null
           edad?: string | null
           email?: string | null
+          email_confirmed?: boolean
           email_momento?: string | null
           frecuencia?: string | null
           gasto?: string | null
@@ -188,6 +197,7 @@ export type Database = {
           is_test?: boolean
           lealtad?: string | null
           market_slug?: string | null
+          mesas_favoritas?: string | null
           motivadores?: string[]
           origen?: string
           plan?: string | null
@@ -205,14 +215,18 @@ export type Database = {
           completada_en?: string | null
           completed?: boolean
           completed_at?: string | null
+          confirm_sent_to?: string | null
+          confirm_token?: string | null
           consentimiento_email?: boolean
           created_at?: string
           descubrimiento?: string[]
+          descubrimiento_otro?: string | null
           dispositivo?: string | null
           dudas?: string | null
           dudas_otro?: string | null
           edad?: string | null
           email?: string | null
+          email_confirmed?: boolean
           email_momento?: string | null
           frecuencia?: string | null
           gasto?: string | null
@@ -223,6 +237,7 @@ export type Database = {
           is_test?: boolean
           lealtad?: string | null
           market_slug?: string | null
+          mesas_favoritas?: string | null
           motivadores?: string[]
           origen?: string
           plan?: string | null

@@ -30,7 +30,7 @@ export const L = {
   lealtad: { favoritas: "Sí, tienen sus favoritas", a_veces: "A veces", nuevas: "Prefieren probar mesas nuevas" },
   categorias: { comida: "Comida para comer ahí", cafe_postres: "Café, postres y bebidas", agricola: "Agrícolas y frescos", despensa: "Despensa: salsas, mieles, panes", artesania: "Artesanía y arte", ropa: "Ropa y accesorios", plantas: "Plantas", cuidado: "Cuidado personal", mascotas: "Cosas para mascotas" },
   motivadores: { descuentos: "Descuentos en las mesas", info_anticipada: "Saber con tiempo dónde hay", cercania: "Mercados más cerca", estacionamiento: "Mejor estacionamiento", familia: "Actividades niños o mascotas", ambiente: "Música y buen ambiente", nada: "Nada" },
-  descubrimiento: { redes_mercado: "Redes del mercado", rutamercado: "RutaMercado", amistades: "Amigos o familia", whatsapp: "Grupos de WhatsApp", de_paso: "Lo ven al pasar", email: "Newsletter o email" },
+  descubrimiento: { redes_mercado: "Redes del mercado", rutamercado: "RutaMercado", amistades: "Amigos o familia", whatsapp: "Grupos de WhatsApp", de_paso: "Lo ven al pasar", email: "Newsletter o email", otro: "Otro" },
   precio: { "0": "No pagaría nada", "12": "Hasta $12", "18": "Hasta $18", "24": "Hasta $24", "36": "Hasta $36", mas_36: "Más de $36" },
   dudas: { poco_uso: "No van lo suficiente para aprovecharla", que_mesas: "Quieren saber qué mesas participan", pago_por_uso: "Prefieren pagar solo cuando van", descuento_bajo: "Un 15% no los mueve", no_membresias: "No les gustan las membresías", otro: "Otras razones" },
 } as const;
@@ -199,4 +199,25 @@ export function filterRows(rows: RawRow[], opts: { version: string; showTest: bo
     .filter((r) => opts.showTest || !r.is_test)
     .filter((r) => opts.version === "todas" || (r.survey_version ?? "v1") === opts.version)
     .map((r) => ({ ...r, origen: r.source || r.origen }));
+}
+
+/** "1 persona" / "2 personas". */
+export function plural(n: number, uno: string, varios: string): string {
+  return n === 1 ? uno : varios;
+}
+
+/** Mesas favoritas más mencionadas (separadas por coma, "y" o salto de línea). */
+export function topMesas(texts: (string | null | undefined)[], limit = 15): { name: string; n: number }[] {
+  const m = new Map<string, { name: string; n: number }>();
+  for (const t of texts) {
+    if (!t) continue;
+    for (const raw of t.split(/,|\n|;| y /i)) {
+      const name = raw.trim();
+      if (name.length < 2) continue;
+      const k = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const e = m.get(k);
+      if (e) e.n++; else m.set(k, { name, n: 1 });
+    }
+  }
+  return [...m.values()].sort((a, b) => b.n - a.n).slice(0, limit);
 }

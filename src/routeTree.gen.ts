@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as BazarPopUpRouteImport } from './routes/bazar-pop-up'
 import { Route as BazaresRouteImport } from './routes/bazares'
+import { Route as ConfirmarCorreoRouteImport } from './routes/confirmar-correo'
 import { Route as EncuestaRouteImport } from './routes/encuesta'
 import { Route as FeriaArtesanalRouteImport } from './routes/feria-artesanal'
 import { Route as FeriasArtesanalesRouteImport } from './routes/ferias-artesanales'
@@ -60,6 +61,11 @@ const BazarPopUpRoute = BazarPopUpRouteImport.update({
 const BazaresRoute = BazaresRouteImport.update({
   id: '/bazares',
   path: '/bazares',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmarCorreoRoute = ConfirmarCorreoRouteImport.update({
+  id: '/confirmar-correo',
+  path: '/confirmar-correo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EncuestaRoute = EncuestaRouteImport.update({
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/bazares': typeof BazaresRoute
+  '/confirmar-correo': typeof ConfirmarCorreoRoute
   '/encuesta': typeof EncuestaRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/ferias-artesanales': typeof FeriasArtesanalesRoute
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/bazares': typeof BazaresRoute
+  '/confirmar-correo': typeof ConfirmarCorreoRoute
   '/encuesta': typeof EncuestaRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/ferias-artesanales': typeof FeriasArtesanalesRoute
@@ -282,6 +290,7 @@ export interface FileRoutesById {
   '/_admin': typeof AdminRouteWithChildren
   '/bazar-pop-up': typeof BazarPopUpRoute
   '/bazares': typeof BazaresRoute
+  '/confirmar-correo': typeof ConfirmarCorreoRoute
   '/encuesta': typeof EncuestaRoute
   '/feria-artesanal': typeof FeriaArtesanalRoute
   '/ferias-artesanales': typeof FeriasArtesanalesRoute
@@ -318,6 +327,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bazar-pop-up'
     | '/bazares'
+    | '/confirmar-correo'
     | '/encuesta'
     | '/feria-artesanal'
     | '/ferias-artesanales'
@@ -352,6 +362,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bazar-pop-up'
     | '/bazares'
+    | '/confirmar-correo'
     | '/encuesta'
     | '/feria-artesanal'
     | '/ferias-artesanales'
@@ -387,6 +398,7 @@ export interface FileRouteTypes {
     | '/_admin'
     | '/bazar-pop-up'
     | '/bazares'
+    | '/confirmar-correo'
     | '/encuesta'
     | '/feria-artesanal'
     | '/ferias-artesanales'
@@ -423,6 +435,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   BazarPopUpRoute: typeof BazarPopUpRoute
   BazaresRoute: typeof BazaresRoute
+  ConfirmarCorreoRoute: typeof ConfirmarCorreoRoute
   EncuestaRoute: typeof EncuestaRoute
   FeriaArtesanalRoute: typeof FeriaArtesanalRoute
   FeriasArtesanalesRoute: typeof FeriasArtesanalesRoute
@@ -472,6 +485,13 @@ declare module '@tanstack/react-router' {
       path: '/bazares'
       fullPath: '/bazares'
       preLoaderRoute: typeof BazaresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmar-correo': {
+      id: '/confirmar-correo'
+      path: '/confirmar-correo'
+      fullPath: '/confirmar-correo'
+      preLoaderRoute: typeof ConfirmarCorreoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/encuesta': {
@@ -713,6 +733,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   BazarPopUpRoute: BazarPopUpRoute,
   BazaresRoute: BazaresRoute,
+  ConfirmarCorreoRoute: ConfirmarCorreoRoute,
   EncuestaRoute: EncuestaRoute,
   FeriaArtesanalRoute: FeriaArtesanalRoute,
   FeriasArtesanalesRoute: FeriasArtesanalesRoute,

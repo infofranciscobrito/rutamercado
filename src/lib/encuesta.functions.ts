@@ -22,8 +22,10 @@ export const EncuestaSchema = z.object({
     .max(3),
   lealtad: z.enum(["favoritas", "a_veces", "nuevas"]).nullish(),
   descubrimiento: z
-    .array(z.enum(["redes_mercado", "rutamercado", "amistades", "whatsapp", "de_paso", "email"]))
+    .array(z.enum(["redes_mercado", "rutamercado", "amistades", "whatsapp", "de_paso", "email", "otro"]))
     .max(2),
+  descubrimiento_otro: z.string().trim().max(160).nullish(),
+  mesas_favoritas: z.string().trim().max(300).nullish(),
   motivadores: z
     .array(z.enum(["descuentos", "info_anticipada", "cercania", "estacionamiento", "familia", "ambiente", "nada"]))
     .max(3),
@@ -50,11 +52,9 @@ export const submitEncuesta = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => EncuestaSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (!data.completed) {
-      const { data: ex } = await supabaseAdmin
-        .from("encuesta_respuestas").select("completed").eq("id_respuesta", data.id_respuesta).maybeSingle();
-      if (ex?.completed) return { ok: true as const };
-    }
+    const { data: ex } = await supabaseAdmin
+      .from("encuesta_respuestas").select("completed, confirm_sent_to, confirm_token").eq("id_respuesta", data.id_respuesta).maybeSingle();
+    if (!data.completed && ex?.completed) return { ok: true as const };
     const row = {
       ...data,
       survey_version: "v2",
@@ -74,11 +74,54 @@ export const submitEncuesta = createServerFn({ method: "POST" })
       .from("encuesta_respuestas")
       .upsert(row, { onConflict: "id_respuesta" });
     if (error) throw new Error(error.message);
+    const email = row.email;
+    if (email && email !== ex?.confirm_sent_to) {
+      const token = crypto.randomUUID();
+      await supabaseAdmin.from("encuesta_respuestas")
+        .update({ confirm_token: token, confirm_sent_to: email, email_confirmed: false })
+        .eq("id_respuesta", data.id_respuesta);
+      await sendConfirmEmail(email, token);
+    }
     return { ok: true as const };
   });
 
+async function sendConfirmEmail(to: string, token: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) { console.error("RESEND_API_KEY no configurada"); return; }
+  let origin = "https://rutamercadopr.com";
+  try {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const u = new URL(getRequest().url);
+    if (/localhost|lovable\.app|lovableproject\.com/.test(u.host)) origin = u.origin;
+  } catch { /* noop */ }
+  const link = `${origin}/confirmar-correo?t=${token}`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#18253f">
+    <h2 style="margin:0 0 12px">Confirma tu correo</h2>
+    <p>¡Gracias por contestar la encuesta de RutaMercado! Para entrar en la lista de espera de la membresía, confirma que este correo es tuyo.</p>
+    <p style="margin:24px 0"><a href="${link}" style="background:#54b678;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:bold">Confirmar mi correo</a></p>
+    <p style="font-size:13px;color:#666">Si no fuiste tú, ignora este mensaje.</p></div>`;
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: "RutaMercado <productores@rutamercadopr.com>", to: [to], subject: "Confirma tu correo — RutaMercado", html }),
+    });
+    if (!r.ok) console.error("Resend confirm failed", r.status, await r.text());
+  } catch (e) { console.error("Resend confirm error", e); }
+}
+
+export const confirmEncuestaEmail = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => z.object({ t: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin.from("encuesta_respuestas")
+      .update({ email_confirmed: true }).eq("confirm_token", data.t).select("id");
+    if (error) throw new Error("No se pudo confirmar");
+    return { ok: (rows?.length ?? 0) > 0 };
+  });
+
 const COLUMNS_SIN_EMAIL =
-  "id, id_respuesta, origen, dispositivo, iniciada_en, completada_en, frecuencia, cantidad_mercados, gasto, categorias, lealtad, descubrimiento, motivadores, precio_maximo, intencion_24, plan, dudas, dudas_otro, region, edad, sexo, consentimiento_email, email_momento, created_at, updated_at, source, market_slug, survey_version, is_test, started_at, completed_at, completed";
+  "id, id_respuesta, origen, dispositivo, iniciada_en, completada_en, frecuencia, cantidad_mercados, gasto, categorias, lealtad, descubrimiento, motivadores, precio_maximo, intencion_24, plan, dudas, dudas_otro, region, edad, sexo, consentimiento_email, email_momento, created_at, updated_at, descubrimiento_otro, mesas_favoritas, email_confirmed, source, market_slug, survey_version, is_test, started_at, completed_at, completed";
 
 export const listEncuestaRespuestas = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -103,7 +146,7 @@ export const exportListaEspera = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("encuesta_respuestas")
-      .select("email, email_momento, completada_en, plan")
+      .select("email, email_momento, completada_en, plan, email_confirmed")
       .eq("consentimiento_email", true)
       .eq("is_test", false)
       .not("email", "is", null)

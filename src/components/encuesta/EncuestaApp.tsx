@@ -102,6 +102,8 @@ export function EncuestaApp() {
           categorias: (a.categorias as string[]) ?? [],
           lealtad: get("lealtad"),
           descubrimiento: (a.descubrimiento as string[]) ?? [],
+          descubrimiento_otro: get("descubrimiento_otro"),
+          mesas_favoritas: get("mesas_favoritas"),
           motivadores: (a.motivadores as string[]) ?? [],
           precio_maximo: get("precio_maximo"),
           intencion_24: get("intencion_24"),
@@ -203,7 +205,7 @@ export function EncuestaApp() {
               </div>
               <div className="hero__go">
                 <button className="btn btn-green" type="button" onClick={start}>Empezar la ruta con MrMercado <span className="arrow" aria-hidden="true">→</span></button>
-                <div className="hero__meta"><span>2 minutos</span><span>15 preguntas rápidas</span><span>Anónima</span></div>
+                <div className="hero__meta"><span>2 minutos</span><span>Menos de 15 preguntas</span><span>Anónima</span></div>
               </div>
             </div>
             <div className="host-hero">
@@ -259,6 +261,8 @@ export function EncuestaApp() {
                       go(nextIndex(current), true, current);
                     }}
                   />
+                ) : step.type === "text" ? (
+                  <TextStep step={step} A={A.current!} onDone={(filled) => answered(step, current, filled ? step.react : undefined)} />
                 ) : step.type === "final" ? (
                   <Final
                     A={A.current!}
@@ -304,7 +308,7 @@ function Question({ step: s, A, onAnswered, timer }: {
     multi ? (Array.isArray(A[s.id]) ? [...(A[s.id] as string[])] : []) : A[s.id] ? [A[s.id] as string] : [],
   );
   const [locked, setLocked] = useState(false);
-  const [showOther, setShowOther] = useState(A[s.id] === "otro");
+  const [showOther, setShowOther] = useState(A[s.id] === "otro" || (Array.isArray(A[s.id]) && (A[s.id] as string[]).includes("otro")));
   const [otherVal, setOtherVal] = useState((A[s.id + "_otro"] as string) || "");
   const otherRef = useRef<HTMLInputElement>(null);
 
@@ -328,19 +332,26 @@ function Question({ step: s, A, onAnswered, timer }: {
     else if (o.solo) next = [o.v];
     else {
       next = next.filter((v) => !opts.find((z) => z.v === v)?.solo);
-      if (next.length >= s.multi!) next.shift();
+      if (next.length >= s.multi!) return;
       next.push(o.v);
     }
     setPicked(next);
-    if (next.length >= s.multi! || (o.solo && next.includes(o.v))) {
-      A[s.id] = [...next];
-      setLocked(true);
-      const first = opts.find((z) => z.v === next[0]);
-      timer.current = setTimeout(() => onAnswered(first?.r || s.react), 350);
-    }
+    setShowOther(!!s.other && next.includes("otro"));
+    if (o.solo && next.includes(o.v)) commitMulti(next);
+  };
+
+  const commitMulti = (next: string[]) => {
+    if (locked || !next.length) return;
+    if (next.includes("otro") && !otherVal.trim()) { otherRef.current?.focus(); return; }
+    A[s.id] = [...next];
+    if (next.includes("otro")) A[s.id + "_otro"] = otherVal.trim(); else delete A[s.id + "_otro"];
+    setLocked(true);
+    const first = opts.find((z) => z.v === next[0]);
+    timer.current = setTimeout(() => onAnswered(first?.r || s.react), 350);
   };
 
   const commitOther = () => {
+    if (multi) { commitMulti(picked); return; }
     const v = otherVal.trim();
     if (!v || locked) return;
     A[s.id] = "otro";
@@ -377,7 +388,7 @@ function Question({ step: s, A, onAnswered, timer }: {
             className="other"
             type="text"
             maxLength={160}
-            placeholder="Cuéntame qué te frena"
+            placeholder={s.id === "descubrimiento" ? "¿Cómo te enteras?" : "Cuéntame qué te frena"}
             value={otherVal}
             disabled={locked}
             onChange={(e) => setOtherVal(e.target.value)}
@@ -388,6 +399,48 @@ function Question({ step: s, A, onAnswered, timer }: {
           </button>
         </div>
       )}
+      {multi && !picked.includes(opts.find((o) => o.solo)?.v ?? "\u0000") && (
+        <div className="actions">
+          <button className="btn btn-green" type="button" disabled={locked || picked.length === 0 || (picked.includes("otro") && !otherVal.trim())} onClick={() => commitMulti(picked)}>
+            Siguiente <span className="arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
+function TextStep({ step, A, onDone }: { step: Step; A: Answers; onDone: (filled: boolean) => void }) {
+  const [v, setV] = useState((A[step.id] as string) || "");
+  const [locked, setLocked] = useState(false);
+  const save = () => {
+    if (locked || !v.trim()) return;
+    A[step.id] = v.trim().slice(0, 300);
+    setLocked(true);
+    onDone(true);
+  };
+  const skip = () => {
+    if (locked) return;
+    delete A[step.id];
+    setLocked(true);
+    onDone(false);
+  };
+  return (
+    <>
+      <Header step={step} />
+      <div style={{ display: "grid", gap: "1rem" }}>
+        <div className="field">
+          <textarea
+            className="other" rows={3} maxLength={300} placeholder={step.placeholder} value={v} disabled={locked}
+            onChange={(e) => setV(e.target.value)} aria-labelledby={"q_" + step.id}
+            style={{ width: "100%", resize: "vertical", fontFamily: "inherit" }}
+          />
+        </div>
+        <div className="actions">
+          <button className="btn btn-green" type="button" disabled={locked || !v.trim()} onClick={save}>Siguiente <span className="arrow" aria-hidden="true">→</span></button>
+          <button className="textlink" type="button" disabled={locked} onClick={skip}>Saltar</button>
+        </div>
+      </div>
     </>
   );
 }
@@ -488,7 +541,7 @@ function ThanksNote({ email }: { email: string }) {
   return (
     <div className="note fade">
       {PIN_CHECK}
-      <div><b>¡Gracias por tu tiempo y tu interés!</b><p>Gracias por participar. Ya estás en la lista de espera de la membresía: te aviso primero a <span>{email}</span> cuando la lancemos.</p></div>
+      <div><b>¡Gracias por tu tiempo y tu interés!</b><p>Gracias por participar. Ya estás en la lista de espera de la membresía: te aviso primero a <span>{email}</span> cuando la lancemos. Te envié un correo: toca «Confirmar mi correo» para completar tu registro.</p></div>
     </div>
   );
 }
@@ -542,14 +595,14 @@ function Final({ A, reduce, setPose, speak, submit, goHome }: {
     const visits = Math.ceil(24 / save);
     const months = visits / vpm;
     const yrs = Math.round(months / 12);
-    const when = months <= 1 ? "este mismo mes" : months <= 12 ? "en unos " + Math.round(months) + " meses" : yrs <= 1 ? "en poco más de un año" : "en unos " + yrs + " años";
+    const when = months <= 1 ? "este mismo mes" : months < 1.5 ? "en más o menos un mes" : months <= 12 ? "en unos " + Math.round(months) + " meses" : yrs <= 1 ? "en poco más de un año" : "en unos " + yrs + " años";
     const tail = months <= 12 ? " Lo demás del año sería ahorro." : " Mientras más vayas a los mercados, más rápido lo recuperas.";
     saving = (
       <div className="saving">
         <div className="ledger">
           <div><strong>${spend}</strong><span>gastas por visita</span></div>
           <div><strong>${save % 1 ? save.toFixed(2) : save}</strong><span>ahorrarías con 10%</span></div>
-          <div><strong>{visits}</strong><span>visitas para recuperar $24</span></div>
+          <div><strong>{visits}</strong><span>{visits === 1 ? "visita" : "visitas"} para recuperar $24</span></div>
         </div>
         <p>Al ritmo que vas, recuperarías los $24 de la membresía <b>{when}</b>.{tail}</p>
         <p className="fine">Cálculo aproximado con tu gasto promedio y un descuento conservador de 10%. Cada Mesa Aliada pone su oferta.</p>
