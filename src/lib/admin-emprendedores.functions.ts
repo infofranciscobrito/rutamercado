@@ -445,7 +445,7 @@ export const getBusinessRegistrationAnalytics = createServerFn({ method: "POST" 
     };
   });
 
-export type ExportedBusinessRow = Row & {
+export type ExportedBusinessRow = Row & Partial<AliadaFields> & {
   logo_url: string | null;
   descripcion: string;
   instagram: string | null;
