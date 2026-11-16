@@ -107,6 +107,7 @@ export function EncuestaApp() {
           motivadores: (a.motivadores as string[]) ?? [],
           precio_maximo: get("precio_maximo"),
           intencion_24: get("intencion_24"),
+          intencion_24_despues: get("intencion_24_despues"),
           plan: get("plan"),
           dudas: get("dudas"),
           dudas_otro: get("dudas_otro"),
@@ -363,6 +364,7 @@ function Question({ step: s, A, onAnswered, timer }: {
   return (
     <>
       <Header step={s} />
+      {s.saving && <SavingBox A={A} />}
       {s.hint && (
         <p className="hint">
           {s.hint}
@@ -589,26 +591,7 @@ function Final({ A, reduce, setPose, speak, submit, goHome }: {
     setTimeout(() => noteRef.current?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" }), 0);
   };
 
-  let saving: React.ReactNode = null;
-  if (!low) {
-    const save = spend * 0.1;
-    const visits = Math.ceil(24 / save);
-    const months = visits / vpm;
-    const yrs = Math.round(months / 12);
-    const when = months <= 1 ? "este mismo mes" : months < 1.5 ? "en más o menos un mes" : months <= 12 ? "en unos " + Math.round(months) + " meses" : yrs <= 1 ? "en poco más de un año" : "en unos " + yrs + " años";
-    const tail = months <= 12 ? " Lo demás del año sería ahorro." : " Mientras más vayas a los mercados, más rápido lo recuperas.";
-    saving = (
-      <div className="saving">
-        <div className="ledger">
-          <div><strong>${spend}</strong><span>gastas por visita</span></div>
-          <div><strong>${save % 1 ? save.toFixed(2) : save}</strong><span>ahorrarías con 10%</span></div>
-          <div><strong>{visits}</strong><span>{visits === 1 ? "visita" : "visitas"} para recuperar $24</span></div>
-        </div>
-        <p>Al ritmo que vas, recuperarías los $24 de la membresía <b>{when}</b>.{tail}</p>
-        <p className="fine">Cálculo aproximado con tu gasto promedio y un descuento conservador de 10%. Cada Mesa Aliada pone su oferta.</p>
-      </div>
-    );
-  }
+  const saving = low ? null : <SavingBox A={A} />;
 
   const copy = () => {
     const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 1800); };
@@ -657,4 +640,29 @@ function Final({ A, reduce, setPose, speak, submit, goHome }: {
       </div>
     </>
   );
+}
+
+function SavingBox({ A }: { A: Answers }) {
+  const spend = SPEND[A.gasto as string];
+  const vpm = VISITS[A.frecuencia as string];
+  if (!spend || !vpm) return null;
+  {
+    const save = spend * 0.1;
+    const visits = Math.ceil(24 / save);
+    const months = visits / vpm;
+    const yrs = Math.round(months / 12);
+    const when = months <= 1 ? "este mismo mes" : months < 1.5 ? "en más o menos un mes" : months <= 12 ? "en unos " + Math.round(months) + " meses" : yrs <= 1 ? "en poco más de un año" : "en unos " + yrs + " años";
+    const tail = months <= 12 ? " Lo demás del año sería ahorro." : " Mientras más vayas a los mercados, más rápido lo recuperas.";
+    return (
+      <div className="saving">
+        <div className="ledger">
+          <div><strong>${spend}</strong><span>gastas por visita</span></div>
+          <div><strong>${save % 1 ? save.toFixed(2) : save}</strong><span>ahorrarías con 10%</span></div>
+          <div><strong>{visits}</strong><span>{visits === 1 ? "visita" : "visitas"} para recuperar $24</span></div>
+        </div>
+        <p>Al ritmo que vas, recuperarías los $24 de la membresía <b>{when}</b>.{tail}</p>
+        <p className="fine">Cálculo aproximado con tu gasto promedio y un descuento conservador de 10%. Cada Mesa Aliada pone su oferta.</p>
+      </div>
+    );
+  }
 }

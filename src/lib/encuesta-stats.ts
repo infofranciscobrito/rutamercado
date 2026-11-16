@@ -17,6 +17,14 @@ export type EncuestaRow = {
   sexo: string | null;
   consentimiento_email: boolean | null;
   email_momento: string | null;
+  intencion_24_despues?: string | null;
+  email_confirmed?: boolean | null;
+  dudas_otro?: string | null;
+  mesas_favoritas?: string | null;
+  started_at?: string | null;
+  iniciada_en?: string | null;
+  completed_at?: string | null;
+  completada_en?: string | null;
 };
 
 export const L = {
@@ -247,4 +255,71 @@ export function topMesas(texts: (string | null | undefined)[], limit = 15): { na
     }
   }
   return [...m.values()].sort((a, b) => b.n - a.n).slice(0, limit);
+}
+
+// ---------- Métricas superiores ----------
+export const PRECIO_MIN = 24;
+export const AHORRO_PCT = 0.1;
+export const RAPIDO_SEG = 30;
+const PRECIO_NUM: Record<string, number> = { "0": 0, "12": 12, "18": 18, "24": 24, "36": 36, mas_36: 48 };
+const POSITIVA = ["seguro", "probable_si"];
+const DUDA = ["no_se", "probable_no", "no"];
+
+export const aceptaPrecio = (r: EncuestaRow) => (PRECIO_NUM[r.precio_maximo ?? ""] ?? -1) >= PRECIO_MIN;
+/** Intención final: la de después del ahorro, o la de antes si no hay. */
+export const intencionFinal = (r: EncuestaRow) => r.intencion_24_despues ?? r.intencion_24 ?? null;
+export const compradorCalificado = (r: EncuestaRow) =>
+  POSITIVA.includes(intencionFinal(r) ?? "") && aceptaPrecio(r) && r.email_confirmed === true;
+/** Ahorro anual = gasto por visita × visitas al año × 10%. */
+export function ahorroAnual(r: EncuestaRow): number | null {
+  const s = SPEND[r.gasto ?? ""], v = VISITS[r.frecuencia ?? ""];
+  return s && v ? s * v * 12 * AHORRO_PCT : null;
+}
+export function median(v: number[]): number {
+  if (!v.length) return 0;
+  const a = [...v].sort((x, y) => x - y), m = Math.floor(a.length / 2);
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+}
+const RANK: Record<string, number> = { no: 0, probable_no: 1, no_se: 2, probable_si: 3, seguro: 4 };
+export const precioInconsistente = (r: EncuestaRow) =>
+  (PRECIO_NUM[r.precio_maximo ?? ""] ?? 0) >= 36 && DUDA.includes(r.intencion_24 ?? "");
+export function duracionSeg(r: EncuestaRow): number | null {
+  const a = r.started_at ?? r.iniciada_en, b = r.completed_at ?? r.completada_en;
+  if (!a || !b) return null;
+  return (Date.parse(b) - Date.parse(a)) / 1000;
+}
+export const frecuenciaContradictoria = (r: EncuestaRow) =>
+  (r.frecuencia === "2_3_meses" || r.frecuencia === "casi_nunca") && (r.cantidad_mercados === "4_6" || r.cantidad_mercados === "7_mas");
+
+export function computeMetricas(rows: EncuestaRow[], pesos: { seguro: number; probable: number }) {
+  const n = rows.length;
+  // Intención: solo quienes vieron la pregunta (quien escogió "Hasta $24" o "Nada" no la ve).
+  const vio = rows.filter((r) => intencionFinal(r));
+  const kSeg = vio.filter((r) => intencionFinal(r) === "seguro").length;
+  const kProb = vio.filter((r) => intencionFinal(r) === "probable_si").length;
+  const pSeg = vio.length ? kSeg / vio.length : 0, pProb = vio.length ? kProb / vio.length : 0;
+  const ambos = rows.filter((r) => r.intencion_24 && r.intencion_24_despues);
+  const antesK = ambos.filter((r) => POSITIVA.includes(r.intencion_24!)).length;
+  const despuesK = ambos.filter((r) => POSITIVA.includes(r.intencion_24_despues!)).length;
+  const subieron = ambos.filter((r) => RANK[r.intencion_24_despues!] > RANK[r.intencion_24!]).length;
+  const ahorros = rows.map(ahorroAnual).filter((x): x is number => x !== null);
+  const vieronFreno = rows.filter((r) => r.dudas);
+  const gastos = rows.map((r) => SPEND[r.gasto ?? ""]).filter((x): x is number => typeof x === "number");
+  return {
+    n,
+    calificado: { k: rows.filter(compradorCalificado).length, n },
+    ponderada: { v: pesos.seguro * pSeg + pesos.probable * pProb, pSeg, pProb, n: vio.length },
+    precio: { k: rows.filter(aceptaPrecio).length, n },
+    efecto: { antesK, despuesK, subieron, n: ambos.length },
+    pagaSola: { k: ahorros.filter((a) => a >= PRECIO_MIN).length, n: ahorros.length, mediana: median(ahorros) },
+    freno: { items: dist(vieronFreno, "dudas", L.dudas).sort((a, b) => b.v - a.v), n: vieronFreno.length, otros: vieronFreno.map((r) => r.dudas_otro?.trim()).filter((x): x is string => !!x) },
+    calidad: {
+      inconsistente: rows.filter(precioInconsistente).length,
+      rapidas: rows.filter((r) => { const d = duracionSeg(r); return d !== null && d < RAPIDO_SEG; }).length,
+      contradictoria: rows.filter(frecuenciaContradictoria).length,
+      n,
+    },
+    gasto: { mediana: median(gastos), promedio: gastos.length ? gastos.reduce((a, b) => a + b, 0) / gastos.length : 0, n: gastos.length },
+    mesas: topMesas(rows.map((r) => r.mesas_favoritas), 1000),
+  };
 }

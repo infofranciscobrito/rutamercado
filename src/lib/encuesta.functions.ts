@@ -31,6 +31,7 @@ export const EncuestaSchema = z.object({
     .max(3),
   precio_maximo: z.enum(["0", "12", "18", "24", "36", "mas_36"]).nullish(),
   intencion_24: z.enum(["seguro", "probable_si", "no_se", "probable_no", "no"]).optional().nullable(),
+  intencion_24_despues: z.enum(["seguro", "probable_si", "no_se", "probable_no", "no"]).optional().nullable(),
   plan: z.enum(["anual", "mensual", "ninguno"]).optional().nullable(),
   dudas: z
     .enum(["poco_uso", "que_mesas", "pago_por_uso", "descuento_bajo", "no_membresias", "otro"])
@@ -64,6 +65,7 @@ export const submitEncuesta = createServerFn({ method: "POST" })
       market_slug: data.market_slug || null,
       origen: data.origen || "directo",
       intencion_24: data.intencion_24 ?? null,
+      intencion_24_despues: data.intencion_24_despues ?? null,
       plan: data.plan ?? null,
       dudas: data.dudas ?? null,
       dudas_otro: data.dudas_otro ?? null,
@@ -121,7 +123,7 @@ export const confirmEncuestaEmail = createServerFn({ method: "POST" })
   });
 
 const COLUMNS_SIN_EMAIL =
-  "id, id_respuesta, origen, dispositivo, iniciada_en, completada_en, frecuencia, cantidad_mercados, gasto, categorias, lealtad, descubrimiento, motivadores, precio_maximo, intencion_24, plan, dudas, dudas_otro, region, edad, sexo, consentimiento_email, email_momento, created_at, updated_at, descubrimiento_otro, mesas_favoritas, email_confirmed, source, market_slug, survey_version, is_test, started_at, completed_at, completed";
+  "id, id_respuesta, origen, dispositivo, iniciada_en, completada_en, frecuencia, cantidad_mercados, gasto, categorias, lealtad, descubrimiento, motivadores, precio_maximo, intencion_24, intencion_24_despues, plan, dudas, dudas_otro, region, edad, sexo, consentimiento_email, email_momento, created_at, updated_at, descubrimiento_otro, mesas_favoritas, email_confirmed, source, market_slug, survey_version, is_test, started_at, completed_at, completed";
 
 export const listEncuestaRespuestas = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -181,4 +183,21 @@ export const exportTodasRespuestas = createServerFn({ method: "GET" })
       ...r,
       email: r.consentimiento_email ? r.email : null,
     }));
+  });
+
+export const getEncuestaConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase.from("encuesta_config").select("peso_seguro, peso_probable").eq("id", 1).maybeSingle();
+    return { peso_seguro: Number(data?.peso_seguro ?? 0.75), peso_probable: Number(data?.peso_probable ?? 0.25) };
+  });
+
+export const saveEncuestaConfig = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ peso_seguro: z.number().min(0).max(1), peso_probable: z.number().min(0).max(1) }).parse(input))
+  .handler(async ({ context, data }) => {
+    const { error } = await context.supabase.from("encuesta_config")
+      .upsert({ id: 1, ...data, updated_at: new Date().toISOString() });
+    if (error) throw new Error("Solo un administrador puede cambiar la configuración.");
+    return data;
   });

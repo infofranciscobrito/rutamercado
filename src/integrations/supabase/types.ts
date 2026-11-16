@@ -128,6 +128,27 @@ export type Database = {
         }
         Relationships: []
       }
+      encuesta_config: {
+        Row: {
+          id: number
+          peso_probable: number
+          peso_seguro: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          peso_probable?: number
+          peso_seguro?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          peso_probable?: number
+          peso_seguro?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       encuesta_respuestas: {
         Row: {
           cantidad_mercados: string | null
@@ -154,6 +175,7 @@ export type Database = {
           id_respuesta: string
           iniciada_en: string | null
           intencion_24: string | null
+          intencion_24_despues: string | null
           is_test: boolean
           lealtad: string | null
           market_slug: string | null
@@ -194,6 +216,7 @@ export type Database = {
           id_respuesta: string
           iniciada_en?: string | null
           intencion_24?: string | null
+          intencion_24_despues?: string | null
           is_test?: boolean
           lealtad?: string | null
           market_slug?: string | null
@@ -234,6 +257,7 @@ export type Database = {
           id_respuesta?: string
           iniciada_en?: string | null
           intencion_24?: string | null
+          intencion_24_despues?: string | null
           is_test?: boolean
           lealtad?: string | null
           market_slug?: string | null
