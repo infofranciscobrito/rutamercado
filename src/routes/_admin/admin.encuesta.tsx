@@ -98,7 +98,7 @@ function EncuestaAdminPage() {
       ) : !d ? (
         <EmptyState />
       ) : (
-        <Dashboard d={d} />
+        <Dashboard d={d} rows={rows} />
       )}
     </div>
   );
@@ -119,7 +119,7 @@ function EmptyState() {
 
 type D = ReturnType<typeof computeDashboard>;
 
-function Dashboard({ d }: { d: D }) {
+function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
   const t = d.tiles;
   return (
     <>
