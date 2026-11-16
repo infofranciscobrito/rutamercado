@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Download, Copy, ArrowDown, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, computeMetricas, semaforo, proyeccion, porCanal, wilson, type RawRow } from "@/lib/encuesta-stats";
+import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, computeMetricas, semaforo, proyeccion, porCanal, type RawRow } from "@/lib/encuesta-stats";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas, exportTodasRespuestas, getEncuestaConfig, saveEncuestaConfig } from "@/lib/encuesta.functions";
