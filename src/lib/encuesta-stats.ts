@@ -200,3 +200,24 @@ export function filterRows(rows: RawRow[], opts: { version: string; showTest: bo
     .filter((r) => opts.version === "todas" || (r.survey_version ?? "v1") === opts.version)
     .map((r) => ({ ...r, origen: r.source || r.origen }));
 }
+
+/** "1 persona" / "2 personas". */
+export function plural(n: number, uno: string, varios: string): string {
+  return n === 1 ? uno : varios;
+}
+
+/** Mesas favoritas más mencionadas (separadas por coma, "y" o salto de línea). */
+export function topMesas(texts: (string | null | undefined)[], limit = 15): { name: string; n: number }[] {
+  const m = new Map<string, { name: string; n: number }>();
+  for (const t of texts) {
+    if (!t) continue;
+    for (const raw of t.split(/,|\n|;| y /i)) {
+      const name = raw.trim();
+      if (name.length < 2) continue;
+      const k = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const e = m.get(k);
+      if (e) e.n++; else m.set(k, { name, n: 1 });
+    }
+  }
+  return [...m.values()].sort((a, b) => b.n - a.n).slice(0, limit);
+}
