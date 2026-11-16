@@ -81,7 +81,7 @@ function EncuestaAdminPage() {
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl text-[#18253f]">Encuesta de membresía</h1>
-          <p className="text-sm text-muted-foreground">Resultados de rutamercadopr.com/rutralover</p>
+          <p className="text-sm text-muted-foreground">Resultados de rutamercadopr.com/rutalover</p>
           <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
             <label className="flex items-center gap-2">Versión
               <select value={version} onChange={(e) => setVersion(e.target.value)} className="rounded-md border bg-background px-2 py-1">
@@ -122,12 +122,12 @@ function EncuestaAdminPage() {
 
 function EmptyState() {
   const copy = async () => {
-    await navigator.clipboard.writeText("https://rutamercadopr.com/rutralover");
+    await navigator.clipboard.writeText("https://rutamercadopr.com/rutalover");
     toast.success("Enlace copiado");
   };
   return (
     <div className="rounded-xl border bg-card p-10 text-center space-y-4">
-      <p className="text-[#18253f]">Todavía no hay respuestas. Comparte rutamercadopr.com/rutralover para empezar.</p>
+      <p className="text-[#18253f]">Todavía no hay respuestas. Comparte rutamercadopr.com/rutalover para empezar.</p>
       <Button variant="outline" onClick={copy}><Copy className="h-4 w-4" /> Copiar enlace</Button>
     </div>
   );
@@ -141,11 +141,11 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
     <>
       <Metricas rows={rows} />
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Tile n={t.n} label={plural(t.n, "Respuesta", "Respuestas")} value={int(t.n)} sub={`${fmtVal(Math.round(t.qr * t.n), t.n)} llegó por el QR en un mercado.`} />
+        <Tile n={t.n} label={plural(t.n, "Respuesta", "Respuestas")} value={int(t.n)} sub={`${fmtVal(Math.round(t.qr * t.n), t.n)} ${plural(Math.round(t.qr * t.n), "llegó", "llegaron")} por el QR en un mercado.`} />
         <GastoTile rows={rows} gasto1550={fmtVal(Math.round(t.gasto1550 * t.n), t.n)} />
         <Tile n={t.n} label="Van a mercados" value={`${dec1(t.visitas)} al mes`} sub={`Gastan unos ${money(t.gastoMes)} al mes en mercados. Promedio del gasto mensual de cada persona (gasto × frecuencia).`} />
         <Tile n={t.n} label="Mercados distintos" value={dec1(t.mercados)} sub="en los últimos 3 meses, en promedio." />
-        <Tile n={t.n} label="Lista de espera" value={int(t.em)} sub={`${fmtProp(t.em, t.n)} dejó su email. ${int(t.fin)} ${plural(t.fin, "se anotó", "se anotaron")} después del cálculo de ahorro.`} />
+        <Tile n={t.n} label="Lista de espera" value={int(t.em)} sub={`${fmtProp(t.em, t.n)} ${plural(t.em, "dejó", "dejaron")} su email. ${int(t.fin)} ${plural(t.fin, "se anotó", "se anotaron")} después del cálculo de ahorro.`} />
       </section>
 
       <Section title="Quiénes respondieron y compradores calificados" desc="Cada grupo con su tamaño, qué parte cumple con Comprador calificado, cuánto gasta por visita y cuántos dejaron su email. El grupo con más interés sale resaltado.">

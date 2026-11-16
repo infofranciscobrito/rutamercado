@@ -1,14 +1,14 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 
-const URL = "https://rutamercadopr.com/rutralover";
+const URL = "https://rutamercadopr.com/rutalover";
 const IMAGE = "https://rutamercadopr.com/encuesta/mrmercado-saludo.png";
 const TITLE = "Cuéntanos tu ruta | RutaMercado";
 const DESCRIPTION =
   "Date una vuelta con MrMercado y cuéntanos cómo vives los mercados locales de Puerto Rico. Son 2 minutos.";
 
 export const Route = createFileRoute("/encuesta")({
-  beforeLoad: ({ location }) => { throw redirect({ to: "/rutralover", search: location.search, statusCode: 301 }); },
+  beforeLoad: ({ location }) => { throw redirect({ to: "/rutalover", search: location.search, statusCode: 301 }); },
   head: () => ({
     meta: [
       { title: TITLE },
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/encuesta")({
       { name: "theme-color", content: "#162540" },
     ],
     links: [
-      { rel: "canonical", href: "https://rutamercadopr.com/rutralover" },
+      { rel: "canonical", href: "https://rutamercadopr.com/rutalover" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

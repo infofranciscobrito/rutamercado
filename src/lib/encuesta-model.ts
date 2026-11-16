@@ -5,7 +5,7 @@ export const PRECIO_ANUAL = 24;
 export const PRECIO_MENSUAL = 2.99;
 export const AHORRO_PCT = 0.1;
 export const INTENCIONES_POSITIVAS = ["seguro", "probable_si"];
-export const SURVEY_PATH = "/rutralover";
+export const SURVEY_PATH = "/rutalover";
 export const SURVEY_URL = `https://rutamercadopr.com${SURVEY_PATH}`;
 
 export function estimatedAnnualSavings(gasto: unknown, frecuencia: unknown): number | null {
@@ -17,5 +17,5 @@ export function estimatedAnnualSavings(gasto: unknown, frecuencia: unknown): num
 export function surveyRedirectTarget(rawUrl: string): string | null {
   const url = new URL(rawUrl);
   const path = url.pathname.replace(/\/+$/, "").toLowerCase();
-  return path === "/encuesta" || path === "/rutalover" ? `${SURVEY_PATH}${url.search}` : null;
+  return path === "/encuesta" || path === "/rutralover" ? `${SURVEY_PATH}${url.search}` : null;
 }

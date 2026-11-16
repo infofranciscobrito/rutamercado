@@ -1,15 +1,41 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { EncuestaApp } from "@/components/encuesta/EncuestaApp";
+
+const URL = "https://rutamercadopr.com/rutalover";
+const IMAGE = "https://rutamercadopr.com/encuesta/mrmercado-saludo.png";
+const TITLE = "RutaLover: cuéntanos tu ruta | RutaMercado";
+const DESCRIPTION =
+  "Date una vuelta con MrMercado y cuéntanos cómo vives los mercados locales de Puerto Rico. Son 2 minutos.";
 
 export const Route = createFileRoute("/rutalover")({
-  beforeLoad: ({ location }) => {
-    throw redirect({ to: "/rutralover", search: location.search, statusCode: 301 });
-  },
-  head: () => ({ meta: [
-    { title: "RutaLover · Enlace de la encuesta | RutaMercado" },
-    { name: "description", content: "Accede a la encuesta de membresía RutaLover de RutaMercado." },
-    { property: "og:title", content: "RutaLover · Encuesta de RutaMercado" },
-    { property: "og:description", content: "Cuéntanos cómo vives los mercados locales de Puerto Rico." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:image", content: IMAGE },
+      { property: "og:url", content: URL },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
+      { name: "twitter:image", content: IMAGE },
+      { name: "theme-color", content: "#162540" },
+    ],
+    links: [
+      { rel: "canonical", href: URL },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap",
+      },
+    ],
+  }),
+  component: EncuestaPage,
 });
+
+function EncuestaPage() {
+  return <EncuestaApp />;
+}
