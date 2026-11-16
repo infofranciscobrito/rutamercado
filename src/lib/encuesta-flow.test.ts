@@ -6,6 +6,7 @@ import { ahorroAnual, CALIDAD_REGLAS, segment, type EncuestaRow } from "./encues
 
 const answers = (before: string, after?: string): Answers => ({ origen: "directo", id_respuesta: "prueba", dispositivo: "movil", iniciada_en: "2026-11-16T00:00:00Z", precio_maximo: "36", intencion_24: before, intencion_24_despues: after });
 const shown = (id: string, a: Answers) => STEPS.find((s) => s.id === id)?.when?.(a);
+const row = (values: Partial<EncuestaRow>): EncuestaRow => ({ origen: null, frecuencia: null, cantidad_mercados: null, gasto: null, categorias: [], lealtad: null, descubrimiento: [], motivadores: [], precio_maximo: null, intencion_24: null, plan: null, dudas: null, region: null, edad: null, sexo: null, consentimiento_email: false, email_momento: null, ...values });
 describe("saltos de encuesta v2", () => {
   it("frenos depende de la intención antes, incluso si después cambia", () => {
     for (const before of ["probable_si", "no_se", "probable_no"]) assert.equal(shown("dudas", answers(before, "seguro")), true);
@@ -32,7 +33,7 @@ describe("saltos de encuesta v2", () => {
     assert.ok((ahorroAnual(row) ?? Infinity) < 24);
   });
   it("cada alerta selecciona las mismas respuestas que su conteo", () => {
-    const rows = [{ precio_maximo: "18", intencion_24: "seguro" }, { precio_maximo: "36", intencion_24: "no_se" }, { frecuencia: "fines_semana", cantidad_mercados: "0" }] as EncuestaRow[];
+    const rows = [row({ precio_maximo: "18", intencion_24: "seguro" }), row({ precio_maximo: "36", intencion_24: "no_se" }), row({ frecuencia: "fines_semana", cantidad_mercados: "0" })];
     assert.deepEqual(CALIDAD_REGLAS.map((r) => rows.filter(r.matches).length), [1, 1, 0, 0, 1]);
   });
   it("segmentos cuentan comprador calificado, no selección de plan", () => {
