@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Store, Eye, CalendarDays, MousePointerClick, Users, Link2, ClipboardList } from "lucide-react";
 import { listEncuestaRespuestas } from "@/lib/encuesta.functions";
+import { compradorCalificado, filterRows, fmtProp } from "@/lib/encuesta-stats";
 import {
   BarChart,
   Bar,
@@ -35,6 +36,15 @@ import {
 } from "@/components/ui/table";
 
 export const Route = createFileRoute("/_admin/admin/dashboard")({
+  head: () => ({ meta: [
+    { title: "Panel de control | Admin RutaMercado" },
+    { name: "description", content: "Resumen de mercados, actividad y compradores calificados de RutaLover." },
+    { property: "og:title", content: "Panel de control | RutaMercado" },
+    { property: "og:description", content: "Métricas generales de RutaMercado y encuesta RutaLover." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex" },
+  ] }),
   component: DashboardPage,
 });
 
@@ -86,11 +96,9 @@ function DashboardPage() {
     queryKey: ["admin", "encuesta"],
     queryFn: () => encuestaFn(),
   });
-  const encuestaRows = (encuesta.data?.respuestas ?? []).filter((r) => r.completed && !r.is_test && r.survey_version === "v2");
+  const encuestaRows = filterRows(encuesta.data?.respuestas ?? [], { version: "v2", showTest: false });
   const encuestaLista = encuestaRows.filter((r) => r.consentimiento_email === true).length;
-  const encuestaPaga = encuestaRows.length
-    ? Math.round((encuestaRows.filter((r) => r.plan === "anual" || r.plan === "mensual").length / encuestaRows.length) * 100)
-    : 0;
+  const encuestaCalificados = encuestaRows.filter(compradorCalificado).length;
   const shortUrlFn = useServerFn(getShortUrlClicks);
   const shortUrl = useQuery({
     queryKey: ["admin", "dashboard", "shortUrlClicks"],
@@ -146,7 +154,7 @@ function DashboardPage() {
             label="Encuesta de membresía"
             value={encuestaRows.length}
             icon={ClipboardList}
-            subtext={`${encuestaLista} en lista de espera · ${encuestaPaga}% pagaría $24`}
+            subtext={`${encuestaLista} en lista de espera · Comprador calificado: ${fmtProp(encuestaCalificados, encuestaRows.length)} · n = ${encuestaRows.length}`}
           />
         </Link>
       </div>

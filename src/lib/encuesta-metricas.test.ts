@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { computeMetricas, ahorroAnual, compradorCalificado, precioInconsistente, frecuenciaContradictoria, median, type EncuestaRow as ER } from "./encuesta-stats";
+import { maximoAltoConDuda, finesSinMercados, computeMetricas, ahorroAnual, compradorCalificado, precioInconsistente, frecuenciaContradictoria, median, type EncuestaRow as ER } from "./encuesta-stats";
 const base = (o: Partial<ER>): ER => ({ origen: null, frecuencia: "1_mes", cantidad_mercados: "1", gasto: "31_50", categorias: [], lealtad: null, descubrimiento: [], motivadores: [], precio_maximo: "36", intencion_24: "seguro", plan: null, dudas: null, region: null, edad: null, sexo: null, consentimiento_email: true, email_momento: null, email_confirmed: true, ...o });
 describe("métricas superiores", () => {
   it("comprador calificado exige intención positiva, precio ≥ $24 y correo confirmado", () => {
@@ -23,8 +23,12 @@ describe("métricas superiores", () => {
     assert.deepStrictEqual(m.efecto, { antesK: 1, despuesK: 2, subieron: 1, n: 2 });
   });
   it("calidad de datos", () => {
-    assert.strictEqual(precioInconsistente(base({ precio_maximo: "36", intencion_24: "no_se" })), true);
+    assert.strictEqual(precioInconsistente(base({ precio_maximo: "18", intencion_24: "probable_si" })), true);
     assert.strictEqual(precioInconsistente(base({ precio_maximo: "18", intencion_24: "no" })), false);
+    assert.strictEqual(maximoAltoConDuda(base({ precio_maximo: "36", intencion_24: "no_se" })), true);
+    assert.strictEqual(maximoAltoConDuda(base({ precio_maximo: "24", intencion_24: "no_se" })), false);
+    assert.strictEqual(finesSinMercados(base({ frecuencia: "fines_semana", cantidad_mercados: "0" })), true);
+    assert.strictEqual(finesSinMercados(base({ frecuencia: "fines_semana", cantidad_mercados: "1" })), false);
     assert.strictEqual(frecuenciaContradictoria(base({ frecuencia: "casi_nunca", cantidad_mercados: "4_6" })), true);
     const m = computeMetricas([base({ started_at: "2026-01-01T00:00:00Z", completed_at: "2026-01-01T00:00:29Z" }), base({ started_at: "2026-01-01T00:00:00Z", completed_at: "2026-01-01T00:00:30Z" })], { seguro: 0.75, probable: 0.25 });
     assert.strictEqual(m.calidad.rapidas, 1);

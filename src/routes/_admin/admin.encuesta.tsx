@@ -4,10 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Download, Copy, ArrowDown, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, computeMetricas, semaforo, proyeccion, porCanal, type RawRow } from "@/lib/encuesta-stats";
+import { filterRows, plural, topMesas, fmtProp, fmtVal, SMALL, computeMetricas, semaforo, proyeccion, porCanal, CALIDAD_REGLAS, compradorCalificado, type RawRow } from "@/lib/encuesta-stats";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { listEncuestaRespuestas, exportListaEspera, deleteTestRespuestas, exportTodasRespuestas, getEncuestaConfig, saveEncuestaConfig } from "@/lib/encuesta.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { downloadCSV } from "@/lib/csv";
 import {
   computeDashboard, int, pct, money, dec1, MIN,
@@ -15,7 +16,7 @@ import {
 } from "@/lib/encuesta-stats";
 
 export const Route = createFileRoute("/_admin/admin/encuesta")({
-  head: () => ({ meta: [{ title: "Encuesta de membresía · Admin RutaMercado" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Encuesta de membresía · Admin RutaMercado" }, { name: "description", content: "Resultados y calidad de datos de la encuesta RutaLover." }, { property: "og:title", content: "Panel de encuesta RutaLover | RutaMercado" }, { property: "og:description", content: "Resultados de validación de la membresía RutaLover." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: EncuestaAdminPage,
 });
 
@@ -24,7 +25,7 @@ const NAVY = "#18253f";
 const MUTED = "rgba(24,37,63,0.25)";
 const GRID = "rgba(24,37,63,0.08)";
 const BAD = "#d9534f";
-const toneColor = { brand: BRAND, brandSoft: "rgba(84,182,120,0.45)", muted: MUTED, grid: GRID } as const;
+
 
 function EncuestaAdminPage() {
   const listFn = useServerFn(listEncuestaRespuestas);
@@ -139,31 +140,6 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
   return (
     <>
       <Metricas rows={rows} />
-      <section className="rounded-xl border bg-card p-6 space-y-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">¿Pagarían $24 al año por la membresía?</p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <span className="text-sm text-muted-foreground">Pagarían $24</span>
-            <p className="font-display text-3xl text-[#18253f] tabular-nums">{fmtProp(d.si, d.n)}</p>
-          </div>
-          <div>
-            <span className="text-sm text-muted-foreground">Pagarían y dejaron email</span>
-            <p className="font-display text-3xl text-[#18253f] tabular-nums">{fmtProp(d.comp, d.n)}</p>
-          </div>
-        </div>
-        <NNote n={d.n} />
-        <div className="flex h-2.5 max-w-2xl overflow-hidden rounded-full" style={{ background: GRID }} aria-hidden>
-          {d.strip.slice(0, 3).map((s) => (
-            <span key={s.label} style={{ width: `${Math.max(0, s.v) * 100}%`, background: toneColor[s.tone] }} />
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          {d.strip.map((s) => (
-            <span key={s.label}><i className="inline-block h-2.5 w-2.5 rounded-full mr-1.5 align-[-1px]" style={{ background: toneColor[s.tone] }} />{s.label} {d.n < SMALL ? `${Math.round(Math.max(0, s.v) * d.n)} de ${d.n}` : pct(Math.max(0, s.v))}</span>
-          ))}
-        </div>
-      </section>
-
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Tile n={t.n} label={plural(t.n, "Respuesta", "Respuestas")} value={int(t.n)} sub={`${fmtVal(Math.round(t.qr * t.n), t.n)} llegó por el QR en un mercado.`} />
         <GastoTile rows={rows} gasto1550={fmtVal(Math.round(t.gasto1550 * t.n), t.n)} />
@@ -172,7 +148,7 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
         <Tile n={t.n} label="Lista de espera" value={int(t.em)} sub={`${fmtProp(t.em, t.n)} dejó su email. ${int(t.fin)} ${plural(t.fin, "se anotó", "se anotaron")} después del cálculo de ahorro.`} />
       </section>
 
-      <Section title="Quiénes respondieron y quiénes pagarían" desc="Cada grupo con su tamaño, qué parte pagaría los $24, cuánto gasta por visita y cuántos dejaron su email. El grupo con más interés sale resaltado.">
+      <Section title="Quiénes respondieron y compradores calificados" desc="Cada grupo con su tamaño, qué parte cumple con Comprador calificado, cuánto gasta por visita y cuántos dejaron su email. El grupo con más interés sale resaltado.">
         <SegCard title="Por edad" seg={d.segments.edad} />
         <SegCard title="Por género" seg={d.segments.sexo} />
         <SegCard title="Por zona" seg={d.segments.region} />
@@ -193,7 +169,7 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
         <MesasCard rows={rows as unknown as RawRow[]} />
       </Section>
 
-      <Section title="La membresía" desc="Cuánto pagarían, cómo la pagarían y qué los frena.">
+      <Section title="La membresía" desc="Cuánto pagarían y qué plan preferirían.">
         <BarCard title="Lo máximo que pagarían al año" note="En verde, quienes aceptan $24 o más." items={d.membresia.precio} noTop />
         <article className="rounded-xl border bg-card p-5 space-y-3">
           <h3 className="font-display text-lg text-[#18253f]">Cómo la pagarían</h3>
@@ -210,37 +186,13 @@ function Dashboard({ d, rows }: { d: D; rows: EncuestaRow[] }) {
             ))}
           </div>
         </article>
-        <BarCard title="Lo que más los frena" note='Entre quienes no dijeron "La compraría seguro".' items={d.membresia.dudas} />
       </Section>
 
-      <section id="resumen" className="scroll-mt-6 rounded-xl border-2 border-[#54b678] bg-card p-6 space-y-5">
-        <header className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resumen</p>
-          <h2 className="font-display text-2xl text-[#18253f]">{d.resumen.titulo}</h2>
-          <p className="text-sm">
-            De {int(d.n)} {plural(d.n, "respuesta", "respuestas")}, <b>{fmtProp(d.si, d.n)} pagaría los $24</b> y <b>{int(d.comp)} {plural(d.comp, "persona", "personas")} ({fmtProp(d.comp, d.n)})</b> además {plural(d.comp, "dejó", "dejaron")} su email. Ese es el número que más se parece a una venta real.
-          </p>
-        </header>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {d.resumen.facts.map(([a, b, p]) => (
-            <div key={a} className="rounded-lg border bg-muted/30 p-4 space-y-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">{a}</span>
-              <strong className="block font-display text-lg text-[#18253f]">{b}</strong>
-              <p className="text-xs text-muted-foreground">{p}</p>
-            </div>
-          ))}
-        </div>
-        <div>
-          <h3 className="font-display text-lg text-[#18253f] mb-2">Qué hacer ahora</h3>
-          <ol className="list-decimal pl-5 space-y-2 text-sm">
-            {d.resumen.todo.map(([b, rest]) => <li key={b}><b>{b}</b>{rest}</li>)}
-          </ol>
-        </div>
-      </section>
-
+      <Resumen rows={rows} />
       <p className="text-xs text-muted-foreground">
-        "Pagarían $24" = escogieron plan anual o mensual. "Lo están pensando" = contestaron "No sé todavía" o no escogieron plan. Gasto, visitas y mercados usan el punto medio de cada rango. Grupos con menos de {MIN} personas salen atenuados y no compiten por "más interés". Señal buena desde 15% que pagaría y dejó email; moderada entre 8% y 15%.
+        Comprador calificado = intención positiva, máximo de $24 o más y correo confirmado. Gasto, visitas y mercados usan los mismos supuestos que la encuesta. Grupos con menos de {MIN} personas no compiten por "más interés".
       </p>
+
     </>
   );
 }
@@ -310,7 +262,7 @@ function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof compute
       <h3 className="font-display text-lg text-[#18253f]">{title}</h3>
       <p className="text-sm text-muted-foreground">
         {best && big ? (
-          <>El grupo más grande es <b>{big.label} ({fmtVal(big.n, n)})</b>. El que más pagaría: <b>{best.label}, {fmtProp(best.payK, best.n)}</b> contra {fmtVal(Math.round(general * n), n)} en general.</>
+          <>El grupo más grande es <b>{big.label} ({fmtVal(big.n, n)})</b>. Más compradores calificados: <b>{best.label}, {fmtProp(best.payK, best.n)}</b> contra {fmtVal(Math.round(general * n), n)} en general.</>
         ) : "Grupos muy pequeños para comparar."}
       </p>
       <NNote n={n} />
@@ -318,7 +270,7 @@ function SegCard({ title, seg }: { title: string; seg: ReturnType<typeof compute
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-muted-foreground">
-              <th className="py-1 font-medium">Grupo</th><th className="py-1 font-medium">Pagarían $24</th>
+              <th className="py-1 font-medium">Grupo</th><th className="py-1 font-medium">Comprador calificado</th>
               <th className="py-1 font-medium">Gasto / visita</th><th className="py-1 font-medium">Email</th>
             </tr>
           </thead>
@@ -402,6 +354,7 @@ function Metricas({ rows }: { rows: EncuestaRow[] }) {
   const cfg = useQuery({ queryKey: ["admin", "encuesta", "config"], queryFn: () => getFn() });
   const pesos = { seguro: cfg.data?.peso_seguro ?? 0.75, probable: cfg.data?.peso_probable ?? 0.25 };
   const u = { min_n: cfg.data?.min_n ?? 50, verde_pct: cfg.data?.verde_pct ?? 0.2, verde_lim_inf: cfg.data?.verde_lim_inf ?? 0.1, amarillo_pct: cfg.data?.amarillo_pct ?? 0.1 };
+  const [quality, setQuality] = useState<(typeof CALIDAD_REGLAS)[number] | null>(null);
   const [edit, setEdit] = useState<Record<string, string> | null>(null);
   const m = useMemo(() => computeMetricas(rows, pesos), [rows, pesos.seguro, pesos.probable]);
   const save = async () => {
@@ -437,7 +390,7 @@ function Metricas({ rows }: { rows: EncuestaRow[] }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="2 · Intención ponderada" value={m.ponderada.n ? pct(m.ponderada.v) : "—"} n={m.ponderada.n}
           sub={`${pesos.seguro} × ${pct(m.ponderada.pSeg)} seguro + ${pesos.probable} × ${pct(m.ponderada.pProb)} probablemente sí. Solo quienes vieron la pregunta.`}>
-          <button type="button" className="text-xs underline text-[#18253f]" onClick={() => setEdit({ a: String(pesos.seguro), b: String(pesos.probable), min_n: String(u.min_n), verde: String(Math.round(u.verde_pct * 100)), lim: String(Math.round(u.verde_lim_inf * 100)), amarillo: String(Math.round(u.amarillo_pct * 100)) })}>Editar configuración</button>
+          <Button variant="link" size="sm" onClick={() => setEdit({ a: String(pesos.seguro), b: String(pesos.probable), min_n: String(u.min_n), verde: String(Math.round(u.verde_pct * 100)), lim: String(Math.round(u.verde_lim_inf * 100)), amarillo: String(Math.round(u.amarillo_pct * 100)) })}>Editar configuración</Button>
         </MetricCard>
         <MetricCard label="3 · % que acepta el precio" value={fmtProp(m.precio.k, m.precio.n)} n={m.precio.n} sub="Máximo que pagaría: $24 o más." />
         <MetricCard label="4 · Efecto del cálculo de ahorro" n={e.n}
@@ -461,13 +414,23 @@ function Metricas({ rows }: { rows: EncuestaRow[] }) {
           )}
         </MetricCard>
         <MetricCard label="7 · Calidad de datos" n={m.calidad.n}>
-          <ul className="space-y-1 text-sm text-[#18253f]">
-            <li className="flex justify-between gap-2"><span>Precio inconsistente ($36+ pero duda a $24)</span><b>{m.calidad.inconsistente}</b></li>
-            <li className="flex justify-between gap-2"><span>Completadas en menos de 30 segundos</span><b>{m.calidad.rapidas}</b></li>
-            <li className="flex justify-between gap-2"><span>Van poco pero dicen 4+ mercados en 3 meses</span><b>{m.calidad.contradictoria}</b></li>
+          <ul className="space-y-1 text-sm">
+            {CALIDAD_REGLAS.map((rule) => (
+              <li key={rule.key}>
+                <Button variant="ghost" className="h-auto w-full justify-between gap-3 whitespace-normal px-0 py-2 text-left" onClick={() => setQuality(rule)}>
+                  <span>{rule.label}</span><b className="shrink-0">{rows.filter(rule.matches).length} de {m.calidad.n}</b>
+                </Button>
+              </li>
+            ))}
           </ul>
         </MetricCard>
       </div>
+      <Dialog open={quality !== null} onOpenChange={(open) => { if (!open) setQuality(null); }}>
+        <DialogContent className="max-h-[85vh] max-w-4xl overflow-y-auto">
+          <DialogHeader><DialogTitle>{quality?.label}</DialogTitle><DialogDescription>Respuestas completas de la versión y filtros seleccionados; sin correos ni datos de confirmación.</DialogDescription></DialogHeader>
+          {quality && <QualityResponses rows={rows.filter(quality.matches)} />}
+        </DialogContent>
+      </Dialog>
       <CanalTable rows={rows} pesos={pesos} />
     </section>
   );
@@ -521,7 +484,7 @@ function CanalTable({ rows, pesos }: { rows: EncuestaRow[]; pesos: { seguro: num
   return (
     <div className="rounded-xl border bg-card p-5 space-y-3">
       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Por canal</span>
-      <table className="w-full text-sm">
+      <div className="overflow-x-auto"><table className="w-full text-sm">
         <thead><tr className="text-left text-xs text-muted-foreground"><th className="py-1 font-medium">Canal</th><th className="py-1 font-medium">n</th><th className="py-1 font-medium">Comprador calificado</th><th className="py-1 font-medium">Intención ponderada</th><th className="py-1 font-medium">Gasto mediano</th></tr></thead>
         <tbody>
           {t.map((r) => (
@@ -534,8 +497,40 @@ function CanalTable({ rows, pesos }: { rows: EncuestaRow[]; pesos: { seguro: num
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       <p className="text-xs italic text-muted-foreground">Los suscriptores del newsletter suelen responder más positivo que visitantes nuevos.</p>
     </div>
   );
+}
+
+function QualityResponses({ rows }: { rows: EncuestaRow[] }) {
+  if (!rows.length) return <p className="text-sm text-muted-foreground">No hay respuestas que cumplan esta regla.</p>;
+  const labels: Record<string, string> = { id_respuesta: "Respuesta", precio_maximo: "Máximo anual", intencion_24: "Intención antes", intencion_24_despues: "Intención después", frecuencia: "Frecuencia", cantidad_mercados: "Mercados en 3 meses", started_at: "Inicio", completed_at: "Fin", origen: "Canal", dudas: "Freno", plan: "Plan" };
+  return <div className="space-y-4">{rows.map((row, index) => {
+    const record = row as EncuestaRow & { id_respuesta?: string };
+    return <article key={record.id_respuesta ?? index} className="border-b pb-4">
+      <h3 className="font-semibold">{record.id_respuesta ?? `Respuesta ${index + 1}`}</h3>
+      <dl className="mt-2 grid gap-2 sm:grid-cols-2">{Object.entries(row).map(([key, value]) => (
+        <div key={key} className="min-w-0 text-xs"><dt className="font-medium text-muted-foreground">{labels[key] ?? key}</dt><dd className="break-words">{value === null || value === undefined ? "—" : Array.isArray(value) ? value.join(", ") : String(value)}</dd></div>
+      ))}</dl>
+    </article>;
+  })}</div>;
+}
+
+function Resumen({ rows }: { rows: EncuestaRow[] }) {
+  const getFn = useServerFn(getEncuestaConfig);
+  const cfg = useQuery({ queryKey: ["admin", "encuesta", "config"], queryFn: () => getFn() });
+  const u = { min_n: cfg.data?.min_n ?? 50, verde_pct: cfg.data?.verde_pct ?? 0.2, verde_lim_inf: cfg.data?.verde_lim_inf ?? 0.1, amarillo_pct: cfg.data?.amarillo_pct ?? 0.1 };
+  const k = rows.filter(compradorCalificado).length;
+  const signal = semaforo(k, rows.length, u);
+  return <section id="resumen" className="scroll-mt-6 border-t pt-6 space-y-4">
+    <h2 className="font-display text-2xl text-foreground">Resumen</h2>
+    <NNote n={rows.length} />
+    {signal.estado === "faltan" ? <p>Faltan {signal.faltan} {plural(signal.faltan, "respuesta", "respuestas")} para un veredicto.</p> : <>
+      <h3 className="font-display text-xl">Comprador calificado: señal {signal.estado === "verde" ? "favorable" : signal.estado === "amarillo" ? "por validar" : "baja"}</h3>
+      <p>Comprador calificado: <b>{fmtProp(k, rows.length)}</b>. Intención declarada, no ventas confirmadas.</p>
+      <h3 className="font-display text-lg">Qué hacer ahora</h3>
+      <ul className="list-disc pl-5 text-sm"><li>{signal.estado === "verde" ? "Validar el interés de los compradores calificados con una preventa pequeña." : signal.estado === "amarillo" ? "Revisar los frenos y validar el interés de los compradores calificados antes de ampliar el lanzamiento." : "Resolver los frenos y volver a medir compradores calificados antes de lanzar."}</li></ul>
+    </>}
+  </section>;
 }

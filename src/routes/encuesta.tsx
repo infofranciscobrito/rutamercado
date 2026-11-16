@@ -1,13 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { EncuestaApp } from "@/components/encuesta/EncuestaApp";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-const URL = "https://rutamercadopr.com/encuesta";
+
+const URL = "https://rutamercadopr.com/rutralover";
 const IMAGE = "https://rutamercadopr.com/encuesta/mrmercado-saludo.png";
 const TITLE = "Cuéntanos tu ruta | RutaMercado";
 const DESCRIPTION =
   "Date una vuelta con MrMercado y cuéntanos cómo vives los mercados locales de Puerto Rico. Son 2 minutos.";
 
 export const Route = createFileRoute("/encuesta")({
+  beforeLoad: ({ location }) => { throw redirect({ to: "/rutralover", search: location.search, statusCode: 301 }); },
   head: () => ({
     meta: [
       { title: TITLE },
@@ -33,9 +34,5 @@ export const Route = createFileRoute("/encuesta")({
       },
     ],
   }),
-  component: EncuestaPage,
 });
 
-function EncuestaPage() {
-  return <EncuestaApp />;
-}

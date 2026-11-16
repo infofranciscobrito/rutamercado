@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { submitEncuesta } from "@/lib/encuesta.functions";
 import { CH, EMAIL_RE, ICON, POSES, SPEND, STEPS, VISITS, type Answers, type Step } from "./steps";
 import "./encuesta.css";
+import { estimatedAnnualSavings, SURVEY_URL, PRECIO_ANUAL, AHORRO_PCT } from "../../lib/encuesta-model";
 
 type W = { gtag?: (...a: unknown[]) => void; fbq?: (...a: unknown[]) => void };
 const track = (fn: "gtag" | "fbq", ...args: unknown[]) => {
@@ -11,7 +12,7 @@ const track = (fn: "gtag" | "fbq", ...args: unknown[]) => {
   w[fn]?.(...args);
 };
 
-const SHARE_URL = "https://rutamercadopr.com/rutralover";
+const SHARE_URL = SURVEY_URL;
 const PIN_CHECK = (
   <span className="pin" aria-hidden="true">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
@@ -136,9 +137,10 @@ export function EncuestaApp() {
   }, [setPose, speak]);
 
   const nextIndex = useCallback((i: number) => {
-    const a = A.current!;
+    const a = A.current;
+    if (!a) return i;
     i++;
-    while (i < STEPS.length && STEPS[i].when && !STEPS[i].when!(a)) {
+    while (i < STEPS.length && STEPS[i].when && !STEPS[i].when?.(a)) {
       delete a[STEPS[i].id];
       delete a[STEPS[i].id + "_otro"];
       i++;
@@ -182,7 +184,8 @@ export function EncuestaApp() {
   };
   const back = () => {
     if (!hist.current.length) return;
-    go(hist.current.pop()!, false);
+    const previous = hist.current.pop();
+    if (previous !== undefined) go(previous, false);
   };
 
   const step = STEPS[current];
@@ -217,7 +220,7 @@ export function EncuestaApp() {
         </main>
       )}
 
-      {view === "survey" && (
+      {view === "survey" && A.current && (
         <div className="view survey">
           <header className="bar">
             <div className="wrap">
@@ -253,7 +256,7 @@ export function EncuestaApp() {
                 ) : step.type === "email" ? (
                   <EmailStep
                     step={step}
-                    A={A.current!}
+                    A={A.current}
                     onDone={(left) => {
                       if (left) {
                         track("gtag", "event", "encuesta_lista_espera", { momento: "pregunta" });
@@ -263,10 +266,10 @@ export function EncuestaApp() {
                     }}
                   />
                 ) : step.type === "text" ? (
-                  <TextStep step={step} A={A.current!} onDone={(filled) => answered(step, current, filled ? step.react : undefined)} />
+                  <TextStep step={step} A={A.current} onDone={(filled) => answered(step, current, filled ? step.react : undefined)} />
                 ) : step.type === "final" ? (
                   <Final
-                    A={A.current!}
+                    A={A.current}
                     reduce={reduce}
                     setPose={setPose}
                     speak={speak}
@@ -276,7 +279,7 @@ export function EncuestaApp() {
                 ) : (
                   <Question
                     step={step}
-                    A={A.current!}
+                    A={A.current}
                     onAnswered={(reaction) => answered(step, current, reaction)}
                     timer={timer}
                   />
@@ -333,7 +336,7 @@ function Question({ step: s, A, onAnswered, timer }: {
     else if (o.solo) next = [o.v];
     else {
       next = next.filter((v) => !opts.find((z) => z.v === v)?.solo);
-      if (next.length >= s.multi!) return;
+      if (next.length >= (s.multi ?? 1)) return;
       next.push(o.v);
     }
     setPicked(next);
@@ -564,6 +567,7 @@ function Final({ A, reduce, setPose, speak, submit, goHome }: {
   const spend = SPEND[A.gasto as string];
   const vpm = VISITS[A.frecuencia as string];
   const low = !spend || !vpm;
+  const annualSavings = estimatedAnnualSavings(A.gasto, A.frecuencia);
 
   useEffect(() => {
     if (!A.completada_en) {
@@ -612,7 +616,7 @@ function Final({ A, reduce, setPose, speak, submit, goHome }: {
             {low ? (
               <><b>¿Te anoto en la <em>lista de espera</em>?</b><p>Te aviso primero cuando lancemos la membresía, sin compromiso.</p></>
             ) : (
-              <><b>Ahora que sabes cuánto puedes <em>ahorrar</em>...</b><p>Ya viste cómo ese ahorro paga tu membresía. ¿Te anoto en la lista de espera? Te aviso primero cuando la lancemos, sin compromiso.</p></>
+              <><b>Ahora que sabes cuánto puedes <em>ahorrar</em>...</b><p>{annualSavings !== null && annualSavings < PRECIO_ANUAL ? "Mientras más vayas, más rápido recuperas la membresía" : "Ya viste cómo ese ahorro paga tu membresía"}. ¿Te anoto en la lista de espera? Te aviso primero cuando la lancemos, sin compromiso.</p></>
             )}
           </div>
           <div className="wform">
@@ -647,7 +651,7 @@ function SavingBox({ A }: { A: Answers }) {
   const vpm = VISITS[A.frecuencia as string];
   if (!spend || !vpm) return null;
   {
-    const save = spend * 0.1;
+    const save = spend * AHORRO_PCT;
     const visits = Math.ceil(24 / save);
     const months = visits / vpm;
     const yrs = Math.round(months / 12);
