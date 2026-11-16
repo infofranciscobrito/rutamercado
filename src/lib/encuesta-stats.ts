@@ -30,7 +30,7 @@ export const L = {
   lealtad: { favoritas: "Sí, tienen sus favoritas", a_veces: "A veces", nuevas: "Prefieren probar mesas nuevas" },
   categorias: { comida: "Comida para comer ahí", cafe_postres: "Café, postres y bebidas", agricola: "Agrícolas y frescos", despensa: "Despensa: salsas, mieles, panes", artesania: "Artesanía y arte", ropa: "Ropa y accesorios", plantas: "Plantas", cuidado: "Cuidado personal", mascotas: "Cosas para mascotas" },
   motivadores: { descuentos: "Descuentos en las mesas", info_anticipada: "Saber con tiempo dónde hay", cercania: "Mercados más cerca", estacionamiento: "Mejor estacionamiento", familia: "Actividades niños o mascotas", ambiente: "Música y buen ambiente", nada: "Nada" },
-  descubrimiento: { redes_mercado: "Redes del mercado", rutamercado: "RutaMercado", amistades: "Amigos o familia", whatsapp: "Grupos de WhatsApp", de_paso: "Lo ven al pasar", email: "Newsletter o email" },
+  descubrimiento: { redes_mercado: "Redes del mercado", rutamercado: "RutaMercado", amistades: "Amigos o familia", whatsapp: "Grupos de WhatsApp", de_paso: "Lo ven al pasar", email: "Newsletter o email", otro: "Otro" },
   precio: { "0": "No pagaría nada", "12": "Hasta $12", "18": "Hasta $18", "24": "Hasta $24", "36": "Hasta $36", mas_36: "Más de $36" },
   dudas: { poco_uso: "No van lo suficiente para aprovecharla", que_mesas: "Quieren saber qué mesas participan", pago_por_uso: "Prefieren pagar solo cuando van", descuento_bajo: "Un 15% no los mueve", no_membresias: "No les gustan las membresías", otro: "Otras razones" },
 } as const;
