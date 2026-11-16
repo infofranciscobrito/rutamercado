@@ -50,6 +50,13 @@
       "when": 1794796390784,
       "tag": "0006_encuesta_config_umbrales",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794796871249,
+      "tag": "0007_emprendedores_mesas_aliadas",
+      "breakpoints": true
     }
   ]
 }

@@ -11,6 +11,7 @@ import {
   ARTESANO_CERTIFICADO_OPTIONS,
 } from "./emprendedores.functions";
 import { MARKET_REGIONS } from "@/types/market";
+import { cleanAliada, type AliadaFields } from "@/lib/mesas-aliadas";
 
 
 export type AdminEmprendedor = {
@@ -36,7 +37,8 @@ export type AdminEmprendedor = {
   artesano_certificado: string | null;
   status: "pending" | "approved" | "rejected";
   created_at: string;
-};
+  is_test: boolean;
+} & AliadaFields;
 
 const optText = (max: number) =>
   z.preprocess(
@@ -78,6 +80,12 @@ const UpsertSchema = z.object({
   categoria_otro: optText(200),
   artesano_certificado: z.enum(ARTESANO_CERTIFICADO_OPTIONS).nullable().optional(),
   logo_url: optText(1000),
+  discount_willing: z.enum(["si", "tal_vez", "no"]).nullable().optional(),
+  discount_offer: z.enum(["5", "10", "15", "otro"]).nullable().optional(),
+  discount_offer_other: z.string().max(200).nullable().optional(),
+  participation_needs: z.array(z.enum(["visibilidad", "sin_costo", "material", "resultados", "otro"])).max(3).nullable().optional(),
+  participation_needs_other: z.string().max(200).nullable().optional(),
+  wants_founder: z.boolean().nullable().optional(),
 });
 
 export const adminListEmprendedores = createServerFn({ method: "GET" })
@@ -86,7 +94,7 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("emprendedores")
       .select(
-        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, categoria_otro, artesano_certificado, mensaje_privado, status, created_at",
+        "id, nombre_negocio, logo_url, descripcion, categoria_producto, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, categoria_otro, artesano_certificado, mensaje_privado, status, created_at, is_test, discount_willing, discount_offer, discount_offer_other, participation_needs, participation_needs_other, wants_founder",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -117,6 +125,8 @@ export const adminListEmprendedores = createServerFn({ method: "GET" })
           ? "rejected"
           : "approved") as "pending" | "approved" | "rejected",
       created_at: r.created_at,
+      is_test: r.is_test === true,
+      ...cleanAliada(r as Partial<AliadaFields>),
     }));
   });
 
@@ -126,7 +136,8 @@ export const adminCountPendingEmprendedores = createServerFn({ method: "GET" })
     const { count, error } = await context.supabase
       .from("emprendedores")
       .select("id", { count: "exact", head: true })
-      .eq("status", "pending");
+      .eq("status", "pending")
+      .eq("is_test", false);
     if (error) throw new Error(error.message);
     return { count: count ?? 0 };
   });
@@ -166,6 +177,7 @@ export const adminUpsertEmprendedor = createServerFn({ method: "POST" })
           ? (data.artesano_certificado ?? null)
           : null,
       logo_url: data.logo_url,
+      ...cleanAliada(data),
     };
 
     if (data.id) {
@@ -316,7 +328,8 @@ export const getBusinessRegistrationAnalytics = createServerFn({ method: "POST" 
       .from("emprendedores")
       .select(
         "id, nombre_negocio, categoria_producto, region, municipio, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, categoria_otro, artesano_certificado, status, created_at",
-      );
+      )
+      .eq("is_test", false);
     if (error) throw new Error(error.message);
 
     const all = (rowsAll ?? []) as Row[];
@@ -432,7 +445,7 @@ export const getBusinessRegistrationAnalytics = createServerFn({ method: "POST" 
     };
   });
 
-export type ExportedBusinessRow = Row & {
+export type ExportedBusinessRow = Row & Partial<AliadaFields> & {
   logo_url: string | null;
   descripcion: string;
   instagram: string | null;
@@ -448,8 +461,9 @@ export const exportBusinessRegistrationsRows = createServerFn({ method: "POST" }
     const { data: rows, error } = await context.supabase
       .from("emprendedores")
       .select(
-        "id, nombre_negocio, logo_url, descripcion, categoria_producto, categoria_otro, artesano_certificado, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, status, created_at",
-      );
+        "id, nombre_negocio, logo_url, descripcion, categoria_producto, categoria_otro, artesano_certificado, region, municipio, instagram, email, telefono, persona_contacto, mercados_interes, tiempo_operando, registro_comerciante, fuente_ingreso, canales_venta, tamano_equipo, status, created_at, discount_willing, discount_offer, discount_offer_other, participation_needs, participation_needs_other, wants_founder",
+      )
+      .eq("is_test", false);
     if (error) throw new Error(error.message);
     const filtered = applyFilters((rows ?? []) as ExportedBusinessRow[], data);
     return filtered;
