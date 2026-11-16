@@ -25,7 +25,6 @@ const MUTED = "rgba(24,37,63,0.25)";
 const GRID = "rgba(24,37,63,0.08)";
 const BAD = "#d9534f";
 const toneColor = { brand: BRAND, brandSoft: "rgba(84,182,120,0.45)", muted: MUTED, grid: GRID } as const;
-const SIGNAL_COLOR = { fuerte: BRAND, moderada: "#e0a526", debil: BAD } as const;
 
 function EncuestaAdminPage() {
   const listFn = useServerFn(listEncuestaRespuestas);

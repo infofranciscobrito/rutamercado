@@ -67,3 +67,26 @@ it("topMesas cuenta menciones sin importar mayúsculas ni acentos", () => {
   strictEqual(r[0].n, 2);
   strictEqual(r.length, 3);
 });
+
+import { wilson, fmtProp, fmtVal } from "./encuesta-stats";
+it("wilson: 2 de 3 → rango 21–94%", () => {
+  const [lo, hi] = wilson(2, 3);
+  strictEqual(Math.round(lo * 100), 21);
+  strictEqual(Math.round(hi * 100), 94);
+  strictEqual(fmtProp(2, 3), "2 de 3 · rango 21–94%");
+});
+it("con n<30 muestra conteo; con n>=30 porcentaje", () => {
+  strictEqual(fmtVal(10, 29), "10 de 29");
+  strictEqual(fmtVal(15, 30), "50%");
+});
+it("segment junta grupos con menos de 5 en 'Otros (n<5)'", () => {
+  const rows = [
+    ...Array.from({ length: 6 }, () => ({ ...base, edad: "25_34" })),
+    ...Array.from({ length: 2 }, () => ({ ...base, edad: "65_mas" })),
+    ...Array.from({ length: 1 }, () => ({ ...base, edad: "18_24" })),
+  ];
+  const g = segment(rows, "edad", true).groups;
+  strictEqual(g.length, 2);
+  strictEqual(g[1].label, "Otros (n<5)");
+  strictEqual(g[1].n, 3);
+});
