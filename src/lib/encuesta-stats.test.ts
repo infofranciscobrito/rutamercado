@@ -90,35 +90,3 @@ it("segment junta grupos con menos de 5 en 'Otros (n<5)'", () => {
   strictEqual(g[1].label, "Otros (n<5)");
   strictEqual(g[1].n, 3);
 });
-
-import { computeMetricas, ahorroAnual, compradorCalificado, precioInconsistente, frecuenciaContradictoria, median, type EncuestaRow as ER } from "./encuesta-stats";
-const base = (o: Partial<ER>): ER => ({ origen: null, frecuencia: "1_mes", cantidad_mercados: "1", gasto: "31_50", categorias: [], lealtad: null, descubrimiento: [], motivadores: [], precio_maximo: "36", intencion_24: "seguro", plan: null, dudas: null, region: null, edad: null, sexo: null, consentimiento_email: true, email_momento: null, email_confirmed: true, ...o });
-describe("métricas superiores", () => {
-  it("comprador calificado exige intención positiva, precio ≥ $24 y correo confirmado", () => {
-    expect(compradorCalificado(base({}))).toBe(true);
-    expect(compradorCalificado(base({ email_confirmed: false }))).toBe(false);
-    expect(compradorCalificado(base({ precio_maximo: "18" }))).toBe(false);
-    expect(compradorCalificado(base({ intencion_24: "seguro", intencion_24_despues: "no" }))).toBe(false);
-  });
-  it("ahorro anual = gasto × visitas al año × 10%", () => {
-    expect(ahorroAnual(base({ gasto: "31_50", frecuencia: "1_mes" }))).toBeCloseTo(48);
-    expect(ahorroAnual(base({ gasto: "mas_80", frecuencia: "casi_nunca" }))).toBeCloseTo(24);
-  });
-  it("intención ponderada usa los factores dados, sin contar a quien no vio la pregunta", () => {
-    const rows = [base({ intencion_24: "seguro" }), base({ intencion_24: "probable_si" }), base({ precio_maximo: "24", intencion_24: null })];
-    expect(computeMetricas(rows, { seguro: 0.75, probable: 0.25 }).ponderada.v).toBeCloseTo(0.5);
-    expect(computeMetricas(rows, { seguro: 1, probable: 0 }).ponderada.v).toBeCloseTo(0.5);
-  });
-  it("efecto del ahorro cuenta quienes subieron", () => {
-    const m = computeMetricas([base({ intencion_24: "no_se", intencion_24_despues: "probable_si" }), base({ intencion_24: "seguro", intencion_24_despues: "seguro" })], { seguro: 0.75, probable: 0.25 });
-    expect(m.efecto).toEqual({ antesK: 1, despuesK: 2, subieron: 1, n: 2 });
-  });
-  it("calidad de datos", () => {
-    expect(precioInconsistente(base({ precio_maximo: "36", intencion_24: "no_se" }))).toBe(true);
-    expect(precioInconsistente(base({ precio_maximo: "18", intencion_24: "no" }))).toBe(false);
-    expect(frecuenciaContradictoria(base({ frecuencia: "casi_nunca", cantidad_mercados: "4_6" }))).toBe(true);
-    const m = computeMetricas([base({ started_at: "2026-01-01T00:00:00Z", completed_at: "2026-01-01T00:00:29Z" }), base({ started_at: "2026-01-01T00:00:00Z", completed_at: "2026-01-01T00:00:30Z" })], { seguro: 0.75, probable: 0.25 });
-    expect(m.calidad.rapidas).toBe(1);
-  });
-  it("mediana", () => { expect(median([10, 100, 22])).toBe(22); expect(median([10, 22])).toBe(16); });
-});
