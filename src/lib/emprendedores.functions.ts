@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { MUNICIPIOS, regionDeMunicipio } from "@/lib/municipios";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import { cleanAliada } from "@/lib/mesas-aliadas";
+import { businessRegistrationDefaults } from "@/lib/business-registration-defaults";
 
 export const EMPRENDEDOR_CATEGORIES = [
   "Comida y Repostería",
@@ -162,13 +162,6 @@ const RegisterSchema = z
     logo_base64: z.string().max(8_500_000).optional(),
     logo_filename: z.string().max(200).optional(),
     logo_mime: z.enum(["image/jpeg", "image/png"]).optional(),
-    is_test: z.boolean().optional(),
-    discount_willing: z.enum(["si", "tal_vez", "no"]).nullable().optional(),
-    discount_offer: z.enum(["5", "10", "15", "otro"]).nullable().optional(),
-    discount_offer_other: z.string().max(200).nullable().optional(),
-    participation_needs: z.array(z.enum(["visibilidad", "sin_costo", "material", "resultados", "otro"])).max(3).nullable().optional(),
-    participation_needs_other: z.string().max(200).nullable().optional(),
-    wants_founder: z.boolean().nullable().optional(),
   })
   .refine((d) => Boolean(d.instagram || d.email || d.telefono), {
     message: "Provee al menos un contacto (Instagram, email o teléfono).",
@@ -236,8 +229,7 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
 
         logo_url: logoUrl,
         status: "pending",
-        is_test: data.is_test === true,
-        ...cleanAliada(data),
+        ...businessRegistrationDefaults(),
       })
       .select("id")
       .single();
@@ -255,7 +247,7 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
           body: JSON.stringify({
             from: "RutaMercado <emprendedores@rutamercadopr.com>",
             to: ["rutamercadopr@gmail.com"],
-            subject: `${data.is_test ? "[PRUEBA] " : ""}Nuevo registro de negocio — ${data.nombre_negocio}`,
+            subject: `Nuevo registro de negocio — ${data.nombre_negocio}`,
             text:
               `Negocio: ${data.nombre_negocio}\n` +
               `Categoría: ${data.categoria_producto}${data.categoria_producto === "Otro" && data.categoria_otro ? ` (${data.categoria_otro})` : ""}\n` +

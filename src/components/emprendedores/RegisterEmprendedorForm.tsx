@@ -1,6 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { MesasAliadasFields, EMPTY_ALIADA } from "./MesasAliadasFields";
-import { cleanAliada, type AliadaFields } from "@/lib/mesas-aliadas";
+import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -81,9 +79,6 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
-  const [aliada, setAliada] = useState<AliadaFields>(EMPTY_ALIADA);
-  const [isTest, setIsTest] = useState(false);
-  useEffect(() => { setIsTest(new URLSearchParams(window.location.search).get("test") === "1"); }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const region = regionDeMunicipio(municipio);
@@ -158,8 +153,6 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
           categoria_otro:
             categoria === "Otro" ? (categoriaOtro.trim() || null) : null,
           artesano_certificado: (artesanoCert || null) as never,
-          ...cleanAliada(aliada),
-          is_test: isTest,
 
           ...(logoPayload ?? {}),
         },
@@ -551,12 +544,6 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
           />
           <p className="mt-1 text-xs text-[#18253f]/60">{mensajePrivado.length}/500</p>
         </div>
-
-        <div className="border-b border-[#18253f]/10 pb-2 pt-2">
-          <h3 className="font-display text-lg text-[#18253f]">Mesas Aliadas RutaLover</h3>
-          <p className="text-xs text-[#18253f]/60">Opcional. Estamos creando una membresía para quienes visitan mercados, con descuentos en mesas participantes.</p>
-        </div>
-        <MesasAliadasFields value={aliada} onChange={setAliada} idPrefix="emp-ma" />
 
         <Button
           type="submit"
