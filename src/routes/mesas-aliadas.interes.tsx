@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MesasAliadasInteresApp } from "@/components/mesas-aliadas-interes/MesasAliadasInteresApp";
 
 const URL = "https://rutamercadopr.com/mesas-aliadas/interes";
-const IMAGE = "https://rutamercadopr.com/encuesta/mrmercado-saludo.png";
+const IMAGE = "https://rutamercadopr.com/og-mesas-aliadas.png";
 const TITLE = "¿Te interesa ser Mesa Aliada? | RutaMercado";
 const DESCRIPTION =
-  "Estamos evaluando un programa de descuentos para quienes visitan los mercados locales. Cuéntanos de tu negocio en 6 preguntas. Sin compromiso.";
+  "Programa de descuentos para clientes de mercados locales. Contesta 6 preguntas rápidas.";
 
 export const Route = createFileRoute("/mesas-aliadas/interes")({
   head: () => ({
@@ -15,6 +15,9 @@ export const Route = createFileRoute("/mesas-aliadas/interes")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:image", content: IMAGE },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "MrMercado invita: ¿Te interesa ser Mesa Aliada?" },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
