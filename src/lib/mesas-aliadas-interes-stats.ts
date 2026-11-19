@@ -11,6 +11,8 @@ export type InteresRow = {
   origen: string;
   negocio?: string | null;
   instagram?: string | null;
+  email?: string | null;
+  telefono?: string | null;
 };
 
 export const LABELS: Record<string, Record<string, string>> = {
@@ -33,6 +35,14 @@ export const LABELS: Record<string, Record<string, string>> = {
 
 const pct = (a: number, b: number) => (b > 0 ? a / b : 0);
 export const esInteresado = (r: InteresRow) => r.interes === "si" || r.interes === "info";
+export const tieneDatosContacto = (r: InteresRow) => [r.negocio, r.instagram, r.email, r.telefono].some((v) => Boolean(v?.trim()));
+export const dejoContacto = (r: InteresRow) => esInteresado(r) && r.tipo === "con_contacto" && tieneDatosContacto(r);
+
+export function whatsappUrl(telefono?: string | null) {
+  const digits = telefono?.replace(/\D/g, "") ?? "";
+  const numero = digits.length === 10 ? `1${digits}` : digits;
+  return /^1\d{10}$/.test(numero) ? `https://wa.me/${numero}` : null;
+}
 
 export function filtrar<T extends InteresRow>(rows: T[], { mostrarPruebas }: { mostrarPruebas: boolean }): T[] {
   return mostrarPruebas ? rows : rows.filter((r) => !r.is_test);
@@ -42,8 +52,8 @@ export function resumen(rows: InteresRow[]) {
   const total = rows.length;
   const interesados = rows.filter(esInteresado).length;
   const cuentan = rows.filter((r) => r.interes === "si").length;
-  const conContacto = rows.filter((r) => r.tipo === "con_contacto").length;
-  const interesadosSinContacto = rows.filter((r) => esInteresado(r) && r.tipo === "anonima").length;
+  const conContacto = rows.filter(dejoContacto).length;
+  const interesadosSinContacto = Math.max(0, interesados - conContacto);
   return {
     total,
     interesados,
@@ -51,7 +61,7 @@ export function resumen(rows: InteresRow[]) {
     cuentan,
     conContacto,
     interesadosSinContacto,
-    pctContactoInteresados: pct(interesados - interesadosSinContacto, interesados),
+    pctContactoInteresados: pct(conContacto, interesados),
   };
 }
 
@@ -98,16 +108,15 @@ export function porDia(rows: InteresRow[], now = new Date()) {
 
 export type EmbudoPaso = { key: string; label: string; c: number; pctTotal: number; pctPrev: number };
 
-/** Embudo: respuestas → interesados → "Sí" → con contacto. */
+/** Tres subconjuntos anidados; un contacto vacío nunca cuenta como conversión. */
 export function embudo(rows: InteresRow[]): EmbudoPaso[] {
   const r = resumen(rows);
   const pasos = [
     { key: "total", label: "Respondieron", c: r.total },
     { key: "interesados", label: "Interesados", c: r.interesados },
-    { key: "cuentan", label: "Cuenten conmigo", c: r.cuentan },
     { key: "contacto", label: "Dejaron contacto", c: r.conContacto },
   ];
-  return pasos.map((p, i) => ({ ...p, pctTotal: pct(p.c, r.total), pctPrev: i === 0 ? 1 : pct(p.c, pasos[i - 1].c) }));
+  return pasos.map((p, i) => ({ ...p, pctTotal: pct(p.c, r.total), pctPrev: i === 0 ? 1 : Math.min(1, Math.max(0, pct(p.c, pasos[i - 1].c))) }));
 }
 
 /** Tabla cruzada de conteos: filas × columnas (multi-valor soportado). */
@@ -123,11 +132,15 @@ export function cruce(rows: InteresRow[], fila: keyof InteresRow, col: keyof Int
   }
   const colOrder = Object.keys(LABELS[col as string] ?? {}).filter((k) => cols.has(k));
   const colKeys = [...colOrder, ...[...cols].filter((k) => !colOrder.includes(k))];
-  const filaKeys = [...filas.keys()].sort((a, b) => sum(filas.get(b)!) - sum(filas.get(a)!));
+  const filaKeys = [...filas.keys()].sort((a, b) => sum(filas.get(b)) - sum(filas.get(a)));
+  const valores = filaKeys.map((k) => colKeys.map((c) => filas.get(k)?.get(c) ?? 0));
+  const totales = colKeys.map((_, i) => valores.reduce((s, f) => s + f[i], 0));
   return {
     cols: colKeys.map((k) => ({ key: k, label: LABELS[col as string]?.[k] ?? k })),
-    filas: filaKeys.map((k) => ({ key: k, label: LABELS[fila as string]?.[k] ?? k, valores: colKeys.map((c) => filas.get(k)!.get(c) ?? 0) })),
+    filas: filaKeys.map((k, i) => ({ key: k, label: LABELS[fila as string]?.[k] ?? k, valores: valores[i], total: valores[i].reduce((a, b) => a + b, 0) })),
+    totales,
+    total: totales.reduce((a, b) => a + b, 0),
     max: Math.max(0, ...[...filas.values()].flatMap((m) => [...m.values()])),
   };
 }
-const sum = (m: Map<string, number>) => [...m.values()].reduce((a, b) => a + b, 0);
+const sum = (m?: Map<string, number>) => [...(m?.values() ?? [])].reduce((a, b) => a + b, 0);

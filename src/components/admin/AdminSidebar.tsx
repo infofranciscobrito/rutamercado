@@ -11,7 +11,7 @@ import logoAsset from "@/assets/rutamercado-logo-white.png";
 
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
-  { to: "/admin/encuesta", label: "Encuesta de para validación de membresia", icon: ClipboardList },
+  { to: "/admin/encuesta", label: "Encuesta para validación de membresía", icon: ClipboardList },
   { to: "/admin/mesas-aliadas", label: "Mesas Aliadas · Interés", icon: Handshake },
   { to: "/admin/markets", label: "Mercados", icon: Store },
   { to: "/admin/producers", label: "Productores", icon: Users },

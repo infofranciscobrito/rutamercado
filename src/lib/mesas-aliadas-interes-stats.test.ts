@@ -1,10 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { filtrar, resumen, conteo, descuentoInteresados, porDia, type InteresRow } from "./mesas-aliadas-interes-stats";
+import { filtrar, resumen, conteo, descuentoInteresados, porDia, whatsappUrl, type InteresRow } from "./mesas-aliadas-interes-stats";
 
 const row = (o: Partial<InteresRow>): InteresRow => ({
   is_test: false, completada_en: "2026-11-19T15:00:00Z", categoria: "comida", frecuencia: "2_3",
-  ticket: "10_25", descuento: "10", recibir: ["nuevos"], interes: "si", tipo: "con_contacto", origen: "directo", ...o,
+  ticket: "10_25", descuento: "10", recibir: ["nuevos"], interes: "si", tipo: "con_contacto", origen: "directo", negocio: "Mesa ejemplo", ...o,
 });
 
 const rows = [
@@ -55,20 +55,43 @@ import { embudo as _embudo, cruce as _cruce } from "./mesas-aliadas-interes-stat
 describe("embudo y cruce", () => {
   const base = { is_test: false, completada_en: null, categoria: "comida", frecuencia: "2_3", ticket: "10_25", descuento: "10", recibir: [], origen: "directo" };
   const rows: InteresRow[] = [
-    { ...base, interes: "si", tipo: "con_contacto" },
+    { ...base, interes: "si", tipo: "con_contacto", email: "prueba@example.com" },
     { ...base, interes: "info", tipo: "anonima", categoria: "ropa", descuento: "5" },
     { ...base, interes: "no", tipo: "anonima" },
     { ...base, interes: "no", tipo: "anonima" },
   ];
   it("embudo calcula conversión paso a paso", () => {
     const e = _embudo(rows);
-    assert.deepStrictEqual(e.map((p) => p.c), [4, 2, 1, 1]);
+    assert.deepStrictEqual(e.map((p) => p.c), [4, 2, 1]);
     assert.strictEqual(e[1].pctPrev, 0.5);
-    assert.strictEqual(e[3].pctTotal, 0.25);
+    assert.strictEqual(e[2].pctTotal, 0.25);
   });
   it("cruce cuenta categoría × descuento", () => {
     const c = _cruce(rows, "categoria", "descuento");
     assert.strictEqual(c.filas[0].key, "comida"); assert.deepStrictEqual(c.filas[0].valores, [0, 3]);
     assert.deepStrictEqual(c.cols.map((x) => x.key), ["5", "10"]);
+    assert.deepStrictEqual(c.totales, [1, 3]);
+    assert.strictEqual(c.total, 4);
+    assert.strictEqual(c.filas[0].total, 3);
+  });
+  it("el contacto de info pertenece al tercer paso y nunca supera el anterior", () => {
+    const e = _embudo([row({ interes: "si" }), row({ interes: "info", email: "a@example.com" }), row({ interes: "info", telefono: "7875551234" }), row({ interes: "no" })]);
+    assert.deepStrictEqual(e.map((p) => p.c), [4, 3, 3]);
+    assert.strictEqual(e[2].pctPrev, 1);
+    assert.ok(e.every((p) => p.pctPrev <= 1));
+  });
+  it("sin negocio, instagram, correo ni teléfono no cuenta como contacto", () => {
+    const r = resumen([row({ negocio: "  ", instagram: null, email: null, telefono: null })]);
+    assert.strictEqual(r.conContacto, 0);
+    assert.strictEqual(r.interesadosSinContacto, 1);
+    assert.strictEqual(r.pctContactoInteresados, 0);
+  });
+  it("un contacto negativo no entra al subconjunto de interesados", () => {
+    assert.strictEqual(resumen([row({ interes: "no" })]).conContacto, 0);
+  });
+  it("WhatsApp usa país 1 y rechaza números incompletos", () => {
+    assert.strictEqual(whatsappUrl("(787) 555-1234"), "https://wa.me/17875551234");
+    assert.strictEqual(whatsappUrl("+1 939 555 1234"), "https://wa.me/19395551234");
+    assert.strictEqual(whatsappUrl("123"), null);
   });
 });

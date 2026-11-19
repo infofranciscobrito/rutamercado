@@ -1,4 +1,5 @@
 # Correcciones de encuesta v2
+- [x] Ajustar y verificar el panel Mesas Aliadas: embudo anidado, avisos, cuatro KPIs, gráficas, totales y contactos; etiqueta del menú corregida, 12 pruebas aprobadas y revisión con sesión admin en escritorio y 375 px sin errores ni cambios en los datos.
 - [x] Restaurar modo prueba de registro solo por ?test=1; formulario sin Mesas Aliadas verificado y cuatro pruebas aprobadas.
 - [ ] Publicar el formulario sin Mesas Aliadas: pendiente porque se rechazó la publicación.
 - [x] Revisar tarjeta del dashboard, cálculos, guardado, exportaciones, confirmación, enlaces, sitemap, tracking y migraciones; corregir tarjeta general y retirar cálculos antiguos; verificar las cinco alertas como administrador y ejecutar 28 pruebas actuales. Exportación y correo revisados por código, no mediante envío/descarga.
