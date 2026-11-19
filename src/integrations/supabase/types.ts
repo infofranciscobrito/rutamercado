@@ -693,6 +693,78 @@ export type Database = {
         }
         Relationships: []
       }
+      mesas_aliadas_interes: {
+        Row: {
+          categoria: string
+          completada_en: string | null
+          consentimiento: boolean
+          created_at: string
+          descuento: string
+          dispositivo: string | null
+          email: string | null
+          frecuencia: string
+          id: string
+          id_respuesta: string
+          iniciada_en: string | null
+          instagram: string | null
+          interes: string
+          is_test: boolean
+          negocio: string | null
+          origen: string
+          recibir: string[]
+          telefono: string | null
+          ticket: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          categoria: string
+          completada_en?: string | null
+          consentimiento?: boolean
+          created_at?: string
+          descuento: string
+          dispositivo?: string | null
+          email?: string | null
+          frecuencia: string
+          id?: string
+          id_respuesta: string
+          iniciada_en?: string | null
+          instagram?: string | null
+          interes: string
+          is_test?: boolean
+          negocio?: string | null
+          origen?: string
+          recibir?: string[]
+          telefono?: string | null
+          ticket: string
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          completada_en?: string | null
+          consentimiento?: boolean
+          created_at?: string
+          descuento?: string
+          dispositivo?: string | null
+          email?: string | null
+          frecuencia?: string
+          id?: string
+          id_respuesta?: string
+          iniciada_en?: string | null
+          instagram?: string | null
+          interes?: string
+          is_test?: boolean
+          negocio?: string | null
+          origen?: string
+          recibir?: string[]
+          telefono?: string | null
+          ticket?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string
