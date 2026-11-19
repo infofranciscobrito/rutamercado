@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert";
 import { filtrar, resumen, conteo, descuentoInteresados, porDia, type InteresRow } from "./mesas-aliadas-interes-stats";
 
 const row = (o: Partial<InteresRow>): InteresRow => ({
@@ -16,36 +17,36 @@ const rows = [
 
 describe("mesas aliadas interés stats", () => {
   it("excluye pruebas por defecto", () => {
-    expect(filtrar(rows, { mostrarPruebas: false })).toHaveLength(4);
-    expect(filtrar(rows, { mostrarPruebas: true })).toHaveLength(5);
+    assert.strictEqual(filtrar(rows, { mostrarPruebas: false }).length, 4);
+    assert.strictEqual(filtrar(rows, { mostrarPruebas: true }).length, 5);
   });
   it("% de interesados = sí + info", () => {
     const r = resumen(filtrar(rows, { mostrarPruebas: false }));
-    expect(r.interesados).toBe(2);
-    expect(r.pctInteresados).toBe(0.5);
-    expect(r.cuentan).toBe(1);
+    assert.strictEqual(r.interesados, 2);
+    assert.strictEqual(r.pctInteresados, 0.5);
+    assert.strictEqual(r.cuentan, 1);
   });
   it("interesados sin contacto", () => {
     const r = resumen(filtrar(rows, { mostrarPruebas: false }));
-    expect(r.interesadosSinContacto).toBe(1);
-    expect(r.pctContactoInteresados).toBe(0.5);
+    assert.strictEqual(r.interesadosSinContacto, 1);
+    assert.strictEqual(r.pctContactoInteresados, 0.5);
   });
   it("% de recibir es sobre personas", () => {
     const items = conteo(filtrar(rows, { mostrarPruebas: false }), "recibir");
     const nuevos = items.find((i) => i.key === "nuevos")!;
-    expect(nuevos.c).toBe(3);
-    expect(nuevos.pct).toBe(0.75);
-    expect(items.reduce((s, i) => s + i.pct, 0)).toBeGreaterThan(1);
+    assert.strictEqual(nuevos.c, 3);
+    assert.strictEqual(nuevos.pct, 0.75);
+    assert.ok(items.reduce((s, i) => s + i.pct, 0) > 1);
   });
   it("descuento solo entre interesados", () => {
     const d = descuentoInteresados(filtrar(rows, { mostrarPruebas: false }));
-    expect(d.find((i) => i.key === "5")!.c).toBe(0);
-    expect(d.find((i) => i.key === "10")!.c).toBe(1);
-    expect(d[0].n).toBe(2);
+    assert.strictEqual(d.find((i) => i.key === "5")!.c, 0);
+    assert.strictEqual(d.find((i) => i.key === "10")!.c, 1);
+    assert.strictEqual(d[0].n, 2);
   });
   it("porDia agrupa en hora de Puerto Rico", () => {
     const d = porDia([row({ completada_en: "2026-11-20T02:00:00Z" })], new Date("2026-11-20T12:00:00Z"));
-    expect(d).toHaveLength(30);
-    expect(d.find((x) => x.date === "2026-11-19")!.respuestas).toBe(1);
+    assert.strictEqual(d.length, 30);
+    assert.strictEqual(d.find((x) => x.date === "2026-11-19")!.respuestas, 1);
   });
 });
