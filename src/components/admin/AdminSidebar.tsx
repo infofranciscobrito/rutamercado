@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, ClipboardList, Store, TrendingUp, LogOut, Inbox, Users, Mail, Briefcase, Send } from "lucide-react";
+import { BarChart3, ClipboardList, Store, TrendingUp, LogOut, Inbox, Users, Mail, Briefcase, Send, Handshake } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { countPendingSubmissions } from "@/lib/submissions.functions";
 import { countNewContactMessages } from "@/lib/contact.functions";
@@ -12,6 +12,7 @@ import logoAsset from "@/assets/rutamercado-logo-white.png";
 const items = [
   { to: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/encuesta", label: "Encuesta de para validación de membresia", icon: ClipboardList },
+  { to: "/admin/mesas-aliadas", label: "Mesas Aliadas · Interés", icon: Handshake },
   { to: "/admin/markets", label: "Mercados", icon: Store },
   { to: "/admin/producers", label: "Productores", icon: Users },
   { to: "/admin/emprendedores", label: "Registro de negocios", icon: Briefcase },

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Store, Eye, CalendarDays, MousePointerClick, Users, Link2, ClipboardList } from "lucide-react";
+import { Store, Eye, CalendarDays, MousePointerClick, Users, Link2, ClipboardList, Handshake } from "lucide-react";
 import { listEncuestaRespuestas } from "@/lib/encuesta.functions";
 import { compradorCalificado, filterRows, fmtProp } from "@/lib/encuesta-stats";
 import {
@@ -24,6 +24,8 @@ import {
   getTopMarketsByIntention,
   getShortUrlClicks,
 } from "@/lib/admin-analytics.functions";
+import { listMesasAliadasInteres } from "@/lib/mesas-aliadas-interes.functions";
+import { filtrar as filtrarMesas, resumen as resumenMesas } from "@/lib/mesas-aliadas-interes-stats";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { formatDateEs } from "@/lib/format";
 import {
@@ -100,6 +102,10 @@ function DashboardPage() {
   const encuestaLista = encuestaRows.filter((r) => r.consentimiento_email === true).length;
   const encuestaCalificados = encuestaRows.filter(compradorCalificado).length;
   const shortUrlFn = useServerFn(getShortUrlClicks);
+  const mesasFn = useServerFn(listMesasAliadasInteres);
+  const mesas = useQuery({ queryKey: ["admin", "mesas-aliadas"], queryFn: () => mesasFn() });
+  const mesasResumen = resumenMesas(filtrarMesas(mesas.data ?? [], { mostrarPruebas: false }));
+
   const shortUrl = useQuery({
     queryKey: ["admin", "dashboard", "shortUrlClicks"],
     queryFn: () => logFetch("dashboard shortUrlClicks", () => shortUrlFn()),
@@ -155,6 +161,14 @@ function DashboardPage() {
             value={encuestaRows.length}
             icon={ClipboardList}
             subtext={`${encuestaLista} en lista de espera · Comprador calificado: ${fmtProp(encuestaCalificados, encuestaRows.length)} · n = ${encuestaRows.length}`}
+          />
+        </Link>
+        <Link to="/admin/mesas-aliadas" className="block rounded-xl transition hover:shadow-md">
+          <MetricCard
+            label="Mesas Aliadas · Interés"
+            value={mesasResumen.total}
+            icon={Handshake}
+            subtext={`${mesasResumen.interesados} interesados · ${mesasResumen.conContacto} dejaron contacto`}
           />
         </Link>
       </div>
