@@ -50,3 +50,25 @@ describe("mesas aliadas interés stats", () => {
     assert.strictEqual(d.find((x) => x.date === "2026-11-19")!.respuestas, 1);
   });
 });
+
+import { embudo as _embudo, cruce as _cruce } from "./mesas-aliadas-interes-stats";
+describe("embudo y cruce", () => {
+  const base = { is_test: false, completada_en: null, categoria: "comida", frecuencia: "2_3", ticket: "10_25", descuento: "10", recibir: [], origen: "directo" };
+  const rows: InteresRow[] = [
+    { ...base, interes: "si", tipo: "con_contacto" },
+    { ...base, interes: "info", tipo: "anonima", categoria: "ropa", descuento: "5" },
+    { ...base, interes: "no", tipo: "anonima" },
+    { ...base, interes: "no", tipo: "anonima" },
+  ];
+  it("embudo calcula conversión paso a paso", () => {
+    const e = _embudo(rows);
+    assert.deepStrictEqual(e.map((p) => p.c), [4, 2, 1, 1]);
+    assert.strictEqual(e[1].pctPrev, 0.5);
+    assert.strictEqual(e[3].pctTotal, 0.25);
+  });
+  it("cruce cuenta categoría × descuento", () => {
+    const c = _cruce(rows, "categoria", "descuento");
+    assert.strictEqual(c.filas[0].key, "comida"); assert.deepStrictEqual(c.filas[0].valores, [0, 3]);
+    assert.deepStrictEqual(c.cols.map((x) => x.key), ["5", "10"]);
+  });
+});

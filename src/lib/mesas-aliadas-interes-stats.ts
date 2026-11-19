@@ -95,3 +95,39 @@ export function porDia(rows: InteresRow[], now = new Date()) {
   }
   return days;
 }
+
+export type EmbudoPaso = { key: string; label: string; c: number; pctTotal: number; pctPrev: number };
+
+/** Embudo: respuestas → interesados → "Sí" → con contacto. */
+export function embudo(rows: InteresRow[]): EmbudoPaso[] {
+  const r = resumen(rows);
+  const pasos = [
+    { key: "total", label: "Respondieron", c: r.total },
+    { key: "interesados", label: "Interesados", c: r.interesados },
+    { key: "cuentan", label: "Cuenten conmigo", c: r.cuentan },
+    { key: "contacto", label: "Dejaron contacto", c: r.conContacto },
+  ];
+  return pasos.map((p, i) => ({ ...p, pctTotal: pct(p.c, r.total), pctPrev: i === 0 ? 1 : pct(p.c, pasos[i - 1].c) }));
+}
+
+/** Tabla cruzada de conteos: filas × columnas (multi-valor soportado). */
+export function cruce(rows: InteresRow[], fila: keyof InteresRow, col: keyof InteresRow) {
+  const filas = new Map<string, Map<string, number>>();
+  const cols = new Set<string>();
+  const vals = (v: unknown) => (Array.isArray(v) ? v : v == null || v === "" ? [] : [String(v)]);
+  for (const r of rows) for (const f of vals(r[fila])) for (const c of vals(r[col])) {
+    cols.add(c);
+    const m = filas.get(f) ?? new Map<string, number>();
+    m.set(c, (m.get(c) ?? 0) + 1);
+    filas.set(f, m);
+  }
+  const colOrder = Object.keys(LABELS[col as string] ?? {}).filter((k) => cols.has(k));
+  const colKeys = [...colOrder, ...[...cols].filter((k) => !colOrder.includes(k))];
+  const filaKeys = [...filas.keys()].sort((a, b) => sum(filas.get(b)!) - sum(filas.get(a)!));
+  return {
+    cols: colKeys.map((k) => ({ key: k, label: LABELS[col as string]?.[k] ?? k })),
+    filas: filaKeys.map((k) => ({ key: k, label: LABELS[fila as string]?.[k] ?? k, valores: colKeys.map((c) => filas.get(k)!.get(c) ?? 0) })),
+    max: Math.max(0, ...[...filas.values()].flatMap((m) => [...m.values()])),
+  };
+}
+const sum = (m: Map<string, number>) => [...m.values()].reduce((a, b) => a + b, 0);
