@@ -34,6 +34,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as MercadosIndexRouteImport } from './routes/mercados/index'
 import { Route as MercadosSlugRouteImport } from './routes/mercados/$slug'
+import { Route as MesasAliadasInteresRouteImport } from './routes/mesas-aliadas.interes'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminAnalyticsRouteImport } from './routes/_admin/admin.analytics'
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin.dashboard'
@@ -169,6 +170,11 @@ const MercadosSlugRoute = MercadosSlugRouteImport.update({
   path: '/mercados/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MesasAliadasInteresRoute = MesasAliadasInteresRouteImport.update({
+  id: '/mesas-aliadas/interes',
+  path: '/mesas-aliadas/interes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/mercados/$slug': typeof MercadosSlugRoute
+  '/mesas-aliadas/interes': typeof MesasAliadasInteresRoute
   '/mercados/': typeof MercadosIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/mercados/$slug': typeof MercadosSlugRoute
+  '/mesas-aliadas/interes': typeof MesasAliadasInteresRoute
   '/mercados': typeof MercadosIndexRoute
   '/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/mercados/$slug': typeof MercadosSlugRoute
+  '/mesas-aliadas/interes': typeof MesasAliadasInteresRoute
   '/mercados/': typeof MercadosIndexRoute
   '/_admin/admin/analytics': typeof AdminAdminAnalyticsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/login'
     | '/mercados/$slug'
+    | '/mesas-aliadas/interes'
     | '/mercados/'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/login'
     | '/mercados/$slug'
+    | '/mesas-aliadas/interes'
     | '/mercados'
     | '/admin/analytics'
     | '/admin/dashboard'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/login'
     | '/mercados/$slug'
+    | '/mesas-aliadas/interes'
     | '/mercados/'
     | '/_admin/admin/analytics'
     | '/_admin/admin/dashboard'
@@ -467,6 +479,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
   MercadosSlugRoute: typeof MercadosSlugRoute
+  MesasAliadasInteresRoute: typeof MesasAliadasInteresRoute
   MercadosIndexRoute: typeof MercadosIndexRoute
 }
 
@@ -647,6 +660,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MercadosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mesas-aliadas/interes': {
+      id: '/mesas-aliadas/interes'
+      path: '/mesas-aliadas/interes'
+      fullPath: '/mesas-aliadas/interes'
+      preLoaderRoute: typeof MesasAliadasInteresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_admin/admin/': {
       id: '/_admin/admin/'
       path: '/admin'
@@ -773,6 +793,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
   MercadosSlugRoute: MercadosSlugRoute,
+  MesasAliadasInteresRoute: MesasAliadasInteresRoute,
   MercadosIndexRoute: MercadosIndexRoute,
 }
 export const routeTree = rootRouteImport
