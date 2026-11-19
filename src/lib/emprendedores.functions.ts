@@ -159,6 +159,7 @@ const RegisterSchema = z
         { message: "Máximo 20 palabras." },
       ),
     artesano_certificado: z.enum(ARTESANO_CERTIFICADO_OPTIONS).nullable().optional(),
+    test_query: z.string().max(20).nullable().optional(),
     logo_base64: z.string().max(8_500_000).optional(),
     logo_filename: z.string().max(200).optional(),
     logo_mime: z.enum(["image/jpeg", "image/png"]).optional(),
@@ -229,7 +230,7 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
 
         logo_url: logoUrl,
         status: "pending",
-        ...businessRegistrationDefaults(),
+        ...businessRegistrationDefaults(data.test_query),
       })
       .select("id")
       .single();
@@ -247,7 +248,7 @@ export const submitEmprendedor = createServerFn({ method: "POST" })
           body: JSON.stringify({
             from: "RutaMercado <emprendedores@rutamercadopr.com>",
             to: ["rutamercadopr@gmail.com"],
-            subject: `Nuevo registro de negocio — ${data.nombre_negocio}`,
+            subject: `${data.test_query === "1" ? "[PRUEBA] " : ""}Nuevo registro de negocio — ${data.nombre_negocio}`,
             text:
               `Negocio: ${data.nombre_negocio}\n` +
               `Categoría: ${data.categoria_producto}${data.categoria_producto === "Otro" && data.categoria_otro ? ` (${data.categoria_otro})` : ""}\n` +

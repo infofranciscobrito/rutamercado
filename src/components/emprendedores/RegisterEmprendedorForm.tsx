@@ -153,7 +153,7 @@ export function RegisterEmprendedorForm({ onSuccess }: Props) {
           categoria_otro:
             categoria === "Otro" ? (categoriaOtro.trim() || null) : null,
           artesano_certificado: (artesanoCert || null) as never,
-
+          test_query: new URLSearchParams(window.location.search).get("test"),
           ...(logoPayload ?? {}),
         },
       });

@@ -1,4 +1,5 @@
 # Correcciones de encuesta v2
+- [ ] Restaurar modo prueba de registro solo por ?test=1 y publicar el formulario sin Mesas Aliadas.
 - [x] Revisar tarjeta del dashboard, cálculos, guardado, exportaciones, confirmación, enlaces, sitemap, tracking y migraciones; corregir tarjeta general y retirar cálculos antiguos; verificar las cinco alertas como administrador y ejecutar 28 pruebas actuales. Exportación y correo revisados por código, no mediante envío/descarga.
 - [x] Corregir saltos de frenos y plan, precio mensual y texto final.
 - [x] Unificar los supuestos de ahorro entre encuesta y panel.
