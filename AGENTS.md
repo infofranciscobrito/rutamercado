@@ -5,3 +5,4 @@
 - Survey prices, spending and visit assumptions live in the browser-safe survey model shared by questions and analytics, preventing contradictory estimates.
 - Survey aliases redirect to the single survey route preserving the original query string so printed QR attribution and test mode survive.
 - Public business registration applies server-owned defaults from `businessRegistrationDefaults`; keep these separate from admin editing to prevent unrelated program enrollment, and accept test status only from the exact test=1 link parameter.
+- Business profile administration must not expose or export legacy program-enrollment fields; profile saves clear those fields so directory edits cannot restore unrelated enrollment.

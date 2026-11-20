@@ -65,11 +65,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BusinessAnalyticsDashboard } from "@/components/admin/BusinessAnalyticsDashboard";
-import { MesasAliadasFields, EMPTY_ALIADA } from "@/components/emprendedores/MesasAliadasFields";
-import { Switch } from "@/components/ui/switch";
-import { resumenAliadas, cleanAliada, labelOf, DISCOUNT_WILLING, DISCOUNT_OFFER, NEEDS, FOUNDER_GOAL } from "@/lib/mesas-aliadas";
+import { businessRegistrationDefaults } from "@/lib/business-registration-defaults";
 
 export const Route = createFileRoute("/_admin/admin/emprendedores")({
+  head: () => ({
+    meta: [
+      { title: "Registro de negocios · Administración | RutaMercado" },
+      { name: "description", content: "Revisión y administración de los perfiles del Directorio de Negocios de RutaMercado." },
+      { property: "og:title", content: "Registro de negocios · Administración | RutaMercado" },
+      { property: "og:description", content: "Revisión y administración de los perfiles del Directorio de Negocios de RutaMercado." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: EmprendedoresAdminPage,
 });
 
@@ -108,12 +116,6 @@ function exportRows(rows: AdminEmprendedor[], name: string) {
       "Canales de venta": r.canales_venta.join(" | "),
       "Tamaño de equipo": r.tamano_equipo ?? "",
       "Prueba": r.is_test ? "Sí" : "",
-      "¿Ofrecería descuento?": labelOf(DISCOUNT_WILLING, r.discount_willing),
-      "Descuento": labelOf(DISCOUNT_OFFER, r.discount_offer),
-      "Otra oferta": r.discount_offer_other ?? "",
-      "Necesidades para participar": (r.participation_needs ?? []).map((n) => labelOf(NEEDS, n)).join(" | "),
-      "Otra necesidad": r.participation_needs_other ?? "",
-      "Quiere ser Fundadora": r.wants_founder === true ? "Sí" : r.wants_founder === false ? "No" : "",
       Logo: r.logo_url ?? "",
       "Fecha de registro": new Date(r.created_at).toISOString(),
     })),
@@ -145,8 +147,7 @@ const emptyItem = (): AdminEmprendedor => ({
   mensaje_privado: null,
   status: "approved",
   created_at: new Date().toISOString(),
-  is_test: false,
-  ...EMPTY_ALIADA,
+  ...businessRegistrationDefaults(),
 });
 
 function EmprendedoresAdminPage() {
@@ -166,8 +167,6 @@ function EmprendedoresAdminPage() {
   const [tab, setTab] = useState<"approved" | "pending" | "rejected">("pending");
   const [editing, setEditing] = useState<AdminEmprendedor | null>(null);
   const [deleting, setDeleting] = useState<AdminEmprendedor | null>(null);
-  const [soloFundadoras, setSoloFundadoras] = useState(false);
-  const resumen = useMemo(() => resumenAliadas(data), [data]);
 
 
   const counts = useMemo(
@@ -181,7 +180,7 @@ function EmprendedoresAdminPage() {
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    const byTab = data.filter((r) => r.status === tab && (!soloFundadoras || r.wants_founder === true));
+    const byTab = data.filter((r) => r.status === tab);
     if (!term) return byTab;
     return byTab.filter(
       (r) =>
@@ -191,7 +190,7 @@ function EmprendedoresAdminPage() {
         (r.municipio ?? "").toLowerCase().includes(term) ||
         (r.email ?? "").toLowerCase().includes(term),
     );
-  }, [data, q, tab, soloFundadoras]);
+  }, [data, q, tab]);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "emprendedores"] });
@@ -244,36 +243,6 @@ function EmprendedoresAdminPage() {
         </Button>
       </div>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="rounded-xl border-2 border-[#54b678] bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#18253f]/60">Mesas Aliadas Fundadoras</p>
-          <p className="font-display text-3xl text-[#18253f] tabular-nums">{resumen.fundadoras} de {FOUNDER_GOAL}</p>
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#18253f]/60">Respondieron Mesas Aliadas</p>
-          <p className="font-display text-3xl text-[#18253f] tabular-nums">{resumen.n}</p>
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#18253f]/60">Dispuestos (Sí + Tal vez)</p>
-          <p className="font-display text-3xl text-[#18253f] tabular-nums">{resumen.n ? `${Math.round(resumen.pctDispuestos * 100)}%` : "—"}</p>
-          <p className="text-xs text-[#18253f]/60">{resumen.dispuestos} de {resumen.n}</p>
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#18253f]/60">Descuento más común</p>
-          <p className="font-display text-3xl text-[#18253f]">{resumen.descuentoComun?.label ?? "—"}</p>
-          {resumen.descuentoComun && <p className="text-xs text-[#18253f]/60">{resumen.descuentoComun.c} {resumen.descuentoComun.c === 1 ? "negocio" : "negocios"}</p>}
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#18253f]/60">Necesidades principales</p>
-          {resumen.necesidades.length === 0 ? <p className="text-sm text-[#18253f]/60">—</p> : (
-            <ul className="mt-1 space-y-0.5 text-sm text-[#18253f]">
-              {resumen.necesidades.slice(0, 3).map((x) => <li key={x.v} className="flex justify-between gap-2"><span>{x.label}</span><b>{x.c}</b></li>)}
-            </ul>
-          )}
-        </div>
-      </section>
-      <p className="-mt-3 text-xs text-[#18253f]/60">Los registros de prueba no cuentan en este resumen.</p>
-
       <div className="inline-flex rounded-lg border bg-white p-1 shadow-sm">
         <button
           type="button"
@@ -310,10 +279,6 @@ function EmprendedoresAdminPage() {
           </TabsList>
         </Tabs>
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-          <label className="flex shrink-0 items-center gap-2 text-sm text-[#18253f]">
-            <Switch checked={soloFundadoras} onCheckedChange={setSoloFundadoras} />
-            Solo interesados en ser Fundadora
-          </label>
           <div className="relative w-full sm:w-72">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -388,7 +353,6 @@ function EmprendedoresAdminPage() {
                         <div className="font-medium text-[#18253f]">
                           {r.nombre_negocio}
                           {r.is_test && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">Prueba</span>}
-                          {r.wants_founder && <span className="ml-2 rounded-full bg-[#54b678]/15 px-2 py-0.5 text-xs font-semibold text-[#2f7a4c]">Fundadora</span>}
                         </div>
                         <div className="line-clamp-1 max-w-xs text-xs text-[#18253f]/60">
                           {r.descripcion}
@@ -554,7 +518,12 @@ function EmprendedorEditor({
           categoria_otro: form.categoria_otro ?? null,
           artesano_certificado: (form.artesano_certificado as never) ?? null,
           logo_url: form.logo_url,
-          ...cleanAliada(form),
+          discount_willing: null,
+          discount_offer: null,
+          discount_offer_other: null,
+          participation_needs: null,
+          participation_needs_other: null,
+          wants_founder: null,
         },
       });
       toast.success("Negocio guardado.");
@@ -826,15 +795,6 @@ function EmprendedorEditor({
               className="mt-2"
             />
           </div>
-          <div className="border-t pt-4">
-            <p className="mb-3 font-display text-lg text-[#18253f]">Mesas Aliadas RutaLover</p>
-            <MesasAliadasFields
-              value={form}
-              onChange={(v) => setForm((f) => ({ ...f, ...v }))}
-              idPrefix="admin-ma"
-            />
-          </div>
-
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
               Cancelar
