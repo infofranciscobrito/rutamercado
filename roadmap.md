@@ -1,5 +1,6 @@
 # Correcciones de encuesta v2
 - [x] Limpiar selecciones heredadas de Mesas Aliadas en cuatro perfiles, retirar controles y exportación del administrador; verificar cero perfiles con selecciones, 220 negocios intactos, nueve respuestas independientes intactas, cuatro pruebas aprobadas y editor autenticado sin errores. Los cambios de pantalla requieren publicación.
+- [x] Revisar separación en formulario y diálogo de registro, directorio y perfiles públicos, guardado y notificación, administrador y exportaciones, analíticas, encuesta independiente y su dashboard; corregir guardado administrativo y lecturas/exportaciones heredadas. Funciones y trigger de base de datos revisados, sin vinculación automática; 17 pruebas aprobadas, descarga CSV y editor autenticado verificados. No se enviaron correos ni se crearon registros nuevos.
 - [x] Ajustar y verificar el panel Mesas Aliadas: embudo anidado, avisos, cuatro KPIs, gráficas, totales y contactos; etiqueta del menú corregida, 12 pruebas aprobadas y revisión con sesión admin en escritorio y 375 px sin errores ni cambios en los datos.
 - [x] Restaurar modo prueba de registro solo por ?test=1; formulario sin Mesas Aliadas verificado y cuatro pruebas aprobadas.
 - [ ] Publicar el formulario sin Mesas Aliadas: pendiente porque se rechazó la publicación.

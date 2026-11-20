@@ -1,6 +1,19 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { businessRegistrationDefaults } from "./business-registration-defaults";
+import { businessRegistrationDefaults, businessProfileProgramDefaults } from "./business-registration-defaults";
+
+test("admin profile writes discard all legacy Mesas Aliadas choices without changing test status", () => {
+  const result = businessProfileProgramDefaults({
+    discount_willing: "si", discount_offer: "10", discount_offer_other: "Oferta",
+    participation_needs: ["visibilidad"], participation_needs_other: "Material",
+    wants_founder: true, is_test: true,
+  });
+  assert.deepEqual(result, {
+    discount_willing: null, discount_offer: null, discount_offer_other: null,
+    participation_needs: null, participation_needs_other: null, wants_founder: null,
+  });
+  assert.equal("is_test" in result, false);
+});
 
 test("public business registrations are not tests", () => {
   assert.equal(businessRegistrationDefaults().is_test, false);
