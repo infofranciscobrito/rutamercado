@@ -203,7 +203,7 @@ export function MesasAliadasInteresApp() {
           <div>
             <Eyebrow light>Mesas Aliadas · Programa en exploración</Eyebrow>
             <h1 className="mt-4 text-[40px] leading-[1.05] md:text-[60px]" style={SERIF}>
-              Mesas Aliadas: Que los clientes vuelvan a tu mesa <em className="text-[#8fd6ad]">que sigan apoyando tu negocio</em>
+              Mesas Aliadas: Que los clientes vuelvan a tu mesa <em className="text-[#8fd6ad]">y que sigan apoyando tu negocio</em>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
               Estamos evaluando lanzar un producto digital de descuentos para las personas que visitan los mercados locales cada fin de semana. Antes de construirlo, queremos saber si a tu negocio le interesaría ser parte como Mesa Aliada.
