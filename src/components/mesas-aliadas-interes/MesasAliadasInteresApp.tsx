@@ -206,11 +206,11 @@ export function MesasAliadasInteresApp() {
               Mesas Aliadas: que vuelvan a tu mesa, <em className="text-[#8fd6ad]">que sigan apoyando lo tuyo.</em>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
-              Detrás de tu mesa hay madrugadas, esfuerzo y mucho corazón. Sabemos lo que significa que alguien compre lo que haces y vuelva a buscarte. Por eso estamos explorando Mesas Aliadas: una iniciativa para darle a esa persona una razón más para regresar. Queremos construirla escuchándote.
+              Estamos evaluando lanzar un producto digital de descuentos para las personas que visitan los mercados locales cada fin de semana. Antes de construirlo, queremos saber si a tu negocio le interesaría ser parte como Mesa Aliada.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button type="button" onClick={scrollToQuiz} className={`min-h-[52px] rounded-full bg-[#54b678] px-7 text-base font-bold text-[#18253f] hover:-translate-y-0.5 ${MOTION} ${FOCUS}`}>
-                Quiero aportar mi opinión →
+                Contestar 6 preguntas →
               </button>
               <span className="text-sm text-white/75">2 minutos · Gratis · Sin compromiso</span>
             </div>
@@ -218,7 +218,7 @@ export function MesasAliadasInteresApp() {
           <div className="flex flex-col items-center">
             <div className="relative max-w-sm rounded-3xl bg-white p-5 text-[#18253f] shadow-xl">
               <p className="text-xs font-bold tracking-[0.18em] text-[#1f6b43]">MRMERCADO</p>
-              <p className="mt-2 text-base leading-snug">Tú conoces tu negocio mejor que nadie. ¿Qué te ayudaría a seguir creciendo? Te escuchamos.</p>
+              <p className="mt-2 text-base leading-snug">¿Vendes en los mercados? Cuéntame de tu mesa. Tu respuesta nos ayuda a decidir si lanzamos esto.</p>
               <span className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 bg-white" aria-hidden="true" />
             </div>
             <img src="/encuesta/mrmercado-saludo.png" alt="MrMercado saludando" className="mt-4 h-[340px] w-auto object-contain" />
@@ -233,7 +233,7 @@ export function MesasAliadasInteresApp() {
             <circle cx="12" cy="12" r="10" /><path d="M12 11v6M12 7.5h.01" />
           </svg>
           <p className="text-lg leading-relaxed">
-            <strong>Tu opinión cuenta, sin compromiso.</strong> Mesas Aliadas todavía está en exploración. No te estás inscribiendo ni aceptando una oferta. Si nos dejas tu correo y autorizas que te contactemos, podremos avisarte si el programa se lanza.
+            <strong>Esto no es una inscripción.</strong> El programa todavía no existe: estamos midiendo interés. Contestar no te compromete a nada, y si decidimos lanzarlo, te escribimos primero.
           </p>
         </div>
       </section>
@@ -241,18 +241,18 @@ export function MesasAliadasInteresApp() {
       {/* C. LA IDEA */}
       <section className="py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-5">
-          <Eyebrow>Una idea que queremos construir contigo</Eyebrow>
+          <Eyebrow>La idea</Eyebrow>
           <h2 className="mt-3 max-w-3xl text-3xl leading-tight md:text-[44px]" style={SERIF}>
-            Que una primera compra sea el comienzo, no la última visita.
+            Una membresía para quienes visitan los mercados. Un descuento en tu mesa.
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#44506a]">
-            La propuesta es una <strong className="text-[#18253f]">membresía digital</strong> para quienes disfrutan los mercados locales, con descuentos de 5% a 15% en las mesas participantes. Tú escogerías tu oferta. Queremos saber si esta idea hace sentido para tu negocio y qué necesitarías a cambio.
+            Los visitantes pagarían una <strong className="text-[#18253f]">membresía digital</strong> y recibirían de 5% a 15% de descuento en las Mesas Aliadas de los mercados locales. Tú escoges tu oferta.
           </p>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {[
-              ["1", "Una razón más para apoyar lo local", "La persona pagaría una membresía y llevaría su tarjeta digital con un QR personal en el celular."],
-              ["2", "Una forma de volver a encontrarte", "Cada jueves recibiría el RutaMapa con las Mesas Aliadas que estarían en los mercados ese fin de semana."],
-              ["3", "Una oferta que tú decides", "Escanearías su QR con la cámara de tu celular, sin descargar una app. Si la membresía está activa, aplicarías el descuento que escogiste."],
+              ["1", "El visitante se hace miembro", "Paga su membresía y recibe una tarjeta digital con un QR personal en su celular."],
+              ["2", "Te encuentra cada fin de semana", "Cada jueves recibe el RutaMapa con las Mesas Aliadas que estarán en los mercados de ese fin de semana."],
+              ["3", "Escaneas y aplicas tu descuento", "Con la cámara de tu celular, sin descargar ninguna app. Verde: está activo. Le aplicas tu oferta y listo."],
             ].map(([n, t, d]) => (
               <div key={n} className="rounded-[18px] border border-[#dde3ea] p-6">
                 <p className="text-5xl text-[#54b678]" style={SERIF}>{n}</p>
@@ -263,10 +263,10 @@ export function MesasAliadasInteresApp() {
           </div>
           <ul className="mt-10 grid gap-5 md:grid-cols-4">
             {[
-              ["Sin costo de participación.", " La propuesta sería gratis para tu negocio, sin contrato y con libertad de salir."],
-              ["Más motivos para regresar.", " Tu oferta sería una invitación a volver a comprar en tu mesa."],
-              ["Tu mesa en el RutaMapa.", " Los miembros podrían saber dónde encontrarte cada semana."],
-              ["Información para decidir.", " Un reporte mensual te ayudaría a ver cuántos miembros compraron y regresaron."],
+              ["Gratis para tu negocio.", " Sin contrato; sales cuando quieras."],
+              ["Clientes que regresan.", " Te buscan porque en tu mesa les rinde más."],
+              ["Visibilidad cada semana", " en el RutaMapa que reciben los miembros."],
+              ["Tus números.", " Un reporte mensual de cuántos miembros compraron y regresaron."],
             ].map(([b, r]) => (
               <li key={b} className="flex gap-3 leading-relaxed text-[#44506a]">
                 <Check /><span><strong className="text-[#18253f]">{b}</strong>{r}</span>
@@ -280,9 +280,9 @@ export function MesasAliadasInteresApp() {
       <section id="cuestionario" className="scroll-mt-4 bg-[#f3f5f8] py-16 md:py-24">
         <div className="mx-auto max-w-[760px] px-5">
           <div className="text-center">
-            <Eyebrow>Queremos escuchar tu experiencia</Eyebrow>
-            <h2 className="mt-3 text-3xl md:text-[44px]" style={SERIF}>Lo que tu negocio necesita importa.</h2>
-            <p className="mx-auto mt-4 max-w-xl text-[#44506a]">Son 6 preguntas y unos 2 minutos. Tus respuestas nos ayudarán a evaluar si Mesas Aliadas puede aportar a negocios como el tuyo. Las analizamos de forma agrupada; nunca publicamos el nombre de tu negocio.</p>
+            <Eyebrow>Cuéntanos de tu negocio</Eyebrow>
+            <h2 className="mt-3 text-3xl md:text-[44px]" style={SERIF}>6 preguntas. 2 minutos.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-[#44506a]">Usamos tus respuestas de forma agrupada para decidir si lanzamos el programa. Nunca publicamos el nombre de tu negocio.</p>
           </div>
 
           <div className="mt-10">
