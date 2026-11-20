@@ -3,9 +3,9 @@ import { MesasAliadasInteresApp } from "@/components/mesas-aliadas-interes/Mesas
 
 const URL = "https://rutamercadopr.com/mesas-aliadas/interes";
 const IMAGE = "https://rutamercadopr.com/og-mesas-aliadas.png";
-const TITLE = "¿Te interesa ser Mesa Aliada? | RutaMercado";
+const TITLE = "Mesas Aliadas: que sigan apoyando lo tuyo | RutaMercado";
 const DESCRIPTION =
-  "Programa de descuentos para clientes de mercados locales. Contesta 6 preguntas rápidas.";
+  "Detrás de tu mesa hay esfuerzo y corazón. Ayúdanos a explorar una iniciativa para que tus clientes vuelvan. Tu opinión cuenta, sin compromiso.";
 
 export const Route = createFileRoute("/mesas-aliadas/interes")({
   head: () => ({
