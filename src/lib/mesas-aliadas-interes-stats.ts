@@ -29,7 +29,7 @@ export const LABELS: Record<string, Record<string, string>> = {
   categoria: {
     comida: "Comida preparada", reposteria: "Repostería y dulces", bebidas: "Bebidas y café",
     agricola: "Productos agrícolas", artesania: "Artesanía y arte", joyeria: "Joyería y accesorios",
-    ropa: "Ropa", cuidado: "Cuidado personal", plantas: "Plantas", otro: "Otro",
+    ropa: "Ropa", cuidado: "Cuidado personal", plantas: "Plantas", mascotas: "Artículos para mascotas, (comida, accesorios)", otro: "Otro",
   },
 };
 

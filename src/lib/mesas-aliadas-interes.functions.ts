@@ -13,7 +13,7 @@ export const InteresSchema = z
     is_test: z.boolean().default(false),
     iniciada_en: iso,
     completada_en: iso,
-    categoria: z.enum(["comida", "reposteria", "bebidas", "agricola", "artesania", "joyeria", "ropa", "cuidado", "plantas", "otro"]),
+    categoria: z.enum(["comida", "reposteria", "bebidas", "agricola", "artesania", "joyeria", "ropa", "cuidado", "plantas", "mascotas", "otro"]),
     frecuencia: z.enum(["1_menos", "2_3", "4_6", "7_mas"]),
     ticket: z.enum(["menos_10", "10_25", "25_50", "mas_50"]),
     descuento: z.enum(["5", "10", "15", "no_se"]),

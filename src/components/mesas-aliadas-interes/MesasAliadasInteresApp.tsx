@@ -25,7 +25,7 @@ const QUESTIONS: Q[] = [
   { key: "categoria", title: "¿Qué vendes principalmente?", hint: "Escoge una.", opts: [
     { v: "comida", l: "Comida preparada" }, { v: "reposteria", l: "Repostería y dulces" }, { v: "bebidas", l: "Bebidas y café" },
     { v: "agricola", l: "Productos agrícolas" }, { v: "artesania", l: "Artesanía y arte" }, { v: "joyeria", l: "Joyería y accesorios" },
-    { v: "ropa", l: "Ropa" }, { v: "cuidado", l: "Cuidado personal" }, { v: "plantas", l: "Plantas" }, { v: "otro", l: "Otro" } ] },
+    { v: "ropa", l: "Ropa" }, { v: "cuidado", l: "Cuidado personal" }, { v: "plantas", l: "Plantas" }, { v: "mascotas", l: "Artículos para mascotas, (comida, accesorios)" }, { v: "otro", l: "Otro" } ] },
   { key: "frecuencia", title: "¿En cuántos mercados vendes al mes?", hint: "Escoge una.", opts: [
     { v: "1_menos", l: "1 o menos" }, { v: "2_3", l: "2 a 3" }, { v: "4_6", l: "4 a 6" }, { v: "7_mas", l: "7 o más" } ] },
   { key: "ticket", title: "¿Cuánto gasta un cliente típico en tu mesa?", hint: "Más o menos, en una sola compra.", opts: [
